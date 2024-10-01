@@ -8,8 +8,20 @@ from ChangeChar import process_action
 
 
 
-wb = xw.Book('F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\绝区零数据库.xlsx')       #数据库表（起点）
-#wb_t = xw.Book('F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\计算总表.xlsx')     #计算表（终点）
+# wb = xw.Book('F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\绝区零数据库.xlsx')       #数据库表（起点）
+# judgefilepath = 'F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\触发判断.csv'
+# effectfilepath = 'F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\Buff效果.csv'
+# exsistfilepath = 'F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\激活判断.csv'
+
+wb = xw.Book('/Users/yusijie/Code/ZZZ_Calculator/绝区零数据库.xlsx')               #在macos系统上调试的时候用这个路径！
+judgefilepath = '/Users/yusijie/Code/ZZZ_Calculator/触发判断.csv'
+effectfilepath = '/Users/yusijie/Code/ZZZ_Calculator/Buff效果.csv'
+exsistfilepath ='/Users/yusijie/Code/ZZZ_Calculator/激活判断.csv'
+'''
+以上是文件路径！
+在不同端使用时，有不同的版本！
+'''
+
 sheet_basic = wb.sheets['配装&面板']        #数据源
 charactername_sheet = wb.sheets['角色名与编号']     #所有角色名的表
 charactername_range = 'B2:B16'      #记录了角色名的范围
@@ -930,9 +942,6 @@ character_b = activ_characterbox[1]
 character_c = activ_characterbox[2]
 
 
-judgefilepath = 'F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\触发判断.csv'
-effectfilepath = 'F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\Buff效果.csv'
-exsistfilepath = 'F:\我的\镜像相关\绝区零公测后\ZZZ总数据库及计算\激活判断.csv'
 judgefile = pd.read_csv(judgefilepath, index_col='BuffName')
 effectfile = pd.read_csv(effectfilepath, index_col='BuffName')
 exsistfile = pd.read_csv(exsistfilepath, index_col='BuffName')
