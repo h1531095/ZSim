@@ -1011,7 +1011,7 @@ TODO:
 
 
 #Enemyactive, character, eventinfo_dict, statefix_dict_default, stateoutsidebonus_dict_default, muldict_default
-actionlist_test = ['BH_Aid', 'RA_FC', 'SNA_1', 'SNA_2', 'SNA_3_FC', 'dash', 'switch','NA_1' ,'NA_2' ,'bwswitch' ,'SNA_1', 'SNA_2', 'SNA_3_FC' ]  #  'RA_FC', 'NA_2', 'NA_3_FC','RA_FC', 'SNA_1', 'SNA_2', 'SNA_3_FC' 'NA_1', 'NA_2', 'NA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC'
+actionlist_test = ['BH_Aid', 'switch','NA_1' ,'bwswitch' ,'SNA_1' ,'switch','NA_1' ]  #  'RA_FC', 'NA_2', 'NA_3_FC','RA_FC', 'SNA_1', 'SNA_2', 'SNA_3_FC' 'NA_1', 'NA_2', 'NA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC'
 eventinfokey_list = ['eventid', 'timenow', 'charactername', 'actionname']
 buffactivekey_list = ['id', 'OfficialName', 'SpConsumption', 'SpRecovery_hit', 'FeverRecovery', 'ElementAbnormalAccumlation', 'SkillType', 'TriggerBuffLevel', 'ElementType', 'TimeCost', 'HitNumber', 'DmgRelated_Attributes', 'StunRelated_Attributes']
 allaction_dict = {}
