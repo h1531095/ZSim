@@ -1,6 +1,3 @@
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 class Character:
     def __init__(self, config, stat_dict1=None, stat_dict2=None, stat_dict3 = None, action_dict=None):     #config以后会是一个字典，而里面的内容应该是字典中的一个键，用对应键值去取值。
         '''
