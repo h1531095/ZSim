@@ -1,8 +1,8 @@
 class Buff:
-    def __init__(self, config):
+    def __init__(self, config, character, enemy):
         self.info = self.Buff_Infomation(config)
-        self.logic = self.Buff_Logic(config)
-        self.effect
+        self.logic = self.Buff_Logic(config, character, enemy)
+        self.effect = self.Buff_Effect(config)
         self.update_logic = config['update_logic']
     class Buff_Infomation:
         def __init__(self, config):
@@ -14,11 +14,11 @@ class Buff:
             self.duration = 0
             self.count = 0
     class Buff_Logic():
-        def __init__(self, config):
+        def __init__(self, config, character, enemy):
             self.logic = config['logic']
     class Buff_Effect():
-        def __init__(self):
-            pass
+        def __init__(self, config, character, enemy, mult):
+            self.effect = config['effect']
     def end(self):
         self.info.duration = 0
         self.info.active = False
