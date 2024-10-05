@@ -3,7 +3,7 @@ class Buff:
         self.info = self.Buff_Infomation(config)
         self.logic = self.Buff_Logic(config, character, enemy)
         self.effect = self.Buff_Effect(config)
-        self.update_logic = config['update_logic']
+        self.simple_logic = config['simple_logic']
     class Buff_Infomation:
         def __init__(self, config):
             self.name = config['name']
