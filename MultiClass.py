@@ -1,7 +1,7 @@
 from EnemyClass import Enemy
 from CharacterClass import Character
 from KCalculate import Kcal
-from BonusCalculate import BonusCal
+from BonusCalcualte import BonusCal
 class Multi:
     def __init__(self, character, enemy, muldict):
         self.dmg = self.Damage_Bonus(muldict)
