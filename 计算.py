@@ -699,7 +699,7 @@ class Event:
                 self.pendelta_ratio = pendelta_ratiobonus.calc(pendelta_ratiobasic) + muldict['Pendelta_Ratio']
         #抗性区
         class Resistance_Zone:
-            def __init__(self,enemy, muldict):
+            def __init__(self, enemy, muldict):
                 #抗性区涉及的三个参数，其中，“受击方抗性”是一个固定值，和怪物种类有关，与伤害类型标签相似，这个参数共有五个类型，
                 #分别是：PhyRes, FireRes, IceRes, EleRes, EthRes, ALL
                 #此处应该是一个字典。

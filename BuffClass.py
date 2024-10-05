@@ -4,4 +4,3 @@ class Buff():
         self
     def update():
         
-
