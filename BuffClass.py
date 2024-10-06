@@ -2,9 +2,9 @@ import math
 class Buff:
     def __init__(self, config, character, enemy, mult, buffjson, timenow):
         self.ft = self.Buff_Feature(config) 
-        self.dy = self.Buff_Dynamic(config)
+        self.dy = self.Buff_Dynamic()
         self.logic = self.Buff_Logic(config, character, enemy)
-        self.effect = self.Buff_Effect(config, character, enemy, mult)
+        self.effect = self.Buff_Effect(config, character, buffjson, enemy, mult)
     class Buff_Feature:
         def __init__(self,config):
             self.simple_logic = config['simple_logic']
@@ -23,18 +23,19 @@ class Buff:
             self.hitincrease = config['hitincrease']              #buff的层数增长类型，True就增长层数 = 命中次数，而False是增长层数为固定值，取决于step数据；
             self.cd  = config['increaseCD']                       #buff的叠层内置CD            
     class Buff_Dynamic:
-        def __init__(self, config):
-            self.active = config['active']                          #buff当前的激活状态
+        def __init__(self):
+            self.exsist = False                                     #buff是否参与了计算，即是否允许被激活
+            self.active = False                                     #buff当前的激活状态
             self.duration = 0                                       #buff当前剩余时间
             self.count = 0                                          #buff当前层数
             self.ready = True                                       #buff的可叠层状态，如果是True，就意味着是内置CD结束了，可以叠层，如果不是True，就不能叠层。
             self.last = 0                                           #buff上一次触发的时间
     class Buff_Logic():
-        def __init__(self, config, character, enemy):
-            self.logic = config['logic']
+        def __init__(self, buffjson, config, character, enemy):
+            self.logic = buffjson['logic']
     class Buff_Effect():
-        def __init__(self, config, character, enemy, mult):
-            self.effect = config['effect']
+        def __init__(self, buffjson, config, character, enemy, mult):
+            self.effect = buffjson['effect']
     def readyjudge(self, timenow):                                  #用来判断叠层内置CD是否就绪的函数
         if not self.dy.ready:
             if timenow - self.dy.last >= self.ft.cd:

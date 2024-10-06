@@ -3,6 +3,7 @@ class Enemy:
         self.info = self.EnemyInformation(config)
         self.stat = self.Enemystatement(config)
         self.re = self.EnemyResist(config)
+        self.dy = self.EnemyDynamic()
     class EnemyInformation:
         def __init__(self, config):
             self.id = float(config['ID'])
@@ -25,3 +26,8 @@ class Enemy:
             self.ir = float(config['IceResist'])
             self.elr = float(config['EleResist'])
             self.etr = float(config['EthResist'])
+    class EnemyDynamic:
+        def __init__(self):
+            self.isstun = False
+            self.isanormaly = False
+            self.eleanormaly = 0    #0是没有，1、2、3、4、5分别是 phy, fire, ice, ele, eth
