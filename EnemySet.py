@@ -6,7 +6,7 @@ enemysetkeys = ['ID', 'Name', 'Type', 'Level',
                 'PhyResist', 'FireResist', 'IceResist', 'EleResist', 'EthResist']
 def enemyset():
     print('当前已激活的敌人配置方案如下：')
-    with open('F:\GithubProject\ZZZ_Calculator\EnemyConfig.json', 'r', encoding='utf-8') as file:
+    with open('.\EnemyConfig.json', 'r', encoding='utf-8') as file:
         enemyconfig_dict = json.load(file)
     #把enemyconfig_dict中的键值提取出来，变成一个列表，放到enemyconfig_key 中
     enemyconfig_key = list(a for a in enemyconfig_dict) 

@@ -130,7 +130,7 @@ class Buff:
                 self.dy.last = timenow
                 self.dy.ready = False
                    
-    def active_judge(self, action, character):     # 主判定函数
+    def active_judge(self, action, character):                      # 主判定函数
         if action in ['dash', 'breaked', 'switch', 'bwswitch']:
             action_judge = getattr(character.action, action)
         else:

@@ -4,7 +4,7 @@ from Change_Float import convert_to_float
 from CharacterClass import Character
 import json
 
-wb = xw.Book('F:\GithubProject\ZZZ_Calculator\绝区零数据库.xlsx')
+wb = xw.Book('.\绝区零数据库.xlsx')
 with open('CharConfig.json','r',encoding='utf-8') as file:
     characterconfig_dict = json.load(file)
 characterconfig_range = ['D3','D2','D4','H38',
