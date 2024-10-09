@@ -3,7 +3,7 @@ import pandas as pd
 from 计算 import characterconfig_dict, keybox, exsistfile, configcheck_positionlist, allbuff_list#, characterbox_now
 
 characterbox_now = ['艾莲', '莱卡恩', '苍角']
-#确认exsistfile文件中，exsist列是否是布尔值，如果不是，则转换为布尔值。
+# 确认exsistfile文件中，exsist列是否是布尔值，如果不是，则转换为布尔值。
 if 'exsist' not in exsistfile.columns:
     exsistfile['exsist'] = False
 else:

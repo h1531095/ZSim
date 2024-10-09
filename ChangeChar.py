@@ -9,12 +9,14 @@ def update_index(current_index, length, action):
     # 如果动作不是 'switch' 或 'bwswitch'，保持索引不变
     return current_index
 
+
 def get_characters(characterbox_now, index):
     length = len(characterbox_now)
     character_now = characterbox_now[index]
     character_before = characterbox_now[(index - 1 + length) % length]
     character_next = characterbox_now[(index + 1) % length]
     return character_now, character_before, character_next
+
 
 def process_action(characterbox_now, action, current_index):
     # 更新角色索引
