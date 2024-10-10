@@ -15,58 +15,63 @@ classkeydict = {
     'da': 'DmgRelated_Attributes',
     'sa': 'StunRelated_Attributes'
 }
+
+Buffeffect_index = [
+    "BuffName", "eventid", "charactername", "actionname", 
+    "f_hp", "f_atk", "f_defs", "f_bs", "f_cr", "f_cd", "f_eap", "f_em", "f_pr", "f_pd", "f_spr", "f_spgr", "f_spm", "f_phy","f_fir", "f_ice", "f_ele", "f_eth",
+    "o_hp", "o_atk", "o_defs", "o_bs", "o_cr", "o_cd","o_eap", "o_em", "o_pr", "o_pd", "o_spr", "o_spgr", "o_spm", "o_phy", "o_fir", "o_ice", "o_ele", "o_eth",
+    "PhyBonus", "FireBonus", "IceBonus", "EleBonus", "EthBonus", "AttackType",
+    "NormalAttack", "SpecialSkill", "ExSpecial", "Dashattack", "Avoidattack", "QTE", "Q",
+    "BHaid", "Parryaid", "Assaultaid", "ElementalStatus", "ALLDMG", "Defincrease", "Defdecrease",
+    "Deffix", "Pendelta", "Pendelta_Ratio", "Element_reduce", "Element_penetrate", "PhyRes",
+    "FireRes", "IceRes", "EleRes", "EthRes", "AllRes", "Chance_to_be_crit", "Damage_from_crit",
+    "Dmgtaken_Increase", "Dmgtaken_Decrease", "StunDamage_TakeRatio", "StunDamage_TakeRatio_Delta",
+    "Special_Multiplication_Zone"]   
+    # 这个index列表里面装的是乘区类型中所有的项目,也是buff效果作用的范围.
+    # 这个列表中的内容:在Buff效果.csv 中作为索引存在;而在 Event父类中,它们又包含了 info子类的部分内容 和 multiplication子类的全部内容,
+    # 在文件中,这个list被用在最后的buffchagne()函数中,作为中转字典的keylist存在
+    # 在重构本程序的过程中,我思考过是否要把这个巨大的indexlist按照乘区划分拆成若干,这意味着Event中的Multi子类或许可以独立出来成为一个单独的父类存在.
+    # 这样做的好处是:庞大复杂的Multi可以不用蜗居在Event下,结构更加清晰.但是坏处就是,Event和Multi必须1对1实例化,否则容易出现多个动作共用同一份乘区实例的情况,就很容易发生错误NTR(bushi
+
 class Buff:
-    def __init__(self, config, character, enemy, mult, buffjson, effectdict, judgeconfig):
+    def __init__(self, config, judgeconfig):
         self.ft = self.Buff_Feature(config) 
         self.dy = self.Buff_Dynamic()
-        self.logic = self.Buff_Logic(buffjson, config, character, enemy)
-        self.effect = self.Buff_Effect(buffjson, config, character, enemy, mult, self.ft, effectdict)
         self.sjc = self.Buff_SimpleJudge_Condition(judgeconfig)
+        self.logic = self.Buff_logic()
 
     class Buff_Feature:
         def __init__(self, config):
             self.simple_logic = config['simple_logic']
             self.simple_effect = config['simple_effect']
-            self.index = config['BuffIndex']                      # buff的英文名，也是buff的索引
-            self.bufffrom = config['from']                        # buff的来源，可以是角色名，也可以是其他，这个字段用来和配置文件比对，比对成功则证明这个buff是可以触发的；
-            self.name = config['name']                            # buff的中文名字，包括一些buff效果的拆分，这里的中文名写的会比较细
-            self.exsist = config['exsist']                        # buff是否参与了计算，即是否允许被激活
-            self.durationtype = config['durationtype']            # buff的持续时间类型，如果是True，就是有持续时间的，如果是False，就没有持续时间类型，属于瞬时buff。
+            self.index = config['BuffIndex']                      # buff的英文名,也是buff的索引
+            self.bufffrom = config['from']                        # buff的来源,可以是角色名,也可以是其他,这个字段用来和配置文件比对,比对成功则证明这个buff是可以触发的;
+            self.name = config['name']                            # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
+            self.exsist = config['exsist']                        # buff是否参与了计算,即是否允许被激活
+            self.durationtype = config['durationtype']            # buff的持续时间类型,如果是True,就是有持续时间的,如果是False,就没有持续时间类型,属于瞬时buff.
             self.maxduration = config['maxduration']              # buff最大持续时间
             self.maxcount = config['maxcount']                    # buff允许被叠加的最大层数
-            self.step = config['incrementalstep']                 # buff的自增步长，也可以理解为叠层事件发生时的叠层效率。
-            self.prejudge = config['prejudge']                    # buff的判定类型，True是提前判定类型，即未命中先有buff；False是命中后类型，当前动作不受影响。
-            self.fresh = config['freshtype']                      # buff的刷新类型，True是刷新层数时，刷新时间，False是刷新层数是，不影响时间。
-            self.alltime = config['alltime']                      # buff的永远生效类型，True是无条件永远生效，False是有条件
-            self.hitincrease = config['hitincrease']              # buff的层数增长类型，True就增长层数 = 命中次数，而False是增长层数为固定值，取决于step数据；
+            self.step = config['incrementalstep']                 # buff的自增步长,也可以理解为叠层事件发生时的叠层效率.
+            self.prejudge = config['prejudge']                    # buff的判定类型,True是提前判定类型,即未命中先有buff;False是命中后类型,当前动作不受影响.
+            self.fresh = config['freshtype']                      # buff的刷新类型,True是刷新层数时,刷新时间,False是刷新层数是,不影响时间.
+            self.alltime = config['alltime']                      # buff的永远生效类型,True是无条件永远生效,False是有条件
+            self.hitincrease = config['hitincrease']              # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
             self.cd  = config['increaseCD']                       # buff的叠层内置CD
-
-        def getlogic(self):
-            return self.simple_logic
-
-        def geteffect(self):
-            return self.simple_effect
 
     class Buff_Dynamic:
         def __init__(self):
-            self.exsist = False         # buff是否参与了计算，即是否允许被激活
+            self.exsist = False         # buff是否参与了计算,即是否允许被激活
             self.active = False         # buff当前的激活状态
             self.duration = 0           # buff当前剩余时间
             self.count = 0              # buff当前层数
-            self.ready = True           # buff的可叠层状态，如果是True，就意味着是内置CD结束了，可以叠层，如果不是True，就不能叠层。
+            self.ready = True           # buff的可叠层状态,如果是True,就意味着是内置CD结束了,可以叠层,如果不是True,就不能叠层.
             self.last = 0               # buff上一次触发的时间
-
-    class Buff_Logic:
-        def __init__(self, buffjson, config, character, enemy):
-            self.xlogic = buffjson['logic']
-
-    class Buff_Effect:
-        def __init__(self, buffjson, config, character, enemy, mult, ft, effectdict):
-            self.eff = buffjson['effect']
-            self.effdict = effectdict
-            self.ft = ft
-            self.elogic = self.ft.getlogic()
-
+    
+    class Buff_logic:
+        def __init__(self):
+            self.xlogic = None
+            self.xeffect = None
+            
     class Buff_SimpleJudge_Condition:
         def __init__(self, judgeconfig):
             self.id = judgeconfig['id']
@@ -93,7 +98,7 @@ class Buff:
         self.dy.active = False
         self.dy.count = 0
 
-    def re_time(self, timecost):            # buff刷新或刚触发时的时间计算函数，该函数在fresh属性是True时生效，即buff刷新，持续时间也刷新。
+    def re_time(self, timecost):            # buff刷新或刚触发时的时间计算函数,该函数在fresh属性是True时生效,即buff刷新,持续时间也刷新.
         if self.ft.prejudge:
             self.dy.duration = max(self.ft.maxduration - timecost, 0)
         else:
@@ -111,7 +116,7 @@ class Buff:
         if self.dy.duration == 0 or self.dy.count == 0:
             self.end()
 
-    def refresh(self, timecost, timenow, hitnumber):                # 新触发，通过外部的程序逻辑，判断buff要触发了，就要调用这个函数。
+    def refresh(self, timecost, timenow, hitnumber):                # 新触发,通过外部的程序逻辑,判断buff要触发了,就要调用这个函数.
         self.readyjudge(timenow)                                    # 触发内置CD的判断
         if self.ft.alltime:                                         # 判断是否是常驻buff
             self.dy.duration = float('inf')                         # 赋值为无限大
@@ -122,7 +127,7 @@ class Buff:
             if not self.dy.ready:
                 self.timeupdate(timecost)
             else:
-                if not self.ft.fresh:                               # 如果是重复触发不刷新持续时间类型的buff，
+                if not self.ft.fresh:                               # 如果是重复触发不刷新持续时间类型的buff,
                     self.timeupdate(timecost)
                 else:
                     self.re_time(timecost)
@@ -130,29 +135,74 @@ class Buff:
                 self.dy.last = timenow
                 self.dy.ready = False
                    
-    def active_judge(self, action, character):                      # 主判定函数
-        if action in ['dash', 'breaked', 'switch', 'bwswitch']:
+    def active_judge(self, action, character:Character):                      # 主判定函数
+        if action in ['dash', 'breaked', 'switch', 'bwswitch']:     # 把动作的特征参数传到action_judge中
             action_judge = getattr(character.action, action)
         else:
-            action_judge = getattr(character.action.attack, action)
-        if self.ft.getlogic():
+            action_judge = getattr(character.action.attack, action) # 由于沟槽的action类写的很烂,所以冲刺等非攻击动作需要分开来
+        if self.ft.simple_logic:                                      # 获取当前buff的判断逻辑,如果是简单判断,
             for item in classkeydict:
-                judge_condition = getattr(self.sjc, item)
-                if judge_condition in [0, None]:
+                judge_condition = getattr(self.sjc, item)           # 将buff自身触发所需要的条件,也就是触发的特征参数,传给judge_condition
+                if judge_condition in [0, None]:                    # 遍历condition中的所有值,如果值是0或者None,就跳过,
                     continue
                 if judge_condition != action_judge[classkeydict[item]]:
-                    return False
-            return True
-        else:
-            try:
+                    return False                                    # 在遍历特征参数的所有项目的过程中,如果有一项发生了  动作特征参数  ≠   触发特征参数,则直接中断,并返回False
+            return True                                             # 循环结束都没return,则意味着全部符合,输出True
+        else:                                                       # 复杂逻辑就不比较参数了,直接去json里找代码块
+            try:                                                    # 防猪逼填错了json导致运行不了,
                 exec(self.logic.xlogic)
             except Exception as e:
                 print(f"Error executing logic: {e}")
-    
-    def buffchange(self, action, character, timecost, timenow, hitnumber):
-        if self.active_judge(self, action, character):
-            self.refresh(self, timecost, timenow, hitnumber)
-        else:
-            self.timeupdate(self, timecost)
-        
 
+    """
+    主循环的逻辑:
+    针对每个buff分别执行以下几个步骤:
+    1,是否触发
+    2,状态更新
+    3,buff应用
+    其中buff的效果对乘区以及属性的影响,不会立刻提现到外面的乘区实例化(通常是EVENT类)上,
+    而是会暂存在一个乘区字典中,就是mul_change_dict,
+    这个字典和和Event类的结构完全一样,同时也和buff效果的csv的索引一模一样.
+    这个函数需要传入很多的参数,说明如下:
+    action 动作名,字符串,
+    character 角色,Char类的实例
+    timecost 招式耗时,单位:秒
+    timenow 现在时刻,单位:秒
+    hitnumber 命中次数,Int
+    mul_change_dict 乘区中转缓冲 字典
+    effect_config 简单效果参数 字典,主要根据buff名称,由外部乘区从csv中取出,扔进函数
+    """
+    def buffchange(self, action, character, timecost, timenow, hitnumber, mul_change_dict:dict, effect_config):      # buff变化的主函数,是统合本文件中所有函数的总函数.
+        # 首先是buffchange内部的初始化逻辑。考虑到这个buffchange函数在外部会被一个for循环包起来
+        # 并且，外面有很多的buff需要遍历，每个buff都需要放进来执行一次这个buffchange
+        # 所以，针对mcd(mul_change_dict的简写)的全面初始化，不能放在buffchange里面，而应该放在外部的for循环开始之前。
+        # 这里只是以防万一，进行一个补充，万一有某个键值并未存在于mcd中，则进行一个简易的初始化，防止报错。
+        # 在迭代的过程中，只要buffchange不对mcd中已经存在的键值进行初始化，那么所有的buff对mcd的修改就会在循环过程中被累加起来
+        # 最后，在外部for循环结束时，我们会得到一个总的mcd，这个mcd记录了“所有buff对乘区、属性的总修改情况”，并且用这个mcd和外面的event中的multiplication 子类进行一次性计算，
+        # 算出本次动作的实时乘区，以及本次动作的实时属性。
+        for key in Buffeffect_index:
+            mul_change_dict.setdefault(key, 0)
+        
+        # 以下是buff的判断、层数&时间的修改板块；
+        if self.active_judge(action, character):                          # 先执行一下激活判断,判断buff是否激活,如果激活,则refresh,如果没有激活,则只执行timeupdate
+            self.refresh(timecost, timenow, hitnumber)
+        else:
+            self.timeupdate(timecost)
+
+        # 以下是buff效果应用板块;
+        # 如果Effect的逻辑是简单逻辑,那么就要利用csv中的数据来执行乘区修改;
+        if self.ft.simple_effect:
+            for keys in Buffeffect_index:
+                if effect_config[keys] != 0:
+                    mul_change_dict[keys] += effect_config[keys] * self.dy.count    # 对mcd进行迭代。
+                
+        # 如果Effect的逻辑是复杂逻辑,那么利用json中的代码块执行乘区修改,最后还是要落实到乘区的中转缓冲字典中.
+        else:
+            try:
+                exec(self.logic.xeffect)
+            except Exception as e:
+                print(f"Error executing logic: {e}")
+
+    def apply(self, action, character, timecost, timenow, hitnumber, mul_change_dict, effect_config):
+        if self.dy.active:
+            self.buffchange(action, character, timecost, timenow, hitnumber, mul_change_dict, effect_config)
