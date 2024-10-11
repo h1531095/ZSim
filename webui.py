@@ -44,7 +44,7 @@ iface = gr.Interface(
         gr.Slider(minimum=0, maximum=100, step=1, label="副词条 PEN"),
         gr.Slider(minimum=0, maximum=100, step=1, label="副词条 CRIT")
     ],
-    outputs=gr.Textbox(label="角色面板"),
+    outputs=gr.JSON(label="角色面板"),
     title="角色面板计算器",
     description="输入角色信息，计算角色面板。",
     allow_flagging="never"
