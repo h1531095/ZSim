@@ -68,8 +68,9 @@ class Buff:
             self.duration = 0           # buff当前剩余时间
             self.count = 0              # buff当前层数
             self.ready = True           # buff的可叠层状态,如果是True,就意味着是内置CD结束了,可以叠层,如果不是True,就不能叠层.
-            self.last = 0               # buff上一次触发的时间
-            self.endtime = 0            # buff计划课中，buff的下一次结束时间
+            self.laststart = 0          # buff上一次触发的时间(tick)
+            self.endtime = 0            # buff计划课中，buff的结束时间
+            self.lastend = 0            # buff上一次结束的时间
     
     class Buff_logic:
         def __init__(self):
@@ -97,16 +98,49 @@ class Buff:
             if timenow - self.dy.last >= self.ft.cd:
                 self.dy.ready = True 
 
-    def end(self):
+    def end(self, timenow):
         self.dy.duration = 0
         self.dy.active = False
         self.dy.count = 0
+        self.dy.lastend = timenow
 
-    def re_time(self, timecost):            # buff刷新或刚触发时的时间计算函数,该函数在fresh属性是True时生效,即buff刷新,持续时间也刷新.
-        if self.ft.prejudge:
-            self.dy.duration = max(self.ft.maxduration - timecost, 0)
-        else:
-            self.dy.duration = self.ft.maxduration
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    """
+    上面是新逻辑
+
+    下面是旧逻辑
+
+    """
+    # def re_time(self, timecost):            # buff刷新或刚触发时的时间计算函数,该函数在fresh属性是True时生效,即buff刷新,持续时间也刷新.
+    #     if self.ft.prejudge:
+    #         self.dy.duration = max(self.ft.maxduration - timecost, 0)
+    #     else:
+    #         self.dy.duration = self.ft.maxduration
 
     def re_count(self, hitnumber, timecost):
         # buff刷新或刚触发的层数计算函数
