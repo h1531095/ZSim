@@ -134,6 +134,7 @@ class Character:
                 'PEN_numeric': self.PEN_numeric,
                 'DMG_bonus': self.DMG_bonus,
             }
+            print(self.statement)
         @classmethod
         def get_statement(cls, attr:str, char_class:object) -> float:
             '''
@@ -190,26 +191,27 @@ class Character:
                 row = row_5[row_5['level'] == weapon_level].to_dict('records') # 找到对应精炼等级的行，并转化为列表
                 if row:
                     row = row[0]
-                    self.baseATK += row.get('Base_ATK', 0)
-                    self.ATK_percent += row.get('ATK%', 0)
-                    self.DEF_percent += row.get('DEF%', 0)
-                    self.HP_percent += row.get('HP%', 0)
-                    self.IMP_percent += row.get('IMP%', 0)
-                    self.overral_ATK_percent += row.get('oATK%', 0)
-                    self.overral_DEF_percent += row.get('oDEF%', 0)
-                    self.overral_HP_percent += row.get('oHP%', 0)
-                    self.overral_IMP_percent += row.get('oIMP%', 0)
-                    self.baseCRIT_score += 100*(row.get('Crit_Rate', 0)*2 + row.get('Crit_Damage', 0))
-                    self.AM_numeric += row.get('Anomaly_Mastery', 0)
-                    self.AP_numeric += row.get('Anomaly_Proficiency', 0)
-                    self.sp_regen_percent += row.get('Regen%', 0)
-                    self.sp_regen_numeric += row.get('Regen', 0)
-                    self.sp_get_ratio += row.get('Get_ratio', 0)
-                    self.ICE_DMG_bonus += row.get('ICE_DMG_bonus', 0)
-                    self.FIRE_DMG_bonus += row.get('FIRE_DMG_bonus', 0) 
-                    self.ELECTRIC_DMG_bonus += row.get('ELECTRIC_DMG_bonus', 0)
-                    self.PHY_DMG_bonus += row.get('PHY_DMG_bonus', 0)
-                    self.ETHER_DMG_bonus += row.get('ETHER_DMG_bonus', 0)
+                    self.baseATK += float(row.get('Base_ATK', 0))
+                    self.ATK_percent += float(row.get('ATK%', 0))
+                    self.DEF_percent += float(row.get('DEF%', 0))
+                    self.HP_percent += float(row.get('HP%', 0))
+                    self.IMP_percent += float(row.get('IMP%', 0))
+                    self.overral_ATK_percent += float(row.get('oATK%', 0))
+                    self.overral_DEF_percent += float(row.get('oDEF%', 0))
+                    self.overral_HP_percent += float(row.get('oHP%', 0))
+                    self.overral_IMP_percent += float(row.get('oIMP%', 0))
+                    self.baseCRIT_score += 100 * (float(row.get('Crit_Rate', 0)) * 2 + float(row.get('Crit_Damage', 0)))
+                    self.AM_numeric += float(row.get('Anomaly_Mastery', 0))
+                    self.AP_numeric += float(row.get('Anomaly_Proficiency', 0))
+                    self.sp_regen_percent += float(row.get('Regen%', 0))
+                    self.sp_regen_numeric += float(row.get('Regen', 0))
+                    self.sp_get_ratio += float(row.get('Get_ratio', 0))
+                    self.ICE_DMG_bonus += float(row.get('ICE_DMG_bonus', 0))
+                    self.FIRE_DMG_bonus += float(row.get('FIRE_DMG_bonus', 0))
+                    self.ELECTRIC_DMG_bonus += float(row.get('ELECTRIC_DMG_bonus', 0))
+                    self.PHY_DMG_bonus += float(row.get('PHY_DMG_bonus', 0))
+                    self.ETHER_DMG_bonus += float(row.get('ETHER_DMG_bonus', 0))
+
                 else:
                     raise ValueError(f"请输入正确的精炼等级")
             else:
