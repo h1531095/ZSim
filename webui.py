@@ -21,8 +21,8 @@ def web_ui(char_name, weapon, weapon_level, sp_limit, ds4, ds2a, ds2b, ds2c, d4,
 
 # 创建 Gradio 应用
 iface = gr.Interface(
-    fn=web_ui,
-    inputs=[
+    fn = web_ui,
+    inputs = [
         gr.Textbox(value='艾莲', label="角色名字"),
         gr.Textbox(value='深海访客', label="武器名字"),
         gr.Slider(minimum=1, maximum=10, step=1, label="武器精炼等级"),
@@ -31,9 +31,9 @@ iface = gr.Interface(
         gr.Textbox(value='极地重金属', label="驱动盘套装2A"),
         gr.Textbox(label="驱动盘套装2B"),
         gr.Textbox(label="驱动盘套装2C"),
-        gr.Textbox(label="四号位"),
-        gr.Textbox(label="五号位"),
-        gr.Textbox(label="六号位"),
+        gr.Dropdown(choices=[None, '攻击力%', '生命值%', '防御力%', '暴击率%', '暴击伤害%', '异常精通'], label="四号位"),
+        gr.Dropdown(choices=[None, '攻击力%', '生命值%', '防御力%', '穿透率%', '冰属性伤害%', '火属性伤害%','电属性伤害%', '以太属性伤害%', '物理属性伤害%'], label="五号位"),
+        gr.Dropdown(choices=[None, '攻击力%', '生命值%', '防御力%', '异常掌控', '冲击力%', '能量自动回复%'], label="六号位"),
         gr.Slider(minimum=0, maximum=100, step=1, label="副词条 ATK%"),
         gr.Slider(minimum=0, maximum=100, step=1, label="副词条 ATK"),
         gr.Slider(minimum=0, maximum=100, step=1, label="副词条 HP%"),
@@ -44,7 +44,7 @@ iface = gr.Interface(
         gr.Slider(minimum=0, maximum=100, step=1, label="副词条 PEN"),
         gr.Slider(minimum=0, maximum=100, step=1, label="副词条 CRIT")
     ],
-    outputs=gr.JSON(label="角色面板"),
+    outputs = gr.JSON(label="角色面板"),
     title="角色面板计算器",
     description="输入角色信息，计算角色面板。",
     allow_flagging="never"

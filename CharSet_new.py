@@ -266,9 +266,11 @@ class Character:
         # 将自身套装效果抄录
         equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
         self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = tuple(equip_set_all)
-        # 不处理4件套
-        equip_set_all.remove(equip_set4)
-        if equip_set_all is not None:   # 二件套全空则跳过
+        # 存在四件套则忽略2b、2c
+        if equip_set4 is not None:
+            equip_set_all.remove(equip_set2_b)
+            equip_set_all.remove(equip_set2_c)
+        if equip_set_all is not None:   # 全空则跳过
             df = pd.read_csv('./data/equip_set_2pc.csv')
             for equip_2pc in equip_set_all:
                 if equip_2pc:   # 若二件套非空，则继续
@@ -301,7 +303,52 @@ class Character:
         '''
         初始化主词条
         '''
-        return None
+        drive_parts = [drive4, drive5, drive6]
+        # 初始化1-3号位
+        self.HP_numeric += 2200
+        self.ATK_numeric += 316
+        self.DEF_numeric += 184
+        # 匹配4-6号位
+        for drive in drive_parts:
+            match drive:
+                case '生命值%':
+                    self.HP_percent += 0.3
+                case '攻击力%':
+                    self.ATK_percent += 0.3
+                case '防御力%':
+                    self.DEF_percent += 0.48
+                case '暴击率%':
+                    # self.CRIT_rate_numeric += 0.24
+                    self.baseCRIT_score += 48
+                case '暴击伤害%':
+                    # self.CRIT_damage_numeric += 0.48
+                    self.baseCRIT_score += 48
+                case '异常精通':
+                    self.AP_numeric += 92
+                case '穿透率%':
+                    self.PEN_ratio += 0.24
+                case '冰属性伤害%':
+                    self.ICE_DMG_bonus += 0.3
+                case '火属性伤害%':
+                    self.FIRE_DMG_bonus += 0.3
+                case '电属性伤害%':
+                    self.ELECTRIC_DMG_bonus += 0.3
+                case '以太属性伤害%':
+                    self.ETHER_DMG_bonus += 0.3
+                case '物理属性伤害%':
+                    self.PHY_DMG_bonus += 0.3
+                case '异常掌控':
+                    self.AM_percent += 0.3
+                case '冲击力%':
+                    self.IMP_percent += 0.18
+                case '能量自动回复%':
+                    self.sp_regen_percent += 0.6
+                case None:
+                    continue
+                case 'None':
+                    continue
+                case _:
+                    raise ValueError(f"词条 {drive} 不存在")
     
     def _init_secondary_drive(self, scATK_percent:int, scATK:int, scHP_percent:int, scHP:int, scDEF_percent:int, scDEF:int, scAnomalyProficiency:int, scPEN:int, scCRIT:int):
         '''
