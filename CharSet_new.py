@@ -9,8 +9,9 @@ class Character:
                  equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
                  drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
                  scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0, scPEN=0, scCRIT=0, #副词条数量-选填项
-                 initial_sp=60 # 初始充能-默认60
+                 sp_limit=120 # 初始充能-默认120
                  ):
+        self.NAME = char_name
         self.CID = None
         # 攻击力各组件
         self.baseATK: float = 0
@@ -60,8 +61,7 @@ class Character:
         self.CRIT_damage_numeric: float = 0
 
         # 充能各组件
-        self.sp_limit: int = 120 # 充能上限
-        self.sp: float = min(initial_sp, self.sp_limit)    # 初始能量，从输入值中读取，默认为60，不超过120
+        self.sp_limit: int = sp_limit # 充能上限
         self.base_sp_regen: float = 0    # 能量自动回复
         self.sp_regen_percent: float = 0
         self.sp_regen_numeric: float = 0
@@ -82,19 +82,19 @@ class Character:
         
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
-        self.init_base_attribute(char_name)
+        self._init_base_attribute(char_name)
         # 初始化武器基础属性    .\data\weapon.csv
-        self.init_weapon_primitive(weapon, weapon_level)
+        self._init_weapon_primitive(weapon, weapon_level)
         # 初始化套装效果        .\data\equip_set.csv
-        self.init_equip_set(equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
+        self._init_equip_set(equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
         # 初始化主词条          .\data\primary_drive.csv
-        self.init_primary_drive(drive4, drive5, drive6)
+        self._init_primary_drive(drive4, drive5, drive6)
         # 初始化副词条          .\data\secondary_drive.csv
-        self.init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT)
+        self._init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT)
 
         
-    class Statement:
-        def __init__(self,char_class):
+    class Statement():
+        def __init__(self, char_class, crit_balancing=True):
             '''
             char_class : 已实例化的角色
             每次计算角色局外属性：传入已经实例化的角色对象，计算出目前的角色面板
@@ -108,6 +108,7 @@ class Character:
                 print(Character.Statement.get_statement('CRIT_damage', char))  # 实例化同时读出面板，用于程序中debug
             '''
             
+            self.NAME = char_class.NAME
             self.ATK = (char_class.baseATK * (1 + char_class.ATK_percent) + char_class.ATK_numeric) * (1 + char_class.overral_ATK_percent) + char_class.overral_ATK_numeric
             self.HP = (char_class.baseHP * (1 + char_class.HP_percent) + char_class.HP_numeric) * (1 + char_class.overral_HP_percent) + char_class.overral_HP_numeric
             self.DEF = (char_class.baseDEF * (1 + char_class.DEF_percent) + char_class.DEF_numeric) * (1 + char_class.overral_DEF_percent) + char_class.overral_DEF_numeric
@@ -115,10 +116,12 @@ class Character:
             self.AP = (char_class.baseAP * (1 + char_class.AP_percent) + char_class.AP_numeric) * (1 + char_class.overral_AP_percent) + char_class.overral_AP_numeric
             self.AM = (char_class.baseAM * (1 + char_class.AM_percent) + char_class.AM_numeric) * (1 + char_class.overral_AM_percent) + char_class.overral_AM_numeric
             # 更换balancing参数可实线不同的逻辑，默认为True，即配平逻辑
-            self.CRIT_damage, self.CRIT_rate= self.func_statement_CRIT(char_class.baseCRIT_score, char_class.CRIT_rate_numeric, char_class.CRIT_damage_numeric, balancing=True)
+            self.CRIT_damage, self.CRIT_rate= self._func_statement_CRIT(char_class.baseCRIT_score, char_class.CRIT_rate_numeric, char_class.CRIT_damage_numeric, balancing=crit_balancing)
             self.sp_regen = char_class.base_sp_regen * (1 + char_class.sp_regen_percent) + char_class.sp_regen_numeric
             self.sp_get_ratio = char_class.sp_get_ratio
-            self.sp = char_class.sp
+            self.sp_limit = char_class.sp_limit
+            # 动态计算目前能量的函数
+
             self.PEN_ratio = char_class.PEN_ratio
             self.PEN_numeric = char_class.PEN_numeric
             self.ICE_DMG_bonus = char_class.ICE_DMG_bonus
@@ -126,8 +129,10 @@ class Character:
             self.PHY_DMG_bonus = char_class.PHY_DMG_bonus
             self.ETHER_DMG_bonus = char_class.ETHER_DMG_bonus
             self.ELECTRIC_DMG_bonus = char_class.ELECTRIC_DMG_bonus
-
+            
+            # 面板数值总字典！
             self.statement = {
+                'name':self.NAME,
                 'ATK': self.ATK,
                 'HP': self.HP,
                 'DEF': self.DEF,
@@ -138,7 +143,7 @@ class Character:
                 'CRIT_rate': self.CRIT_rate,
                 'sp_regen': self.sp_regen,
                 'sp_get_ratio': self.sp_get_ratio,
-                'sp': self.sp,
+                'sp_limit': self.sp_limit,
                 'PEN_ratio': self.PEN_ratio,
                 'PEN_numeric': self.PEN_numeric,
                 'ICE_DMG_bonus':self.ICE_DMG_bonus,
@@ -158,7 +163,7 @@ class Character:
             statement = cls(char_class)
             return statement.statement[attr]
         
-        def func_statement_CRIT(self,
+        def _func_statement_CRIT(self,
                                 CRIT_score:float, 
                                 CRIT_rate_numeric:float, 
                                 CRIT_damage_numeric:float, 
@@ -188,9 +193,9 @@ class Character:
                 CRIT_damage = CRIT_damage_numeric
                 CRIT_rate = CRIT_rate_numeric
             return CRIT_damage, CRIT_rate
-            
-            
-    def init_base_attribute(self, char_name:str):
+        
+
+    def _init_base_attribute(self, char_name:str):
         """
         初始化角色基础属性。
         根据角色名称，从CSV文件中读取角色的基础属性数据，并将其赋值给角色对象。
@@ -218,7 +223,7 @@ class Character:
             raise ValueError(f"角色{char_name}不存在")
      
     
-    def init_weapon_primitive(self, weapon:str, weapon_level:int) -> None:
+    def _init_weapon_primitive(self, weapon:str, weapon_level:int) -> None:
         """
         初始化武器属性
         """
@@ -249,25 +254,56 @@ class Character:
                     self.ELECTRIC_DMG_bonus += float(row.get('ELECTRIC_DMG_bonus', 0))
                     self.PHY_DMG_bonus += float(row.get('PHY_DMG_bonus', 0))
                     self.ETHER_DMG_bonus += float(row.get('ETHER_DMG_bonus', 0))
-
                 else:
                     raise ValueError(f"请输入正确的精炼等级")
             else:
                 raise ValueError(f"请输入正确的武器名称")
 
-    def init_equip_set(self, equip_set4:str, equip_set2_a:str, equip_set2_b:str, equip_set2_c:str):
+    def _init_equip_set(self, equip_set4:str, equip_set2_a:str, equip_set2_b:str, equip_set2_c:str):
         '''
-        初始化套装效果
+        初始化套装效果，chatacter类仅计算二件套
         '''
-        return None
+        # 将自身套装效果抄录
+        equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
+        self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = tuple(equip_set_all)
+        # 不处理4件套
+        equip_set_all.remove(equip_set4)
+        if equip_set_all is not None:   # 二件套全空则跳过
+            df = pd.read_csv('./data/equip_set_2pc.csv')
+            for equip_2pc in equip_set_all:
+                if equip_2pc:   # 若二件套非空，则继续
+                    row = df[df['set_ID'] == equip_2pc].to_dict('records')
+                    if row:
+                        row = row[0]
+                        self.ATK_percent += float(row.get('ATK%', 0))
+                        self.HP_percent += float(row.get('HP%', 0))
+                        self.DEF_percent += float(row.get('DEF%', 0))
+                        self.IMP_percent += float(row.get('IMP%', 0))
+                        self.AM_numeric += float(row.get('Anomaly_Mastery', 0))
+                        self.AP_numeric += float(row.get('Anomaly_Proficiency', 0))
+                        self.sp_regen_percent += float(row.get('Regen%', 0))
+                        self.sp_regen_numeric += float(row.get('Regen', 0))
+                        self.sp_get_ratio += float(row.get('Get_ratio', 0))
+                        self.PEN_ratio += float(row.get('PEN%', 0))
+                        self.PEN_numeric += float(row.get('PEN', 0))
+                        self.ICE_DMG_bonus += float(row.get('ICE_DMG_bonus', 0))
+                        self.FIRE_DMG_bonus += float(row.get('FIRE_DMG_bonus', 0))
+                        self.ELECTRIC_DMG_bonus += float(row.get('ELECTRIC_DMG_bonus', 0))
+                        self.PHY_DMG_bonus += float(row.get('PHY_DMG_bonus', 0))
+                        self.ETHER_DMG_bonus += float(row.get('ETHER_DMG_bonus', 0))
+                    else:
+                        raise ValueError(f"套装 {equip_2pc} 不存在")
+                else:continue   # 二件套全空则跳过
+
+
     
-    def init_primary_drive(self, drive4:str, drive5:str, drive6:str):
+    def _init_primary_drive(self, drive4:str, drive5:str, drive6:str):
         '''
         初始化主词条
         '''
         return None
     
-    def init_secondary_drive(self, scATK_percent:int, scATK:int, scHP_percent:int, scHP:int, scDEF_percent:int, scDEF:int, scAnomalyProficiency:int, scPEN:int, scCRIT:int):
+    def _init_secondary_drive(self, scATK_percent:int, scATK:int, scHP_percent:int, scHP:int, scDEF_percent:int, scDEF:int, scAnomalyProficiency:int, scPEN:int, scCRIT:int):
         '''
         初始化副词条
         '''
