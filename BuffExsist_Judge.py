@@ -25,7 +25,7 @@ exsistbuff_dict 是当前模拟中,所有可能被激活的buff列表.
 """                        
 keybox = ['30词条0+1艾莲', '标准0+1狼哥', '标准6+5苍角']
 
-def BuffExsist_Judge(charname_box, judgelist_set, keybox):
+def buff_exsist_judge(charname_box, judgelist_set, keybox):
     weaponjugde_dict = {}   
     for key in keybox:
         weaponjugde_dict[characterconfig_dict[key][1]] = [characterconfig_dict[key][10],characterconfig_dict[key][12]]
