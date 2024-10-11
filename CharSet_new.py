@@ -84,12 +84,20 @@ class Character:
         # 初始化角色基础属性    .\data\character.csv
         self._init_base_attribute(char_name)
         # 初始化武器基础属性    .\data\weapon.csv
+        self.weapon_ID = weapon
+        self.weapon_level = weapon_level
         self._init_weapon_primitive(weapon, weapon_level)
-        # 初始化套装效果        .\data\equip_set.csv
+        # 初始化套装效果        .\data\equip_set_2pc.csv
+        ( 
+        self.equip_set4, 
+        self.equip_set2_a, 
+        self.equip_set2_b, 
+        self.equip_set2_c
+        )= (None, None, None, None) # 先初始化变量，函数里赋值
         self._init_equip_set(equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
-        # 初始化主词条          .\data\primary_drive.csv
+        # 初始化主词条
         self._init_primary_drive(drive4, drive5, drive6)
-        # 初始化副词条          .\data\secondary_drive.csv
+        # 初始化副词条
         self._init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT)
 
         
@@ -265,9 +273,13 @@ class Character:
         '''
         # 将自身套装效果抄录
         equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
+        # 检查是否有相同套装
+        TEMP = [i for i in equip_set_all if i != '']
+        if len(set(TEMP)) != len(TEMP):
+            raise ValueError("请勿输入重复的套装名称")
         self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = tuple(equip_set_all)
         # 存在四件套则忽略2b、2c
-        if equip_set4 is not None:
+        if (equip_set4 != '') & (equip_set4 is not None):   #  非空判断
             equip_set_all.remove(equip_set2_b)
             equip_set_all.remove(equip_set2_c)
         if equip_set_all is not None:   # 全空则跳过
