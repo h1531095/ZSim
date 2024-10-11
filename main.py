@@ -15,7 +15,7 @@ charnum, charname_box, charactive_box, judgelist_set, keybox = character_set()
 enemyactive = enemyset()
 exsistbuff_dict = BuffExsist_Judge(charname_box, judgelist_set, keybox)     
 # 关于exsistbuff_dict 的详细注释和作用,在BuffExsist_Judge里.
-# 其结构为:{buff名A:实例化buffA,buff名B:实例化buffB......}
+# 其结构为:{buff名A:实例化buffA, buff名B:实例化buffB......}
 
 
 
