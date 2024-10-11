@@ -24,7 +24,7 @@ class Character:
         self.baseHP: float = 0
         self.HP_percent: float = 0
         self.HP_numeric: float = 0
-        self.overral_HP_percent: float = 0
+        self.overralHP_percent: float = 0
         self.overral_HP_numeric: float = 0
 
         # 防御力各组件
@@ -138,8 +138,11 @@ class Character:
             self.ETHER_DMG_bonus = char_class.ETHER_DMG_bonus
             self.ELECTRIC_DMG_bonus = char_class.ELECTRIC_DMG_bonus
             
-            # 面板数值总字典！
-            self.statement = {
+            # 将当前对象 (self) 的所有非可调用（即不是方法或函数）的属性收集到一个字典中
+            self.statement = {attr: getattr(self, attr)
+                              for attr in dir(self) 
+                              if not callable(getattr(self, attr)) and not attr.startswith("__")}
+            '''self.statement = {
                 'name':self.NAME,
                 'ATK': self.ATK,
                 'HP': self.HP,
@@ -159,7 +162,7 @@ class Character:
                 'PHY_DMG_bonus':self.PHY_DMG_bonus,
                 'ETHER_DMG_bonus':self.ETHER_DMG_bonus,
                 'ELECTRIC_DMG_bonus':self.ELECTRIC_DMG_bonus,
-            }
+            }'''
             print(self.statement)
         @classmethod
         def get_statement(cls, attr:str, char_class:object) -> float:
