@@ -191,12 +191,12 @@ class Character:
         """
         if weapon is not None:
             df = pd.read_csv('.\\data\\weapon.csv')
-            row_5 = df[df['weapon_ID'] == weapon] # 找到第一个包含此武器的行
+            row_5 = df[df['weapon_ID'] == weapon] # 找到所有包含此武器的行
             if not row_5.empty:     # 检查是否找到匹配项
-                row = row_5[row_5['level'] == weapon_level].to_dict('records') # 找到对应精炼等级的行，并转化为列表
+                row = row_5[row_5['level'] == weapon_level].to_dict('records') # 找到对应精炼等级的行，并转化为字典
                 if row:
                     row = row[0]
-                    self.baseATK += float(row.get('Base_ATK', 0))
+                    self.baseATK += float(row.get('base_ATK', 0))
                     self.ATK_percent += float(row.get('ATK%', 0))
                     self.DEF_percent += float(row.get('DEF%', 0))
                     self.HP_percent += float(row.get('HP%', 0))
