@@ -81,10 +81,15 @@ class Character:
         self.PEN_numeric = 0
         
         # 抄表赋值！
-        self.init_base_attribute(char_name) # 角色基础属性
-        self.init_weapon_primitive(weapon, weapon_level)  # 武器基础属性
-        self.init_equip_set(equip_set4, equip_set2_a, equip_set2_b, equip_set2_c, drive4, drive5, drive6)
+        # 初始化角色基础属性    .\data\character.csv
+        self.init_base_attribute(char_name)
+        # 初始化武器基础属性    .\data\weapon.csv
+        self.init_weapon_primitive(weapon, weapon_level)
+        # 初始化套装效果        .\data\equip_set.csv
+        self.init_equip_set(equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
+        # 初始化主词条          .\data\primary_drive.csv
         self.init_primary_drive(drive4, drive5, drive6)
+        # 初始化副词条          .\data\secondary_drive.csv
         self.init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT)
 
         
@@ -217,7 +222,7 @@ class Character:
             else:
                 raise ValueError(f"请输入正确的武器名称")
 
-    def init_equip_set(self, equip_set4:str, equip_set2_a:str, equip_set2_b:str, equip_set2_c:str, drive4:str, drive5:str, drive6:str):
+    def init_equip_set(self, equip_set4:str, equip_set2_a:str, equip_set2_b:str, equip_set2_c:str):
         '''
         初始化套装效果
         '''
