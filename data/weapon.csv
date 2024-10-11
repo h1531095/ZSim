@@ -1,6 +1,6 @@
-﻿weapon_ID,level,base_ATK,HP%,ATK%,DEF%,IMP%,oHP%,oATK%,oDEF%,oIMP%,Crit_Rate,Crit_DMG,Regen%,Regen,pen%,Get_ratio,Anomaly_Mastery,Anomaly_Proficiency,ICE_DMG_Bonus,FIRE_DMG_Bonus,ELECTRIC_DMG_bonus,PHY_DMG_bonus,ETHER_DMG_bonus
-深海访客,1,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0.25,0,0,0,0
-深海访客,2,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0.315,0,0,0,0
-深海访客,3,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0.38,0,0,0,0
-深海访客,4,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0.445,0,0,0,0
-深海访客,5,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0.5,0,0,0,0
+﻿weapon_ID,level,base_ATK,HP%,ATK%,DEF%,IMP%,oHP%,oATK%,oDEF%,oIMP%,Crit_Rate,Crit_DMG,Regen%,Regen,pen%,Get_ratio,Anomaly_Mastery,Anomaly_Proficiency,ICE_DMG_bonus,FIRE_DMG_bonus,ELECTRIC_DMG_bonus,PHY_DMG_bonus,ETHER_DMG_bonus
+深海访客,1,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0,0,0,0,0
+深海访客,2,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0,0,0,0,0
+深海访客,3,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0,0,0,0,0
+深海访客,4,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0,0,0,0,0
+深海访客,5,713.76,0,0,0,0,0,0,0,0,0.24,0,0,0,0,0,0,0,0,0,0,0,0

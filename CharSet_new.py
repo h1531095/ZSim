@@ -61,24 +61,24 @@ class Character:
 
         # 充能各组件
         self.sp_limit: int = 120 # 充能上限
-        self.sp = min(initial_sp, self.sp_limit)    # 初始能量，从输入值中读取，默认为60，不超过120
-        self.base_sp_regen = 0    # 能量自动回复
-        self.sp_regen_percent = 0
-        self.sp_regen_numeric = 0
-        self.sp_get_ratio = 1   # 能量获得效率
+        self.sp: float = min(initial_sp, self.sp_limit)    # 初始能量，从输入值中读取，默认为60，不超过120
+        self.base_sp_regen: float = 0    # 能量自动回复
+        self.sp_regen_percent: float = 0
+        self.sp_regen_numeric: float = 0
+        self.sp_get_ratio: float = 1   # 能量获得效率
 
         # 增伤各组件
-        self.ICE_DMG_bonus = 0
-        self.FIRE_DMG_bonus = 0
-        self.PHY_DMG_bonus = 0
-        self.ETHER_DMG_bonus = 0
-        self.ELECTRIC_DMG_bonus = 0
-        self.ALL_DMG_bonus = 0
-        self.Trigger_DMG_bonus = 0
+        self.ICE_DMG_bonus: float = 0
+        self.FIRE_DMG_bonus: float = 0
+        self.PHY_DMG_bonus: float = 0
+        self.ETHER_DMG_bonus: float = 0
+        self.ELECTRIC_DMG_bonus: float = 0
+        self.ALL_DMG_bonus: float = 0
+        self.Trigger_DMG_bonus: float = 0
 
         # 穿透各组件
-        self.PEN_ratio = 0
-        self.PEN_numeric = 0
+        self.PEN_ratio: float = 0
+        self.PEN_numeric: float = 0
         
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
@@ -114,15 +114,19 @@ class Character:
             self.IMP = (char_class.baseIMP * (1 + char_class.IMP_percent) + char_class.IMP_numeric) * (1 + char_class.overral_IMP_percent) + char_class.overral_IMP_numeric
             self.AP = (char_class.baseAP * (1 + char_class.AP_percent) + char_class.AP_numeric) * (1 + char_class.overral_AP_percent) + char_class.overral_AP_numeric
             self.AM = (char_class.baseAM * (1 + char_class.AM_percent) + char_class.AM_numeric) * (1 + char_class.overral_AM_percent) + char_class.overral_AM_numeric
-            self.CRIT_damage = max(char_class.baseCRIT_score/200, 0.5) + char_class.CRIT_damage_numeric
-            self.CRIT_rate = (char_class.baseCRIT_score/100 - (self.CRIT_damage - char_class.CRIT_damage_numeric)) / 2 + char_class.CRIT_rate_numeric
+            # 更换balancing参数可实线不同的逻辑，默认为True，即配平逻辑
+            self.CRIT_damage, self.CRIT_rate= self.func_statement_CRIT(char_class.baseCRIT_score, char_class.CRIT_rate_numeric, char_class.CRIT_damage_numeric, balancing=True)
             self.sp_regen = char_class.base_sp_regen * (1 + char_class.sp_regen_percent) + char_class.sp_regen_numeric
             self.sp_get_ratio = char_class.sp_get_ratio
             self.sp = char_class.sp
             self.PEN_ratio = char_class.PEN_ratio
             self.PEN_numeric = char_class.PEN_numeric
-            self.DMG_bonus = self.deving_func_DMG_bonus(char_class.ICE_DMG_bonus, char_class.FIRE_DMG_bonus, char_class.PHY_DMG_bonus, char_class.ETHER_DMG_bonus, char_class.ELECTRIC_DMG_bonus, char_class.ALL_DMG_bonus, char_class.Trigger_DMG_bonus)
-            
+            self.ICE_DMG_bonus = char_class.ICE_DMG_bonus
+            self.FIRE_DMG_bonus = char_class.FIRE_DMG_bonus
+            self.PHY_DMG_bonus = char_class.PHY_DMG_bonus
+            self.ETHER_DMG_bonus = char_class.ETHER_DMG_bonus
+            self.ELECTRIC_DMG_bonus = char_class.ELECTRIC_DMG_bonus
+
             self.statement = {
                 'ATK': self.ATK,
                 'HP': self.HP,
@@ -137,7 +141,11 @@ class Character:
                 'sp': self.sp,
                 'PEN_ratio': self.PEN_ratio,
                 'PEN_numeric': self.PEN_numeric,
-                'DMG_bonus': self.DMG_bonus,
+                'ICE_DMG_bonus':self.ICE_DMG_bonus,
+                'FIRE_DMG_bonus':self.FIRE_DMG_bonus,
+                'PHY_DMG_bonus':self.PHY_DMG_bonus,
+                'ETHER_DMG_bonus':self.ETHER_DMG_bonus,
+                'ELECTRIC_DMG_bonus':self.ELECTRIC_DMG_bonus,
             }
             print(self.statement)
         @classmethod
@@ -150,11 +158,36 @@ class Character:
             statement = cls(char_class)
             return statement.statement[attr]
         
-        def deving_func_DMG_bonus(self, ICE_DMG_bonus:float, FIRE_DMG_bonus:float, PHY_DMG_bonus:float, ETHER_DMG_bonus:float, ELECTRIC_DMG_bonus:float, ALL_DMG_bonus:float, Trigger_DMG_bonus:float) -> float:
+        def func_statement_CRIT(self,
+                                CRIT_score:float, 
+                                CRIT_rate_numeric:float, 
+                                CRIT_damage_numeric:float, 
+                                balancing=True) -> tuple:
             '''
-            计算增伤区
+            双暴状态更新函数
+            balancing : 是否使用配平逻辑
+            CRIT_score : 暴击评分
+            CRIT_rate_numeric : 暴击率数值
+            CRIT_damage_numeric : 暴击伤害数值
+            返回：
+            CRIT_damage : 暴击伤害
+            CRIT_rate : 暴击率
+
+            默认为True，即配平逻辑，会使用暴击评分、暴击暴伤输出，集中计算暴击率与暴击伤害
+            若为False，则忽略传入的暴击评分，直接返回给定的数值
             '''
-            self.DMG_bonus = ICE_DMG_bonus
+            if balancing:
+                all_CRIT_score = CRIT_score + CRIT_rate_numeric*200 + CRIT_damage_numeric*100
+                if all_CRIT_score >= 400:
+                    CRIT_rate = 1
+                    CRIT_damage = (CRIT_score / 100 -2) + + (CRIT_damage_numeric + CRIT_rate_numeric*2)
+                else:
+                    CRIT_damage = max(0.5, CRIT_score / 200) + CRIT_damage_numeric
+                    CRIT_rate = (CRIT_score/100 - CRIT_damage)/2 + CRIT_rate_numeric
+            else:
+                CRIT_damage = CRIT_damage_numeric
+                CRIT_rate = CRIT_rate_numeric
+            return CRIT_damage, CRIT_rate
             
             
     def init_base_attribute(self, char_name:str):
@@ -164,7 +197,7 @@ class Character:
         参数:
         char_name(str): 角色的名称。
         """
-        df = pd.read_csv('.\\data\\character.csv')
+        df = pd.read_csv('./data/character.csv')
         # 查找与角色名称匹配的行，并转换为字典形式，每条记录一个字典
         row = df[df['name'] == char_name].to_dict('records')
         if row:
@@ -190,7 +223,7 @@ class Character:
         初始化武器属性
         """
         if weapon is not None:
-            df = pd.read_csv('.\\data\\weapon.csv')
+            df = pd.read_csv('./data/weapon.csv')
             row_5 = df[df['weapon_ID'] == weapon] # 找到所有包含此武器的行
             if not row_5.empty:     # 检查是否找到匹配项
                 row = row_5[row_5['level'] == weapon_level].to_dict('records') # 找到对应精炼等级的行，并转化为字典
