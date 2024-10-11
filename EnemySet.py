@@ -4,7 +4,7 @@ from Parameter import get_parameter
 enemysetkeys = ['ID', 'Name', 'Type', 'Level', 
                 'Hp', 'Atk', 'Def', 'Stun', 'StunDamageTakeRatio', 'StunResetCount', 'ElementAbnormal',
                 'PhyResist', 'FireResist', 'IceResist', 'EleResist', 'EthResist']
-def enemyset():
+def enemy_set():
     print('当前已激活的敌人配置方案如下：')
     with open('.\EnemyConfig.json', 'r', encoding='utf-8') as file:
         enemyconfig_dict = json.load(file)
