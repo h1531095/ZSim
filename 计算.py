@@ -956,7 +956,6 @@ else:
 
 allbuff_dict = {}
 allbuff_dict_char = {}
-
 def Charbufflist(characterbox_now, characternumber):
     for charnumber in range(characternumber):    #这是为了将参与计算的每个角色的buff列表都单独放开，
         charbuff_minor = {}
@@ -968,7 +967,6 @@ def Charbufflist(characterbox_now, characternumber):
         for i in allbuff_list:
             row_dict = {}           #把上个循环中用的dict清理干净。
             row_index = i           #把buff名称提出来
-
             row_data = exsistfile.loc[i]                #根据buff名称提取一整行数据，但是这一行数据不包含buff名称
             row_dict = row_data.to_dict()               #先打包成字典，
             row_dict['BuffName'] = row_index            #字典新增一个键值，buff名称。
@@ -1020,7 +1018,7 @@ TODO:
 
 
 #Enemyactive, character, eventinfo_dict, statefix_dict_default, stateoutsidebonus_dict_default, muldict_default
-actionlist_test = ['BH_Aid', 'switch','NA_1' ,'bwswitch' ,'SNA_1' ,'switch','NA_1' ]  #  'RA_FC', 'NA_2', 'NA_3_FC','RA_FC', 'SNA_1', 'SNA_2', 'SNA_3_FC' 'NA_1', 'NA_2', 'NA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC'
+actionlist_test = ['RA_FC','SNA_1', 'SNA_2','SNA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC' ]  #  'RA_FC', 'NA_2', 'NA_3_FC','RA_FC', 'SNA_1', 'SNA_2', 'SNA_3_FC' 'NA_1', 'NA_2', 'NA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC'
 eventinfokey_list = ['eventid', 'timenow', 'charactername', 'actionname']
 buffactivekey_list = ['id', 'OfficialName', 'SpConsumption', 'SpRecovery_hit', 'FeverRecovery', 'ElementAbnormalAccumlation', 'SkillType', 'TriggerBuffLevel', 'ElementType', 'TimeCost', 'HitNumber', 'DmgRelated_Attributes', 'StunRelated_Attributes']
 allaction_dict = {}

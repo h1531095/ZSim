@@ -4,6 +4,18 @@ from EnemyClass import Enemy
 from EnemySet import enemyset
 from KCalculate import Kcal
 from BuffClass import Buff
-charnum, charname_box, charactive_box = character_set()   # charnum是实际角色数量。charname_box 是三个角色名；而charactive_box是三个实例化的角色；
+from Actionlist_test import testlist
+from BuffExsist_Judge import BuffExsist_Judge
+charnum, charname_box, charactive_box, judgelist_set, keybox = character_set()   
+# charnum是实际角色数量.charname_box 是三个角色名;而charactive_box是三个实例化的角色,
+# judgelist_set是决定哪些buff和本次模拟有关的配置单,里面主要包括武器名,角色名以及驱动盘4件套,
+# keybox也是服务于判断哪些buff需要参与本次模拟的,
+# 最后两个传出的变量在计算环节和buff判断的轮询中不会用的,只在初始化时需要.
+
 enemyactive = enemyset()
-print(charactive_box[0].bonus.cr)
+exsistbuff_dict = BuffExsist_Judge(charname_box, judgelist_set, keybox)     
+# 关于exsistbuff_dict 的详细注释和作用,在BuffExsist_Judge里.
+# 其结构为:{buff名A:实例化buffA,buff名B:实例化buffB......}
+
+
+

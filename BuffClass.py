@@ -26,7 +26,8 @@ Buffeffect_index = [
     "Deffix", "Pendelta", "Pendelta_Ratio", "Element_reduce", "Element_penetrate", "PhyRes",
     "FireRes", "IceRes", "EleRes", "EthRes", "AllRes", "Chance_to_be_crit", "Damage_from_crit",
     "Dmgtaken_Increase", "Dmgtaken_Decrease", "StunDamage_TakeRatio", "StunDamage_TakeRatio_Delta",
-    "Special_Multiplication_Zone"]   
+    "Special_Multiplication_Zone"
+    ]   
     # 这个index列表里面装的是乘区类型中所有的项目,也是buff效果作用的范围.
     # 这个列表中的内容:在Buff效果.csv 中作为索引存在;而在 Event父类中,它们又包含了 info子类的部分内容 和 multiplication子类的全部内容,
     # 在文件中,这个list被用在最后的buffchagne()函数中,作为中转字典的keylist存在
@@ -44,7 +45,9 @@ class Buff:
         def __init__(self, config):
             self.simple_logic = config['simple_logic']
             self.simple_effect = config['simple_effect']
-            self.index = config['BuffIndex']                      # buff的英文名,也是buff的索引
+            self.index = config['BuffName']                       # buff的英文名,也是buff的索引
+            self.isweapon = config['isweapon']                    # buff是否是武器特效
+            self.refinement = config['refinement']                # 武器特效的精炼等级
             self.bufffrom = config['from']                        # buff的来源,可以是角色名,也可以是其他,这个字段用来和配置文件比对,比对成功则证明这个buff是可以触发的;
             self.name = config['name']                            # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
             self.exsist = config['exsist']                        # buff是否参与了计算,即是否允许被激活
@@ -66,6 +69,7 @@ class Buff:
             self.count = 0              # buff当前层数
             self.ready = True           # buff的可叠层状态,如果是True,就意味着是内置CD结束了,可以叠层,如果不是True,就不能叠层.
             self.last = 0               # buff上一次触发的时间
+            self.endtime = 0            # buff计划课中，buff的下一次结束时间
     
     class Buff_logic:
         def __init__(self):

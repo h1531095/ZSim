@@ -34,7 +34,7 @@ statementBonus_box = {}
 statementoutside_box = {}
 activcharacter_allskilldict = {}
 activ_characterbox = [None, None, None]
-
+judgelist = []
 
 def character_set():        #角色基础配置更新
     while True:
@@ -102,7 +102,10 @@ def character_set():        #角色基础配置更新
                 #接下去的内容，是要准备为角色录入技能数据。
                 #首先是从表里面拿出来，我们从sheet_basic  也就是“配装&面板”表中，获取A42单元格的内容，那里，记录着取值范围，这个取值范围的值，本来是记录了有多少个技能被调用出来了，
                 #而这个值，直接决定了查阅数值的循环次数。
+                for judgekey in configcheck_positionlist:
+                    judgelist.append(characterconfig_now[judgekey])
 
+                
                 #第一步，新建一个空的字典，一会儿用来装拿出来的数据。
                 #当然，如果我们是第二次来到这里，那么就应该是清空旧字典中的内容了，应新的空字典去装新的角色。
                 skillcopydata = {}
@@ -150,6 +153,8 @@ def character_set():        #角色基础配置更新
                                           statementoutside_box[keybox[i]],
                                           activcharacter_allskilldict[keybox[i]])
     wb.save
+    judgelist_set = list(set(judgelist))
     #wb_t.save
-    print(f'现已激活的角色列表为：{characterbox_now}')
-    return characternumber, characterbox_now, activ_characterbox
+    clean_characterbox = [item for item in characterbox_now if item is not None]
+    print(f'现已激活的角色列表为：{clean_characterbox}')
+    return characternumber, clean_characterbox, activ_characterbox, judgelist_set, keybox
