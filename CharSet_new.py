@@ -121,7 +121,7 @@ class Character:
             self.sp = char_class.sp
             self.PEN_ratio = char_class.PEN_ratio
             self.PEN_numeric = char_class.PEN_numeric
-            self.DMG_bonus = self.func_DMG_bonus(char_class.ICE_DMG_bonus, char_class.FIRE_DMG_bonus, char_class.PHY_DMG_bonus, char_class.ETHER_DMG_bonus, char_class.ELECTRIC_DMG_bonus, char_class.ALL_DMG_bonus, char_class.Trigger_DMG_bonus)
+            self.DMG_bonus = self.deving_func_DMG_bonus(char_class.ICE_DMG_bonus, char_class.FIRE_DMG_bonus, char_class.PHY_DMG_bonus, char_class.ETHER_DMG_bonus, char_class.ELECTRIC_DMG_bonus, char_class.ALL_DMG_bonus, char_class.Trigger_DMG_bonus)
             
             self.statement = {
                 'ATK': self.ATK,
@@ -150,7 +150,7 @@ class Character:
             statement = cls(char_class)
             return statement.statement[attr]
         
-        def func_DMG_bonus(self, ICE_DMG_bonus:float, FIRE_DMG_bonus:float, PHY_DMG_bonus:float, ETHER_DMG_bonus:float, ELECTRIC_DMG_bonus:float, ALL_DMG_bonus:float, Trigger_DMG_bonus:float) -> float:
+        def deving_func_DMG_bonus(self, ICE_DMG_bonus:float, FIRE_DMG_bonus:float, PHY_DMG_bonus:float, ETHER_DMG_bonus:float, ELECTRIC_DMG_bonus:float, ALL_DMG_bonus:float, Trigger_DMG_bonus:float) -> float:
             '''
             计算增伤区
             '''
@@ -248,7 +248,10 @@ class Character:
         self.PEN_numeric += (scPEN * 9)
         self.baseCRIT_score += (scCRIT * 4.8)
     
-'''char = Character("艾莲", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
-char_dynamic = Character.Statement(char)
-print(char_dynamic.CRIT_damage)
-print(char_dynamic.CRIT_rate)'''
+'''
+if __name__ == "__main__":
+    char = Character("艾莲", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
+    char_dynamic = Character.Statement(char)
+    print(char_dynamic.CRIT_damage)
+    print(char_dynamic.CRIT_rate)
+'''
