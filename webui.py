@@ -25,7 +25,7 @@ iface = gr.Interface(
     inputs = [
         gr.Textbox(value='艾莲', label="角色名字"),
         gr.Textbox(value='深海访客', label="武器名字"),
-        gr.Slider(minimum=1, maximum=10, step=1, label="武器精炼等级"),
+        gr.Slider(minimum=1, maximum=5, step=1, label="武器精炼等级"),
         gr.Slider(minimum=0, maximum=120, step=1, value=120,label="能量上限"),
         gr.Textbox(label="驱动盘套装4"),
         gr.Textbox(value='极地重金属', label="驱动盘套装2A"),
