@@ -4,10 +4,8 @@ import pandas as pd
 from Skill_Class import Skill
 from Report import report_to_log
 import logging
+from define import *
 
-CHARACTER_DATA_PATH = './data/character.csv'
-WEAPON_DATA_PATH = './data/weapon.csv'
-EQUIP_2PC_DATA_PATH = './data/equip_set_2pc.csv'
 
 class Character:
     def __init__(self,
@@ -103,7 +101,7 @@ class Character:
         self._init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT)
 
         # 角色技能列表，还没有写修改技能等级的接口
-        skill_object = Skill(name=self.NAME, CID=self.CID)
+        skill_object:object = Skill(name=self.NAME, CID=self.CID)
         self.action_list = skill_object.action_list
         self.skills_dict = skill_object.skills_dict
         
@@ -285,18 +283,20 @@ class Character:
         # 将自身套装效果抄录
         equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
         # 检查是否有相同套装
-        TEMP = [i for i in equip_set_all if (i != '') and (i is not None)]
-        if len(set(TEMP)) != len(TEMP):
+        unique_sets = [i for i in equip_set_all if bool(i)]
+        if len(set(unique_sets)) != len(unique_sets):
             raise ValueError("请勿输入重复的套装名称")
         self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = tuple(equip_set_all)
         # 存在四件套则忽略2b、2c
-        if (equip_set4 != '') & (equip_set4 is not None):   #  非空判断
-            equip_set_all.remove(equip_set2_b)
-            equip_set_all.remove(equip_set2_c)
+        if bool(equip_set4):   #  非空判断
+            if equip_set2_b in equip_set_all:
+                equip_set_all.remove(equip_set2_b)
+            if equip_set2_c in equip_set_all:
+                equip_set_all.remove(equip_set2_c)
         if equip_set_all is not None:   # 全空则跳过
             df = pd.read_csv(EQUIP_2PC_DATA_PATH)
             for equip_2pc in equip_set_all:
-                if equip_2pc:   # 若二件套非空，则继续
+                if bool(equip_2pc):   # 若二件套非空，则继续
                     row = df[df['set_ID'] == equip_2pc].to_dict('records')
                     if row:
                         row = row[0]
@@ -318,7 +318,6 @@ class Character:
                         self.ETHER_DMG_bonus += float(row.get('ETHER_DMG_bonus', 0))
                     else:
                         raise ValueError(f"套装 {equip_2pc} 不存在")
-                else:continue   # 二件套全空则跳过
 
 
     
@@ -377,6 +376,14 @@ class Character:
         '''
         初始化副词条
         '''
+        # 类型检查
+        if not all(isinstance(x, int) for x in [scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT]):
+            raise TypeError("词条数量必须是整数.")
+
+        # 参数有效性检查
+        if any(x < 0 for x in [scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT]):
+            raise ValueError("词条数量不能为负.")
+
         self.ATK_percent += (scATK_percent * 0.03)
         self.ATK_numeric += (scATK * 19)
         self.HP_percent += (scHP_percent * 0.03)
