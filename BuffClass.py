@@ -37,12 +37,12 @@ Buffeffect_index = [
 
 class Buff:
     def __init__(self, config, judgeconfig):
-        self.ft = self.Buff_Feature(config) 
-        self.dy = self.Buff_Dynamic()
-        self.sjc = self.Buff_SimpleJudge_Condition(judgeconfig)
-        self.logic = self.Buff_logic()
+        self.ft = self.BuffFeature(config) 
+        self.dy = self.BuffDynamic()
+        self.sjc = self.BuffSimpleJudgeCondition(judgeconfig)
+        self.logic = self.Bufflogic()
 
-    class Buff_Feature:
+    class BuffFeature:
         def __init__(self, config):
             self.simple_start_logic = config['simple_start_logic']
             self.simple_end_logic = config['simple_end_logic']
@@ -63,7 +63,7 @@ class Buff:
             self.hitincrease = config['hitincrease']              # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
             self.cd  = config['increaseCD']                       # buff的叠层内置CD
 
-    class Buff_Dynamic:
+    class BuffDynamic:
         def __init__(self):
             self.exsist = False         # buff是否参与了计算,即是否允许被激活
             self.active = False         # buff当前的激活状态
@@ -76,13 +76,13 @@ class Buff:
             self.lastduration = 0       # buff上一次的持续时间
             self.endtimes = 0           # buff结束过的次数
     
-    class Buff_logic:
+    class BuffLogic:
         def __init__(self):
             self.xstart = None
             self.xeffect = None
             self.xend = None
             
-    class Buff_SimpleJudge_Condition:
+    class BuffSimpleJudgeCondition:
         def __init__(self, judgeconfig):
             self.id = judgeconfig['id']
             self.oname = judgeconfig['OfficialName']
@@ -152,13 +152,12 @@ class Buff:
 
     def buff_add(self, timenow, timecost, be_hitted:bool, loading_buff:list, DYNAMIC_BUFF_LIST:list):
         """
-        用来添加buff的总函数。它能新增buff到DYNAMIC_BUFF_LIST中,
-        注意，该函数不包含判断逻辑，应在执行完buff是否要激活的判断后，再执行这个函数。
-        它首先会判断buff内置CD是否就绪，内置Cd没转完的不执行激活操作；
-        然后会判断buff的simple_start_logic类型，如果是true，则进行简单更新，运行time和count的 update函数
-        最后，无论是什么逻辑，都会更新buff的active、activetimes，同时将内置Cd刷新，重置为False状态
-        最后对DYNAMIC_BUFF_LIST进行添加操作；
-        
+        用来添加buff的总函数.它能新增buff到DYNAMIC_BUFF_LIST中,
+        注意,该函数不包含判断逻辑,应在执行完buff是否要激活的判断后,再执行这个函数.
+        它首先会判断buff内置CD是否就绪,内置Cd没转完的不执行激活操作;
+        然后会判断buff的simple_start_logic类型,如果是true,则进行简单更新,运行time和count的 update函数
+        最后,无论是什么逻辑,都会更新buff的active,activetimes,同时将内置Cd刷新,重置为False状态
+        最后对DYNAMIC_BUFF_LIST进行添加操作;
         """
         for buff in loading_buff:
             if not isinstance(buff, Buff):
