@@ -1,8 +1,5 @@
 import pandas as pd
 import Report
-import json
-
-debug = json.load(open('config.json')).get('debug')
 
 class Skill:
     def __init__(self, 
@@ -184,8 +181,7 @@ class Skill:
                                 for attr in dir(self) 
                                 if not attr.startswith('__') and not callable(getattr(self, attr))              
             }
-            if debug == True:
-                Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skills_info)}')
+            Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skills_info)}')
 
 
         def __init_skill_level(self, skill_type:int, 
