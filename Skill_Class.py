@@ -25,9 +25,10 @@ class Skill:
         调用示例：
         test_object = Skill(name='艾莲')
         skill_lst = list(test_object.skills_dict.keys())
-        # print(skill_lst)
-        skill_0 = test_object.skills_dict[skill_lst[0]]
-        # print(skill_0.damage_ratio)
+        print(skill_lst)    # 调取所有技能名称，输出为列表
+        skill_0 = test_object.skills_dict[skill_lst[0]] # 利用Skill对象内的dict，返回包含特定技能全部属性的对象
+        print(skill_0.damage_ratio) # 面对特定技能对象，直接读取其属性
+        print(test_object.get_skill_info(skill_tag=skill_lst[0], attr_info='damage_ratio')) # 利用get_skill_info()方法获取属性
         '''
         
         # 初始化角色名称和CID
@@ -102,22 +103,23 @@ class Skill:
         else:
             raise SystemError("它爆炸了")
 
-    def find_skill_info(self, skill_tag:str, specific_info:str=None):
+    def get_skill_info(self, skill_tag:str, attr_info:str=None):
         '''
         根据技能名，返回技能的详细信息。
         
         参数：
         - skill_tag:str 技能名。
-        - specific_info:str 技能的详细信息。
+        - attr_info:str 技能的详细信息。
 
         只提供技能名时返回整个技能的对象
-        提供具体信息时，返回技能具体信息
+        提供具体信息时，返回具体属性
         '''
-        if specific_info is None:
-            skill_info:object = self.skills_dict[skill_tag]
+        skill_info:object = self.skills_dict[skill_tag]
+        if attr_info is None:
+            return skill_info
         else:
-            skill_info = self.skills_dict[skill_tag].f"specific_info"
-        return skill_info
+            return getattr(skill_info, attr_info)
+
 
     class InitSkill:
         def __init__(self, skill_dataframe, key, normal_level, special_level, dodge_level, chain_level, assist_level, core_level):
@@ -201,4 +203,4 @@ skill_lst = list(test_object.skills_dict.keys())
 # print(skill_lst)
 skill_0 = test_object.skills_dict[skill_lst[0]]
 # print(skill_0.damage_ratio)
-print(test_object.find_skill_info(skill_tag=skill_lst[0], specific_info='damage_tatio'))
+print(test_object.get_skill_info(skill_tag=skill_lst[0], attr_info='damage_ratio'))
