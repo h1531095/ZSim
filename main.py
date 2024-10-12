@@ -17,4 +17,4 @@ exsistbuff_dict = buff_exsist_judge(charname_box, judgelist_set, keybox)
 # 关于exsistbuff_dict 的详细注释和作用,在BuffExsist_Judge里.
 # 其结构为:{buff名A:实例化buffA, buff名B:实例化buffB......}
 TIMETICK = 0
-DYNAMIC_BUFF_DICT = {'艾莲':{'在前台': True, 'dynamic_buff_list':['buff名_艾莲']}, '苍角':{'在前台': False, 'dynamic_buff_list':['buff名_苍角']}}
+DYNAMIC_BUFF_DICT = {'艾莲':{'on_field': True, 'dynamic_buff_list':['buff名_艾莲']}, '苍角':{'on_field': False, 'dynamic_buff_list':['buff名_苍角']}}

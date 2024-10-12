@@ -1,6 +1,8 @@
 import math
 from Report import report_to_log
 from CharacterClass import Character
+import json
+debug = json.load(open('config.json')).get('debug')
 classkeydict = {
     'id': 'id',
     'oname': 'OfficialName',
@@ -40,7 +42,7 @@ class Buff:
         self.ft = self.BuffFeature(config) 
         self.dy = self.BuffDynamic()
         self.sjc = self.BuffSimpleJudgeCondition(judgeconfig)
-        self.logic = self.Bufflogic()
+        self.logic = self.BuffLogic()
 
     class BuffFeature:
         def __init__(self, config):
@@ -115,19 +117,20 @@ class Buff:
         self.dy.lastend = timenow
         self.dy.endtimes += 1
         self.dy.lastduration = max(self.dy.lastend - self.dy.startticks, 0)
-        report_to_log(f'当前ticks是{timenow};这是一个Buff类事件;{self.ft.name}结束了;这是它第{self.dy.endtimes}次结束;本次激活持续了{self.dy.lastduration}ticks')
+        '[Skill INFO]:{timenow}:{self.ft.name}第{self.dy.endtimes}次触发:endticks:{self.dy.lastduration}'
+        report_to_log(f'[Skill INFO]:{timenow}:{self.ft.name}第{self.dy.endtimes}次结束;duration:{self.dy.lastduration}')
 
     def timeupdate(self, timecost, timenow):
         """
-        在Buff确定要触发的时候,更新buff的starttime,endtime等一系列参数;
-        这里不包含内置Cd的判定,默认内置CD已经判定通过.
-        注意事项:
-        1,这个函数只修改 startticks 和 endticks两个数值
-        由于在本函数的开头,需要对buff的当前active进行判断,以筛选出那些"尚未结束但又触发"的buff,
-        所以,关于buff.dy.active的修改应在timeupdate函数生效后进行.故不在本函数内修改active.
-        2,关于freshtype是False的那些buff,也就是更新但不刷新时间的buff,它们在非重复触发的状态下,和普通buff是一致的.
-        所以只需要找出那些重复触发的此类buff,并不对时间做任何修改即可;
-        3,对于持续时间为0的瞬时buff,应将其看做持续时间为招式持续时间的有时长的buff一并对待.
+        在Buff确定要触发的时候,更新buff的starttime,endtime等一系列参数;\n
+        这里不包含内置Cd的判定,默认内置CD已经判定通过.\n
+        注意事项:\n
+        1,这个函数只修改 startticks 和 endticks两个数值\n
+        由于在本函数的开头,需要对buff的当前active进行判断,以筛选出那些"尚未结束但又触发"的buff,\n
+        所以,关于buff.dy.active的修改应在timeupdate函数生效后进行.故不在本函数内修改active.\n
+        2,关于freshtype是False的那些buff,也就是更新但不刷新时间的buff,它们在非重复触发的状态下,和普通buff是一致的.\n
+        所以只需要找出那些重复触发的此类buff,并不对时间做任何修改即可;\n
+        3,对于持续时间为0的瞬时buff,应将其看做持续时间为招式持续时间的有时长的buff一并对待.\n
         """      
         if not self.ft.fresh:
             if self.dy.active:
@@ -150,20 +153,23 @@ class Buff:
         if not self.ft.hitincrease or be_hitted:
             self.dy.count = min(self.dy.count + self.ft.step, self.ft.maxcount)
 
-    def buff_add(self, timenow, timecost, be_hitted:bool, loading_buff:list, DYNAMIC_BUFF_LIST:list):
+    def buff_add(self, timenow, timecost, be_hitted:bool, loading_buff:list, DYNAMIC_BUFF_DICT:dict, beneficiary:str):
         """
-        用来添加buff的总函数.它能新增buff到DYNAMIC_BUFF_LIST中,
-        注意,该函数不包含判断逻辑,应在执行完buff是否要激活的判断后,再执行这个函数.
-        它首先会判断buff内置CD是否就绪,内置Cd没转完的不执行激活操作;
-        然后会判断buff的simple_start_logic类型,如果是true,则进行简单更新,运行time和count的 update函数
-        最后,无论是什么逻辑,都会更新buff的active,activetimes,同时将内置Cd刷新,重置为False状态
-        最后对DYNAMIC_BUFF_LIST进行添加操作;
+        用来添加buff的总函数.它能新增buff到DYNAMIC_BUFF_LIST中,\n
+        注意,该函数不包含判断逻辑,应在执行完buff是否要激活的判断后,再执行这个函数.\n
+        它首先会判断buff内置CD是否就绪,内置Cd没转完的不执行激活操作;\n
+        然后会判断buff的simple_start_logic类型,如果是true,则进行简单更新,运行time和count的 update函数\n
+        无论是什么逻辑,都会更新buff的active,activetimes,同时将内置Cd刷新,重置为False状态\n
+        最后对DYNAMIC_BUFF_DICT进行添加操作;\n
+        它会以本次Buff添加的受益者(beneficiary)为key,去DICT中调出对应的dynamic_buff_list,并执行添加操作;\n
+        其中还包括了重复添加的判断逻辑,如果在添加执行时,检测到list中已经存在该buff,则应停止添加.\n
+        PS:如果需求是同时向多个角色添加同一批次的buff,则应该修改beneficiary来多次执行该函数.
         """
         for buff in loading_buff:
             if not isinstance(buff, Buff):
-                print(f'loading_buff中的{buff}元素不是Buff类')
-                return
+                raise ValueError(f'loading_buff中的{buff}元素不是Buff类')
             if not buff.readyjudge(timenow):
+                report_to_log(f'[Buff INFO]:{timenow}:{self.ft.name}因内置CD未就绪触发失败。')
                 continue
             if buff.ft.simple_start_logic:
                     buff.timeupdate(timenow, timecost)
@@ -173,5 +179,7 @@ class Buff:
             buff.dy.active = True
             buff.dy.activetimes += 1
             buff.dy.ready = False
-            DYNAMIC_BUFF_LIST.append(buff)
-            report_to_log(f'当前ticks是{timenow};这是一个Buff类事件;{self.ft.name}触发了;这是它第{self.dy.endtimes}次触发;本次激活预计到第{self.dy.lastduration}ticks结束')
+            if buff in DYNAMIC_BUFF_DICT[beneficiary]['dynamic_buff_list']:
+                continue
+            DYNAMIC_BUFF_DICT[beneficiary]['dynamic_buff_list'].append(buff)
+            report_to_log(f'[Buff INFO]:{timenow}:{self.ft.name}第{self.dy.endtimes}次触发:endticks:{self.dy.lastduration}')
