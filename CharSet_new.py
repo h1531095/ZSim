@@ -100,6 +100,8 @@ class Character:
         # 初始化副词条
         self._init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT)
 
+        # 角色技能列表
+        self.skill_list = []
         
     class Statement():
         def __init__(self, char_class, crit_balancing=True):
@@ -378,6 +380,12 @@ class Character:
         self.AP_numeric += (scAnomalyProficiency * 9)
         self.PEN_numeric += (scPEN * 9)
         self.baseCRIT_score += (scCRIT * 4.8)
+
+    def _init_skill(self, skill_name:str, skill_level:int):
+        '''
+        未来对接 Skill 类使用
+        '''
+        pass
     
 '''
 if __name__ == "__main__":
