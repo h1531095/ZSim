@@ -1,0 +1,5 @@
+CHARACTER_DATA_PATH = './data/character.csv'
+WEAPON_DATA_PATH = './data/weapon.csv'
+EQUIP_2PC_DATA_PATH = './data/equip_set_2pc.csv'
+SKILL_DATA_PATH = "./data/skill.csv"
+DEFAULT_SKILL_PATH = "./data/default_skill.csv"

@@ -1,6 +1,7 @@
 import pandas as pd
 import Report
-from pathlib import Path
+from define import *
+
 
 class Skill:
     def __init__(self, 
@@ -52,17 +53,22 @@ class Skill:
         # 核心技等级需要可读
         self.core_level = core_level
         # 最晚在这里创建DataFrame，优化不了一点，这玩意可大了
-        skill_dataframe = pd.read_csv("./data/skill.csv")
+        skill_dataframe = pd.read_csv(SKILL_DATA_PATH)
         # 根据CID提取角色的技能数据
-        self.skill_dataframe = skill_dataframe[skill_dataframe['CID'] == self.CID]
+        
         self.skills_dict = {} # 技能名str:技能参数object
         # 提取dataframe中，每个索引为skill_tag的值，保存为keys
         try:
+            self.skill_dataframe = skill_dataframe[skill_dataframe['CID'] == self.CID]
+            if self.skill_dataframe.empty:
+                raise ValueError(f"找不到CID为 {self.CID} 的角色信息")
             __keys = self.skill_dataframe['skill_tag'].unique()
         except KeyError:
-            print("DataFrame 中缺少 'skill_tag' 列")
+            print(f"{SKILL_DATA_PATH} 中缺少 'skill_tag' 列")
             return
-        __keys = self.skill_dataframe['skill_tag'].unique()
+        except ValueError as e:
+            print(e)
+            return
         # 创建技能字典与技能列表 self.skills_dict 与 self.action_list
         for key in __keys:
             self.skill_object:object = self.InitSkill(self.skill_dataframe, key, normal_level, special_level, dodge_level, chain_level, assist_level, core_level)
@@ -89,7 +95,7 @@ class Skill:
         - SystemError: 如果无法处理提供的参数。
         '''
         # 动态构建文件路径
-        config_file_path = Path(__file__).parent / "data" / "character.csv"
+        config_file_path = CHARACTER_DATA_PATH
 
         try:
             # 读取角色数据
@@ -135,7 +141,7 @@ class Skill:
         则会创建这些动作的默认实例。
         '''
         # 定义需要检查是否初始化的动作列表
-        default_actions_dataframe = pd.read_csv('./data/default_skill.csv')
+        default_actions_dataframe = pd.read_csv(DEFAULT_SKILL_PATH)
         bydefault_actions = default_actions_dataframe['skill_tag'].unique()
         
         # 初始化每个动作的状态为 True
