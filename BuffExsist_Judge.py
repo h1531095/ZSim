@@ -55,3 +55,7 @@ def buff_exsist_judge(charname_box, judgelist_set, keybox):
                 judgedbuff.ft.exsist = True
                 exsistbuff_dict[i] = judgedbuff
     return exsistbuff_dict
+"""
+exsistbuff_dict的格式:buff名:实例化buff
+
+"""
