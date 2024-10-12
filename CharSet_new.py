@@ -1,7 +1,13 @@
 import json
 import numpy as np
 import pandas as pd
-import Skill_Class as sk
+from Skill_Class import Skill
+from Report import report_to_log
+import logging
+
+CHARACTER_DATA_PATH = './data/character.csv'
+WEAPON_DATA_PATH = './data/weapon.csv'
+EQUIP_2PC_DATA_PATH = './data/equip_set_2pc.csv'
 
 class Character:
     def __init__(self,
@@ -12,81 +18,76 @@ class Character:
                  scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0, scPEN=0, scCRIT=0, #副词条数量-选填项
                  sp_limit=120 # 初始充能-默认120
                  ):
+        # 参数类型检查
+        if not isinstance(char_name, str):
+            raise TypeError("char_name must be a string")
+        if not isinstance(sp_limit, int):
+            raise TypeError("sp_limit must be an integer")
+        if weapon is not None and not isinstance(weapon, str):
+            raise TypeError("weapon must be a string or None")
+        if not isinstance(weapon_level, int):
+            raise TypeError("weapon_level must be an integer")
+        if equip_set4 is not None and not isinstance(equip_set4, str):
+            raise TypeError("equip_set4 must be a string or None")
+        if equip_set2_a is not None and not isinstance(equip_set2_a, str):
+            raise TypeError("equip_set2_a must be a string or None")
+        if equip_set2_b is not None and not isinstance(equip_set2_b, str):
+            raise TypeError("equip_set2_b must be a string or None")
+        if equip_set2_c is not None and not isinstance(equip_set2_c, str):
+            raise TypeError("equip_set2_c must be a string or None")
+        if drive4 is not None and not isinstance(drive4, str):
+            raise TypeError("drive4 must be a string or None")
+        if drive5 is not None and not isinstance(drive5, str):
+            raise TypeError("drive5 must be a string or None")
+        if drive6 is not None and not isinstance(drive6, str):
+            raise TypeError("drive6 must be a string or None")
+        if not isinstance(scATK_percent, (int, float)):
+            raise TypeError("scATK_percent must be a number")
+        if not isinstance(scATK, (int, float)):
+            raise TypeError("scATK must be a number")
+        if not isinstance(scHP_percent, (int, float)):
+            raise TypeError("scHP_percent must be a number")
+        if not isinstance(scHP, (int, float)):
+            raise TypeError("scHP must be a number")
+        if not isinstance(scDEF_percent, (int, float)):
+            raise TypeError("scDEF_percent must be a number")
+        if not isinstance(scDEF, (int, float)):
+            raise TypeError("scDEF must be a number")
+        if not isinstance(scAnomalyProficiency, (int, float)):
+            raise TypeError("scAnomalyProficiency must be a number")
+        if not isinstance(scPEN, (int, float)):
+            raise TypeError("scPEN must be a number")
+        if not isinstance(scCRIT, (int, float)):
+            raise TypeError("scCRIT must be a number")
+        
+        # 初始化为0的各属性
+        attributes = ['baseATK', 'ATK_percent', 'ATK_numeric', 'overral_ATK_percent', 'overral_ATK_numeric',
+                      'baseHP', 'HP_percent', 'HP_numeric', 'overral_HP_percent', 'overral_HP_numeric',
+                      'baseDEF', 'DEF_percent', 'DEF_numeric', 'overral_DEF_percent', 'overral_DEF_numeric',
+                      'baseIMP', 'IMP_percent', 'IMP_numeric', 'overral_IMP_percent', 'overral_IMP_numeric',
+                      'baseAP', 'AP_percent', 'AP_numeric', 'overral_AP_percent', 'overral_AP_numeric',
+                      'baseAM', 'AM_percent', 'AM_numeric', 'overral_AM_percent', 'overral_AM_numeric',
+                      'baseCRIT_score', 'CRIT_rate_numeric', 'CRIT_damage_numeric',
+                      'sp_limit', 'base_sp_regen', 'sp_regen_percent', 'sp_regen_numeric', 'sp_get_ratio',
+                      'ICE_DMG_bonus', 'FIRE_DMG_bonus', 'PHY_DMG_bonus', 'ETHER_DMG_bonus', 'ELECTRIC_DMG_bonus', 
+                      'ALL_DMG_bonus', 'Trigger_DMG_bonus',
+                      'PEN_ratio', 'PEN_numeric']
+        for attr in attributes:
+            setattr(self, attr, 0)
+        # 单独初始化的各组件
         self.NAME = char_name
         self.CID = None
-        # 攻击力各组件
-        self.baseATK: float = 0
-        self.ATK_percent: float = 0
-        self.ATK_numeric: float = 0
-        self.overral_ATK_percent: float = 0
-        self.overral_ATK_numeric: float = 0
-        
-        # 生命值各组件
-        self.baseHP: float = 0
-        self.HP_percent: float = 0
-        self.HP_numeric: float = 0
-        self.overralHP_percent: float = 0
-        self.overral_HP_numeric: float = 0
-
-        # 防御力各组件
-        self.baseDEF: float = 0
-        self.DEF_percent: float = 0
-        self.DEF_numeric: float = 0
-        self.overral_DEF_percent: float = 0
-        self.overral_DEF_numeric: float = 0
-        
-        # 冲击力各组件
-        self.baseIMP: float = 0
-        self.IMP_percent: float = 0
-        self.IMP_numeric: float = 0
-        self.overral_IMP_percent: float = 0
-        self.overral_IMP_numeric: float = 0
-        
-        # 异常精通各组件
-        self.baseAP: float = 0
-        self.AP_percent: float = 0 
-        self.AP_numeric: float = 0 
-        self.overral_AP_percent: float = 0
-        self.overral_AP_numeric: float = 0
-
-        # 异常掌控各组件
-        self.baseAM: float = 0
-        self.AM_percent: float = 0
-        self.AM_numeric: float = 0
-        self.overral_AM_percent: float = 0
-        self.overral_AM_numeric: float = 0
-
-        # 暴击分数各组件
+        self.weapon_ID = weapon
+        self.weapon_level = weapon_level
         self.baseCRIT_score: float = 60
-        self.CRIT_rate_numeric: float = 0
-        self.CRIT_damage_numeric: float = 0
-
-        # 充能各组件
-        self.sp_limit: int = sp_limit # 充能上限
-        self.base_sp_regen: float = 0    # 能量自动回复
-        self.sp_regen_percent: float = 0
-        self.sp_regen_numeric: float = 0
         self.sp_get_ratio: float = 1   # 能量获得效率
+        self.sp_limit: int = sp_limit
 
-        # 增伤各组件
-        self.ICE_DMG_bonus: float = 0
-        self.FIRE_DMG_bonus: float = 0
-        self.PHY_DMG_bonus: float = 0
-        self.ETHER_DMG_bonus: float = 0
-        self.ELECTRIC_DMG_bonus: float = 0
-        self.ALL_DMG_bonus: float = 0
-        self.Trigger_DMG_bonus: float = 0
-
-        # 穿透各组件
-        self.PEN_ratio: float = 0
-        self.PEN_numeric: float = 0
-        
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
         self._init_base_attribute(char_name)
         # 初始化武器基础属性    .\data\weapon.csv
-        self.weapon_ID = weapon
-        self.weapon_level = weapon_level
+
         self._init_weapon_primitive(weapon, weapon_level)
         # 初始化套装效果        .\data\equip_set_2pc.csv
         ( 
@@ -101,8 +102,10 @@ class Character:
         # 初始化副词条
         self._init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT)
 
-        # 角色技能列表
-        self.skill_list = []
+        # 角色技能列表，还没有写修改技能等级的接口
+        skill_object = Skill(name=self.NAME, CID=self.CID)
+        self.action_list = skill_object.action_list
+        self.skills_dict = skill_object.skills_dict
         
     class Statement():
         def __init__(self, char_class, crit_balancing=True):
@@ -145,28 +148,7 @@ class Character:
             self.statement = {attr: getattr(self, attr)
                               for attr in dir(self) 
                               if not callable(getattr(self, attr)) and not attr.startswith("__")}
-            '''self.statement = {
-                'name':self.NAME,
-                'ATK': self.ATK,
-                'HP': self.HP,
-                'DEF': self.DEF,
-                'IMP': self.IMP,
-                'AP': self.AP,
-                'AM': self.AM,
-                'CRIT_damage': self.CRIT_damage,
-                'CRIT_rate': self.CRIT_rate,
-                'sp_regen': self.sp_regen,
-                'sp_get_ratio': self.sp_get_ratio,
-                'sp_limit': self.sp_limit,
-                'PEN_ratio': self.PEN_ratio,
-                'PEN_numeric': self.PEN_numeric,
-                'ICE_DMG_bonus':self.ICE_DMG_bonus,
-                'FIRE_DMG_bonus':self.FIRE_DMG_bonus,
-                'PHY_DMG_bonus':self.PHY_DMG_bonus,
-                'ETHER_DMG_bonus':self.ETHER_DMG_bonus,
-                'ELECTRIC_DMG_bonus':self.ELECTRIC_DMG_bonus,
-            }'''
-            print(self.statement)
+            report_to_log(f'[Char STATUS]:{self.NAME}:{str(self.statement)}')
         @classmethod
         def get_statement(cls, attr:str, char_class:object) -> float:
             '''
@@ -195,18 +177,26 @@ class Character:
             默认为True，即配平逻辑，会使用暴击评分、暴击暴伤输出，集中计算暴击率与暴击伤害
             若为False，则忽略传入的暴击评分，直接返回给定的数值
             '''
+            # 参数有效性验证
+            if not (0 <= CRIT_score):
+                raise ValueError("CRIT_score must be above 0")
+            if not (0 <= CRIT_rate_numeric):
+                raise ValueError("CRIT_rate_numeric must be above 0")
+            if not (0 <= CRIT_damage_numeric):
+                raise ValueError("CRIT_damage_numeric mmust be above 0")
+            
             if balancing:
                 all_CRIT_score = CRIT_score + CRIT_rate_numeric*200 + CRIT_damage_numeric*100
                 if all_CRIT_score >= 400:
                     CRIT_rate = 1
-                    CRIT_damage = (CRIT_score / 100 -2) + + (CRIT_damage_numeric + CRIT_rate_numeric*2)
+                    CRIT_damage = (CRIT_score / 100 -2) + (CRIT_damage_numeric + CRIT_rate_numeric*2)
                 else:
                     CRIT_damage = max(0.5, CRIT_score / 200) + CRIT_damage_numeric
                     CRIT_rate = (CRIT_score/100 - CRIT_damage)/2 + CRIT_rate_numeric
             else:
                 CRIT_damage = CRIT_damage_numeric
                 CRIT_rate = CRIT_rate_numeric
-            return CRIT_damage, CRIT_rate
+            return min(5,CRIT_damage), min(1,CRIT_rate)
         
 
     def _init_base_attribute(self, char_name:str):
@@ -216,25 +206,40 @@ class Character:
         参数:
         char_name(str): 角色的名称。
         """
-        df = pd.read_csv('./data/character.csv')
-        # 查找与角色名称匹配的行，并转换为字典形式，每条记录一个字典
-        row = df[df['name'] == char_name].to_dict('records')
-        if row:
-            # 将对应记录提取出来，并赋值给角色对象
-            row = row[0]
-            self.baseATK = float(row.get('基础攻击力', 0))
-            self.baseHP = float(row.get('基础生命值', 0))
-            self.baseDEF = float(row.get('基础防御力', 0))
-            self.baseIMP = float(row.get('基础冲击力', 0))
-            self.baseAP = float(row.get('基础异常精通', 0))
-            self.baseAM = float(row.get('基础异常掌控', 0))
-            self.baseCRIT_score = float(row.get('基础暴击分数', 60))
-            self.PEN_ratio = float(row.get('基础穿透率', 0))
-            self.PEN_numeric = float(row.get('基础穿透值', 0))
-            self.base_sp_regen = float(row.get('基础能量自动回复', 0))
-            self.CID = float(row.get('CID',None))
-        else:
-            raise ValueError(f"角色{char_name}不存在")
+        if not isinstance(char_name, str) or not char_name.strip():
+            raise ValueError("角色名称必须是非空字符串")
+        try:
+            df = pd.read_csv(CHARACTER_DATA_PATH)
+            # 查找与角色名称匹配的行，并转换为字典形式，每条记录一个字典
+            row = df[df['name'] == char_name].to_dict('records')
+            if row:
+                # 将对应记录提取出来，并赋值给角色对象
+                row = row[0]
+                self.baseATK = float(row.get('基础攻击力', 0))
+                self.baseHP = float(row.get('基础生命值', 0))
+                self.baseDEF = float(row.get('基础防御力', 0))
+                self.baseIMP = float(row.get('基础冲击力', 0))
+                self.baseAP = float(row.get('基础异常精通', 0))
+                self.baseAM = float(row.get('基础异常掌控', 0))
+                self.baseCRIT_score = float(row.get('基础暴击分数', 60))
+                self.PEN_ratio = float(row.get('基础穿透率', 0))
+                self.PEN_numeric = float(row.get('基础穿透值', 0))
+                self.base_sp_regen = float(row.get('基础能量自动回复', 0))
+                self.base_sp_get_ratio = float(row.get('基础能量获取效率', 1))
+                # CID特殊处理，避免不必要的类型转换
+                cid_value = row.get('CID', None)
+                self.CID = int(cid_value) if cid_value is not None else None
+            else:
+                raise ValueError(f"角色{char_name}不存在")
+        except FileNotFoundError:
+            logging.error("找不到角色数据文件，请检查路径是否正确。")
+            raise
+        except pd.errors.EmptyDataError:
+            logging.error("角色数据文件为空。")
+            raise
+        except Exception as e:
+            logging.error(f"初始化角色属性时发生未知错误：{e}")
+            raise
      
     
     def _init_weapon_primitive(self, weapon:str, weapon_level:int) -> None:
@@ -242,7 +247,7 @@ class Character:
         初始化武器属性
         """
         if weapon is not None:
-            df = pd.read_csv('./data/weapon.csv')
+            df = pd.read_csv(WEAPON_DATA_PATH)
             row_5 = df[df['weapon_ID'] == weapon] # 找到所有包含此武器的行
             if not row_5.empty:     # 检查是否找到匹配项
                 row = row_5[row_5['level'] == weapon_level].to_dict('records') # 找到对应精炼等级的行，并转化为字典
@@ -280,7 +285,7 @@ class Character:
         # 将自身套装效果抄录
         equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
         # 检查是否有相同套装
-        TEMP = [i for i in equip_set_all if i != '']
+        TEMP = [i for i in equip_set_all if (i != '') and (i is not None)]
         if len(set(TEMP)) != len(TEMP):
             raise ValueError("请勿输入重复的套装名称")
         self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = tuple(equip_set_all)
@@ -289,7 +294,7 @@ class Character:
             equip_set_all.remove(equip_set2_b)
             equip_set_all.remove(equip_set2_c)
         if equip_set_all is not None:   # 全空则跳过
-            df = pd.read_csv('./data/equip_set_2pc.csv')
+            df = pd.read_csv(EQUIP_2PC_DATA_PATH)
             for equip_2pc in equip_set_all:
                 if equip_2pc:   # 若二件套非空，则继续
                     row = df[df['set_ID'] == equip_2pc].to_dict('records')
@@ -388,10 +393,9 @@ class Character:
         '''
         pass
     
-'''
 if __name__ == "__main__":
     char = Character("艾莲", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
     char_dynamic = Character.Statement(char)
-    print(char_dynamic.CRIT_damage)
-    print(char_dynamic.CRIT_rate)
-'''
+    report_to_log(f"[ACTION LIST]:{char.action_list}")
+    report_to_log(f"[SKILLS DICT]:{char.skills_dict}")
+
