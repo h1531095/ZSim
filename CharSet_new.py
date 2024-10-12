@@ -75,6 +75,7 @@ class Character:
         # 单独初始化的各组件
         self.NAME = char_name
         self.CID = None
+        self.level = 60
         self.weapon_ID = weapon
         self.weapon_level = weapon_level
         self.baseCRIT_score: float = 60
