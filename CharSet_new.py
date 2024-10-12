@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import pandas as pd
+import Skill_Class as sk
 
 class Character:
     def __init__(self,
