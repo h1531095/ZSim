@@ -1,4 +1,8 @@
 import pandas as pd
+import Report
+import json
+
+debug = json.load(open('config.json')).get('debug')
 
 class Skill:
     def __init__(self, 
@@ -123,7 +127,9 @@ class Skill:
 
 
     class InitSkill:
-        def __init__(self, skill_dataframe, key, normal_level, special_level, dodge_level, chain_level, assist_level, core_level):
+        def __init__(self, skill_dataframe, key, 
+                     normal_level, special_level, dodge_level, chain_level, assist_level, 
+                     core_level):
             '''
             初始化角色的技能。
             会在执行class Skill的时候自动调用，不用手动创建此类的对象
@@ -148,7 +154,9 @@ class Skill:
             self.CN_skill_tag:str = self.__raw_skill_data['CN_skill_tag']
             # 确定使用的技能等级
             self.skill_type:int = int(self.__raw_skill_data['skill_type'])
-            self.__level:int = self.__init_skill_level(self.skill_type, normal_level, special_level, dodge_level, chain_level, assist_level, core_level)
+            self.__level:int = self.__init_skill_level(self.skill_type, 
+                                                       normal_level, special_level, dodge_level, chain_level, assist_level, 
+                                                       core_level)
             # 确定伤害倍率
             self.damage_ratio:float = float(self.__raw_skill_data['damage_ratio']) + float(self.__raw_skill_data['damage_ratio_growth']) * (self.__level-1)
             # 确定失衡倍率
@@ -172,9 +180,17 @@ class Skill:
             self.ticks:int = int(self.__raw_skill_data['ticks'])
             self.hit_times:int = int(self.__raw_skill_data['hit_times'])
 
+            self.skills_info = {attr: getattr(self, attr) 
+                                for attr in dir(self) 
+                                if not attr.startswith('__') and not callable(getattr(self, attr))              
+            }
+            if debug == True:
+                Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skills_info)}')
 
 
-        def __init_skill_level(self, skill_type:int, normal_level:int, special_level:int, dodge_level:int, chain_level:int, assist_level:int, core_level:int)->int:
+        def __init_skill_level(self, skill_type:int, 
+                               normal_level:int, special_level:int, dodge_level:int, chain_level:int, assist_level:int, 
+                               core_level:int)->int:
             '''
             skill type等级对应表：
             type    描述        Tag
@@ -201,11 +217,10 @@ class Skill:
                 case _:
                     return 1
                 
-'''
+
 test_object = Skill(name='艾莲')
 skill_lst = list(test_object.skills_dict.keys())
 # print(skill_lst)
 skill_0 = test_object.skills_dict[skill_lst[0]]
 # print(skill_0.damage_ratio)
 print(test_object.get_skill_info(skill_tag=skill_lst[0], attr_info='damage_ratio'))
-'''
