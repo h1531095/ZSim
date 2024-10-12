@@ -8,19 +8,27 @@ class Skill:
                  ):
         '''
         根据提供的角色、各技能等级，创建一个角色的技能对象。
+        成功创建的对象会包含角色的名称、ID、核心技等级、包含全部技能的字典
+        skills_dict：
+            -keys: 该角色的全部技能标签（skill_tag）
+            -values: 包含全部属性的 InitSkill 对象，可使用getattr()方法调用
         
-        以下两个标识符必须提供至少一个：
-        name:str 角色名称
+        方法 get_skill_info()：
+            -在仅输入技能标签（skill_tag）时，返回该技能的 InitSkill 对象
+            -在同时输入技能标签（skill_tag）和所需属性时（attr_info)时，返回该技能对象的指定属性
+        
+        以下两个标识符必须提供至少一个：\n
+        name:str 角色名称\n
         CID:int 角色的ID
 
-        skill type等级对应表：
-        type    描述        Tag
-        normal  普攻        0
-        special 特殊技      1
-        dodge   闪避        2
-        chain   连携技      3
-        assist  支援技      5
-        core    核心被动    4
+        skill type等级对应表：      \n
+        type    描述        Tag     \n
+        normal  普攻        0       \n
+        special 特殊技      1       \n
+        dodge   闪避        2       \n
+        chain   连携技      3       \n
+        assist  支援技      5       \n
+        core    核心被动    4       \n
 
         调用示例：
         test_object = Skill(name='艾莲')
@@ -35,7 +43,6 @@ class Skill:
         self.name, self.CID = self.__init_name(name, CID)
         # 核心技等级需要可读
         self.core_level = core_level
-
         # 最晚在这里创建DataFrame，优化不了一点，这玩意可大了
         skill_dataframe = pd.read_csv("./data/skill.csv")
         # 根据CID提取角色的技能数据
@@ -105,14 +112,8 @@ class Skill:
 
     def get_skill_info(self, skill_tag:str, attr_info:str=None):
         '''
-        根据技能名，返回技能的详细信息。
-        
-        参数：
-        - skill_tag:str 技能名。
-        - attr_info:str 技能的详细信息。
-
-        只提供技能名时返回整个技能的对象
-        提供具体信息时，返回具体属性
+        -在仅输入技能标签（skill_tag）时，返回该技能的 InitSkill 对象\n
+        -在同时输入技能标签（skill_tag）和所需属性时（attr_info)时，返回该技能对象的指定属性
         '''
         skill_info:object = self.skills_dict[skill_tag]
         if attr_info is None:
@@ -125,6 +126,8 @@ class Skill:
         def __init__(self, skill_dataframe, key, normal_level, special_level, dodge_level, chain_level, assist_level, core_level):
             '''
             初始化角色的技能。
+            会在执行class Skill的时候自动调用，不用手动创建此类的对象
+            继承自此类的对象会包含输入的技能（key）的全部属性
             '''
             # 提取数据库内，该技能的数据
             self.__raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
@@ -198,9 +201,11 @@ class Skill:
                 case _:
                     return 1
                 
+'''
 test_object = Skill(name='艾莲')
 skill_lst = list(test_object.skills_dict.keys())
 # print(skill_lst)
 skill_0 = test_object.skills_dict[skill_lst[0]]
 # print(skill_0.damage_ratio)
 print(test_object.get_skill_info(skill_tag=skill_lst[0], attr_info='damage_ratio'))
+'''
