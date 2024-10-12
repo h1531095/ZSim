@@ -136,49 +136,49 @@ class Skill:
             继承自此类的对象会包含输入的技能（key）的全部属性
             '''
             # 提取数据库内，该技能的数据
-            self.__raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
-            self.__raw_skill_data = self.__raw_skill_data.to_dict('records')
+            _raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
+            _raw_skill_data = _raw_skill_data.to_dict('records')
             pass
-            if self.__raw_skill_data == {}:
+            if _raw_skill_data == {}:
                 raise ValueError("未找到技能")
             else:
-                self.__raw_skill_data = self.__raw_skill_data[0]
+                _raw_skill_data = _raw_skill_data[0]
             # 如果不是攻击力倍率，报错，未来可接复杂逻辑
-            if self.__raw_skill_data['diff_multiplier'] != 0:
+            if _raw_skill_data['diff_multiplier'] != 0:
                 try :
                     raise ValueError("目前只支持攻击力倍率")
                 except ValueError as e:
                     print(e)
             # 储存技能名
             self.skill_tag:str = key
-            self.CN_skill_tag:str = self.__raw_skill_data['CN_skill_tag']
+            self.CN_skill_tag:str = _raw_skill_data['CN_skill_tag']
             # 确定使用的技能等级
-            self.skill_type:int = int(self.__raw_skill_data['skill_type'])
+            self.skill_type:int = int(_raw_skill_data['skill_type'])
             self.__level:int = self.__init_skill_level(self.skill_type, 
                                                        normal_level, special_level, dodge_level, chain_level, assist_level, 
                                                        core_level)
             # 确定伤害倍率
-            self.damage_ratio:float = float(self.__raw_skill_data['damage_ratio']) + float(self.__raw_skill_data['damage_ratio_growth']) * (self.__level-1)
+            self.damage_ratio:float = float(_raw_skill_data['damage_ratio']) + float(_raw_skill_data['damage_ratio_growth']) * (self.__level-1)
             # 确定失衡倍率
-            self.stun_ratio:float = float(self.__raw_skill_data['stun_ratio']) + float(self.__raw_skill_data['stun_ratio_growth']) * (self.__level-1)
+            self.stun_ratio:float = float(_raw_skill_data['stun_ratio']) + float(_raw_skill_data['stun_ratio_growth']) * (self.__level-1)
             # 能量相关属性
-            self.sp_threshold:float = float(self.__raw_skill_data['sp_threshold'])
-            self.sp_consume:float = float(self.__raw_skill_data['sp_consume'])
-            self.sp_recovery:float = float(self.__raw_skill_data['sp_recovery'])
+            self.sp_threshold:float = float(_raw_skill_data['sp_threshold'])
+            self.sp_consume:float = float(_raw_skill_data['sp_consume'])
+            self.sp_recovery:float = float(_raw_skill_data['sp_recovery'])
             # 喧响值
-            self.fever_recovery:float = float(self.__raw_skill_data['fever_recovery'])
+            self.fever_recovery:float = float(_raw_skill_data['fever_recovery'])
             # 距离衰减，不知道有啥用
-            self.distance_attenuation:int = int(self.__raw_skill_data['distance_attenuation'])
+            self.distance_attenuation:int = int(_raw_skill_data['distance_attenuation'])
             # 属性异常蓄积值，直接转化为浮点
-            self.anomaly_accumlation:float = float(self.__raw_skill_data['anomaly_accumlation'])/100
+            self.anomaly_accumlation:float = float(_raw_skill_data['anomaly_accumlation'])/100
             # TriggerBuffLevel
-            self.trigger_buff_level:int = int(self.__raw_skill_data['trigger_buff_level'])
+            self.trigger_buff_level:int = int(_raw_skill_data['trigger_buff_level'])
             # 元素相关
-            self.element_type:int = int(self.__raw_skill_data['element_type'])
-            self.element_damage_percent:float = float(self.__raw_skill_data['element_damage_percent'])
+            self.element_type:int = int(_raw_skill_data['element_type'])
+            self.element_damage_percent:float = float(_raw_skill_data['element_damage_percent'])
             # 动画相关
-            self.ticks:int = int(self.__raw_skill_data['ticks'])
-            self.hit_times:int = int(self.__raw_skill_data['hit_times'])
+            self.ticks:int = int(_raw_skill_data['ticks'])
+            self.hit_times:int = int(_raw_skill_data['hit_times'])
 
             self.skills_info = {attr: getattr(self, attr) 
                                 for attr in dir(self) 
