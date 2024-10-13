@@ -1,4 +1,4 @@
-set_ID,HP%,ATK%,DEF%,IMP%,oHP%,oATK%,oDEF%,oIMP%,Crit_Rate,Crit_DMG,Regen%,Regen,pen%,Get_ratio,Anomaly_Mastery,Anomaly_Proficiency,ICE_DMG_bonus,FIRE_DMG_bonus,ELECTRIC_DMG_bonus,PHY_DMG_bonus,ETHER_DMG_bonus
+﻿set_ID,HP%,ATK%,DEF%,IMP%,oHP%,oATK%,oDEF%,oIMP%,Crit_Rate,Crit_DMG,Regen%,Regen,pen%,Get_ratio,Anomaly_Mastery,Anomaly_Proficiency,ICE_DMG_bonus,FIRE_DMG_bonus,ELECTRIC_DMG_bonus,PHY_DMG_bonus,ETHER_DMG_bonus
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 极地重金属,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1,0,0,0,0
 獠牙重金属,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1,0

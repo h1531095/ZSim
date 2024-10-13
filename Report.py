@@ -14,5 +14,8 @@ def report_to_log(content):
         os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
 
         # 写入日志
-        with open(report_file_path, 'a', encoding='utf-8') as file:
+        with open(report_file_path, 'a', encoding='utf-8-sig') as file:
             file.write(content + '\n')
+
+if __name__ == '__main__':
+    report_to_log('test')
