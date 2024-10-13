@@ -1,1 +1,1 @@
-print(not '')
+print(1%100)

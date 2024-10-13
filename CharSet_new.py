@@ -402,7 +402,7 @@ class Character:
         pass
     
 if __name__ == "__main__":
-    char = Character("艾莲", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
+    char = Character("柳", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
     char_dynamic = Character.Statement(char)
     report_to_log(f"[ACTION LIST]:{char.NAME}:{char.action_list}")
     report_to_log(f"[SKILLS DICT]:{char.NAME}:{char.skills_dict}")
