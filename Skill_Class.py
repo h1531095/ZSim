@@ -4,28 +4,28 @@ from define import *
 
 
 class Skill:
-    def __init__(self, 
-                 name:str=None, CID:int=None, 
-                 normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12, 
+    def __init__(self,
+                 name: str = None, CID: int = None,
+                 normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
                  core_level=6
                  ):
-        '''
+        """
         根据提供的角色、各技能等级，创建一个角色的技能对象。
         成功创建的对象会包含角色的名称、ID、核心技等级、包含全部技能的字典
         skills_dict：
             -keys: 该角色的全部技能标签（skill_tag）
             -values: 包含全部属性的 InitSkill 对象，可使用getattr()方法调用
-        
-        方法 __creat_action_list():
+
+        方法 __create_action_list():
             -检查 self.skill_dict 中是否包含闪避、正向切人、反向切人、被打断、发呆
                 -有，则使用自身的技能
                 -没有，则使用自带 module，初始化这些动作
             -返回仅包含动作名称的列表
-            
+
         方法 get_skill_info()：
             -在仅输入技能标签（skill_tag）时，返回该技能的 InitSkill 对象
             -在同时输入技能标签（skill_tag）和所需属性时（attr_info)时，返回该技能对象的指定属性
-        
+
         以下两个标识符必须提供至少一个：\n
         name:str 角色名称\n
         CID:int 角色的ID
@@ -46,8 +46,8 @@ class Skill:
         skill_0 = test_object.skills_dict[skill_lst[0]] # 利用Skill对象内的dict，返回包含特定技能全部属性的对象
         print(skill_0.damage_ratio) # 面对特定技能对象，直接读取其属性
         print(test_object.get_skill_info(skill_tag=skill_lst[0], attr_info='damage_ratio')) # 利用get_skill_info()方法获取属性
-        '''
-        
+        """
+
         # 初始化角色名称和CID
         self.name, self.CID = self.__init_name(name, CID)
         # 核心技等级需要可读
@@ -55,8 +55,8 @@ class Skill:
         # 最晚在这里创建DataFrame，优化不了一点，这玩意可大了
         skill_dataframe = pd.read_csv(SKILL_DATA_PATH)
         # 根据CID提取角色的技能数据
-        
-        self.skills_dict = {} # 技能名str:技能参数object
+
+        self.skills_dict = {}  # 技能名str:技能参数object
         # 提取dataframe中，每个索引为skill_tag的值，保存为keys
         try:
             self.skill_dataframe = skill_dataframe[skill_dataframe['CID'] == self.CID]
@@ -71,12 +71,14 @@ class Skill:
             return
         # 创建技能字典与技能列表 self.skills_dict 与 self.action_list
         for key in __keys:
-            self.skill_object:object = self.InitSkill(self.skill_dataframe, key, normal_level, special_level, dodge_level, chain_level, assist_level, core_level)
+            self.skill_object: object = self.InitSkill(self.skill_dataframe, key, normal_level, special_level,
+                                                       dodge_level, chain_level, assist_level, core_level)
             self.skills_dict[key] = self.skill_object
-        self.action_list = self.__creat_action_list()
-        
-    def __init_name(self, name=None, cid=None):
-        '''
+        self.action_list = self.__create_action_list()
+
+    @staticmethod
+    def __init_name(name=None, cid=None):
+        """
         初始化角色名称和CID（角色ID）。
 
         这个方法用于验证和确定角色的名称和CID。它可以根据提供的名称或CID来查找
@@ -93,7 +95,7 @@ class Skill:
         异常:
         - ValueError: 如果提供的名称和CID不匹配，或者角色不存在。
         - SystemError: 如果无法处理提供的参数。
-        '''
+        """
         # 动态构建文件路径
         config_file_path = CHARACTER_DATA_PATH
 
@@ -115,69 +117,71 @@ class Skill:
             raise ValueError("角色不存在")
 
         character_info = result[0]
-        
+
         # 检查传入的name与CID是否匹配
         if name is not None and cid is not None:
             if int(character_info['CID']) != cid:
                 raise ValueError("传入的name与CID不匹配")
 
         return character_info['name'], int(character_info['CID'])
-    def get_skill_info(self, skill_tag:str, attr_info:str=None):
-        '''
+
+    def get_skill_info(self, skill_tag: str, attr_info: str = None):
+        """
         -在仅输入技能标签（skill_tag）时，返回该技能的 InitSkill 对象\n
         -在同时输入技能标签（skill_tag）和所需属性时（attr_info)时，返回该技能对象的指定属性
-        '''
-        skill_info:object = self.skills_dict[skill_tag]
+        """
+        skill_info: object = self.skills_dict[skill_tag]
         if attr_info is None:
             return skill_info
         else:
             return getattr(skill_info, attr_info)
-    def __creat_action_list(self):
-        '''
+
+    def __create_action_list(self):
+        """
         创建动作列表并检查初始化状态
-    
+
         此函数旨在为角色或实体创建一个动作列表，并检查这些动作是否已经初始化。
         它通过检查技能字典（skills_dict）中的键来确定哪些动作已经存在，如果不存在（即未初始化），
         则会创建这些动作的默认实例。
-        '''
+        """
         # 定义需要检查是否初始化的动作列表
         default_actions_dataframe = pd.read_csv(DEFAULT_SKILL_PATH)
-        bydefault_actions = default_actions_dataframe['skill_tag'].unique()
-        
+        by_default_actions = default_actions_dataframe['skill_tag'].unique()
+
         # 初始化每个动作的状态为 True
-        init_actions = {action: True for action in bydefault_actions}
-        
+        init_actions = {action: True for action in by_default_actions}
+
         # 遍历 skills_dict 的键
         for key in self.skills_dict.keys():
             # 检查键中是否包含某个动作
-            for action in bydefault_actions:
+            for action in by_default_actions:
                 if action in key:
                     # 如果包含，则将对应动作的状态设为 False
                     init_actions[action] = False
-        
+
         # 遍历每个动作及其初始化状态
         for action, init in init_actions.items():
             # 如果某个动作未被初始化，则创建对应的 Skill 对象并添加到 skills_dict
             if init:
-                self.skills_dict[f'{self.CID}_{action}'] = Skill.InitSkill(default_actions_dataframe, key=action, CID=self.CID)
+                self.skills_dict[f'{self.CID}_{action}'] = Skill.InitSkill(default_actions_dataframe, key=action,
+                                                                           CID=self.CID)
         return list(self.skills_dict.keys())
 
-
     class InitSkill:
-        def __init__(self, skill_dataframe, key, 
-                     normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12, 
+        def __init__(self, skill_dataframe, key,
+                     normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
                      core_level=6,
-                     CID = 0, 
+                     CID=0,
                      ):
-            '''
+            """
             初始化角色的技能。
             会在执行class Skill的时候自动调用，不用手动创建此类的对象
             继承自此类的对象会包含输入的技能（key）的全部属性
-            '''
+            """
             # 提取数据库内，该技能的数据
             _raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
             _raw_skill_data = _raw_skill_data.to_dict('records')
-            if _raw_skill_data == []:
+            if not _raw_skill_data:
                 raise ValueError("未找到技能")
             else:
                 _raw_skill_data = _raw_skill_data[0]
@@ -186,54 +190,56 @@ class Skill:
                 raise ValueError("目前只支持攻击力倍率")
             # 储存技能名
             self.skill_tag = f'{CID}_{key}' if str(_raw_skill_data['CID']) not in key else key
-            
-            self.CN_skill_tag:str = _raw_skill_data['CN_skill_tag']
+
+            self.CN_skill_tag: str = _raw_skill_data['CN_skill_tag']
             # 确定使用的技能等级
-            self.skill_type:int = int(_raw_skill_data['skill_type'])
-            self.skill_level:int = self.__init_skill_level(self.skill_type, 
-                                                       normal_level, special_level, dodge_level, chain_level, assist_level, 
-                                                       core_level)
+            self.skill_type: int = int(_raw_skill_data['skill_type'])
+            self.skill_level: int = self.__init_skill_level(self.skill_type,
+                                                            normal_level, special_level, dodge_level, chain_level,
+                                                            assist_level,
+                                                            core_level)
             # 确定伤害倍率
             damage_ratio = float(_raw_skill_data['damage_ratio'])
             damage_ratio_growth = float(_raw_skill_data['damage_ratio_growth'])
-            self.damage_ratio:float = damage_ratio + damage_ratio_growth * (self.skill_level - 1)
+            self.damage_ratio: float = damage_ratio + damage_ratio_growth * (self.skill_level - 1)
             # 确定失衡倍率
             stun_ratio = float(_raw_skill_data['stun_ratio'])
             stun_ratio_growth = float(_raw_skill_data['stun_ratio_growth'])
-            self.stun_ratio:float = stun_ratio + stun_ratio_growth * (self.skill_level - 1)
+            self.stun_ratio: float = stun_ratio + stun_ratio_growth * (self.skill_level - 1)
             # 能量相关属性
-            self.sp_threshold:float = float(_raw_skill_data['sp_threshold'])
-            self.sp_consume:float = float(_raw_skill_data['sp_consume'])
-            self.sp_recovery:float = float(_raw_skill_data['sp_recovery'])
+            self.sp_threshold: float = float(_raw_skill_data['sp_threshold'])
+            self.sp_consume: float = float(_raw_skill_data['sp_consume'])
+            self.sp_recovery: float = float(_raw_skill_data['sp_recovery'])
             # 喧响值
-            self.fever_recovery:float = float(_raw_skill_data['fever_recovery'])
+            self.fever_recovery: float = float(_raw_skill_data['fever_recovery'])
             # 距离衰减，不知道有啥用
-            self.distance_attenuation:int = int(_raw_skill_data['distance_attenuation'])
+            self.distance_attenuation: int = int(_raw_skill_data['distance_attenuation'])
             # 属性异常蓄积值，直接转化为浮点
-            self.anomaly_accumlation:float = float(_raw_skill_data['anomaly_accumlation'])/100
+            self.anomaly_accumulation: float = float(_raw_skill_data['anomaly_accumulation']) / 100
             # TriggerBuffLevel
-            self.trigger_buff_level:int = int(_raw_skill_data['trigger_buff_level'])
+            self.trigger_buff_level: int = int(_raw_skill_data['trigger_buff_level'])
             # 元素相关
-            self.element_type:int = int(_raw_skill_data['element_type'])
-            self.element_damage_percent:float = float(_raw_skill_data['element_damage_percent'])
+            self.element_type: int = int(_raw_skill_data['element_type'])
+            self.element_damage_percent: float = float(_raw_skill_data['element_damage_percent'])
             # 动画相关
-            self.ticks:int = int(_raw_skill_data['ticks'])
+            self.ticks: int = int(_raw_skill_data['ticks'])
             temp_hit_times = int(_raw_skill_data['hit_times'])
-            self.hit_times:int = temp_hit_times if temp_hit_times > 0 else 1
+            self.hit_times: int = temp_hit_times if temp_hit_times > 0 else 1
 
-            self.skills_info = {attr: getattr(self, attr) 
-                                for attr in dir(self) 
+            self.skills_info = {attr: getattr(self, attr)
+                                for attr in dir(self)
                                 if not attr.startswith('__') and not callable(getattr(self, attr))
-            }
+                                }
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skills_info)}')
 
-
-        def __init_skill_level(self, skill_type:int, 
-                               normal_level:int, special_level:int, dodge_level:int, chain_level:int, assist_level:int, 
-                               core_level:int)->int:
-            '''
+        @staticmethod
+        def __init_skill_level(skill_type: int,
+                               normal_level: int, special_level: int, dodge_level: int, chain_level: int,
+                               assist_level: int,
+                               core_level: int) -> int:
+            """
             根据 skill_type 选择对应的技能等级
-            
+
             参数:
             - skill_type (int): 技能类型标签
             - normal_level (int): 普攻等级
@@ -242,7 +248,7 @@ class Skill:
             - chain_level (int): 连携技等级
             - assist_level (int): 支援技等级
             - core_level (int): 核心被动等级
-            '''
+            """
             skill_levels = {
                 0: normal_level,
                 1: special_level,
@@ -251,13 +257,11 @@ class Skill:
                 4: core_level,
                 5: assist_level
             }
-            
+
             if skill_type in skill_levels:
                 return skill_levels[skill_type]
             else:
                 raise ValueError(f"Invalid skill_type: {skill_type}")
-
-
 
 
 if __name__ == '__main__':

@@ -102,6 +102,7 @@ class Character:
         self._init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT)
 
         # 角色技能列表，还没有写修改技能等级的接口
+        self.statment:dict = Character.Statement(self,crit_balancing=CRIT_BALANCING).statement
         skill_object:object = Skill(name=self.NAME, CID=self.CID)
         self.action_list = skill_object.action_list
         self.skills_dict = skill_object.skills_dict
@@ -409,3 +410,4 @@ if __name__ == "__main__":
     report_to_log(f"[SKILLS DICT]:{char.NAME}:{char.skills_dict}")
     report_to_log(f"[CHAR EQUIP]:{char.NAME}:{char.equip_sets}")
     report_to_log(f"[CHAR WEAPON]:{char.NAME}:{char.weapon_ID}-{char.weapon_level}")
+    report_to_log(f"[CHAR STATUS]:{char.NAME}:{char.statment}")
