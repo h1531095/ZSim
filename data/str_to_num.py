@@ -2,6 +2,9 @@ import os
 import csv
 from decimal import Decimal
 
+'''
+用于将./data 目录下的csv重整
+'''
 def is_percentage(value):
     """检查字符串是否为百分比形式"""
     return isinstance(value, str) and '%' in value
