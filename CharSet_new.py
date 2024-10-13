@@ -402,6 +402,8 @@ class Character:
         '''
         pass
     
+    
+
 if __name__ == "__main__":
     # char = Character("柳", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
     char = Character(name="柳", weapon='深海访客', scATK=4, scATK_percent=4, scCRIT=24)         # 实例化默认角色
