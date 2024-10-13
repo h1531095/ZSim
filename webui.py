@@ -3,7 +3,7 @@ import gradio as gr
 
 def create_character(char_name, weapon, weapon_level, sp_limit, ds4, ds2a, ds2b, ds2c, d4, d5, d6, a,b,c,d,e,f,g,h,i):
     character = Character(
-        char_name=char_name,
+        name=char_name,
         weapon=weapon,
         weapon_level=weapon_level,
         sp_limit=sp_limit,
