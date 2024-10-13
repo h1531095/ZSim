@@ -9,7 +9,7 @@ from define import *
 
 class Character:
     def __init__(self,
-                 char_name,    # 角色名字-必填项
+                 name,    # 角色名字-必填项
                  weapon=None, weapon_level=1, # 武器名字-选填项
                  equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
                  drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
@@ -17,7 +17,7 @@ class Character:
                  sp_limit=120 # 初始充能-默认120
                  ):
         # 参数类型检查
-        if not isinstance(char_name, str):
+        if not isinstance(name, str):
             raise TypeError("char_name must be a string")
         if not isinstance(sp_limit, int):
             raise TypeError("sp_limit must be an integer")
@@ -73,7 +73,7 @@ class Character:
         for attr in attributes:
             setattr(self, attr, 0)
         # 单独初始化的各组件
-        self.NAME = char_name
+        self.NAME = name
         self.CID = None
         self.level = 60
         self.weapon_ID = weapon
@@ -84,7 +84,7 @@ class Character:
 
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
-        self._init_base_attribute(char_name)
+        self._init_base_attribute(name)
         # 初始化武器基础属性    .\data\weapon.csv
 
         self._init_weapon_primitive(weapon, weapon_level)
@@ -402,7 +402,8 @@ class Character:
         pass
     
 if __name__ == "__main__":
-    char = Character("艾莲", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
+    # char = Character("柳", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
+    char = Character(name="柳", weapon='深海访客', scATK=4, scATK_percent=4, scCRIT=24)         # 实例化默认角色
     char_dynamic = Character.Statement(char)
     report_to_log(f"[ACTION LIST]:{char.NAME}:{char.action_list}")
     report_to_log(f"[SKILLS DICT]:{char.NAME}:{char.skills_dict}")
