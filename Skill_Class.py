@@ -178,6 +178,7 @@ class Skill:
             会在执行class Skill的时候自动调用，不用手动创建此类的对象
             继承自此类的对象会包含输入的技能（key）的全部属性
             """
+            breakpoint()
             # 提取数据库内，该技能的数据
             _raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
             _raw_skill_data = _raw_skill_data.to_dict('records')
@@ -226,11 +227,11 @@ class Skill:
             temp_hit_times = int(_raw_skill_data['hit_times'])
             self.hit_times: int = temp_hit_times if temp_hit_times > 0 else 1
 
-            self.skills_info = {attr: getattr(self, attr)
-                                for attr in dir(self)
-                                if not attr.startswith('__') and not callable(getattr(self, attr))
-                                }
-            Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skills_info)}')
+            self.skill_attr_dict = {attr: getattr(self, attr)
+                                    for attr in dir(self)
+                                    if not attr.startswith('__') and not callable(getattr(self, attr))
+                                    }
+            Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
 
         @staticmethod
         def __init_skill_level(skill_type: int,
