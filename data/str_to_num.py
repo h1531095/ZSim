@@ -5,13 +5,17 @@ from decimal import Decimal
 '''
 用于将./data 目录下的csv重整
 '''
+
+
 def is_percentage(value):
     """检查字符串是否为百分比形式"""
     return isinstance(value, str) and '%' in value
 
+
 def convert_percentage(value):
     """将百分比字符串转换为浮点数"""
     return float(Decimal(value.strip('%')) / 100)
+
 
 def process_cell(value):
     """处理单个单元格的值"""
@@ -24,6 +28,7 @@ def process_cell(value):
         return eval(value)
     except:
         return value
+
 
 def process_csv_file(file_path):
     """处理单个 CSV 文件"""
@@ -41,12 +46,14 @@ def process_csv_file(file_path):
         writer = csv.writer(file)
         writer.writerows(rows)
 
+
 def process_all_csv_files(directory):
     """处理指定目录下的所有 CSV 文件"""
     for filename in os.listdir(directory):
         if filename.endswith('.csv'):
             file_path = os.path.join(directory, filename)
             process_csv_file(file_path)
+
 
 if __name__ == '__main__':
     directory = './data'

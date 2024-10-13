@@ -1,14 +1,14 @@
 import json
+
 _config = json.load(open('config.json'))
 
-CHARACTER_DATA_PATH:str = _config["database"]["CHARACTER_DATA_PATH"]
-WEAPON_DATA_PATH:str = _config["database"]["WEAPON_DATA_PATH"]
-EQUIP_2PC_DATA_PATH:str = _config["database"]["EQUIP_2PC_DATA_PATH"]
-SKILL_DATA_PATH:str = _config["database"]["SKILL_DATA_PATH"]
-DEFAULT_SKILL_PATH:str = _config["database"]["DEFAULT_SKILL_PATH"]
-CRIT_BALANCING:bool = _config["character"]["crit_balancing"]
-DEBUG:bool = _config["debug"]
-
+CHARACTER_DATA_PATH: str = _config["database"]["CHARACTER_DATA_PATH"]
+WEAPON_DATA_PATH: str = _config["database"]["WEAPON_DATA_PATH"]
+EQUIP_2PC_DATA_PATH: str = _config["database"]["EQUIP_2PC_DATA_PATH"]
+SKILL_DATA_PATH: str = _config["database"]["SKILL_DATA_PATH"]
+DEFAULT_SKILL_PATH: str = _config["database"]["DEFAULT_SKILL_PATH"]
+CRIT_BALANCING: bool = _config["character"]["crit_balancing"]
+DEBUG: bool = _config["debug"]
 
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名
@@ -20,4 +20,6 @@ if __name__ == "__main__":
         # 打印这些变量名及其值
         for name, value in constant_names_and_values.items():
             print(f"{name}: {value}")
+
+
     print_constant_names_and_values()
