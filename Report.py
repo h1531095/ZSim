@@ -17,5 +17,6 @@ def report_to_log(content):
         with open(report_file_path, 'a', encoding='utf-8-sig') as file:
             file.write(content + '\n')
 
+
 if __name__ == '__main__':
     report_to_log('test')

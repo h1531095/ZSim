@@ -4,3 +4,4 @@ config.json
 .idea
 .ipynb_checkpoints
 test.py
+.vscode

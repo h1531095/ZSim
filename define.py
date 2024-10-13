@@ -21,5 +21,4 @@ if __name__ == "__main__":
         for name, value in constant_names_and_values.items():
             print(f"{name}: {value}")
 
-
     print_constant_names_and_values()
