@@ -43,6 +43,7 @@ class Buff:
         self.dy = self.BuffDynamic()
         self.sjc = self.BuffSimpleJudgeCondition(judgeconfig)
         self.logic = self.BuffLogic()
+        self.history =self.BuffHistory()
 
     class BuffFeature:
         def __init__(self, config):
@@ -74,6 +75,7 @@ class Buff:
             self.ready = True           # buff的可叠层状态,如果是True,就意味着是内置CD结束了,可以叠层,如果不是True,就不能叠层.
             self.startticks = 0         # buff上一次触发的时间(tick)
             self.endticks = 0           # buff计划课中,buff的结束时间
+
             self.lastend = 0            # buff上一次结束的时间
             self.activetimes = 0        # buff迄今为止激活过的次数
             self.lastduration = 0       # buff上一次的持续时间
@@ -101,6 +103,18 @@ class Buff:
             self.da = judgeconfig['DmgRelated_Attributes']
             self.sa = judgeconfig['StunRelated_Attributes']
 
+    class BuffHistory:
+        def __init__(self):
+            """
+            History是Buff的一个子类，主要记录了buff的触发历史，\n
+            包括buff的上次结束时间、上次持续时间、激活次数以及结束次数。\n
+            """
+            self.lastend = 0            # buff上一次结束的时间
+            self.activetimes = 0        # buff迄今为止激活过的次数
+            self.lastduration = 0       # buff上一次的持续时间
+            self.endtimes = 0           # buff结束过的次数
+
+
     def readyjudge(self, timenow):
         """
         用来判断内置CD是否就绪
@@ -115,13 +129,17 @@ class Buff:
         """
         self.dy.active = False
         self.dy.count = 0
+        keylist = ['lastend','activetimes','lastduration','endtimes']
+        for _ in keylist:
+            pass
+
+
+        
         self.dy.lastend = timenow
         self.dy.endtimes += 1
         self.dy.lastduration = max(self.dy.lastend - self.dy.startticks, 0)
-        # 将end函数对于当前buff的改变，回传给buff源的buff实例，进行同步。
-        exsistbuff_dict[self.ft.name].dy.lastend = self.dy.lastend
-        exsistbuff_dict[self.ft.name].dy.lastduration = self.dy.lastduration
-        exsistbuff_dict[self.ft.name].dy.endtimes = self.dy.endtimes
+
+
         report_to_log(f'[Skill INFO]:{timenow}:{self.ft.name}第{self.dy.endtimes}次结束;duration:{self.dy.lastduration}')
 
     def timeupdate(buff, timecost, timenow):
