@@ -1,6 +1,6 @@
 from BuffClass import Buff
 from CharSet_new import Character
-def buff_load(CHARACTER_ORDER_DICT:dict, exsistbuff_dict:dict, action, used_buffname_box:list):
+def buff_load(CHARACTER_ORDER_DICT:dict, existbuff_dict:dict, action, used_buffname_box:list):
     """
     这是buff修改三部曲的第二步,也是最核心的一个步骤.\n
     该函数有以下几个功能:\n
@@ -24,11 +24,14 @@ def buff_load(CHARACTER_ORDER_DICT:dict, exsistbuff_dict:dict, action, used_buff
     LOADING_BUFF_DICT = {}
     for _ in CHARACTER_ORDER_DICT:
         LOADING_BUFF_DICT[CHARACTER_ORDER_DICT[_]] = []
-    # 初始化LOADING_BUFF_DICT,清空
-    for item in exsistbuff_dict:
-        buff = exsistbuff_dict[item]
+    # 初始化LOADING_BUFF_DICT,清空,格式为,角色名:[]
+    for item in existbuff_dict:
+        buff = existbuff_dict[item]
         if not isinstance(buff, Buff):
-            raise ValueError(f'在buff_load环节发现{exsistbuff_dict}中的{buff}不是Buff类的实例')
-        if buff.dy.index in used_buffname_box:
+            raise ValueError(f'在buff_load环节发现{existbuff_dict}中的{buff}不是Buff类的实例')
+        if buff.ft.simple_judge_logic:
+            pass
+        else:
+            buff.logic.xjudge
             
         binary_str = f'{int(buff.ft.add_buff_to):03b}'

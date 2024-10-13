@@ -47,15 +47,16 @@ class Buff:
 
     class BuffFeature:
         def __init__(self, config):
-            self.simple_start_logic = config['simple_start_logic']
-            self.simple_end_logic = config['simple_end_logic']
-            self.simple_effect = config['simple_effect']
+            self.simple_judge_logic = config['simple_judge_logic']  # 复杂判断逻辑,指的是buff在判断阶段(装载到Loading buff dict的步骤中的复杂逻辑)
+            self.simple_start_logic = config['simple_start_logic']  # 复杂开始逻辑,指的是buff在触发后的初始化阶段,并不能按照csv的规则来简单初始化的,比如,buff最大持续时间不确定的,buff的起始层数不确定的等等
+            self.simple_end_logic = config['simple_end_logic']      # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
+            self.simple_effect = config['simple_effect']            # 复杂效果逻辑,指的是buff的效果无法用常规的csv来记录的,比如随机增加攻击力的,或者其他的复杂buff效果;
             self.index = config['BuffName']                       # buff的英文名,也是buff的索引
             self.isweapon = config['isweapon']                    # buff是否是武器特效
             self.refinement = config['refinement']                # 武器特效的精炼等级
             self.bufffrom = config['from']                        # buff的来源,可以是角色名,也可以是其他,这个字段用来和配置文件比对,比对成功则证明这个buff是可以触发的;
             self.name = config['name']                            # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
-            self.exsist = config['exsist']                        # buff是否参与了计算,即是否允许被激活
+            self.exist = config['exist']                          # buff是否参与了计算,即是否允许被激活
             self.durationtype = config['durationtype']            # buff的持续时间类型,如果是True,就是有持续时间的,如果是False,就没有持续时间类型,属于瞬时buff.
             self.maxduration = config['maxduration']              # buff最大持续时间
             self.maxcount = config['maxcount']                    # buff允许被叠加的最大层数
@@ -69,23 +70,19 @@ class Buff:
 
     class BuffDynamic:
         def __init__(self):
-            self.exsist = False         # buff是否参与了计算,即是否允许被激活
+            self.exist = False         # buff是否参与了计算,即是否允许被激活
             self.active = False         # buff当前的激活状态
             self.count = 0              # buff当前层数
             self.ready = True           # buff的可叠层状态,如果是True,就意味着是内置CD结束了,可以叠层,如果不是True,就不能叠层.
             self.startticks = 0         # buff上一次触发的时间(tick)
             self.endticks = 0           # buff计划课中,buff的结束时间
-
-            self.lastend = 0            # buff上一次结束的时间
-            self.activetimes = 0        # buff迄今为止激活过的次数
-            self.lastduration = 0       # buff上一次的持续时间
-            self.endtimes = 0           # buff结束过的次数
     
     class BuffLogic:
         def __init__(self):
             self.xstart = None
             self.xeffect = None
             self.xend = None
+            self.xjudge = None
             
     class BuffSimpleJudgeCondition:
         def __init__(self, judgeconfig):
@@ -106,8 +103,8 @@ class Buff:
     class BuffHistory:
         def __init__(self):
             """
-            History是Buff的一个子类，主要记录了buff的触发历史，\n
-            包括buff的上次结束时间、上次持续时间、激活次数以及结束次数。\n
+            History是Buff的一个子类,主要记录了buff的触发历史,\n
+            包括buff的上次结束时间,上次持续时间,激活次数以及结束次数.\n
             """
             self.lastend = 0            # buff上一次结束的时间
             self.activetimes = 0        # buff迄今为止激活过的次数
@@ -123,24 +120,23 @@ class Buff:
             if timenow - self.dy.startticks >= self.ft.cd:
                 self.dy.ready = True 
 
-    def end(self, timenow, exsistbuff_dict:dict):
+    def end(self, timenow, existbuff_dict:dict):
         """
         用来执行buff的结束
         """
         self.dy.active = False
         self.dy.count = 0
-        keylist = ['lastend','activetimes','lastduration','endtimes']
-        for _ in keylist:
-            pass
 
+        # 先修改buff源的history
+        existbuff_dict[self.ft.name].history.lastend = timenow
+        existbuff_dict[self.ft.name].history.endtimes += 1
+        existbuff_dict[self.ft.name].history.lastduration = max(timenow - self.dy.startticks, 0)
 
-        
-        self.dy.lastend = timenow
-        self.dy.endtimes += 1
-        self.dy.lastduration = max(self.dy.lastend - self.dy.startticks, 0)
-
-
-        report_to_log(f'[Skill INFO]:{timenow}:{self.ft.name}第{self.dy.endtimes}次结束;duration:{self.dy.lastduration}')
+        # 再把当前buff的实例化的history和buff源对齐
+        self.history.lastend = existbuff_dict[self.ft.name].history.lastend
+        self.history.endtimes = existbuff_dict[self.ft.name].history.endtimes
+        self.history.lastduration = existbuff_dict[self.ft.name].history.lastduration
+        report_to_log(f'[Skill INFO]:{timenow}:{self.ft.name}第{existbuff_dict[self.ft.name].history.endtimes}次结束;duration:{existbuff_dict[self.ft.name].history.lastduration}')
 
     def timeupdate(buff, timecost, timenow):
         """
@@ -169,29 +165,15 @@ class Buff:
 
     def countupdate(buff, be_hitted: bool):
         """
-        如果 buff.ft.hitincrease 为 False,则无需关心 be_hitted 的值,直接执行 buff.dy.count 的增加操作.
-        如果 buff.ft.hitincrease 为 True,则只在 be_hitted 为 True 时增加 buff.dy.count.
+        如果 buff.ft.hitincrease 为 False,则无需关心 be_hitted 的值,直接执行 buff.dy.count 的增加操作.\n
+        如果 buff.ft.hitincrease 为 True,则只在 be_hitted 为 True 时增加 buff.dy.count.\n
         """
         if not buff.ft.hitincrease or be_hitted:
             buff.dy.count = min(buff.dy.count + buff.ft.step, buff.ft.maxcount)
 
-    def buff_add(timenow, timecost, be_hitted:bool, LOADING_BUFF_DICT:dict, DYNAMIC_BUFF_DICT:dict, exsistbuff_dict):
+    def buff_add(timenow, timecost, be_hitted:bool, LOADING_BUFF_DICT:dict, DYNAMIC_BUFF_DICT:dict, existbuff_dict:dict):
         """
-        用来添加buff的总函数.它能新增buff到DYNAMIC_BUFF_LIST中,\n
-        \n
-        它是buff修改三部曲的第三步,
-        \n
-        注意,该函数不包含判断逻辑,应在执行完buff是否要激活的判断后,再执行这个函数.\n
-        它会遍历LOADING_BUFF_DICT中的所有角色和他们对应的bufflist,如果角色是占位符empty,则直接跳过\n
-        在此过程中,它会遍历bufflist,判断buff内置CD是否就绪,内置Cd没转完的不执行激活操作;\n
-        然后会判断buff的simple_start_logic类型,如果是true,则进行简单更新,运行time和count的 update函数\n
-        无论是什么逻辑,都会更新buff的active,activetimes,同时将内置Cd刷新,重置为False状态\n
-        最后对DYNAMIC_BUFF_DICT进行添加操作;\n
-        它会以本次Buff添加的受益者(beneficiary)为key,去DICT中调出对应的dynamic_buff_list,并执行添加操作;\n
-        其中还包括了重复添加的判断逻辑,如果在添加执行时,检测到list中已经存在该buff,则应停止添加.\n
-        PS:如果需求是同时向多个角色添加同一批次的buff,则应该修改beneficiary来多次执行该函数.\n
-        PS2:注意,本函数不包含buff在实例化过程中的命名问题,由于同一个buff的实例化是不能同时用在三个角色的bufflist中的,\n
-        所以,我们应该在确定loading_buff_dict的时候就完成名称的查重和修改工作.\n
+        原来的注释就是一坨狗屎,重新写!!!
         """
         for char in LOADING_BUFF_DICT:
             if char == 'empty':
@@ -202,18 +184,13 @@ class Buff:
                 if not buff.readyjudge(timenow):
                     report_to_log(f'[Buff INFO]:{timenow}:{buff.ft.name}因内置CD未就绪触发失败.')
                     continue
-                if buff.ft.simple_start_logic:
-                        buff.timeupdate(timenow, timecost)
-                        buff.countupdate(be_hitted)
-                else:
-                    buff.logic.xstart
-                buff.dy.active = True
-                buff.dy.activetimes += 1
-                # 将激活次数改变的信息同步给buff源中的buff实例。
-                exsistbuff_dict[buff.ft.name].dy.activetimes = buff.dy.activetimes 
-                buff.dy.ready = False
-                if buff in DYNAMIC_BUFF_DICT[char]['dynamic_buff_list']:
+                if math.ceil(buff.dy.startticks) != timenow:
                     continue
+                buff_existing_chek = next((existing_buff for existing_buff in DYNAMIC_BUFF_DICT[char]['dynamic_buff_list'] if existing_buff.ft.name == buff.ft.name), None)
+                if buff_existing_chek:
+                    DYNAMIC_BUFF_DICT[char]['dynamic_buff_list'].remove(buff_existing_chek)
+                    report_to_log(f'[Buff INFO]:{timenow}:老的{buff_existing_chek.ft.name}被移除,并已经添加新的buff.')
                 DYNAMIC_BUFF_DICT[char]['dynamic_buff_list'].append(buff)
-                report_to_log(f'[Buff INFO]:{timenow}:{buff.ft.name}第{buff.dy.endtimes}次触发:endticks:{buff.dy.lastduration}')
+                report_to_log(f'[Buff INFO]:{timenow}:{buff.ft.name}第{buff.dy.activetimes}次触发:endticks:{buff.dy.endticks}')
+        return DYNAMIC_BUFF_DICT
     
