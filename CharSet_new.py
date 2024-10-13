@@ -89,13 +89,13 @@ class Character:
 
         self._init_weapon_primitive(weapon, weapon_level)
         # 初始化套装效果        .\data\equip_set_2pc.csv
-        ( 
+        self._init_equip_set(equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
+        self.equip_sets = [
         self.equip_set4, 
         self.equip_set2_a, 
         self.equip_set2_b, 
         self.equip_set2_c
-        )= (None, None, None, None) # 先初始化变量，函数里赋值
-        self._init_equip_set(equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
+        ]
         # 初始化主词条
         self._init_primary_drive(drive4, drive5, drive6)
         # 初始化副词条
@@ -147,7 +147,7 @@ class Character:
             self.statement = {attr: getattr(self, attr)
                               for attr in dir(self) 
                               if not callable(getattr(self, attr)) and not attr.startswith("__")}
-            report_to_log(f'[Char STATUS]:{self.NAME}:{str(self.statement)}')
+            report_to_log(f'[CHAR STATUS]:{self.NAME}:{str(self.statement)}')
         @classmethod
         def get_statement(cls, attr:str, char_class:object) -> float:
             '''
@@ -404,6 +404,7 @@ class Character:
 if __name__ == "__main__":
     char = Character("艾莲", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
     char_dynamic = Character.Statement(char)
-    report_to_log(f"[ACTION LIST]:{char.action_list}")
-    report_to_log(f"[SKILLS DICT]:{char.skills_dict}")
-
+    report_to_log(f"[ACTION LIST]:{char.NAME}:{char.action_list}")
+    report_to_log(f"[SKILLS DICT]:{char.NAME}:{char.skills_dict}")
+    report_to_log(f"[CHAR EQUIP]:{char.NAME}:{char.equip_sets}")
+    report_to_log(f"[CHAR WEAPON]:{char.NAME}:{char.weapon_ID}-{char.weapon_level}")

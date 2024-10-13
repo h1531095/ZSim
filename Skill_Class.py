@@ -177,7 +177,6 @@ class Skill:
             # 提取数据库内，该技能的数据
             _raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
             _raw_skill_data = _raw_skill_data.to_dict('records')
-            pass
             if _raw_skill_data == []:
                 raise ValueError("未找到技能")
             else:
@@ -186,21 +185,22 @@ class Skill:
             if _raw_skill_data['diff_multiplier'] != 0:
                 raise ValueError("目前只支持攻击力倍率")
             # 储存技能名
-            if str(_raw_skill_data['CID']) in key:
-                self.skill_tag:str = key
-            else:
-                self.skill_tag:str = f'{CID}_{key}'
+            self.skill_tag = f'{CID}_{key}' if str(_raw_skill_data['CID']) not in key else key
             
             self.CN_skill_tag:str = _raw_skill_data['CN_skill_tag']
             # 确定使用的技能等级
             self.skill_type:int = int(_raw_skill_data['skill_type'])
-            self.__level:int = self.__init_skill_level(self.skill_type, 
+            self.skill_level:int = self.__init_skill_level(self.skill_type, 
                                                        normal_level, special_level, dodge_level, chain_level, assist_level, 
                                                        core_level)
             # 确定伤害倍率
-            self.damage_ratio:float = float(_raw_skill_data['damage_ratio']) + float(_raw_skill_data['damage_ratio_growth']) * (self.__level-1)
+            damage_ratio = float(_raw_skill_data['damage_ratio'])
+            damage_ratio_growth = float(_raw_skill_data['damage_ratio_growth'])
+            self.damage_ratio:float = damage_ratio + damage_ratio_growth * (self.skill_level - 1)
             # 确定失衡倍率
-            self.stun_ratio:float = float(_raw_skill_data['stun_ratio']) + float(_raw_skill_data['stun_ratio_growth']) * (self.__level-1)
+            stun_ratio = float(_raw_skill_data['stun_ratio'])
+            stun_ratio_growth = float(_raw_skill_data['stun_ratio_growth'])
+            self.stun_ratio:float = stun_ratio + stun_ratio_growth * (self.skill_level - 1)
             # 能量相关属性
             self.sp_threshold:float = float(_raw_skill_data['sp_threshold'])
             self.sp_consume:float = float(_raw_skill_data['sp_consume'])
@@ -218,7 +218,8 @@ class Skill:
             self.element_damage_percent:float = float(_raw_skill_data['element_damage_percent'])
             # 动画相关
             self.ticks:int = int(_raw_skill_data['ticks'])
-            self.hit_times:int = int(_raw_skill_data['hit_times'])
+            temp_hit_times = int(_raw_skill_data['hit_times'])
+            self.hit_times:int = temp_hit_times if temp_hit_times > 0 else 1
 
             self.skills_info = {attr: getattr(self, attr) 
                                 for attr in dir(self) 
@@ -231,31 +232,30 @@ class Skill:
                                normal_level:int, special_level:int, dodge_level:int, chain_level:int, assist_level:int, 
                                core_level:int)->int:
             '''
-            skill type等级对应表：
-            type    描述        Tag
-            normal  普攻        0
-            special 特殊技      1
-            dodge   闪避        2
-            chain   连携技      3
-            assist  支援技      5
-            core    核心被动    4
+            根据 skill_type 选择对应的技能等级
+            
+            参数:
+            - skill_type (int): 技能类型标签
+            - normal_level (int): 普攻等级
+            - special_level (int): 特殊技等级
+            - dodge_level (int): 闪避等级
+            - chain_level (int): 连携技等级
+            - assist_level (int): 支援技等级
+            - core_level (int): 核心被动等级
             '''
-            match skill_type:
-                case 0:
-                    return normal_level
-                case 1:
-                    return special_level
-                case 2:
-                   return dodge_level
-                case 3:
-                   return chain_level
-                case 5:
-                   return assist_level
-                case 4:
-                   return core_level
-                case _:
-                    return 1
-
+            skill_levels = {
+                0: normal_level,
+                1: special_level,
+                2: dodge_level,
+                3: chain_level,
+                4: core_level,
+                5: assist_level
+            }
+            
+            if skill_type in skill_levels:
+                return skill_levels[skill_type]
+            else:
+                raise ValueError(f"Invalid skill_type: {skill_type}")
 
 
 
