@@ -1,4 +1,6 @@
 import pandas as pd
+from tqdm import tqdm
+
 from Skill_Class import Skill, lookup_name_or_cid
 from Report import report_to_log
 import logging
@@ -8,7 +10,7 @@ import timeit
 
 class Character:
     def __init__(self,
-                 name: str = '', CID: int = 0,  # 角色名字和CID-必填至少一个
+                 name: str = '', CID: int = None,  # 角色名字和CID-必填至少一个
                  weapon=None, weapon_level=1,  # 武器名字-选填项
                  equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
                  drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
@@ -62,7 +64,7 @@ class Character:
         # 参数类型
         if not isinstance(name, str):
             raise TypeError("char_name must be a string")
-        if not isinstance(CID, int):
+        if CID is not None and not isinstance(CID, int):
             raise TypeError("CID must be an integer")
         if not isinstance(sp_limit, int):
             raise TypeError("sp_limit must be an integer")
@@ -516,5 +518,7 @@ if __name__ == "__main__":
         report_to_log(f"[CHAR WEAPON]:{char.NAME}:{char.weapon_ID}-{char.weapon_level}")
         report_to_log(f"[CHAR STATUS]:{char.NAME}:{char.statement}")
 
-
-    print(timeit.timeit(class_once_test, number=1))
+    time = 0
+    for i in tqdm(range((times := 100))):
+        time += timeit.timeit(class_once_test, number=1)
+    print(f'Create {times} Character Objects in {time:2f} seconds, average time:{(time/times*1000):.2f} ms')
