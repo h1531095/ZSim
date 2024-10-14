@@ -1,6 +1,0 @@
-{
-    "debug": true,
-    "judge_file_path": "./触发判断.csv",
-    "effect_file_path": "./Buff效果.csv"
-    "exist_file_path": "./激活判断.csv"
-}
