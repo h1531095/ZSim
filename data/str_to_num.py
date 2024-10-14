@@ -1,5 +1,6 @@
 import os
 import csv
+from tqdm import tqdm
 from decimal import Decimal
 
 '''
@@ -17,6 +18,7 @@ def convert_percentage(value):
     return float(Decimal(value.strip('%')) / 100)
 
 
+# noinspection PyBroadException
 def process_cell(value):
     """处理单个单元格的值"""
     if is_percentage(value):
@@ -37,7 +39,7 @@ def process_csv_file(file_path):
         rows = list(reader)
 
     # 处理除首行首列外的数据
-    for row_index in range(1, len(rows)):
+    for row_index in tqdm(range(1, len(rows))):
         for col_index in range(1, len(rows[row_index])):
             rows[row_index][col_index] = process_cell(rows[row_index][col_index])
 
@@ -56,5 +58,5 @@ def process_all_csv_files(directory):
 
 
 if __name__ == '__main__':
-    directory = './data'
-    process_all_csv_files(directory)
+    path = './data'
+    process_all_csv_files(path)

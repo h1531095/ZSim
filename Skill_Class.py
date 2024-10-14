@@ -3,6 +3,56 @@ import Report
 from define import *
 
 
+def lookup_name_or_cid(name: str = None, cid: int = None) -> tuple:
+    """
+    初始化角色名称和CID（角色ID）。
+
+    这个方法用于验证和确定角色的名称和CID。它可以根据提供的名称或CID来查找
+    对应的角色信息，并确保提供的名称和CID匹配。如果只提供了名称或CID，它将
+    尝试从 ./data/character.csv 中查找对应的CID或名称。
+
+    参数:
+    - name:str 角色的名称。
+    - CID:int 角色的ID。
+
+    示例：
+    self.NAME, self.CID = lookup_name_or_cid(name, cid)
+
+    返回:
+    - 一个包含角色名称和CID的元组。
+
+    异常:
+    - ValueError: 提供的名称和CID不匹配，或者角色不存在。
+    - IOError: 角色数据库常量 CHARACTER_DATA_PATH 有误
+    - SystemError: 无法处理提供的参数。
+    """
+    try:
+        # 读取角色数据
+        char_dataframe = pd.read_csv(CHARACTER_DATA_PATH, encoding='utf-8')
+    except Exception as e:
+        raise IOError(f"无法读取文件 {CHARACTER_DATA_PATH}: {e}")
+
+    # 查找角色信息
+    if name is not None:
+        result = char_dataframe[char_dataframe['name'] == name].to_dict('records')
+    elif cid is not None:
+        result = char_dataframe[char_dataframe['CID'] == cid].to_dict('records')
+    else:
+        raise ValueError("角色名称与ID必须至少提供一个")
+
+    if not result:
+        raise ValueError("角色不存在")
+
+    character_info = result[0]
+
+    # 检查传入的name与CID是否匹配
+    if name is not None and cid is not None:
+        if int(character_info['CID']) != cid:
+            raise ValueError("传入的name与CID不匹配")
+
+    return character_info['name'], int(character_info['CID'])
+
+
 class Skill:
     def __init__(self,
                  name: str = None, CID: int = None,
@@ -40,7 +90,7 @@ class Skill:
         """
 
         # 初始化角色名称和CID
-        self.name, self.CID = self.__init_name(name, CID)
+        self.name, self.CID = lookup_name_or_cid(name, CID)
         # 核心技等级需要可读
         self.core_level = core_level
         # 最晚在这里创建DataFrame，优化不了一点，这玩意可大了
@@ -71,54 +121,6 @@ class Skill:
                                    assist_level=assist_level, core_level=core_level, CID=self.CID)
             self.skills_dict[key] = skill
         self.action_list = self.__create_action_list()
-
-    @staticmethod
-    def __init_name(name=None, cid=None):
-        """
-        初始化角色名称和CID（角色ID）。
-
-        这个方法用于验证和确定角色的名称和CID。它可以根据提供的名称或CID来查找
-        对应的角色信息，并确保提供的名称和CID匹配。如果只提供了名称或CID，它将
-        尝试从 ./data/character.csv 中查找对应的CID或名称。
-
-        参数:
-        - name:str 角色的名称。
-        - CID:int 角色的ID。
-
-        返回:
-        - 一个包含角色名称和CID的元组。
-
-        异常:
-        - ValueError: 如果提供的名称和CID不匹配，或者角色不存在。
-        - SystemError: 如果无法处理提供的参数。
-        """
-        # 动态构建文件路径
-
-        try:
-            # 读取角色数据
-            char_dataframe = pd.read_csv(CHARACTER_DATA_PATH)
-        except Exception as e:
-            raise IOError(f"无法读取文件 {CHARACTER_DATA_PATH}: {e}")
-
-        # 查找角色信息
-        if name is not None:
-            result = char_dataframe[char_dataframe['name'] == name].to_dict('records')
-        elif cid is not None:
-            result = char_dataframe[int(char_dataframe['CID']) == cid].to_dict('records')
-        else:
-            raise ValueError("角色名称与ID必须至少提供一个")
-
-        if not result:
-            raise ValueError("角色不存在")
-
-        character_info = result[0]
-
-        # 检查传入的name与CID是否匹配
-        if name is not None and cid is not None:
-            if int(character_info['CID']) != cid:
-                raise ValueError("传入的name与CID不匹配")
-
-        return character_info['name'], int(character_info['CID'])
 
     def get_skill_info(self, skill_tag: str, attr_info: str = None):
         """
@@ -260,6 +262,7 @@ class Skill:
 
 if __name__ == '__main__':
     test_object = Skill(name='艾莲')
+    test_object2 = Skill(CID=1221)
     action_list = test_object.action_list  # 获取动作列表
     skills_dict = test_object.skills_dict  # 获取技能字典
     skill_0: Skill.InitSkill = test_object.skills_dict[action_list[0]]  # 获取第一个动作对应的技能对象
