@@ -5,8 +5,7 @@ from EnemySet import enemy_set
 from KCalculate import Kcal
 from BuffClass import Buff
 from Actionlist_test import testlist
-from BuffExist_Judge import buff_exist_judge
-charnum, charname_box, charactive_box, judgelist_set, keybox = character_set()
+
 LOADING_BUFF_DICT = {}
 """
 这个DICT是用来装每次事件中需要添加的所有buff的,由于角色box扩充到了3个甚至更多,所以原定的list格式不再适用.
@@ -23,11 +22,11 @@ LOADING_BUFF_DICT = {}
 # 最后两个传出的变量在计算环节和buff判断的轮询中不会用的,只在初始化时需要.
 
 enemyactive = enemy_set()
-existbuff_dict = buff_exist_judge(charname_box, judgelist_set, keybox)     
+
 # 关于existbuff_dict 的详细注释和作用,在Buffexist_Judge里.
 # 其结构为:{buff名A:实例化buffA, buff名B:实例化buffB......}
 TIMETICK = 0
-DYNAMIC_BUFF_DICT = {}
+
 """
 格式举例\n
 {

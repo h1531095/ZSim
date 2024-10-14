@@ -1080,7 +1080,7 @@ def EventCreat(actionlist, character):
         eventnow = allaction_dict[actionkey_now]
 
         for buff in allbuff_list:
-            #print(f'当前进行判断的buff是：{buff}')
+            #print(f'当前进行判断的buff是：{self}')
             buffnow = allbuff_dict[buff]
             all_none_empty_list = []        #触发条件box，记录了buff触发所需要的所有的前置条件。   
             all_match = False               #每个buff判断开始前， 初始化这个变量为false
@@ -1106,7 +1106,7 @@ def EventCreat(actionlist, character):
 
                 else:
                     all_match = True
-                #print(f'{buff}的all_match状态是：{all_match}')
+                #print(f'{self}的all_match状态是：{all_match}')
                 buffnow.Update(timenow)             # 用来更新buff的刷新状态，判断内置CD是否转完了。
                 if all_match:                       # 如果buff的触发判定过了，则buff触发。
                                  
