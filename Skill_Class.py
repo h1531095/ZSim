@@ -104,7 +104,7 @@ class Skill:
         if name is not None:
             result = char_dataframe[char_dataframe['name'] == name].to_dict('records')
         elif cid is not None:
-            result = char_dataframe[int(char_dataframe['CID']) == cid].to_dict('records')
+            result = char_dataframe[char_dataframe['CID'] == cid].to_dict('records')
         else:
             raise ValueError("角色名称与ID必须至少提供一个")
 
@@ -260,6 +260,7 @@ class Skill:
 
 if __name__ == '__main__':
     test_object = Skill(name='艾莲')
+    test_object2 = Skill(CID=1221)
     action_list = test_object.action_list  # 获取动作列表
     skills_dict = test_object.skills_dict  # 获取技能字典
     skill_0: Skill.InitSkill = test_object.skills_dict[action_list[0]]  # 获取第一个动作对应的技能对象
