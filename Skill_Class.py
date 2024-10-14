@@ -96,7 +96,7 @@ class Skill:
 
         try:
             # 读取角色数据
-            char_dataframe = pd.read_csv(CHARACTER_DATA_PATH)
+            char_dataframe = pd.read_csv(CHARACTER_DATA_PATH, encoding='utf-8')
         except Exception as e:
             raise IOError(f"无法读取文件 {CHARACTER_DATA_PATH}: {e}")
 

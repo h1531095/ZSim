@@ -1,5 +1,6 @@
 import os
 import csv
+from tqdm import tqdm
 from decimal import Decimal
 
 '''
@@ -38,7 +39,7 @@ def process_csv_file(file_path):
         rows = list(reader)
 
     # 处理除首行首列外的数据
-    for row_index in range(1, len(rows)):
+    for row_index in tqdm(range(1, len(rows))):
         for col_index in range(1, len(rows[row_index])):
             rows[row_index][col_index] = process_cell(rows[row_index][col_index])
 
