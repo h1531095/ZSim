@@ -17,6 +17,7 @@ def convert_percentage(value):
     return float(Decimal(value.strip('%')) / 100)
 
 
+# noinspection PyBroadException
 def process_cell(value):
     """处理单个单元格的值"""
     if is_percentage(value):
@@ -56,5 +57,5 @@ def process_all_csv_files(directory):
 
 
 if __name__ == '__main__':
-    directory = './data'
-    process_all_csv_files(directory)
+    path = './data'
+    process_all_csv_files(path)

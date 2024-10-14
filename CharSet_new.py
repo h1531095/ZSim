@@ -1,5 +1,3 @@
-import json
-import numpy as np
 import pandas as pd
 from Skill_Class import Skill
 from Report import report_to_log
@@ -60,19 +58,63 @@ class Character:
             raise TypeError("scCRIT must be a number")
 
         # 初始化为0的各属性
-        attributes = ['baseATK', 'ATK_percent', 'ATK_numeric', 'overral_ATK_percent', 'overral_ATK_numeric',
-                      'baseHP', 'HP_percent', 'HP_numeric', 'overral_HP_percent', 'overral_HP_numeric',
-                      'baseDEF', 'DEF_percent', 'DEF_numeric', 'overral_DEF_percent', 'overral_DEF_numeric',
-                      'baseIMP', 'IMP_percent', 'IMP_numeric', 'overral_IMP_percent', 'overral_IMP_numeric',
-                      'baseAP', 'AP_percent', 'AP_numeric', 'overral_AP_percent', 'overral_AP_numeric',
-                      'baseAM', 'AM_percent', 'AM_numeric', 'overral_AM_percent', 'overral_AM_numeric',
-                      'baseCRIT_score', 'CRIT_rate_numeric', 'CRIT_damage_numeric',
-                      'sp_limit', 'base_sp_regen', 'sp_regen_percent', 'sp_regen_numeric', 'sp_get_ratio',
-                      'ICE_DMG_bonus', 'FIRE_DMG_bonus', 'PHY_DMG_bonus', 'ETHER_DMG_bonus', 'ELECTRIC_DMG_bonus',
-                      'ALL_DMG_bonus', 'Trigger_DMG_bonus',
-                      'PEN_ratio', 'PEN_numeric']
-        for attr in attributes:
-            setattr(self, attr, 0)
+        self.baseATK = 0
+        self.ATK_percent = 0
+        self.ATK_numeric = 0
+        self.overall_ATK_percent = 0
+        self.overall_ATK_numeric = 0
+
+        self.baseHP = 0
+        self.HP_percent = 0
+        self.HP_numeric = 0
+        self.overall_HP_percent = 0
+        self.overall_HP_numeric = 0
+
+        self.baseDEF = 0
+        self.DEF_percent = 0
+        self.DEF_numeric = 0
+        self.overall_DEF_percent = 0
+        self.overall_DEF_numeric = 0
+
+        self.baseIMP = 0
+        self.IMP_percent = 0
+        self.IMP_numeric = 0
+        self.overall_IMP_percent = 0
+        self.overall_IMP_numeric = 0
+
+        self.baseAP = 0
+        self.AP_percent = 0
+        self.AP_numeric = 0
+        self.overall_AP_percent = 0
+        self.overall_AP_numeric = 0
+
+        self.baseAM = 0
+        self.AM_percent = 0
+        self.AM_numeric = 0
+        self.overall_AM_percent = 0
+        self.overall_AM_numeric = 0
+
+        self.baseCRIT_score = 0
+        self.CRIT_rate_numeric = 0
+        self.CRIT_damage_numeric = 0
+
+        self.sp_limit = 0
+        self.base_sp_regen = 0
+        self.sp_regen_percent = 0
+        self.sp_regen_numeric = 0
+        self.sp_get_ratio = 0
+
+        self.ICE_DMG_bonus = 0
+        self.FIRE_DMG_bonus = 0
+        self.PHY_DMG_bonus = 0
+        self.ETHER_DMG_bonus = 0
+        self.ELECTRIC_DMG_bonus = 0
+        self.ALL_DMG_bonus = 0
+        self.Trigger_DMG_bonus = 0
+
+        self.PEN_ratio = 0
+        self.PEN_numeric = 0
+
         # 单独初始化的各组件
         self.NAME = name
         self.CID = None
@@ -104,12 +146,12 @@ class Character:
                                    scPEN, scCRIT)
 
         # 角色技能列表，还没有写修改技能等级的接口
-        self.statment: dict = Character.Statement(self, crit_balancing=CRIT_BALANCING).statement
-        skill_object: object = Skill(name=self.NAME, CID=self.CID)
+        self.statement: dict = Character.Statement(self, crit_balancing=CRIT_BALANCING).statement
+        skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
         self.action_list = skill_object.action_list
         self.skills_dict = skill_object.skills_dict
 
-    class Statement():
+    class Statement:
         def __init__(self, char_class, crit_balancing=True):
             """
             char_class : 已实例化的角色
@@ -126,17 +168,17 @@ class Character:
 
             self.NAME = char_class.NAME
             self.ATK = (char_class.baseATK * (1 + char_class.ATK_percent) + char_class.ATK_numeric) * (
-                        1 + char_class.overral_ATK_percent) + char_class.overral_ATK_numeric
+                    1 + char_class.overall_ATK_percent) + char_class.overall_ATK_numeric
             self.HP = (char_class.baseHP * (1 + char_class.HP_percent) + char_class.HP_numeric) * (
-                        1 + char_class.overral_HP_percent) + char_class.overral_HP_numeric
+                    1 + char_class.overall_HP_percent) + char_class.overall_HP_numeric
             self.DEF = (char_class.baseDEF * (1 + char_class.DEF_percent) + char_class.DEF_numeric) * (
-                        1 + char_class.overral_DEF_percent) + char_class.overral_DEF_numeric
+                    1 + char_class.overall_DEF_percent) + char_class.overall_DEF_numeric
             self.IMP = (char_class.baseIMP * (1 + char_class.IMP_percent) + char_class.IMP_numeric) * (
-                        1 + char_class.overral_IMP_percent) + char_class.overral_IMP_numeric
+                    1 + char_class.overall_IMP_percent) + char_class.overall_IMP_numeric
             self.AP = (char_class.baseAP * (1 + char_class.AP_percent) + char_class.AP_numeric) * (
-                        1 + char_class.overral_AP_percent) + char_class.overral_AP_numeric
+                    1 + char_class.overall_AP_percent) + char_class.overall_AP_numeric
             self.AM = (char_class.baseAM * (1 + char_class.AM_percent) + char_class.AM_numeric) * (
-                        1 + char_class.overral_AM_percent) + char_class.overral_AM_numeric
+                    1 + char_class.overall_AM_percent) + char_class.overall_AM_numeric
             # 更换balancing参数可实线不同的逻辑，默认为True，即配平逻辑
             self.CRIT_damage, self.CRIT_rate = self._func_statement_CRIT(char_class.baseCRIT_score,
                                                                          char_class.CRIT_rate_numeric,
@@ -161,18 +203,8 @@ class Character:
                               if not callable(getattr(self, attr)) and not attr.startswith("__")}
             report_to_log(f'[CHAR STATUS]:{self.NAME}:{str(self.statement)}')
 
-        @classmethod
-        def get_statement(cls, attr: str, char_class: object) -> float:
-            """
-            attr : 要获取的属性
-            char_class : 已实例化的角色
-            每次计算角色局外属性：传入已经实例化的角色对象，计算出目前的角色面板
-            """
-            statement = cls(char_class)
-            return statement.statement[attr]
-
-        def _func_statement_CRIT(self,
-                                 CRIT_score: float,
+        @staticmethod
+        def _func_statement_CRIT(CRIT_score: float,
                                  CRIT_rate_numeric: float,
                                  CRIT_damage_numeric: float,
                                  balancing=True) -> tuple:
@@ -195,7 +227,7 @@ class Character:
             if not (0 <= CRIT_rate_numeric):
                 raise ValueError("CRIT_rate_numeric must be above 0")
             if not (0 <= CRIT_damage_numeric):
-                raise ValueError("CRIT_damage_numeric mmust be above 0")
+                raise ValueError("CRIT_damage_numeric must be above 0")
 
             if balancing:
                 all_CRIT_score = CRIT_score + CRIT_rate_numeric * 200 + CRIT_damage_numeric * 100
@@ -208,7 +240,7 @@ class Character:
             else:
                 CRIT_damage = CRIT_damage_numeric
                 CRIT_rate = CRIT_rate_numeric
-            return min(5, CRIT_damage), min(1, CRIT_rate)
+            return min(5.0, CRIT_damage), min(1.0, CRIT_rate)
 
     def _init_base_attribute(self, char_name: str):
         """
@@ -268,10 +300,10 @@ class Character:
                     self.DEF_percent += float(row.get('DEF%', 0))
                     self.HP_percent += float(row.get('HP%', 0))
                     self.IMP_percent += float(row.get('IMP%', 0))
-                    self.overral_ATK_percent += float(row.get('oATK%', 0))
-                    self.overral_DEF_percent += float(row.get('oDEF%', 0))
-                    self.overral_HP_percent += float(row.get('oHP%', 0))
-                    self.overral_IMP_percent += float(row.get('oIMP%', 0))
+                    self.overall_ATK_percent += float(row.get('oATK%', 0))
+                    self.overall_DEF_percent += float(row.get('oDEF%', 0))
+                    self.overall_HP_percent += float(row.get('oHP%', 0))
+                    self.overall_IMP_percent += float(row.get('oIMP%', 0))
                     self.baseCRIT_score += 100 * (float(row.get('Crit_Rate', 0)) * 2 + float(row.get('Crit_Damage', 0)))
                     self.AM_numeric += float(row.get('Anomaly_Mastery', 0))
                     self.AP_numeric += float(row.get('Anomaly_Proficiency', 0))
@@ -290,7 +322,7 @@ class Character:
 
     def _init_equip_set(self, equip_set4: str, equip_set2_a: str, equip_set2_b: str, equip_set2_c: str):
         """
-        初始化套装效果，chatacter类仅计算二件套
+        初始化套装效果，Character类仅计算二件套
         """
         # 将自身套装效果抄录
         equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
@@ -423,4 +455,4 @@ if __name__ == "__main__":
     report_to_log(f"[SKILLS DICT]:{char.NAME}:{char.skills_dict}")
     report_to_log(f"[CHAR EQUIP]:{char.NAME}:{char.equip_sets}")
     report_to_log(f"[CHAR WEAPON]:{char.NAME}:{char.weapon_ID}-{char.weapon_level}")
-    report_to_log(f"[CHAR STATUS]:{char.NAME}:{char.statment}")
+    report_to_log(f"[CHAR STATUS]:{char.NAME}:{char.statement}")
