@@ -30,22 +30,13 @@ class Skill:
         name:str 角色名称\n
         CID:int 角色的ID
 
-        skill type等级对应表：      \n
-        type    描述        Tag     \n
-        normal  普攻        0       \n
-        special 特殊技      1       \n
-        dodge   闪避        2       \n
-        chain   连携技      3       \n
-        assist  支援技      5       \n
-        core    核心被动    4       \n
-
         调用示例：
         test_object = Skill(name='艾莲')
-        action_list = test_object.action_list   # 仅包含动作名称的列表
-        skills_dict = test_object.skills_dict   # 包含全部的 技能名称：技能对象 的字典
-        skill_0 = test_object.skills_dict[skill_lst[0]] # 利用Skill对象内的dict，返回包含特定技能全部属性的对象
-        print(skill_0.damage_ratio) # 面对特定技能对象，直接读取其属性
-        print(test_object.get_skill_info(skill_tag=skill_lst[0], attr_info='damage_ratio')) # 利用get_skill_info()方法获取属性
+        action_list = test_object.action_list  # 获取动作列表
+        skills_dict = test_object.skills_dict  # 获取技能字典
+        skill_0: Skill.InitSkill = test_object.skills_dict[action_list[0]]  # 获取第一个动作对应的技能对象
+        skill_0.damage_ratio  # 获取第一个动作的伤害倍率—方式1
+        test_object.get_skill_info(skill_tag=action_list[0], attr_info='damage_ratio')  # 获取第一个动作的伤害倍率-方式2
         """
 
         # 初始化角色名称和CID
@@ -54,26 +45,31 @@ class Skill:
         self.core_level = core_level
         # 最晚在这里创建DataFrame，优化不了一点，这玩意可大了
         skill_dataframe = pd.read_csv(SKILL_DATA_PATH)
+
         # 根据CID提取角色的技能数据
 
-        self.skills_dict = {}  # 技能名str:技能参数object
-        # 提取dataframe中，每个索引为skill_tag的值，保存为keys
         try:
             self.skill_dataframe = skill_dataframe[skill_dataframe['CID'] == self.CID]
+            # 如果没有找到对应CID，则报错
             if self.skill_dataframe.empty:
-                raise ValueError(f"找不到CID为 {self.CID} 的角色信息")
-            __keys = self.skill_dataframe['skill_tag'].unique()
+                raise ValueError
+            # 提取dataframe中，每个索引为skill_tag的值，保存为keys
+            else:
+                __keys = self.skill_dataframe['skill_tag'].unique()
         except KeyError:
-            print(f"{SKILL_DATA_PATH} 中缺少 'skill_tag' 列")
+            print(f"{SKILL_DATA_PATH} 中缺少 'skill_tag' 列")  # 虽然不可能
             return
-        except ValueError as e:
-            print(e)
+        except ValueError:
+            print(f"找不到CID为 {self.CID} 的角色信息")
             return
+
         # 创建技能字典与技能列表 self.skills_dict 与 self.action_list
+        self.skills_dict = {}  # {技能名str:技能参数object:InitSkill}
         for key in __keys:
-            self.skill_object: object = self.InitSkill(self.skill_dataframe, key, normal_level, special_level,
-                                                       dodge_level, chain_level, assist_level, core_level)
-            self.skills_dict[key] = self.skill_object
+            skill = self.InitSkill(skill_dataframe=self.skill_dataframe, key=key, normal_level=normal_level,
+                                   special_level=special_level, dodge_level=dodge_level, chain_level=chain_level,
+                                   assist_level=assist_level, core_level=core_level, CID=self.CID)
+            self.skills_dict[key] = skill
         self.action_list = self.__create_action_list()
 
     @staticmethod
@@ -97,13 +93,12 @@ class Skill:
         - SystemError: 如果无法处理提供的参数。
         """
         # 动态构建文件路径
-        config_file_path = CHARACTER_DATA_PATH
 
         try:
             # 读取角色数据
-            char_dataframe = pd.read_csv(config_file_path)
+            char_dataframe = pd.read_csv(CHARACTER_DATA_PATH)
         except Exception as e:
-            raise IOError(f"无法读取文件 {config_file_path}: {e}")
+            raise IOError(f"无法读取文件 {CHARACTER_DATA_PATH}: {e}")
 
         # 查找角色信息
         if name is not None:
@@ -178,7 +173,6 @@ class Skill:
             会在执行class Skill的时候自动调用，不用手动创建此类的对象
             继承自此类的对象会包含输入的技能（key）的全部属性
             """
-            breakpoint()
             # 提取数据库内，该技能的数据
             _raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
             _raw_skill_data = _raw_skill_data.to_dict('records')
@@ -189,9 +183,8 @@ class Skill:
             # 如果不是攻击力倍率，报错，未来可接复杂逻辑
             if _raw_skill_data['diff_multiplier'] != 0:
                 raise ValueError("目前只支持攻击力倍率")
-            # 储存技能名
-            self.skill_tag = f'{CID}_{key}' if str(_raw_skill_data['CID']) not in key else key
-
+            # 储存技能Tag
+            self.skill_tag = f'{CID}_{key}' if str(CID) not in key else key
             self.CN_skill_tag: str = _raw_skill_data['CN_skill_tag']
             # 确定使用的技能等级
             self.skill_type: int = int(_raw_skill_data['skill_type'])
@@ -267,8 +260,8 @@ class Skill:
 
 if __name__ == '__main__':
     test_object = Skill(name='艾莲')
-    skill_lst = list(test_object.skills_dict.keys())
-    # print(skill_lst)
-    skill_0 = test_object.skills_dict[skill_lst[0]]
-    # print(skill_0.damage_ratio)
-    print(test_object.get_skill_info(skill_tag=skill_lst[0], attr_info='damage_ratio'))
+    action_list = test_object.action_list  # 获取动作列表
+    skills_dict = test_object.skills_dict  # 获取技能字典
+    skill_0: Skill.InitSkill = test_object.skills_dict[action_list[0]]  # 获取第一个动作对应的技能对象
+    print(skill_0.damage_ratio)  # 获取第一个动作的伤害倍率
+    print(test_object.get_skill_info(skill_tag=action_list[0], attr_info='damage_ratio'))  # 获取第一个动作的伤害倍率
