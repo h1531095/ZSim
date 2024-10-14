@@ -1,4 +1,4 @@
-def get_parameter(prompt, validation_func=None):        #判断函数，prompt是输入参数，而后面的则是条件表达式
+def get_parameter(prompt, validation_func=None):  # 判断函数，prompt是输入参数，而后面的则是条件表达式
     while True:
         value = input(prompt)
         try:
