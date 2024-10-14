@@ -1,10 +1,12 @@
 from BuffClass import Buff
 from CharSet_new import Character
+from Skill_Class import Skill
+from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE
 
 
 def buff_load(CHARACTER_ORDER_DICT: dict,
               existbuff_dict: dict,
-              action,
+              action: Skill,
               used_buffname_box: list,
               LOADING_BUFF_DICT: dict):
     """
@@ -40,10 +42,20 @@ def buff_load(CHARACTER_ORDER_DICT: dict,
     for buff_name in existbuff_dict:
         buff_now = existbuff_dict[buff_name]
         if not isinstance(buff_now,  Buff):
-            raise ValueError(f'当前正在检索的{buff_name}并不是Buff类！')
-        # Buff类的保险
+            raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
+
+        if buff_name not in JUDGE_FILE.index:
+            raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
+        judge_condition_dict = JUDGE_FILE.loc[buff_name].to_dict()
+        # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
+
         if buff_now.ft.simple_judge_logic:
             all_match = False
+            for conditions in BUFF_LOADING_CONDITION_TRANSLATION_DICT:
+                if judge_condition_dict[conditions] != action.skill_dataframe[conditions]:
+                    all_match = False
+            else:
+                all_match = True
         else:
             exec(buff_now.logic.xjudge)
 
