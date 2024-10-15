@@ -29,14 +29,13 @@
         "SpRecovery_hit": "sp_recovery",
         "Sp_Threshold": "sp_threshold",
         "FeverRecovery": "fever_recovery",
-        "ElementAbnormalAccumlation": "anomaly_accumulation",
+        "ElementAbnormalAccumulation": "anomaly_accumulation",
         "SkillType": "skill_type",
         "TriggerBuffLevel": "trigger_buff_level" ,
         "ElementType": "element_type",
-        "TimeCost": "",
+        "TimeCost": "ticks",
         "HitNumber": "hit_times",
         "DmgRelated_Attributes": "diff_multiplier",
-        "StunRelated_Attributes": "",
         "Interruption_Resistance":"interruption_resistance"
     }
 }
