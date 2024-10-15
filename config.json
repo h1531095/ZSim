@@ -1,8 +1,5 @@
 {
-    "debug": {
-        "enable" : true,
-        "level" : 4
-    },
+    "debug": true,
     "character":{
         "crit_balancing": true
     },
@@ -11,10 +8,27 @@
         "WEAPON_DATA_PATH" : "./data/weapon.csv",
         "EQUIP_2PC_DATA_PATH" : "./data/equip_set_2pc.csv",
         "SKILL_DATA_PATH" : "./data/skill.csv",
-        "DEFAULT_SKILL_PATH" : "./data/default_skill.csv"
+        "DEFAULT_SKILL_PATH" : "./data/default_skill.csv",
+        "JUDGE_FILE_PATH": "./data/触发判断.csv",
+        "EFFECT_FILE_PATH": "./data/Buff效果.csv",
+        "EXIST_FILE_PATH": "./data/激活判断.csv"
     },
-    "watchdog": {
-        "enable": true,
-        "level": 0
+    "translate": {
+        "BuffName": "name",
+        "id":  "skill_tag",
+        "OfficialName":  "CN_skill_tag",
+        "SpConsumption":  "sp_consume",
+        "SpRecovery_hit": "sp_recovery",
+        "Sp_Threshold": "sp_threshold",
+        "FeverRecovery": "fever_recovery",
+        "ElementAbnormalAccumlation": "anomaly_accumulation",
+        "SkillType": "skill_type",
+        "TriggerBuffLevel": "trigger_buff_level" ,
+        "ElementType": "element_type",
+        "TimeCost": "",
+        "HitNumber": "hit_times",
+        "DmgRelated_Attributes": "diff_multiplier",
+        "StunRelated_Attributes": "",
+        "Interruption_Resistance":"interruption_resistance"
     }
 }

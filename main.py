@@ -7,14 +7,15 @@ from EnemySet import enemy_set
 from KCalculate import Kcal
 from BuffClass import Buff
 from Actionlist_test import testlist
-from BuffExsist_Judge import buff_exsist_judge
+from BuffExist_Judge import buff_exist_judge
 charnum, charname_box, char_active_box, judgelist_set, keybox = character_set()
 # charnum是实际角色数量.charname_box 是三个角色名;而charactive_box是三个实例化的角色,
 # judgelist_set是决定哪些buff和本次模拟有关的配置单,里面主要包括武器名,角色名以及驱动盘4件套,
 # keybox也是服务于判断哪些buff需要参与本次模拟的,
 # 最后两个传出的变量在计算环节和buff判断的轮询中不会用的,只在初始化时需要.
 
-def create_char_dict(char1:Character, char2:Character=None, char3:Character=None):
+
+def create_char_dict(char1: Character, char2: Character = None, char3:Character = None):
     """
     创建字典：
     {角色名：角色对象}
@@ -29,10 +30,10 @@ def create_char_dict(char1:Character, char2:Character=None, char3:Character=None
             
     return char_dict
 
+
 enemyactive = enemy_set()
-exsistbuff_dict = buff_exsist_judge(charname_box, judgelist_set, keybox)     
+exsistbuff_dict = buff_exist_judge(charname_box, judgelist_set, keybox)
 # 关于exsistbuff_dict 的详细注释和作用,在BuffExsist_Judge里.
 # 其结构为:{buff名A:实例化buffA, buff名B:实例化buffB......}
 TIMETICK = 0
-DYNAMIC_BUFF_DICT = {'艾莲':{'在前台': True, 'dynamic_buff_list':['buff名_艾莲']}, 
-                     '苍角':{'在前台': False, 'dynamic_buff_list':['buff名_苍角']}}
+DYNAMIC_BUFF_DICT = {'艾莲': {'在前台': True, 'dynamic_buff_list': ['buff名_艾莲']},  '苍角': {'在前台': False, 'dynamic_buff_list': ['buff名_苍角']}}
