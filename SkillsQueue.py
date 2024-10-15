@@ -3,7 +3,6 @@ from LinkedList import LinkedList
 import pandas as pd
 
 preload_skills = []  # 留一个全局接口，可能没用其实
-skills_queue = LinkedList()  # 新建全局链表对象，用于储存技能节点
 
 
 class SkillNode:
@@ -14,8 +13,10 @@ class SkillNode:
         self.skill = skill
 
 
-def read_skill_data(preload_table: pd.DataFrame, skills: Skill):
+def get_skills_queue(preload_table: pd.DataFrame,
+                     skills: Skill) -> LinkedList:
     """提取dataframe中，‘skill_tag’列的信息"""
+    skills_queue = LinkedList()  # 用于储存技能节点
     global preload_skills
     try:
         preload_skills = preload_table['skill_tag']  # 传入的数据帧必须包含skill_tag列
@@ -30,6 +31,7 @@ def read_skill_data(preload_table: pd.DataFrame, skills: Skill):
         i = skills.skills_dict[skill].tick
         preload_tick_stamp += i
         skills_queue.add(SkillNode(skill, preload_tick_stamp))
+    return skills_queue
 
 
 if __name__ == '__main__':
@@ -38,5 +40,5 @@ if __name__ == '__main__':
     }
     test_skill_dataframe = pd.DataFrame(test)
     test_object = Skill(CID=1221)
-    read_skill_data(test_skill_dataframe, test_object)
+    get_skills_queue(test_skill_dataframe, test_object)
     pass

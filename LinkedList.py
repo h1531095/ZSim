@@ -18,6 +18,30 @@ class NodeIterator:
     def __iter__(self):
         return self
 
+'''    def __len__(self):
+        count = 0
+        current = self.head
+        while current:
+            count += 1
+            current = current.next
+        return count
+    
+    def __getitem__(self, index):
+        current = self.head
+        for _ in range(index):
+            if current is None:
+                raise IndexError("Index out of range")
+            current = current.next
+        return current.data
+    
+    def __setitem__(self, index, value):
+        current = self.head
+        for _ in range(index):
+            if current is None:
+                raise IndexError("Index out of range")
+            current = current.next
+        current.data = value'''
+
 
 class LinkedList:
     def __init__(self):
