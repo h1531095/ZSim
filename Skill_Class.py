@@ -127,7 +127,7 @@ class Skill:
         -在仅输入技能标签（skill_tag）时，返回该技能的 InitSkill 对象\n
         -在同时输入技能标签（skill_tag）和所需属性时（attr_info)时，返回该技能对象的指定属性
         """
-        skill_info: object = self.skills_dict[skill_tag]
+        skill_info: Skill.InitSkill = self.skills_dict[skill_tag]
         if attr_info is None:
             return skill_info
         else:
