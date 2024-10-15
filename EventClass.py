@@ -1,27 +1,32 @@
-from BuffClass import Buff
+from Skill_Class import Skill
+
+
 class Event:
-    def __init__(self, timetick, buff:Buff=None):
+    """
+    事件类，初步设计：该类不包含Buff，目前只涉及动作，
+    以后可能的拓展方向：后台协同攻击
+
+    """
+    def __init__(self):
         self.ft = self.EventFeature()
+        self.dy = self.EventDynamic()
+
     class EventFeature:
-        def __init__(self, name):
-            self.eventindex = None  #独立ID
-            self.eventfrom = name   #非独立ID
-            self.starttime = 0
-            self.endtime = 0
+        """
+        记录了该事件的一些基本信息，比如事件的持续时间，事件的判定生效时间
+        """
+        def __init__(self):
             self.duration = 0
-            self.laststart = 0
-            self.lastend = 0
-   
-    def Buffset(self, buff, timetick):
-        """
-        Buffset函数,在buff判定需要触发时调用.
-        主要有以下几个功能:
-        1,直接调用隔壁buff的几个判断函数,用来执行Buff触发时的一系列参数修改.
-        比如:endtime的添加,starttime的添加,active状态的修改,甚至是dynamic buff list的修改.
-        2,第1步会改变Buff的很多参数,在第一步完成后,将这些参数传给Event.EventFeature中的对应参数
-        其中需要注意的是:eventindex的命名规则,以及eventfrom的命名规则
-        3,
+            self.judging_duration = 0
+
+    class EventDynamic:
+        def __init__(self, timenow):
+            self.startticks = 0
+            self.endticks = 0
+            self.settlement_ticks = []  # 事件的结算节点，对于Skill来说，就是hit发生的ticks
+            self.is_happening = False
 
 
-        """
-        pass
+
+
+
