@@ -1,5 +1,8 @@
 {
-    "debug": false,
+    "debug": {
+        "enable" : true,
+        "level" : 4
+    },
     "character":{
         "crit_balancing": true
     },
@@ -9,5 +12,9 @@
         "EQUIP_2PC_DATA_PATH" : "./data/equip_set_2pc.csv",
         "SKILL_DATA_PATH" : "./data/skill.csv",
         "DEFAULT_SKILL_PATH" : "./data/default_skill.csv"
+    },
+    "watchdog": {
+        "enable": true,
+        "level": 0
     }
 }
