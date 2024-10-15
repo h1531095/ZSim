@@ -1,4 +1,6 @@
 import pandas as pd
+from tqdm import tqdm
+
 from Skill_Class import Skill, lookup_name_or_cid
 from Report import report_to_log
 import logging
@@ -8,7 +10,7 @@ import timeit
 
 class Character:
     def __init__(self,
-                 name: str = '', CID: int = 0,  # 角色名字和CID-必填至少一个
+                 name: str = '', CID: int = None,  # 角色名字和CID-必填至少一个
                  weapon=None, weapon_level=1,  # 武器名字-选填项
                  equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
                  drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
@@ -62,28 +64,28 @@ class Character:
         # 参数类型
         if not isinstance(name, str):
             raise TypeError("char_name must be a string")
-        if not isinstance(CID, int):
+        if CID is not None and not isinstance(CID, int):
             raise TypeError("CID must be an integer")
         if not isinstance(sp_limit, int):
             raise TypeError("sp_limit must be an integer")
         if weapon is not None and not isinstance(weapon, str):
-            raise TypeError("weapon must be a string or None")
+            raise TypeError("weapon must be a string")
         if not isinstance(weapon_level, int):
             raise TypeError("weapon_level must be an integer")
         if equip_set4 is not None and not isinstance(equip_set4, str):
-            raise TypeError("equip_set4 must be a string or None")
+            raise TypeError("equip_set4 must be a string")
         if equip_set2_a is not None and not isinstance(equip_set2_a, str):
-            raise TypeError("equip_set2_a must be a string or None")
+            raise TypeError("equip_set2_a must be a string")
         if equip_set2_b is not None and not isinstance(equip_set2_b, str):
-            raise TypeError("equip_set2_b must be a string or None")
+            raise TypeError("equip_set2_b must be a string")
         if equip_set2_c is not None and not isinstance(equip_set2_c, str):
-            raise TypeError("equip_set2_c must be a string or None")
+            raise TypeError("equip_set2_c must be a string")
         if drive4 is not None and not isinstance(drive4, str):
-            raise TypeError("drive4 must be a string or None")
+            raise TypeError("drive4 must be a string")
         if drive5 is not None and not isinstance(drive5, str):
-            raise TypeError("drive5 must be a string or None")
+            raise TypeError("drive5 must be a string")
         if drive6 is not None and not isinstance(drive6, str):
-            raise TypeError("drive6 must be a string or None")
+            raise TypeError("drive6 must be a string")
         if not isinstance(scATK_percent, (int, float)):
             raise TypeError("scATK_percent must be a number")
         if not isinstance(scATK, (int, float)):
@@ -193,9 +195,9 @@ class Character:
 
         # 角色技能列表，还没有写修改技能等级的接口
         self.statement: dict = Character.Statement(self, crit_balancing=CRIT_BALANCING).statement
-        skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
-        self.action_list = skill_object.action_list
-        self.skills_dict = skill_object.skills_dict
+        self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
+        self.action_list = self.skill_object.action_list
+        self.skills_dict = self.skill_object.skills_dict
 
     class Statement:
         def __init__(self, char_class, crit_balancing=True):
@@ -503,18 +505,21 @@ class Character:
 
 
 if __name__ == "__main__":
-    # char = Character("柳", "深海访客", 1,None,None,None,None,None,None,None,1,1,1,1,1,1,1,1,25)      # 实例化默认角色
     def class_once_test():
         char = Character(name="柳", weapon='时流贤者',
                          equip_set4='混沌爵士', equip_set2_a='雷暴重金属',
                          drive4='异常精通', drive5='电属性伤害%', drive6='异常掌控',
                          scAnomalyProficiency=10, scATK_percent=14, scCRIT=4)  # 实例化默认角色
         char_dynamic = Character.Statement(char)
+        skill_object = char.skill_object
+        skill_object.get_skill_info(skill_tag=char.action_list[0], attr_info='damage_ratio')
         report_to_log(f"[ACTION LIST]:{char.NAME}:{char.action_list}")
         report_to_log(f"[SKILLS DICT]:{char.NAME}:{char.skills_dict}")
         report_to_log(f"[CHAR EQUIP]:{char.NAME}:{char.equip_sets}")
         report_to_log(f"[CHAR WEAPON]:{char.NAME}:{char.weapon_ID}-{char.weapon_level}")
         report_to_log(f"[CHAR STATUS]:{char.NAME}:{char.statement}")
 
-
-    print(timeit.timeit(class_once_test, number=1))
+    time = 0
+    for i in tqdm(range((times := 100))):
+        time += timeit.timeit(class_once_test, number=1)
+    print(f'Create {times} Character Objects in {time:.2f} seconds, average time:{(time/times*1000):.2f} ms')
