@@ -3,6 +3,7 @@ class Node:
         self.data = data
         self.next = None
 
+
 class NodeIterator:
     def __init__(self, head):
         self.current = head
@@ -13,6 +14,10 @@ class NodeIterator:
         data = self.current.data
         self.current = self.current.next
         return data
+
+    def __iter__(self):
+        return self
+
 
 class LinkedList:
     def __init__(self):
