@@ -8,7 +8,8 @@ EQUIP_2PC_DATA_PATH: str = _config["database"]["EQUIP_2PC_DATA_PATH"]
 SKILL_DATA_PATH: str = _config["database"]["SKILL_DATA_PATH"]
 DEFAULT_SKILL_PATH: str = _config["database"]["DEFAULT_SKILL_PATH"]
 CRIT_BALANCING: bool = _config["character"]["crit_balancing"]
-DEBUG: bool = _config["debug"]
+DEBUG: bool = _config["debug"]["enable"]
+DEBUG_LEVEL: int = _config["debug"]["level"]
 
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名
