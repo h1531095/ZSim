@@ -57,7 +57,7 @@ class LinkedList:
                 current = current.next
             current.next = new_node
 
-    def remove_head(self):
+    def pop_head(self):
         if self.head is not None:
             removed_data = self.head.data
             self.head = self.head.next
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         print(data)  # 输出: 1 2 3
 
     # 删除头部节点
-    removed = sll.remove_head()
+    removed = sll.pop_head()
     print(f"Removed: {removed}")  # 输出: Removed: 1
 
     # 再次打印链表
