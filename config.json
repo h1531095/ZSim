@@ -1,4 +1,4 @@
-﻿{
+{
   "debug": {
     "enabled": true,
     "level": 4
@@ -15,6 +15,7 @@
     "WEAPON_DATA_PATH" : "./data/weapon.csv",
     "EQUIP_2PC_DATA_PATH" : "./data/equip_set_2pc.csv",
     "SKILL_DATA_PATH" : "./data/skill.csv",
+
     "DEFAULT_SKILL_PATH" : "./data/default_skill.csv",
     "JUDGE_FILE_PATH": "./data/触发判断.csv",
     "EFFECT_FILE_PATH": "./data/Buff效果.csv",

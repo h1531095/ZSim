@@ -1,5 +1,4 @@
 import json
-import pandas as pd
 
 
 _config = json.load(open('config.json',encoding="utf-8-sig"))
@@ -16,11 +15,6 @@ JUDGE_FILE_PATH: str = _config["database"]["JUDGE_FILE_PATH"]
 EFFECT_FILE_PATH: str = _config["database"]["EFFECT_FILE_PATH"]
 EXIST_FILE_PATH: str = _config["database"]["EXIST_FILE_PATH"]
 BUFF_LOADING_CONDITION_TRANSLATION_DICT: dict = _config["translate"]
-EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
-JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
-EFFECT_FILE = pd.read_csv(EFFECT_FILE_PATH, index_col='BuffName')
-
-
 
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名

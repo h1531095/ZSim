@@ -24,7 +24,7 @@ def buff_add(timenow: float,
             if not buff.readyjudge(timenow):
                 report_to_log(f'[Buff INFO]:{timenow}:{buff.ft.name}因内置CD未就绪触发失败.')
                 continue
-            if buff.dy.startticks <= timenow:
+            if buff.dy.startticks > timenow:
                 # 这里，buff的startticks和当前的tick进行比较。如果startticks<=timenow，则意味着buff需要在当前tick执行。
                 # 如果不符合条件，则说明该buff需要在以后执行，不是现在。所以直接用continue跳过。
                 # 由于程序的运行逻辑永远都是在主循环的开头令当前tick+= 1，

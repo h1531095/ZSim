@@ -1,13 +1,20 @@
 from BuffClass import Buff
 from CharSet_new import Character
 from Skill_Class import Skill
-from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE
+import pandas as pd
+from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH, EFFECT_FILE_PATH
+
+EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
+JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
+EFFECT_FILE = pd.read_csv(EFFECT_FILE_PATH, index_col='BuffName')
 
 
-def buff_load(CHARACTER_ORDER_DICT: dict,
-              existbuff_dict: dict,
+def buff_load(timenow: float,
               action: Skill,
-              used_buffname_box: list,
+              be_hitted: bool,
+              CHARACTER_ORDER_DICT: dict,
+              existbuff_dict: dict,
+              action_name: str,
               LOADING_BUFF_DICT: dict):
     """
     这是buff修改三部曲的第二步,也是最核心的一个步骤.\n
@@ -34,7 +41,14 @@ def buff_load(CHARACTER_ORDER_DICT: dict,
     1__________1________1___________111____________给全队
         7,另外，程序运行时,需要传入的几个参数中,character_order_dict中记录了当前tick中角色的前后台关系,\n
             该DICT包含了三个key,分别是:on_field, next 和 previous三个,分别代表当前在场,下一位和上一位,\n
+        8, 对于那些在命中时叠层的buff，应该用相同的函数进行处理。逻辑如下：
+            8.1, 当该程序检测到当前的事件标签是Action_Start，就会判定一次Buff是否触发；
+                    此时触发的buff应该是那些刚一抬手就会触发的buff，这需要一个Active_when_action_start参数来控制，
+                    也就是“动作开始时更新”
+                    另一个触发器则是
+            8.2, 若buff会在事件命中时更新，
     """
+    all_match = None
     for _ in CHARACTER_ORDER_DICT:
         if LOADING_BUFF_DICT[_] is None:
             LOADING_BUFF_DICT[_] = []
@@ -47,28 +61,28 @@ def buff_load(CHARACTER_ORDER_DICT: dict,
         if buff_name not in JUDGE_FILE.index:
             raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
         judge_condition_dict = JUDGE_FILE.loc[buff_name].to_dict()
+        active_condition_dict = EXIST_FILE.loc[buff_name].to_dict()
         # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
 
         if buff_now.ft.simple_judge_logic:
             all_match = False
             for conditions in BUFF_LOADING_CONDITION_TRANSLATION_DICT:
-                if judge_condition_dict[conditions] != action.skill_dataframe[conditions]:
+                if judge_condition_dict[conditions] != action.get_skill_info(skill_tag=action_name, attr_info=BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]):
                     all_match = False
             else:
                 all_match = True
         else:
             exec(buff_now.logic.xjudge)
+        if all_match:
+            buff_new = Buff(active_condition_dict, judge_condition_dict)
+            buff_new.dy.active = True
+            # 实例化一个新的Buff出来
+            buff_now.history.active_times += 1
+            buff_new.history.active_times = buff_now.history.active_times
+            buff_new.timeupdate(buff_now, action.get_skill_info(skill_tag=action_name, attr_info="ticks"), timenow)
+            buff_new.countupdate(be_hitted)
+            #   以上这些是初始化，只有在检测到事件的状态是“开始”标签时才会执行。
 
 
-    #
-    #
-    # for item in existbuff_dict:
-    #     buff = existbuff_dict[item]
-    #     if not isinstance(buff, Buff):
-    #         raise ValueError(f'在buff_load环节发现{existbuff_dict}中的{buff}不是Buff类的实例')
-    #     if buff.ft.simple_judge_logic:
-    #         pass
-    #     else:
-    #         buff.logic.xjudge
-    #
-    #     binary_str = f'{int(buff.ft.add_buff_to):03b}'
+
+

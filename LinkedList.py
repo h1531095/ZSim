@@ -100,6 +100,7 @@ if __name__ == "__main__":
 
     # 删除头部节点
     removed = sll.pop_head()
+
     print(f"Removed: {removed}")  # 输出: Removed: 1
 
     # 再次打印链表

@@ -8,6 +8,7 @@ from KCalculate import Kcal
 from BuffClass import Buff
 from Actionlist_test import testlist
 from BuffExist_Judge import buff_exist_judge
+from TickClass import TIMETICK
 charnum, charname_box, char_active_box, judgelist_set, keybox = character_set()
 # charnum是实际角色数量.charname_box 是三个角色名;而charactive_box是三个实例化的角色,
 # judgelist_set是决定哪些buff和本次模拟有关的配置单,里面主要包括武器名,角色名以及驱动盘4件套,
@@ -35,5 +36,4 @@ enemyactive = enemy_set()
 exsistbuff_dict = buff_exist_judge(charname_box, judgelist_set, keybox)
 # 关于exsistbuff_dict 的详细注释和作用,在BuffExsist_Judge里.
 # 其结构为:{buff名A:实例化buffA, buff名B:实例化buffB......}
-TIMETICK = 0
 DYNAMIC_BUFF_DICT = {'艾莲': {'在前台': True, 'dynamic_buff_list': ['buff名_艾莲']},  '苍角': {'在前台': False, 'dynamic_buff_list': ['buff名_苍角']}}

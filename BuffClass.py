@@ -83,6 +83,7 @@ class Buff:
             self.ready = True  # buff的可叠层状态,如果是True,就意味着是内置CD结束了,可以叠层,如果不是True,就不能叠层.
             self.startticks = 0  # buff上一次触发的时间(tick)
             self.endticks = 0  # buff计划课中,buff的结束时间
+            self.settle_times = 0   # buff目前已经被结算过的次数
 
     class BuffLogic:
         def __init__(self):
@@ -137,6 +138,7 @@ class Buff:
         exist_buff_dict[self.ft.name].history.last_end = timenow
         exist_buff_dict[self.ft.name].history.end_times += 1
         exist_buff_dict[self.ft.name].history.last_duration = max(timenow - self.dy.startticks, 0)
+        exist_buff_dict[self.ft.name].dy.active = False
 
         # 再把当前buff的实例化的history和buff源对齐
         self.history.last_end = exist_buff_dict[self.ft.name].history.last_end
@@ -153,7 +155,7 @@ class Buff:
         if not self.ft.hitincrease or be_hitted:
             self.dy.count = min(self.dy.count + self.ft.step, self.ft.maxcount)
 
-    def timeupdate(self, timecost, timenow):
+    def timeupdate(self, buff_0, timecost, timenow):
         """
         在Buff确定要触发的时候,更新buff的starttime,endtime等一系列参数;\n
         这里不包含内置Cd的判定,默认内置CD已经判定通过.\n
@@ -165,8 +167,10 @@ class Buff:
         所以只需要找出那些重复触发的此类buff,并不对时间做任何修改即可;\n
         3,对于持续时间为0的瞬时buff,应将其看做持续时间为招式持续时间的有时长的buff一并对待.\n
         """
+        if isinstance(buff_0, Buff):
+            raise ValueError(f"当前Buff源头{buff_0}并未实例化！")
         if not self.ft.fresh:
-            if self.dy.active:
+            if buff_0.dy.active:
                 return
         if self.ft.maxduration == 0:
             self.dy.endticks = timenow + timecost
