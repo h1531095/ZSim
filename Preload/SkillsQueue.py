@@ -15,8 +15,8 @@ class SkillNode:
 
 
 def get_skills_queue(preload_table: pd.DataFrame,
-                     skills: Skill,
-                     **kwargs: Skill) -> LinkedList:
+                     *skills: Skill,
+                     ) -> LinkedList:
     """
     提取dataframe中，‘skill_tag’列的信息
     并将其与输入的 Skill 类比对
@@ -31,9 +31,6 @@ def get_skills_queue(preload_table: pd.DataFrame,
     返回：一个链表
     """
     skills_queue = LinkedList()  # 用于储存技能节点
-    _skills_objects = [skills]
-    for arg in kwargs:
-        _skills_objects.append(arg)
     global preload_skills
     try:
         preload_skills = preload_table['skill_tag']  # 传入的数据帧必须包含skill_tag列
@@ -51,7 +48,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
     # 首先遍历所提供的技能列表的所有tag
     for tag in preload_skills:
         # 对这些tag进行判断：是否存在与_skills_objects所记录的某一个对象中
-        for obj in _skills_objects:  # 遍历包含输入的全部 Skill 对象的字典
+        for obj in skills:  # 遍历包含输入的全部 Skill 对象的字典
             # 核对 Skill.skills_dict 字典中的键值，即这名角色的全部技能 Tag
             if tag in obj.skills_dict.keys():
                 # 获取到这个技能的tick，并累加到 preload_tick_stamp
