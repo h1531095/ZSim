@@ -18,15 +18,9 @@ class NodeIterator:
     def __iter__(self):
         return self
 
-'''    def __len__(self):
-        count = 0
-        current = self.head
-        while current:
-            count += 1
-            current = current.next
-        return count
+
     
-    def __getitem__(self, index):
+'''    def __getitem__(self, index):
         current = self.head
         for _ in range(index):
             if current is None:
@@ -57,7 +51,7 @@ class LinkedList:
                 current = current.next
             current.next = new_node
 
-    def remove_head(self):
+    def pop_head(self):
         if self.head is not None:
             removed_data = self.head.data
             self.head = self.head.next
@@ -76,6 +70,14 @@ class LinkedList:
             current = current.next
         return str(elements)
 
+    def __len__(self):
+        count = 0
+        current = self.head
+        while current:
+            count += 1
+            current = current.next
+        return count
+
     def print_list(self):
         current = self.head
         while current:
@@ -90,16 +92,21 @@ if __name__ == "__main__":
     sll.add(1)
     sll.add(2)
     sll.add(3)
-
+    print(len(sll))
     # 打印链表
     sll.print_list()  # 输出: 1 -> 2 -> 3 -> None
+
+    print(next(iter(sll)))
+    print(next(iter(sll)))
+    print(next(iter(sll)))
 
     # 使用 for 循环遍历链表
     for data in sll:
         print(data)  # 输出: 1 2 3
 
     # 删除头部节点
-    removed = sll.remove_head()
+    removed = sll.pop_head()
+
     print(f"Removed: {removed}")  # 输出: Removed: 1
 
     # 再次打印链表

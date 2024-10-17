@@ -1,7 +1,7 @@
 import json
 
 
-_config = json.load(open('config.json'))
+_config = json.load(open('config.json',encoding="utf-8-sig"))
 
 CHARACTER_DATA_PATH: str = _config["database"]["CHARACTER_DATA_PATH"]
 WEAPON_DATA_PATH: str = _config["database"]["WEAPON_DATA_PATH"]
@@ -9,12 +9,14 @@ EQUIP_2PC_DATA_PATH: str = _config["database"]["EQUIP_2PC_DATA_PATH"]
 SKILL_DATA_PATH: str = _config["database"]["SKILL_DATA_PATH"]
 DEFAULT_SKILL_PATH: str = _config["database"]["DEFAULT_SKILL_PATH"]
 CRIT_BALANCING: bool = _config["character"]["crit_balancing"]
-DEBUG: bool = _config["debug"]["enable"]
+DEBUG: bool = _config["debug"]["enabled"]
 DEBUG_LEVEL: int = _config["debug"]["level"]
 JUDGE_FILE_PATH: str = _config["database"]["JUDGE_FILE_PATH"]
 EFFECT_FILE_PATH: str = _config["database"]["EFFECT_FILE_PATH"]
 EXIST_FILE_PATH: str = _config["database"]["EXIST_FILE_PATH"]
 BUFF_LOADING_CONDITION_TRANSLATION_DICT: dict = _config["translate"]
+ENABLE_WATCHDOG = _config["watchdog"]["enabled"]
+WATCHDOG_LEVEL = _config["watchdog"]["level"]
 
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名

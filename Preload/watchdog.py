@@ -1,13 +1,12 @@
 import Skill_Class
-import SkillsQueue
-import json
+from Preload import SkillsQueue
 from Report import report_to_log
+from define import ENABLE_WATCHDOG, WATCHDOG_LEVEL
 
-ENABLE_WATCHDOG = json.load(open("config.json", "r"))["watchdog"]["enable"]
-WATCHDOG_LEVEL = json.load(open("config.json", "r"))["watchdog"]["level"]
 
 if ENABLE_WATCHDOG:
     report_to_log("[INFO] Watchdog is enabled.", level=4)
+
 
 def watch_reverse_order(current_node: SkillsQueue.SkillNode | Skill_Class.Skill.InitSkill,
                         last_node: SkillsQueue.SkillNode | Skill_Class.Skill.InitSkill):
@@ -26,6 +25,8 @@ def watch_reverse_order(current_node: SkillsQueue.SkillNode | Skill_Class.Skill.
     """
     if not ENABLE_WATCHDOG:
         return
+    if WATCHDOG_LEVEL <= 0:
+        return
     if not (isinstance(current_node, SkillsQueue.SkillNode) or isinstance(current_node, Skill_Class.Skill.InitSkill)):
         return
     if not (isinstance(last_node, SkillsQueue.SkillNode) or isinstance(last_node, Skill_Class.Skill.InitSkill)):
@@ -37,8 +38,9 @@ def watch_reverse_order(current_node: SkillsQueue.SkillNode | Skill_Class.Skill.
             feedback = (f"[WARNING] Watchdog detected a reverse order preload event:"
                         f"Is {current_tag} really behind of {last_tag}?")
             print(feedback)
-            report_to_log(feedback,level=0)
+            report_to_log(feedback, level=0)
     return
+
 
 class WatchDog:
     def __init__(self, **kwargs):
