@@ -1,10 +1,8 @@
 import Skill_Class
 from Preload import SkillsQueue
-import json
 from Report import report_to_log
+from define import ENABLE_WATCHDOG, WATCHDOG_LEVEL
 
-ENABLE_WATCHDOG = json.load(open("config.json", "r"))["watchdog"]["enabled"]
-WATCHDOG_LEVEL = json.load(open("config.json", "r"))["watchdog"]["level"]
 
 if ENABLE_WATCHDOG:
     report_to_log("[INFO] Watchdog is enabled.", level=4)
@@ -26,6 +24,8 @@ def watch_reverse_order(current_node: SkillsQueue.SkillNode | Skill_Class.Skill.
     无。如果检测到逆序加载，会打印警告信息。
     """
     if not ENABLE_WATCHDOG:
+        return
+    if WATCHDOG_LEVEL <= 0:
         return
     if not (isinstance(current_node, SkillsQueue.SkillNode) or isinstance(current_node, Skill_Class.Skill.InitSkill)):
         return
