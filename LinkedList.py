@@ -94,6 +94,10 @@ if __name__ == "__main__":
     # 打印链表
     sll.print_list()  # 输出: 1 -> 2 -> 3 -> None
 
+    print(next(iter(sll)))
+    print(next(iter(sll)))
+    print(next(iter(sll)))
+
     # 使用 for 循环遍历链表
     for data in sll:
         print(data)  # 输出: 1 2 3

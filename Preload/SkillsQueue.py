@@ -39,7 +39,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
     skills_queue = LinkedList()  # 用于储存技能节点
     global preload_skills
     try:
-        preload_skills = preload_table['skill_tag']  # 传入的数据帧必须包含skill_tag列
+        preload_skills = preload_table['skill_tag']  # 传入的数据必须包含 skill_tag 列
     except KeyError:
         print(f"提供错误的预加载序列表，请检查输入")
 
@@ -64,7 +64,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
                 preload_tick_stamp += skill_ticks
                 # 生成链表
                 node = SkillNode(obj.skills_dict[tag], preload_tick_stamp)
-                report_to_log(f"[PRELOAD]:预加载节点 {node.skill_tag} 已创建", level=2)
+                report_to_log(f"[PRELOAD]:预加载节点 {node.skill_tag} 已创建，将在 {node.preload_tick} 执行", level=2)
                 skills_queue.add(node)
                 break
         if not found:
@@ -72,11 +72,11 @@ def get_skills_queue(preload_table: pd.DataFrame,
     return skills_queue
 
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
     test = {
         'skill_tag': ['1221_NA_1', '1221_NA_2', '1221_NA_3', '1221_NA_4', '1221_NA_5']
     }
     test_skill_dataframe = pd.DataFrame(test)
     test_object = Skill(CID=1221)
     get_skills_queue(test_skill_dataframe, test_object)
-    pass
+    pass'''
