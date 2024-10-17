@@ -2,9 +2,8 @@ import Skill_Class
 from Preload import SkillsQueue
 import json
 from Report import report_to_log
+from define import ENABLE_WATCHDOG, WATCHDOG_LEVEL
 
-ENABLE_WATCHDOG = json.load(open("config.json", "r"))["watchdog"]["enabled"]
-WATCHDOG_LEVEL = json.load(open("config.json", "r"))["watchdog"]["level"]
 
 if ENABLE_WATCHDOG:
     report_to_log("[INFO] Watchdog is enabled.", level=4)

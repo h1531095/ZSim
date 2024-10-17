@@ -60,11 +60,11 @@ def get_skills_queue(preload_table: pd.DataFrame,
             if tag in obj.skills_dict.keys():
                 found = True
                 # 获取到这个技能的tick，并累加到 preload_tick_stamp
-                tick = obj.skills_dict[tag].tick
-                preload_tick_stamp += tick
+                skill_ticks = obj.skills_dict[tag].ticks
+                preload_tick_stamp += skill_ticks
                 # 生成链表
                 node = SkillNode(obj.skills_dict[tag], preload_tick_stamp)
-                report_to_log(f"预加载节点：{node.skill_tag} 已创建", level=2)
+                report_to_log(f"[PRELOAD]:预加载节点 {node.skill_tag} 已创建", level=2)
                 skills_queue.add(node)
                 break
         if not found:
