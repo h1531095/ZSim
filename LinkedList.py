@@ -18,15 +18,9 @@ class NodeIterator:
     def __iter__(self):
         return self
 
-'''    def __len__(self):
-        count = 0
-        current = self.head
-        while current:
-            count += 1
-            current = current.next
-        return count
+
     
-    def __getitem__(self, index):
+'''    def __getitem__(self, index):
         current = self.head
         for _ in range(index):
             if current is None:
@@ -76,6 +70,14 @@ class LinkedList:
             current = current.next
         return str(elements)
 
+    def __len__(self):
+        count = 0
+        current = self.head
+        while current:
+            count += 1
+            current = current.next
+        return count
+
     def print_list(self):
         current = self.head
         while current:
@@ -90,7 +92,7 @@ if __name__ == "__main__":
     sll.add(1)
     sll.add(2)
     sll.add(3)
-
+    print(len(sll))
     # 打印链表
     sll.print_list()  # 输出: 1 -> 2 -> 3 -> None
 
