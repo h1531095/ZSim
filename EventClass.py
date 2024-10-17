@@ -1,4 +1,5 @@
 from TickClass import TIMETICK
+from LinkedList import LinkedList
 import math
 
 
@@ -15,24 +16,29 @@ class Event:
         def __init__(self, start_ticks, end_ticks, settelment_count):
             self.start_ticks = start_ticks
             self.end_ticks = end_ticks
-            self.settlement_ticks = []  # 事件的结算节点，对于Skill来说，就是hit发生的ticks
+            self.settlement_ticks = LinkedList()
             step = (end_ticks - start_ticks) / settelment_count
             for i in range(settelment_count):
-                self.settlement_ticks.append(start_ticks + (i + 1) * step)
+                self.settlement_ticks.add(start_ticks + (i + 1) * step)
 
     def is_happening(self):
-        if TIMETICK in range(self.dy.start_ticks, self.dy.end_ticks):
+        if self.dy.start_ticks < TIMETICK <= self.dy.end_ticks:
             return True
         else:
             return False
 
     def check_current_event(self):
+        """
+        返回当前加载的事件的发生阶段。
+        """
         if TIMETICK == self.dy.start_ticks:
             return "start"
         elif TIMETICK == self.dy.end_ticks:
             return "end"
-        elif TIMETICK == math.ceil(self.dy.settlement_ticks[0]):
+        elif TIMETICK == math.ceil(self.dy.settlement_ticks.head):
             return "settlement"
+        else:
+            return None
 
 
 
