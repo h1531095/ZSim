@@ -28,7 +28,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
 
     preload_tick_stamp = 0
     for skill in preload_skills:
-        i = skills.skills_dict[skill].tick
+        i = skills.skills_dict[skill].ticks
         preload_tick_stamp += i
         skills_queue.add(SkillNode(skill, preload_tick_stamp))
     return skills_queue

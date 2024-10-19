@@ -72,11 +72,13 @@ def get_skills_queue(preload_table: pd.DataFrame,
     return skills_queue
 
 
-'''if __name__ == '__main__':
+if __name__ == '__main__':
     test = {
         'skill_tag': ['1221_NA_1', '1221_NA_2', '1221_NA_3', '1221_NA_4', '1221_NA_5']
     }
     test_skill_dataframe = pd.DataFrame(test)
     test_object = Skill(CID=1221)
-    get_skills_queue(test_skill_dataframe, test_object)
-    pass'''
+    skill_queue = get_skills_queue(test_skill_dataframe, test_object)
+    for _ in skill_queue:
+        print(_.skill_tag, _.preload_tick)
+
