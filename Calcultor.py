@@ -1,5 +1,5 @@
 from CharSet_new import Character
-from EnemyClass import Enemy
+from Enemy import Enemy
 from define import *
 
 

@@ -17,7 +17,7 @@ class Enemy:
     def __init__(self, enemy_name: str = None, enemy_index_ID: int = None, enemy_sub_ID: int = None):
         _raw_enemy_dataframe = pd.read_csv(ENEMY_DATA_PATH)
         # !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会返回ID更靠前的
-        enemy_info = self.__look_up_enemy_ID(_raw_enemy_dataframe, enemy_name, enemy_index_ID, enemy_sub_ID)
+        enemy_info = self.__lookup_enemy(_raw_enemy_dataframe, enemy_name, enemy_index_ID, enemy_sub_ID)
         self.name, self.index_ID, self.sub_ID, self.data_dict = enemy_info
         self.max_HP: float = float(self.data_dict['剧变节点7理论生命值'])
         self.max_ATK: float = float(self.data_dict['剧变节点7攻击力'])
@@ -31,13 +31,10 @@ class Enemy:
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
 
-        max_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(self.able_to_get_anomaly,
+        max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(self.able_to_get_anomaly,
                                                                       self.QTE_triggerable_times)
 
-        (self.max_anomaly_ICE,
-         self.max_anomaly_FIRE,
-         self.max_anomaly_ETHER,
-         self.max_anomaly_ELECTRIC) = max_anomaly
+        self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = self.max_anomaly_ELECTRIC = max_element_anomaly
 
         self.interruption_resistance_level: int = int(self.data_dict['抗打断等级'])
         self.freeze_resistance: float = float(self.data_dict['冻结抵抗'])
@@ -56,13 +53,15 @@ class Enemy:
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
     @staticmethod
-    def __look_up_enemy_ID(enemy_data: pd.DataFrame,
-                           enemy_name: str = None,
-                           enemy_index_ID: int = None,
-                           enemy_sub_ID: int = None) -> tuple:
+    def __lookup_enemy(enemy_data: pd.DataFrame,
+                       enemy_name: str = None,
+                       enemy_index_ID: int = None,
+                       enemy_sub_ID: int = None) -> tuple:
         """
         根据敌人名称或ID查找敌人信息，并返回敌人名称、IndexID和SubID。
+        若输入多个参数，此函数会检测这些参数是否一一对应
         !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会返回ID更靠前的
+        因此，在已经输入了ID的情况下，函数不会优先根据中文名查找
 
         参数:
         - enemy_data: pd.DataFrame, 敌人数据 DataFrame，包含敌人信息。
@@ -84,10 +83,18 @@ class Enemy:
         index_ID = row['IndexID']
         sub_ID = row['SubID']
 
-        if (enemy_name == name) and (enemy_index_ID == index_ID) and (enemy_sub_ID == sub_ID):
-            return name, index_ID, sub_ID, row
-        else:
-            raise ValueError("传入的敌人名称、ID不匹配")
+        # 检查输入的变量与查到的变量是否一致
+        if enemy_name is not None:
+            if name != enemy_name:
+                raise ValueError("传入的name与ID不匹配")
+        if enemy_index_ID is not None:
+            if index_ID != enemy_index_ID:
+                raise ValueError("传入的name与ID不匹配")
+        if enemy_sub_ID is not None:
+            if sub_ID != enemy_sub_ID:
+                raise ValueError("传入的name与ID不匹配")
+
+        return name, index_ID, sub_ID, row
 
     @staticmethod
     def __init_enemy_anomaly(able_to_get_anomaly: bool, QTE_triggerable_times: int) -> tuple:
@@ -166,12 +173,12 @@ class Enemy:
 
     class EnemyDynamic:
         def __init__(self):
-            self.stun = False        # 失衡状态
-            self.frozen = False      # 冻结状态
-            self.frostbite = False   # 霜寒状态
-            self.assault = False     # 畏缩状态
-            self.shock = False       # 感电状态
-            self.burn = False        # 灼烧状态
+            self.stun = False  # 失衡状态
+            self.frozen = False  # 冻结状态
+            self.frostbite = False  # 霜寒状态
+            self.assault = False  # 畏缩状态
+            self.shock = False  # 感电状态
+            self.burn = False  # 灼烧状态
             self.corruption = False  # 混乱状态
 
             self.frozen_tick = 0
@@ -187,3 +194,4 @@ class Enemy:
 
 if __name__ == '__main__':
     test = Enemy(enemy_index_ID=11432)
+    print(test.stun_recovery_rate)
