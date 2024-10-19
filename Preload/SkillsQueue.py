@@ -28,7 +28,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
                      skills_2 = Skill(name = '苍角'),
                      skills_3 = Skill(name = '莱卡恩'))
 
-    返回：一个链表
+    返回：一个链表，包含全部可被预加载的 SkillNode
     """
     # 输入类型检查
     if not isinstance(preload_table, pd.DataFrame):
