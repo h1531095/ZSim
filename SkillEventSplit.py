@@ -5,12 +5,12 @@ from TickClass import Tick
 import pandas as pd
 
 
-def SkillEventSplit(skills_queue: LinkedList, timenow: float):
+def SkillEventSplit(skills_queue: LinkedList, time_now: float):
     dynamic_loading_dict = {}
     for skill in skills_queue:
         if not isinstance(skill, Preload.SkillNode):
             raise ValueError(f"本次拆分的{skill}不是SkillNode类！")
-        if skill.preload_tick <= timenow:
+        if skill.preload_tick <= time_now:
             loadmission = LoadingMission(skill)
             loadmission.mission_start(skill)
             dynamic_loading_dict[skill.skill_tag] = loadmission
@@ -52,15 +52,12 @@ class LoadingMission:
                 self.sub_mission_completed(ticknow)
 
 
-
-
-
-
 if __name__ == "__main__":      # 测试
     timestart = 0
     timestep = 1
     timelimit = 300
     timenow = timestart
+    Dynamic_loading_dict = {}
     test = {
         'skill_tag': ['1221_NA_1', '1221_NA_2', '1221_NA_3', '1221_NA_4', '1221_NA_5']
     }

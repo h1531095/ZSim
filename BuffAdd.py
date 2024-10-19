@@ -12,7 +12,7 @@ def buff_add(timenow: float,
     该函数是Buff三部曲中的最后一步。
     它负责把LOADING_BUFF_DICT中的待加载的buff添加到对应角色的Dynamic_Buff_List中，\n
     在这个过程中，buff_add函数会轮询LOADING_BUFF_DICT，查询其中所有buff实例的buff.dy.startticks，
-    如果starticks = timenow，则执行添加，
+    如果starticks = time_now，则执行添加，
     要把被添加的buff从LOADING_BUFF_DICT中移除，同时将它添加到DYNAMIC_BUFF_DICT中。
     """
     for char in LOADING_BUFF_DICT:
@@ -25,7 +25,7 @@ def buff_add(timenow: float,
                 report_to_log(f'[Buff INFO]:{timenow}:{buff.ft.name}因内置CD未就绪触发失败.')
                 continue
             if buff.dy.startticks > timenow:
-                # 这里，buff的startticks和当前的tick进行比较。如果startticks<=timenow，则意味着buff需要在当前tick执行。
+                # 这里，buff的startticks和当前的tick进行比较。如果startticks<=time_now，则意味着buff需要在当前tick执行。
                 # 如果不符合条件，则说明该buff需要在以后执行，不是现在。所以直接用continue跳过。
                 # 由于程序的运行逻辑永远都是在主循环的开头令当前tick+= 1，
                 # 所以，本轮主循环内使用的所谓的“当前tick”数值，其实是这个tick的最后一刻，
