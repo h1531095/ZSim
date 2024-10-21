@@ -61,8 +61,6 @@ class Enemy:
         self.settings = EnemySettings()
         self.__apply_settings(self.settings)
         self.dynamic = self.EnemyDynamic()
-
-        # 记录敌人对象创建日志
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
     @staticmethod

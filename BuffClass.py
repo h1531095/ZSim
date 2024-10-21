@@ -68,7 +68,8 @@ class Buff:
             self.maxduration = config['maxduration']  # buff最大持续时间
             self.maxcount = config['maxcount']  # buff允许被叠加的最大层数
             self.step = config['incrementalstep']  # buff的自增步长,也可以理解为叠层事件发生时的叠层效率.
-            self.prejudge = config['prejudge']  # buff的判定类型,True是提前判定类型,即未命中先有buff;False是命中后类型,当前动作不受影响.
+            self.prejudge = config['prejudge']  # buff的抬手判定类型,True是攻击抬手时会产生判定；False则是不会产生判定
+            self.endjudge = config['endjudge']  # buff的结束判定类型，True是攻击或动作结束时会产生判定，False则不会产生判定。
             self.fresh = config['freshtype']  # buff的刷新类型,True是刷新层数时,刷新时间,False是刷新层数是,不影响时间.
             self.alltime = config['alltime']  # buff的永远生效类型,True是无条件永远生效,False是有条件
             self.hitincrease = config['hitincrease']  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
