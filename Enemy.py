@@ -7,18 +7,29 @@ from define import ENEMY_DATA_PATH
 class EnemySettings:
     def __init__(self):
         self.enemy_info_overwrite = False  # 是否强制覆盖怪物数据
-
         self.forced_no_stun = False
         self.forced_no_anomaly = False
         self.forced_stun_DMG_take_ratio: float = 1.5
 
 
 class Enemy:
-    def __init__(self, enemy_name: str = None, enemy_index_ID: int = None, enemy_sub_ID: int = None):
+    def __init__(self, *, enemy_name: str = None, enemy_index_ID: int = None, enemy_sub_ID: int = None):
+        """
+        根据数据库信息创建怪物属性对象。
+
+        三选一参数:（你不填也行，默认创建尼尼微作为木桩怪，因为她全部0抗性）
+        - enemy_name (str): 敌人的中文名称
+        - enemy_index_ID (int): 敌人的索引ID
+        - enemy_sub_ID (int): 敌人的子ID，格式为9000+索引ID
+
+        !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会查找ID最靠前的那一个
+        """
+        # 读取敌人数据文件，初始化敌人信息
         _raw_enemy_dataframe = pd.read_csv(ENEMY_DATA_PATH)
         # !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会返回ID更靠前的
         enemy_info = self.__lookup_enemy(_raw_enemy_dataframe, enemy_name, enemy_index_ID, enemy_sub_ID)
         self.name, self.index_ID, self.sub_ID, self.data_dict = enemy_info
+        # 初始化敌人基础属性
         self.max_HP: float = float(self.data_dict['剧变节点7理论生命值'])
         self.max_ATK: float = float(self.data_dict['剧变节点7攻击力'])
         self.max_stun: float = float(self.data_dict['剧变节点7失衡值上限'])
@@ -31,25 +42,27 @@ class Enemy:
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
 
+        # 初始化敌人异常状态抗性
         max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(self.able_to_get_anomaly,
-                                                                      self.QTE_triggerable_times)
+                                                                              self.QTE_triggerable_times)
 
         self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = self.max_anomaly_ELECTRIC = max_element_anomaly
 
+        # 初始化敌人其他防御属性
         self.interruption_resistance_level: int = int(self.data_dict['抗打断等级'])
         self.freeze_resistance: float = float(self.data_dict['冻结抵抗'])
-
         self.ICE_damage_resistance: float = float(self.data_dict['冰抗'])
         self.FIRE_damage_resistance: float = float(self.data_dict['火抗'])
         self.ELECTRIC_damage_resistance: float = float(self.data_dict['电抗'])
         self.ETHER_damage_resistance: float = float(self.data_dict['以太抗'])
         self.PHY_damage_resistance: float = float(self.data_dict['物抗'])
 
+        # 初始化敌人设置和动态属性
         self.settings = EnemySettings()
         self.__apply_settings(self.settings)
-
         self.dynamic = self.EnemyDynamic()
 
+        # 记录敌人对象创建日志
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
     @staticmethod
@@ -59,6 +72,7 @@ class Enemy:
                        enemy_sub_ID: int = None) -> tuple:
         """
         根据敌人名称或ID查找敌人信息，并返回敌人名称、IndexID和SubID。
+
         若输入多个参数，此函数会检测这些参数是否一一对应
         !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会返回ID更靠前的
         因此，在已经输入了ID的情况下，函数不会优先根据中文名查找
@@ -118,9 +132,9 @@ class Enemy:
             # 根据QTE触发次数返回相应的异常值
             if QTE_triggerable_times == 1:
                 return base_anomaly * 4, base_anomaly_physical * 4
-            if QTE_triggerable_times == 2:
+            elif QTE_triggerable_times == 2:
                 return base_anomaly * 15, base_anomaly_physical * 15
-            if QTE_triggerable_times == 3:
+            elif QTE_triggerable_times == 3:
                 return base_anomaly * 20, base_anomaly_physical * 20
             else:
                 # 如果QTE触发次数不符合已定义的条件，返回默认异常值
@@ -139,18 +153,18 @@ class Enemy:
             pass
 
     def update_anomaly(self, element: str = "ALL", *, times: int = 1) -> None:
-        """
-        更新怪物异常值。
-        """
+        """更新怪物异常值，触发一次异常后调用。"""
         # 检查参数类型
         if not isinstance(element, str):
             raise TypeError("element参数类型错误")
         if not isinstance(times, int):
-            raise TypeError("times参数必须是证书")
+            raise TypeError("times参数必须是整数")
         if times <= 0:
             raise ValueError("times参数必须大于0")
 
-        update_ratio = 1.02  # 游戏中一次增加2%
+        update_ratio = 1.02
+        '''游戏中，每次异常增加2%对应属性异常值'''
+
         for _ in range(times):
             if element.upper() == 'ICE' or element == '冰':
                 self.max_anomaly_ICE *= update_ratio
@@ -193,5 +207,5 @@ class Enemy:
 
 
 if __name__ == '__main__':
-    test = Enemy(enemy_index_ID=11432)
+    test = Enemy(enemy_index_ID=11432, enemy_sub_ID=900011432)
     print(test.stun_recovery_rate)
