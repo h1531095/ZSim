@@ -19,22 +19,6 @@ class NodeIterator:
         return self
 
 
-    
-'''    def __getitem__(self, index):
-        current = self.head
-        for _ in range(index):
-            if current is None:
-                raise IndexError("Index out of range")
-            current = current.next
-        return current.data
-    
-    def __setitem__(self, index, value):
-        current = self.head
-        for _ in range(index):
-            if current is None:
-                raise IndexError("Index out of range")
-            current = current.next
-        current.data = value'''
 
 
 class LinkedList:
@@ -50,14 +34,6 @@ class LinkedList:
             while current.next:
                 current = current.next
             current.next = new_node
-
-    def pop_head(self):
-        if self.head is not None:
-            removed_data = self.head.data
-            self.head = self.head.next
-            return removed_data
-        else:
-            return None
 
     def __iter__(self):
         return NodeIterator(self.head)
@@ -78,12 +54,43 @@ class LinkedList:
             current = current.next
         return count
 
+    def __getitem__(self, index):
+        current = self.head
+        for _ in range(index):
+            if current is None:
+                raise IndexError("Index out of range")
+            current = current.next
+        return current.data
+
+
     def print_list(self):
         current = self.head
         while current:
             print(f"{current.data} -> ", end="")
             current = current.next
         print("None")
+
+    def pop_head(self):
+        if self.head is not None:
+            removed_data = self.head.data
+            self.head = self.head.next
+            return removed_data
+        else:
+            return None
+
+    def remove(self, data):
+        current = self.head
+        previous = None
+        while current:
+            if current == data:
+                if previous:
+                    previous.next = current.next
+                else:
+                    self.head = current.next
+                return True
+            previous = current
+            current = current.next
+        return False
 
 
 if __name__ == "__main__":
