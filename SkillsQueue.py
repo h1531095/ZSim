@@ -8,7 +8,7 @@ preload_skills = []  # 留一个全局接口，可能没用其实
 class SkillNode:
     def __init__(self, skill: Skill.InitSkill, preload_tick: int):
         self.skill_tag = skill.skill_tag
-        self.preload_tick = skill.ticks + preload_tick
+        self.preload_tick = preload_tick
         self.hit_times = skill.hit_times
         self.skill = skill
 

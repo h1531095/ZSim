@@ -44,8 +44,9 @@ class Preload:
                 self.preload_data.last_node = this_node
                 self.preload_data.current_node = None
 
-# if __name__ == '__main__':
-#     p = Preload()
-#     for tick in trange(100000):
-#         p.do_preload(tick)
-#     print(p.preload_data.preloaded_action)
+
+if __name__ == '__main__':
+    p = Preload()
+    for tick in trange(100000):
+        p.do_preload(tick)
+    print(p.preload_data.preloaded_action)
