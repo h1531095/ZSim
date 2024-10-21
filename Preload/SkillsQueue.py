@@ -8,8 +8,15 @@ preload_skills = []  # 留一个全局接口，可能没用其实
 
 class SkillNode:
     def __init__(self, skill: Skill.InitSkill, preload_tick: int):
+        """
+        预加载技能节点
+
+        包含：
+        1、部分需要立即调用的信息；
+        2、整个 Skill.InitSkill 对象，包含了技能的全部信息，用于计算器调用
+        """
         self.skill_tag = skill.skill_tag
-        self.preload_tick = skill.ticks + preload_tick
+        self.preload_tick = preload_tick
         self.hit_times = skill.hit_times
         self.skill = skill
 
@@ -59,11 +66,11 @@ def get_skills_queue(preload_table: pd.DataFrame,
             # 核对 Skill.skills_dict 字典中的键值，即这名角色的全部技能 Tag
             if tag in obj.skills_dict.keys():
                 found = True
+                # 生成链表
+                node = SkillNode(obj.skills_dict[tag], preload_tick_stamp)
                 # 获取到这个技能的tick，并累加到 preload_tick_stamp
                 skill_ticks = obj.skills_dict[tag].ticks
                 preload_tick_stamp += skill_ticks
-                # 生成链表
-                node = SkillNode(obj.skills_dict[tag], preload_tick_stamp)
                 report_to_log(f"[PRELOAD]:预加载节点 {node.skill_tag} 已创建，将在 {node.preload_tick} 执行", level=2)
                 skills_queue.add(node)
                 break
