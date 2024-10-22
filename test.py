@@ -1,1 +1,1 @@
-print(bool('TRUE'))
+print(not [None])
