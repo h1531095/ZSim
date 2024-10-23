@@ -3,7 +3,9 @@ from Report import report_to_log
 from CharacterClass import Character
 import json
 
-debug = json.load(open('config.json')).get('debug')
+with open('config.json', 'r', encoding='utf-8') as file:
+    config = json.load(file)
+debug = config.get('debug')
 classkeydict = {
     'id': 'id',
     'oname': 'OfficialName',
@@ -53,10 +55,8 @@ class Buff:
     class BuffFeature:
         def __init__(self, config):
             self.simple_judge_logic = config['simple_judge_logic']  # 复杂判断逻辑,指的是buff在判断阶段(装载到Loading self dict的步骤中的复杂逻辑)
-            self.simple_start_logic = config[
-                'simple_start_logic']  # 复杂开始逻辑,指的是buff在触发后的初始化阶段,并不能按照csv的规则来简单初始化的,比如,buff最大持续时间不确定的,buff的起始层数不确定的等等
-            self.simple_end_logic = config[
-                'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
+            self.simple_start_logic = config['simple_start_logic']  # 复杂开始逻辑,指的是buff在触发后的初始化阶段,并不能按照csv的规则来简单初始化的,比如,buff最大持续时间不确定的,buff的起始层数不确定的等等
+            self.simple_end_logic = config['simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
             self.simple_effect = config['simple_effect']  # 复杂效果逻辑,指的是buff的效果无法用常规的csv来记录的,比如随机增加攻击力的,或者其他的复杂buff效果;
             self.index = config['BuffName']  # buff的英文名,也是buff的索引
             self.is_weapon = config['is_weapon']  # buff是否是武器特效
@@ -132,21 +132,50 @@ class Buff:
         """
         用来执行buff的结束
         """
+        buff_0 = exist_buff_dict[self.ft.name]
+        # buff_0就是buff的源头。位于exsist_buff_dict中。
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f"{buff_0}不是Buff类！")
+
+        # 在修改buff的状态时，对buff_0进行相同的修改。以保证状态同步。
         self.dy.active = False
         self.dy.count = 0
+        buff_0.dy.active = False
+        buff_0.dy.count = 0
 
-        # 先修改buff源的history
-        exist_buff_dict[self.ft.name].history.last_end = timenow
-        exist_buff_dict[self.ft.name].history.end_times += 1
-        exist_buff_dict[self.ft.name].history.last_duration = max(timenow - self.dy.startticks, 0)
-        exist_buff_dict[self.ft.name].dy.active = False
+        # 同时，更新buff_0的触发历史记录。
+        buff_0.history.last_end = timenow
+        buff_0.history.end_times += 1
+        buff_0.history.last_duration = max(timenow - self.dy.startticks, 0)
+        buff_0.dy.active = False
 
         # 再把当前buff的实例化的history和buff源对齐
-        self.history.last_end = exist_buff_dict[self.ft.name].history.last_end
-        self.history.end_times = exist_buff_dict[self.ft.name].history.end_times
-        self.history.last_duration = exist_buff_dict[self.ft.name].history.last_duration
+        self.history.last_end = buff_0.history.last_end
+        self.history.end_times = buff_0.history.end_times
+        self.history.last_duration = buff_0.history.last_duration
         report_to_log(
-            f'[Skill INFO]:{timenow}:{self.ft.name}第{exist_buff_dict[self.ft.name].history.end_times}次结束;duration:{exist_buff_dict[self.ft.name].history.last_duration}')
+            f'[Skill INFO]:{timenow}:{self.ft.name}第{buff_0.history.end_times}次结束;duration:{buff_0.history.last_duration}')
+
+    def update(self, exist_buff_dict: dict, sub_mission: str):
+        buff_0 = exist_buff_dict[self.ft.index]
+        self.dy.active = True
+        buff_0.dy.active = True
+        self.update_cause_start(sub_mission)
+        self.update_cause_hit(sub_mission)
+        self.update_cause_end(sub_mission)
+
+    def update_cause_start(self, timenow,  sub_mission: str):
+        self.readyjudge(timenow)
+        if not self.ft.prejudge:
+            return
+
+
+    def update_cause_end(self, sub_mission: str):
+        pass
+
+    def update_cause_hit(self, sub_mission: str):
+        pass
+
 
     def countupdate(self, be_hitted: bool):
         """
@@ -171,14 +200,17 @@ class Buff:
         if isinstance(buff_0, Buff):
             raise ValueError(f"当前Buff源头{buff_0}并未实例化！")
         if not self.ft.fresh:
-            if buff_0.dy.active:
-                return
+            return
+        # 若内置CD还没转好，就直接return，因为不管buff_0 状态如何，内置CD没转好那就是无法更新时间。
         if self.ft.maxduration == 0:
+            # maxduration是0 的情况只有一种，那就是buff是瞬时buff，那么此时Buff会被看做一个持续时间等于timecost的有时间的buff来对待。
             self.dy.endticks = timenow + timecost
             self.dy.startticks = timenow
         if self.ft.prejudge:
+            # prejudge 是True时，意味着buff是起手就会触发的，所以startticks是timenow
             self.dy.startticks = timenow
             self.dy.endticks = timenow + self.ft.maxduration
         else:
+            # prejudge 是False时，意味着Buff在命中时才会更新时间，所以startticks
             self.dy.startticks = timenow + timecost
             self.dy.endticks = timenow + timecost + self.ft.maxduration

@@ -3,7 +3,6 @@ from Skill_Class import Skill
 import Preload
 from TickClass import Tick
 import pandas as pd
-import math
 import tqdm
 
 
@@ -39,7 +38,7 @@ class LoadingMission:
         time_step = (timecost - 1)/self.skill_node.hit_times
         self.mission_dict[float(self.skill_node.preload_tick)] = "start"
         for i in range(self.skill_node.hit_times):
-            tick_key = float(math.ceil(self.skill_node.preload_tick + time_step * (i+1)))
+            tick_key = self.skill_node.preload_tick + time_step * (i+1)
             # 由于timetick在循环中的自增量是整数，所以为了保证能和键值准确匹配，
             # 这里的键值也要向上取整，注意，这里产生的是一个int，所以要转化为float
             self.mission_dict[tick_key] = "hit"
@@ -51,7 +50,7 @@ class LoadingMission:
 
 
 if __name__ == "__main__":      # 测试
-    timelimit = 5000
+    timelimit = 3600
     load_mission_dict = {}
     p = Preload.Preload()
     name_dict = {}
