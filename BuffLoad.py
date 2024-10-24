@@ -13,8 +13,8 @@ EFFECT_FILE = pd.read_csv(EFFECT_FILE_PATH, index_col='BuffName')
 
 
 def BuffLoadLoop(time_now: float,
-                load_mission_dict: dict,
-                existbuff_dict: dict):
+                 load_mission_dict: dict,
+                 existbuff_dict: dict):
     """
     这是buff修改三部曲的第二步,也是最核心的一个步骤.
     该函数有以下几个功能:
@@ -83,7 +83,7 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict):
     # 对单个buff进行初始化，抛出一个触发状态参数，两个参数序列。
     all_match = False
     buff_now = existbuff_dict[buff_name]
-    if not isinstance(buff_now,  Buff):
+    if not isinstance(buff_now, Buff):
         raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
     if buff_name not in JUDGE_FILE.index:
         raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
@@ -93,14 +93,15 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict):
     return all_match, judge_condition_dict, active_condition_dict
 
 
-def BuffJudge(buff_now:Buff, judge_condition_dict, all_match: bool, mission: LoadingMission):
+def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: LoadingMission):
     skill_now = mission.skill_node.skill
     if not isinstance(skill_now, Skill):
         raise TypeError(f"{skill_now}并非Skill类！")
     if buff_now.ft.simple_judge_logic:
         for conditions in BUFF_LOADING_CONDITION_TRANSLATION_DICT:
-            if judge_condition_dict[conditions] != skill_now.get_skill_info(skill_tag=mission.mission_tag,
-            attr_info = BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]):
+            if judge_condition_dict[conditions] != skill_now.get_skill_info(
+                    skill_tag=mission.mission_tag,
+                    attr_info=BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]):
                 all_match = False
                 return all_match
         else:
@@ -118,12 +119,8 @@ def BuffJudge(buff_now:Buff, judge_condition_dict, all_match: bool, mission: Loa
 #         buff_new.timeupdate(buff_now, action.get_skill_info(skill_tag=action_name, attr_info="ticks"), timenow)
 #         buff_new.countupdate(be_hitted)
 #         以上这些是初始化，只有在检测到事件的状态是“开始”标签时才会执行
-
-
- if __name__ == '__main__':
-    pass
-    # CHARACTER_ORDER_DICT = {}
-    # LOADING_BUFF_DICT = {}
-    # for _ in CHARACTER_ORDER_DICT.values():
-    #     if LOADING_BUFF_DICT[_] is None:
-    #         LOADING_BUFF_DICT[_] = []
+# CHARACTER_ORDER_DICT = {}
+# LOADING_BUFF_DICT = {}
+# for _ in CHARACTER_ORDER_DICT.values():
+#     if LOADING_BUFF_DICT[_] is None:
+#         LOADING_BUFF_DICT[_] = []

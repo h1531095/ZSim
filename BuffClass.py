@@ -37,12 +37,12 @@ Buffeffect_index = [
     "Special_Multiplication_Zone"
 ]
 
-
 # 这个index列表里面装的是乘区类型中所有的项目,也是buff效果作用的范围.
 # 这个列表中的内容:在Buff效果.csv 中作为索引存在;而在 Event父类中,它们又包含了 info子类的部分内容 和 multiplication子类的全部内容,
 # 在文件中,这个list被用在最后的buffchagne()函数中,作为中转字典的keylist存在
 # 在重构本程序的过程中,我思考过是否要把这个巨大的indexlist按照乘区划分拆成若干,这意味着Event中的Multi子类或许可以独立出来成为一个单独的父类存在.
 # 这样做的好处是:庞大复杂的Multi可以不用蜗居在Event下,结构更加清晰.但是坏处就是,Event和Multi必须1对1实例化,否则容易出现多个动作共用同一份乘区实例的情况,就很容易发生错误NTR(bushi
+
 
 class Buff:
     def __init__(self, config, judge_config):
@@ -136,19 +136,15 @@ class Buff:
         # buff_0就是buff的源头。位于exsist_buff_dict中。
         if not isinstance(buff_0, Buff):
             raise TypeError(f"{buff_0}不是Buff类！")
-
         # 在修改buff的状态时，对buff_0进行相同的修改。以保证状态同步。
         self.dy.active = False
         self.dy.count = 0
         buff_0.dy.active = False
         buff_0.dy.count = 0
-
         # 同时，更新buff_0的触发历史记录。
         buff_0.history.last_end = timenow
         buff_0.history.end_times += 1
         buff_0.history.last_duration = max(timenow - self.dy.startticks, 0)
-        buff_0.dy.active = False
-
         # 再把当前buff的实例化的history和buff源对齐
         self.history.last_end = buff_0.history.last_end
         self.history.end_times = buff_0.history.end_times
@@ -156,61 +152,93 @@ class Buff:
         report_to_log(
             f'[Skill INFO]:{timenow}:{self.ft.name}第{buff_0.history.end_times}次结束;duration:{buff_0.history.last_duration}')
 
-    def update(self, exist_buff_dict: dict, sub_mission: str):
+    def update(self, timenow, timecost, exist_buff_dict: dict, sub_mission: str):
         buff_0 = exist_buff_dict[self.ft.index]
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
         self.dy.active = True
         buff_0.dy.active = True
-        self.update_cause_start(sub_mission)
-        self.update_cause_hit(sub_mission)
-        self.update_cause_end(sub_mission)
-
-    def update_cause_start(self, timenow,  sub_mission: str):
-        self.readyjudge(timenow)
-        if not self.ft.prejudge:
+        buff_0.readyjudge(timenow)
+        if not buff_0.dy.ready:
             return
-
-
-    def update_cause_end(self, sub_mission: str):
-        pass
-
-    def update_cause_hit(self, sub_mission: str):
-        pass
-
-
-    def countupdate(self, be_hitted: bool):
-        """
-        如果 self.ft.hitincrease 为 False,则无需关心 be_hitted 的值,直接执行 self.dy.count 的增加操作.\n
-        如果 self.ft.hitincrease 为 True,则只在 be_hitted 为 True 时增加 self.dy.count.\n
-        """
-        if not self.ft.hitincrease or be_hitted:
-            self.dy.count = min(self.dy.count + self.ft.step, self.ft.maxcount)
-
-    def timeupdate(self, buff_0, timecost, timenow):
-        """
-        在Buff确定要触发的时候,更新buff的starttime,endtime等一系列参数;\n
-        这里不包含内置Cd的判定,默认内置CD已经判定通过.\n
-        注意事项:\n
-        1,这个函数只修改 startticks 和 endticks两个数值\n
-        由于在本函数的开头,需要对buff的当前active进行判断,以筛选出那些"尚未结束但又触发"的buff,\n
-        所以,关于buff.dy.active的修改应在timeupdate函数生效后进行.故不在本函数内修改active.\n
-        2,关于freshtype是False的那些buff,也就是更新但不刷新时间的buff,它们在非重复触发的状态下,和普通buff是一致的.\n
-        所以只需要找出那些重复触发的此类buff,并不对时间做任何修改即可;\n
-        3,对于持续时间为0的瞬时buff,应将其看做持续时间为招式持续时间的有时长的buff一并对待.\n
-        """
-        if isinstance(buff_0, Buff):
-            raise ValueError(f"当前Buff源头{buff_0}并未实例化！")
-        if not self.ft.fresh:
-            return
-        # 若内置CD还没转好，就直接return，因为不管buff_0 状态如何，内置CD没转好那就是无法更新时间。
-        if self.ft.maxduration == 0:
-            # maxduration是0 的情况只有一种，那就是buff是瞬时buff，那么此时Buff会被看做一个持续时间等于timecost的有时间的buff来对待。
-            self.dy.endticks = timenow + timecost
-            self.dy.startticks = timenow
-        if self.ft.prejudge:
-            # prejudge 是True时，意味着buff是起手就会触发的，所以startticks是timenow
-            self.dy.startticks = timenow
-            self.dy.endticks = timenow + self.ft.maxduration
+        if sub_mission == 'start':
+            self.update_cause_start(timenow, timecost, exist_buff_dict)
+            self.update_to_buff_0(timenow, exist_buff_dict)
+        elif sub_mission == 'end':
+            if self.ft.endjudge:
+                self.update_cause_end(timenow, exist_buff_dict)
+                self.update_to_buff_0(timenow, exist_buff_dict)
+            else:
+                self.end(timenow, exist_buff_dict)
+        elif sub_mission == 'hit':
+            self.update_cause_hit(sub_mission)
+            self.update_to_buff_0(timenow, exist_buff_dict)
+        if self.ft.endjudge and sub_mission == 'end':
+            pass
         else:
-            # prejudge 是False时，意味着Buff在命中时才会更新时间，所以startticks
-            self.dy.startticks = timenow + timecost
-            self.dy.endticks = timenow + timecost + self.ft.maxduration
+            self.update_to_buff_0(timenow, exist_buff_dict)
+
+    def update_to_buff_0(self, timenow,  exist_buff_dict: dict):
+        """
+        该方法往往衔接在buff更新后使用。
+        由于在buff判定逻辑中，buff的层数、时间的刷新被视为重新激活了一个新的buff，
+        所以，这个方法需要向exist_buff_dict中的buff源头，也就是buff_0传递一些当前buff的参数
+        """
+        buff_0 = exist_buff_dict[self.ft.index]
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        buff_0.dy.ready = False
+        buff_0.history.active_times += 1
+        buff_0.dy.active = True
+        buff_0.dy.count = self.dy.count
+        buff_0.dy.startticks = self.dy.startticks
+        buff_0.dy.endticks = self.dy.endticks
+        report_to_log(f'[Skill INFO]:{timenow}:{buff_0.ft.name}第{buff_0.history.active_times}次开始)')
+
+    def update_cause_start(self, timenow, timecost, exist_buff_dict: dict):
+        buff_0 = exist_buff_dict[self.ft.index]
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        if self.ft.maxduration == 0:
+            if not self.ft.hitincrease:
+                # 所有瞬时buff中，非命中触发的那部分，绕开了“强化E伤害提高5%，且每命中一次再提高5%”这类buff
+                self.dy.startticks = timenow
+                self.dy.endticks = timenow + timecost
+        else:
+            if self.ft.prejudge:
+                # 所有具有持续时间的buff中，只有抬手就触发的这一类，会在start标签处更新。
+                self.dy.startticks = timenow
+                self.dy.endticks = timenow + self.ft.maxduration
+                # 这一类buff的层数计算往往非常直接，就是当前层数 + 步长；
+                # 当前层数应该从buff_0处获取（通用步骤，其他类型的层数更新也是这个流程），
+        if not self.ft.hitincrease:
+            self.dy.count += buff_0.dy.count + self.ft.step
+
+    def update_cause_end(self, timenow, exist_buff_dict):
+        buff_0 = exist_buff_dict[self.ft.index]
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        # 指那些“强化E动作结束后，伤害增加X%”的buff
+        self.dy.startticks = timenow
+        self.dy.endticks = timenow + self.ft.maxduration
+        self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+
+    def update_cause_hit(self, timenow, exist_buff_dict: dict):
+        buff_0 = exist_buff_dict[self.ft.index]
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        if (not self.ft.maxduration == 0) and self.ft.fresh:
+            """
+            这里需要考虑两个维度，
+            1、是否是瞬时buff（maxduraion=0控制），
+            2、是否是触发后可被更新的buff（fresh控制），
+            只有那些非瞬时buff，且fresh等于True的buff，才会在hit标签处更新时间。
+            其他情况都不会更新时间。
+            """
+            if self.ft.hitincrease:
+                self.dy.startticks = timenow
+                self.dy.endticks = timenow + self.ft.maxduration
+        self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+
+
+
