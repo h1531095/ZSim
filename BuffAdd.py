@@ -32,7 +32,7 @@ def buff_add(timenow: float,
                 # 比如，当前tick数值是1，代表的是，当前时间段是tick0~1的这个阶段，且是（0，1]
                 # 所以，当前tick内所有被考察的事件的startticks属性不需要取整，直接和当前tick比较即可。
                 continue
-            buff_existing_chek = next((existing_buff for existing_buff in DYNAMIC_BUFF_DICT[char]['dynamic_buff_list'] if  existing_buff.ft.name == buff.ft.name), None)
+            buff_existing_chek = next((existing_buff for existing_buff in DYNAMIC_BUFF_DICT[char]['dynamic_buff_list'] if existing_buff.ft.name == buff.ft.name), None)
             # 这个语句的作用是，检查buff是否已经存在。检查的索引是buff.ft.name。
             if buff_existing_chek:
                 DYNAMIC_BUFF_DICT[char]['dynamic_buff_list'].remove(buff_existing_chek)

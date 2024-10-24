@@ -4,6 +4,8 @@ import Preload
 from TickClass import Tick
 import pandas as pd
 import tqdm
+from define import CHARACTER_DATA_PATH
+character_config_data = pd.read_csv(CHARACTER_DATA_PATH)
 
 
 def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, name_dict: dict):
@@ -30,6 +32,8 @@ class LoadingMission:
         self.mission_active_state = False
         self.mission_start_tick = skill.preload_tick
         self.skill_node = skill
+        CID = int(skill.skill.skill_tag[:4])
+        self.mission_character = str(character_config_data.loc[character_config_data['CID'] == CID, 'name'].values)
 
     def mission_start(self):
         self.mission_active_state = True
@@ -61,4 +65,5 @@ if __name__ == "__main__":      # 测试
             continue
         SkillEventSplit(preload_action_list, load_mission_dict, name_dict)
     for item in load_mission_dict:
-        print(f"{item}, {load_mission_dict[item].mission_dict}")
+        print(f"{item}, {load_mission_dict[item].mission_character_number}")
+

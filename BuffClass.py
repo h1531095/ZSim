@@ -45,6 +45,10 @@ Buffeffect_index = [
 
 
 class Buff:
+    """
+    config字典的键值来自：触发判断.csv
+    judge_config字典的键值来自：激活判断.csv
+    """
     def __init__(self, config, judge_config):
         self.ft = self.BuffFeature(config)
         self.dy = self.BuffDynamic()
@@ -75,6 +79,7 @@ class Buff:
             self.hitincrease = config['hitincrease']  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
             self.cd = config['increaseCD']  # buff的叠层内置CD
             self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
+
 
     class BuffDynamic:
         def __init__(self):
@@ -152,8 +157,11 @@ class Buff:
         report_to_log(
             f'[Skill INFO]:{timenow}:{self.ft.name}第{buff_0.history.end_times}次结束;duration:{buff_0.history.last_duration}')
 
-    def update(self, timenow, timecost, exist_buff_dict: dict, sub_mission: str):
-        buff_0 = exist_buff_dict[self.ft.index]
+    def update(self, char_name: str, timenow, timecost, exist_buff_dict: dict, sub_mission: str):
+        sub_exist_buff_dict = exist_buff_dict[char_name]
+        if self.ft.index not in sub_exist_buff_dict:
+            raise TypeError(f'{self.ft.index}并不存在于{char_name}的exist_buff_dict中！')
+        buff_0 = sub_exist_buff_dict[self.ft.index]
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
         self.dy.active = True
@@ -162,21 +170,21 @@ class Buff:
         if not buff_0.dy.ready:
             return
         if sub_mission == 'start':
-            self.update_cause_start(timenow, timecost, exist_buff_dict)
-            self.update_to_buff_0(timenow, exist_buff_dict)
+            self.update_cause_start(timenow, timecost, sub_exist_buff_dict)
+            self.update_to_buff_0(timenow, sub_exist_buff_dict)
         elif sub_mission == 'end':
             if self.ft.endjudge:
-                self.update_cause_end(timenow, exist_buff_dict)
-                self.update_to_buff_0(timenow, exist_buff_dict)
+                self.update_cause_end(timenow, sub_exist_buff_dict)
+                self.update_to_buff_0(timenow, sub_exist_buff_dict)
             else:
-                self.end(timenow, exist_buff_dict)
+                self.end(timenow, sub_exist_buff_dict)
         elif sub_mission == 'hit':
             self.update_cause_hit(sub_mission)
-            self.update_to_buff_0(timenow, exist_buff_dict)
+            self.update_to_buff_0(timenow, sub_exist_buff_dict)
         if self.ft.endjudge and sub_mission == 'end':
             pass
         else:
-            self.update_to_buff_0(timenow, exist_buff_dict)
+            self.update_to_buff_0(timenow, sub_exist_buff_dict)
 
     def update_to_buff_0(self, timenow,  exist_buff_dict: dict):
         """
