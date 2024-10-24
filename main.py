@@ -1,14 +1,9 @@
 from CharSet import character_set       # 录入角色配置信息的函数
 # from CharacterClass import Character    # Character类
 from CharSet_new import Character
-from Calcultor import Caculator
-from EnemyClass import Enemy
 from EnemySet import enemy_set
-from KCalculate import Kcal
-from BuffClass import Buff
-from Actionlist_test import testlist
 from BuffExist_Judge import buff_exist_judge
-from TickClass import TIMETICK
+
 charnum, charname_box, char_active_box, judgelist_set, keybox = character_set()
 # charnum是实际角色数量.charname_box 是三个角色名;而charactive_box是三个实例化的角色,
 # judgelist_set是决定哪些buff和本次模拟有关的配置单,里面主要包括武器名,角色名以及驱动盘4件套,
