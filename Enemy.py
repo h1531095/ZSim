@@ -154,11 +154,11 @@ class Enemy:
         """更新怪物异常值，触发一次异常后调用。"""
         # 检查参数类型
         if not isinstance(element, str):
-            raise TypeError("element参数类型错误")
+            raise TypeError(f"element参数类型错误，必须是字符串，实际类型为{type(element)}")
         if not isinstance(times, int):
-            raise TypeError("times参数必须是整数")
+            raise TypeError(f"times参数必须是整数，实际类型为{type(times)}")
         if times <= 0:
-            raise ValueError("times参数必须大于0")
+            raise ValueError(f"times参数必须大于0，实际值为{times}")
 
         update_ratio = 1.02
         '''游戏中，每次异常增加2%对应属性异常值'''
