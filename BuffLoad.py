@@ -6,16 +6,30 @@ from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXI
 from BuffExist_Judge import buff_exist_judge
 import Preload
 import tqdm
+import ast
+import numpy as np
+from LinkedList import LinkedList
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
 EFFECT_FILE = pd.read_csv(EFFECT_FILE_PATH, index_col='BuffName')
 
 
-def BuffLoadLoop(time_now: float,
-                 load_mission_dict: dict,
-                 existbuff_dict: dict,
-                 character_name_box: list):
+def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
+    all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
+    all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
+    if not all_match:
+        return
+    for char in selected_characters:
+        buff_new = Buff(active_condition_dict, judge_condition_dict)
+        for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
+            if time_now - 1 < sub_mission_start_tick <= time_now:
+                buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                LOADING_BUFF_DICT[char].append(buff_new)
+
+
+def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict, character_name_box: list,
+                 LOADING_BUFF_DICT: dict):
     """
     这是buff修改三部曲的第二步,也是最核心的一个步骤.
     该函数有以下几个功能:
@@ -48,39 +62,26 @@ def BuffLoadLoop(time_now: float,
             ③动作命中时更新（由hitincrease控制，如果hitincrease为True，则需要检索事件链表内的hit节点）
             所以，一旦事件的is_happening函数返回True（事件正在发生），就需要在每个tick判断当前发生的具体事件，用函数check_current_event()实现
             并且核心是一组if elif 判断，不同的分支执行不同的更新规则；  """
-    LOADING_BUFF_DICT = {}
-    for _ in character_name_box:
-        LOADING_BUFF_DICT[_] = []
+    # 初始化LOADING_BUFF_DICT
+    for character in character_name_box:
+        LOADING_BUFF_DICT[character] = []
+    # 遍历load_mission_dict中的任务
     for mission in load_mission_dict.values():
         if not isinstance(mission, LoadingMission):
             raise TypeError(f"当前{mission}不是SkillNode类！")
         character_name = mission.mission_character
         if character_name not in existbuff_dict:
             raise ValueError(f'当前角色的Buff源并未创建！')
-        print(f"当前角色为{character_name}动作为{mission.mission_tag}")
-        # 先用existbuff_dict 中的buff_0 进行判断，是否触发。这一步不需要修改buff的值。
-        # 判断结束后，抛出all_match。
+        # 提取当前角色的 Buff 列表
         sub_exist_buff_dict = existbuff_dict[character_name]
-        for buff in sub_exist_buff_dict:
-            buff_0 = sub_exist_buff_dict[buff]
+        for buff_key, buff_0 in sub_exist_buff_dict.items():
             if not isinstance(buff_0, Buff):
-                raise TypeError(f"当前{buff}不是Buff类！")
-            all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
-            all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
-            print(f"\t当前检验的buff为{buff_0.ft.name}, all_match判定结果为{all_match}")
-            if not all_match:
-                continue
-            adding_code = str(buff_0.ft.add_buff_to).zfill(3)
-            selected_characters = [character_name_box[i] for i in range(3) if adding_code == '1']
-            sub_mission = None
-            for char in selected_characters:
-                buff_new = Buff(judge_condition_dict, active_condition_dict)
-                for sub_mission_start_tick in mission.mission_dict:
-                    if not (time_now - 1 <= sub_mission_start_tick <= time_now):
-                        continue
-                    sub_mission = mission.mission_dict[sub_mission_start_tick]
-                    buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-                    LOADING_BUFF_DICT[char].append(buff_new)
+                raise TypeError(f"当前{buff_key}不是Buff类！")
+            # 提前计算添加Buff的角色列表
+            adding_code = str(int(buff_0.ft.add_buff_to)).zfill(3)
+            selected_characters = [character_name_box[i] for i in range(len(character_name_box)) if adding_code[i] == '1']
+            # 处理每个 Buff 的逻辑
+            process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT)
     return LOADING_BUFF_DICT
 
 
@@ -92,23 +93,26 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict):
         raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
     if buff_name not in JUDGE_FILE.index:
         raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
-    judge_condition_dict = JUDGE_FILE.loc[buff_name].to_dict()
-    active_condition_dict = EXIST_FILE.loc[buff_name].to_dict()
+    judge_condition_dict = JUDGE_FILE.loc[buff_name].replace({pd.NA: None, pd.NaT: None, np.nan: None})
+    active_condition_dict = EXIST_FILE.loc[buff_name].replace({pd.NA: None, pd.NaT: None, np.nan: None})
+    active_condition_dict['BuffName'] = buff_name
     # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
     return all_match, judge_condition_dict, active_condition_dict
 
 
 def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: LoadingMission):
     skill_now = mission.skill_node.skill
-    if not isinstance(skill_now, Skill):
+    if not isinstance(skill_now, Skill.InitSkill):
         raise TypeError(f"{skill_now}并非Skill类！")
     if buff_now.ft.simple_judge_logic:
         for conditions in BUFF_LOADING_CONDITION_TRANSLATION_DICT:
-            if judge_condition_dict[conditions] != skill_now.get_skill_info(
-                    skill_tag=mission.mission_tag,
-                    attr_info=BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]):
-                all_match = False
-                return all_match
+            judge_conditions = BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]
+            if judge_condition_dict[conditions] is None:
+                continue
+            else:
+                if judge_condition_dict[conditions] != getattr(skill_now, judge_conditions):
+                    all_match = False
+                    return all_match
         else:
             all_match = True
     else:
@@ -123,20 +127,28 @@ if __name__ == "__main__":      # 测试
     exist_buff_dict = buff_exist_judge(Charname_box, Judge_list_set, weapon_dict)
     timelimit = 3600
     load_mission_dict = {}
+    LOADING_BUFF_DICT = {}
     p = Preload.Preload()
     name_dict = {}
     for tick in tqdm.trange(timelimit):
         p.do_preload(tick)
         preload_action_list = p.preload_data.preloaded_action
-        if not preload_action_list:
-            continue
-        SkillEventSplit(preload_action_list, load_mission_dict, name_dict)
-        LOADING_BUFF_DICT = BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box)
-        for char in LOADING_BUFF_DICT:
-            print(f'当前角色为：{char}')
-            for buffs in LOADING_BUFF_DICT[char]:
-                buff_now = LOADING_BUFF_DICT[char][buffs]
-                print(f'当前加载的buff是{buff_now.ft.name}')
+        if preload_action_list:
+            SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
+            for mission in load_mission_dict.values():
+                print(mission.mission_dict)
+        BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
+        print(f'Calling BuffLoadLoop at tick {tick}')
+        char_name = '艾莲'
+        if not LOADING_BUFF_DICT[char_name] == []:
+            print(f'LOADING_BUFF_DICT提供了{len(LOADING_BUFF_DICT[char_name])}种buff！分别是：')
+            for buff in LOADING_BUFF_DICT[char_name]:
+                if isinstance(buff, Buff):
+                    print(f'{buff.ft.name},\t 层数{buff.dy.count},\t 剩余时间{max(buff.dy.endticks - tick, 0)}, 被激活次数{exist_buff_dict[char_name][buff.ft.index].history.active_times}')
+
+
+
+
 
 
 

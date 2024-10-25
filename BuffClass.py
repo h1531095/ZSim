@@ -37,6 +37,7 @@ Buffeffect_index = [
     "Special_Multiplication_Zone"
 ]
 
+
 # 这个index列表里面装的是乘区类型中所有的项目,也是buff效果作用的范围.
 # 这个列表中的内容:在Buff效果.csv 中作为索引存在;而在 Event父类中,它们又包含了 info子类的部分内容 和 multiplication子类的全部内容,
 # 在文件中,这个list被用在最后的buffchagne()函数中,作为中转字典的keylist存在
@@ -49,6 +50,7 @@ class Buff:
     config字典的键值来自：触发判断.csv
     judge_config字典的键值来自：激活判断.csv
     """
+
     def __init__(self, config, judge_config):
         self.ft = self.BuffFeature(config)
         self.dy = self.BuffDynamic()
@@ -59,8 +61,10 @@ class Buff:
     class BuffFeature:
         def __init__(self, config):
             self.simple_judge_logic = config['simple_judge_logic']  # 复杂判断逻辑,指的是buff在判断阶段(装载到Loading self dict的步骤中的复杂逻辑)
-            self.simple_start_logic = config['simple_start_logic']  # 复杂开始逻辑,指的是buff在触发后的初始化阶段,并不能按照csv的规则来简单初始化的,比如,buff最大持续时间不确定的,buff的起始层数不确定的等等
-            self.simple_end_logic = config['simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
+            self.simple_start_logic = config[
+                'simple_start_logic']  # 复杂开始逻辑,指的是buff在触发后的初始化阶段,并不能按照csv的规则来简单初始化的,比如,buff最大持续时间不确定的,buff的起始层数不确定的等等
+            self.simple_end_logic = config[
+                'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
             self.simple_effect = config['simple_effect']  # 复杂效果逻辑,指的是buff的效果无法用常规的csv来记录的,比如随机增加攻击力的,或者其他的复杂buff效果;
             self.index = config['BuffName']  # buff的英文名,也是buff的索引
             self.is_weapon = config['is_weapon']  # buff是否是武器特效
@@ -80,7 +84,6 @@ class Buff:
             self.cd = config['increaseCD']  # buff的叠层内置CD
             self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
 
-
     class BuffDynamic:
         def __init__(self):
             self.exist = False  # buff是否参与了计算,即是否允许被激活
@@ -89,7 +92,7 @@ class Buff:
             self.ready = True  # buff的可叠层状态,如果是True,就意味着是内置CD结束了,可以叠层,如果不是True,就不能叠层.
             self.startticks = 0  # buff上一次触发的时间(tick)
             self.endticks = 0  # buff计划课中,buff的结束时间
-            self.settle_times = 0   # buff目前已经被结算过的次数
+            self.settle_times = 0  # buff目前已经被结算过的次数
 
     class BuffLogic:
         def __init__(self):
@@ -137,7 +140,7 @@ class Buff:
         """
         用来执行buff的结束
         """
-        buff_0 = exist_buff_dict[self.ft.name]
+        buff_0 = exist_buff_dict[self.ft.index]
         # buff_0就是buff的源头。位于exsist_buff_dict中。
         if not isinstance(buff_0, Buff):
             raise TypeError(f"{buff_0}不是Buff类！")
@@ -157,50 +160,47 @@ class Buff:
         report_to_log(
             f'[Skill INFO]:{timenow}:{self.ft.name}第{buff_0.history.end_times}次结束;duration:{buff_0.history.last_duration}')
 
-    def update(self, char_name: str, timenow, timecost, exist_buff_dict: dict, sub_mission: str):
-        sub_exist_buff_dict = exist_buff_dict[char_name]
+    def update(self, char_name: str, timenow, timecost, sub_exist_buff_dict: dict, sub_mission: str):
         if self.ft.index not in sub_exist_buff_dict:
             raise TypeError(f'{self.ft.index}并不存在于{char_name}的exist_buff_dict中！')
         buff_0 = sub_exist_buff_dict[self.ft.index]
+        if buff_0.dy.active:
+            self.dy.startticks = buff_0.dy.startticks
+            self.dy.endticks = buff_0.dy.endticks
+            self.dy.count = buff_0.dy.count
+            self.dy.active = buff_0.dy.active
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
         self.dy.active = True
         buff_0.dy.active = True
         buff_0.readyjudge(timenow)
         if not buff_0.dy.ready:
+            print(f'{buff_0.ft.name}由于内置CD没转好并未成功触发！！')
             return
         if sub_mission == 'start':
             self.update_cause_start(timenow, timecost, sub_exist_buff_dict)
-            self.update_to_buff_0(timenow, sub_exist_buff_dict)
         elif sub_mission == 'end':
             if self.ft.endjudge:
                 self.update_cause_end(timenow, sub_exist_buff_dict)
-                self.update_to_buff_0(timenow, sub_exist_buff_dict)
             else:
                 self.end(timenow, sub_exist_buff_dict)
         elif sub_mission == 'hit':
-            self.update_cause_hit(sub_mission)
-            self.update_to_buff_0(timenow, sub_exist_buff_dict)
-        if self.ft.endjudge and sub_mission == 'end':
-            pass
-        else:
-            self.update_to_buff_0(timenow, sub_exist_buff_dict)
+            self.update_cause_hit(timenow, sub_exist_buff_dict)
 
-    def update_to_buff_0(self, timenow,  exist_buff_dict: dict):
+
+    def update_to_buff_0(self, timenow, buff_0):
         """
         该方法往往衔接在buff更新后使用。
         由于在buff判定逻辑中，buff的层数、时间的刷新被视为重新激活了一个新的buff，
         所以，这个方法需要向exist_buff_dict中的buff源头，也就是buff_0传递一些当前buff的参数
         """
-        buff_0 = exist_buff_dict[self.ft.index]
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
-        buff_0.dy.ready = False
-        buff_0.history.active_times += 1
-        buff_0.dy.active = True
+        buff_0.dy.ready = self.dy.ready
         buff_0.dy.count = self.dy.count
         buff_0.dy.startticks = self.dy.startticks
         buff_0.dy.endticks = self.dy.endticks
+        buff_0.history.active_times += 1
         report_to_log(f'[Skill INFO]:{timenow}:{buff_0.ft.name}第{buff_0.history.active_times}次开始)')
 
     def update_cause_start(self, timenow, timecost, exist_buff_dict: dict):
@@ -212,41 +212,76 @@ class Buff:
                 # 所有瞬时buff中，非命中触发的那部分，绕开了“强化E伤害提高5%，且每命中一次再提高5%”这类buff
                 self.dy.startticks = timenow
                 self.dy.endticks = timenow + timecost
+                if not self.ft.hitincrease:
+                    self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                self.dy.ready = False
+                self.update_to_buff_0(timenow, buff_0)
         else:
             if self.ft.prejudge:
                 # 所有具有持续时间的buff中，只有抬手就触发的这一类，会在start标签处更新。
                 self.dy.startticks = timenow
                 self.dy.endticks = timenow + self.ft.maxduration
+                if not self.ft.hitincrease:
+                    self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                self.dy.ready = False
+                self.update_to_buff_0(timenow, buff_0)
                 # 这一类buff的层数计算往往非常直接，就是当前层数 + 步长；
                 # 当前层数应该从buff_0处获取（通用步骤，其他类型的层数更新也是这个流程），
-        if not self.ft.hitincrease:
-            self.dy.count += buff_0.dy.count + self.ft.step
 
     def update_cause_end(self, timenow, exist_buff_dict):
         buff_0 = exist_buff_dict[self.ft.index]
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
-        # 指那些“强化E动作结束后，伤害增加X%”的buff
-        self.dy.startticks = timenow
-        self.dy.endticks = timenow + self.ft.maxduration
-        self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+        # 指那些“强化E动作结束后，伤害增加X%”的buff,
+        # 至于buff.end()并非在这个环节做出修改，而是应该在主循环开头，遍历DynamicBuffList的时候进行修改。
+        if self.ft.endjudge:
+            self.dy.startticks = timenow
+            self.dy.endticks = timenow + self.ft.maxduration
+            self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+            self.dy.ready = False
+            self.update_to_buff_0(timenow, buff_0)
 
     def update_cause_hit(self, timenow, exist_buff_dict: dict):
         buff_0 = exist_buff_dict[self.ft.index]
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
-        if (not self.ft.maxduration == 0) and self.ft.fresh:
-            """
-            这里需要考虑两个维度，
-            1、是否是瞬时buff（maxduraion=0控制），
-            2、是否是触发后可被更新的buff（fresh控制），
-            只有那些非瞬时buff，且fresh等于True的buff，才会在hit标签处更新时间。
-            其他情况都不会更新时间。
-            """
-            if self.ft.hitincrease:
+
+        if self.ft.hitincrease:
+            # 处理非瞬时且可更新的buff（fresh = True 且 maxduration != 0）
+            if self.ft.fresh:
                 self.dy.startticks = timenow
-                self.dy.endticks = timenow + self.ft.maxduration
-        self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                self.dy.endticks = timenow + self.ft.maxduration if self.ft.maxduration != 0 else buff_0.dy.endticks
+            # 处理其他buff逻辑（fresh = False 或瞬时 buff）
+            self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+            self.dy.ready = False
+            self.update_to_buff_0(timenow, buff_0)
 
-
-
+    # def update_cause_hit(self, timenow, exist_buff_dict: dict):
+    #     buff_0 = exist_buff_dict[self.ft.index]
+    #     if not isinstance(buff_0, Buff):
+    #         raise TypeError(f'{buff_0}不是Buff类！')
+    #     if self.ft.hitincrease:
+    #         if (not self.ft.maxduration == 0) and self.ft.fresh:
+    #             """
+    #             这里需要考虑两个维度，
+    #             1、是否是瞬时buff（maxduraion=0控制），
+    #             2、是否是触发后可被更新的buff（fresh控制），
+    #             只有那些非瞬时buff，且fresh等于True的buff，才会在hit标签处更新时间。
+    #             其他情况都不会更新时间。
+    #             """
+    #             self.dy.startticks = timenow
+    #             self.dy.endticks = timenow + self.ft.maxduration
+    #             self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+    #             self.update_to_buff_0(timenow, buff_0)
+    #         else:
+    #             if self.ft.maxduration == 0 and self.ft.fresh:
+    #                 self.dy.startticks = timenow
+    #                 self.dy.endticks = buff_0.dy.endticks
+    #                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+    #                 self.update_to_buff_0(timenow, buff_0)
+    #             elif self.ft.maxduration != 0 and self.ft.fresh == False:
+    #                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+    #                 self.update_to_buff_0(timenow, buff_0)
+    #             elif self.ft.maxduration == 0 and self.ft.fresh == False:
+    #                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+    #                 self.update_to_buff_0(timenow, buff_0)
