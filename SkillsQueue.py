@@ -8,7 +8,7 @@ preload_skills = []  # 留一个全局接口，可能没用其实
 class SkillNode:
     def __init__(self, skill: Skill.InitSkill, preload_tick: int):
         self.skill_tag = skill.skill_tag
-        self.preload_tick = skill.ticks + preload_tick
+        self.preload_tick = preload_tick
         self.hit_times = skill.hit_times
         self.skill = skill
 
@@ -28,7 +28,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
 
     preload_tick_stamp = 0
     for skill in preload_skills:
-        i = skills.skills_dict[skill].tick
+        i = skills.skills_dict[skill].ticks
         preload_tick_stamp += i
         skills_queue.add(SkillNode(skill, preload_tick_stamp))
     return skills_queue

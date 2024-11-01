@@ -22,7 +22,6 @@
     "EXIST_FILE_PATH": "./data/激活判断.csv"
   },
   "translate": {
-    "BuffName": "name",
     "id":  "skill_tag",
     "OfficialName":  "CN_skill_tag",
     "SpConsumption":  "sp_consume",
