@@ -36,7 +36,7 @@ class Preload:
     实例化后 执行 do_preload(tick) 即可对本 tick 所需执行的动作进行预加载，建议从0开始循环，这样它会更聪明
     """
 
-    def __init__(self, *args: tuple[Skill_Class.Skill, ...]):
+    def __init__(self, *args: Skill_Class.Skill):
         self.preload_data = PreloadData(*args)
         self.skills_queue = self.preload_data.skills_queue
 
@@ -56,8 +56,7 @@ class Preload:
 
 
 if __name__ == '__main__':
-    skills = (Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
-    p = Preload(skills)
+    p = Preload(Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
     for tick in trange(100000):
         p.do_preload(tick)
     print(p.preload_data.preloaded_action)
