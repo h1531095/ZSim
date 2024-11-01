@@ -1,24 +1,35 @@
 from BuffClass import Buff
-from CharSet_new import Character
 from Skill_Class import Skill
 import pandas as pd
+from SkillEventSplit import SkillEventSplit, LoadingMission
 from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH, EFFECT_FILE_PATH
-from EventClass import Event
-
+from BuffExist_Judge import buff_exist_judge
+import Preload
+import tqdm
+import numpy as np
+from Report import report_to_log
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
 EFFECT_FILE = pd.read_csv(EFFECT_FILE_PATH, index_col='BuffName')
 
 
-def buff_load(timenow: float,
-              action: Skill,
-              event: Event,
-              be_hitted: bool,
-              CHARACTER_ORDER_DICT: dict,
-              existbuff_dict: dict,
-              action_name: str,
-              LOADING_BUFF_DICT: dict):
+def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
+    all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
+    all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
+    if not all_match:
+        return
+    for char in selected_characters:
+        buff_new = Buff(active_condition_dict, judge_condition_dict)
+        for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
+            if time_now - 1 < sub_mission_start_tick <= time_now:
+                buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                LOADING_BUFF_DICT[char].append(buff_new)
+                report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
+
+
+def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict, character_name_box: list,
+                 LOADING_BUFF_DICT: dict):
     """
     这是buff修改三部曲的第二步,也是最核心的一个步骤.
     该函数有以下几个功能:
@@ -50,44 +61,92 @@ def buff_load(timenow: float,
             ②动作开始时/结束时更新（由prejudge和endjudge分别控制，endjudge是10.16新增的参数，用来标志那些结束时更新的buff，但是游戏中  目前暂无此类buff）
             ③动作命中时更新（由hitincrease控制，如果hitincrease为True，则需要检索事件链表内的hit节点）
             所以，一旦事件的is_happening函数返回True（事件正在发生），就需要在每个tick判断当前发生的具体事件，用函数check_current_event()实现
-            并且核心是一组if elif 判断，不同的分支执行不同的更新规则；
-    """
-    if event.is_happening():
-        # 如果当前tick的事件正在发生，才需要进行判断，如果都没有发生，那自然不需要判断。
-        all_match = None
-        for _ in CHARACTER_ORDER_DICT:
-            if LOADING_BUFF_DICT[_] is None:
-                LOADING_BUFF_DICT[_] = []
-        # 对LOADING_BUFF_DICT进行初始化
-        for buff_name in existbuff_dict:
-            buff_now = existbuff_dict[buff_name]
-            if not isinstance(buff_now,  Buff):
-                raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
+            并且核心是一组if elif 判断，不同的分支执行不同的更新规则；  """
+    # 初始化LOADING_BUFF_DICT
+    for character in character_name_box:
+        LOADING_BUFF_DICT[character] = []
+    # 遍历load_mission_dict中的任务
+    for mission in load_mission_dict.values():
+        if not isinstance(mission, LoadingMission):
+            raise TypeError(f"当前{mission}不是SkillNode类！")
+        character_name = mission.mission_character
+        if character_name not in existbuff_dict:
+            raise ValueError(f'当前角色的Buff源并未创建！')
+        # 提取当前角色的 Buff 列表
+        sub_exist_buff_dict = existbuff_dict[character_name]
+        for buff_key, buff_0 in sub_exist_buff_dict.items():
+            if not isinstance(buff_0, Buff):
+                raise TypeError(f"当前{buff_key}不是Buff类！")
+            # 提前计算添加Buff的角色列表
+            adding_code = str(int(buff_0.ft.add_buff_to)).zfill(3)
+            selected_characters = [character_name_box[i] for i in range(len(character_name_box)) if adding_code[i] == '1']
+            # 处理每个 Buff 的逻辑
+            process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT)
+    return LOADING_BUFF_DICT
 
-            if buff_name not in JUDGE_FILE.index:
-                raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
-            judge_condition_dict = JUDGE_FILE.loc[buff_name].to_dict()
-            active_condition_dict = EXIST_FILE.loc[buff_name].to_dict()
-            # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
 
-            if buff_now.ft.simple_judge_logic:
-                all_match = False
-                for conditions in BUFF_LOADING_CONDITION_TRANSLATION_DICT:
-                    if judge_condition_dict[conditions] != action.get_skill_info(skill_tag=action_name, attr_info=BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]):
-                        all_match = False
-                else:
-                    all_match = True
+def BuffInitialize(buff_name: str, existbuff_dict: dict):
+    # 对单个buff进行初始化，抛出一个触发状态参数，两个参数序列。
+    all_match = False
+    buff_now = existbuff_dict[buff_name]
+    if not isinstance(buff_now, Buff):
+        raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
+    if buff_name not in JUDGE_FILE.index:
+        raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
+    judge_condition_dict = JUDGE_FILE.loc[buff_name].replace({pd.NA: None, pd.NaT: None, np.nan: None})
+    active_condition_dict = EXIST_FILE.loc[buff_name].replace({pd.NA: None, pd.NaT: None, np.nan: None})
+    active_condition_dict['BuffName'] = buff_name
+    # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
+    return all_match, judge_condition_dict, active_condition_dict
+
+
+def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: LoadingMission):
+    skill_now = mission.skill_node.skill
+    if not isinstance(skill_now, Skill.InitSkill):
+        raise TypeError(f"{skill_now}并非Skill类！")
+    if buff_now.ft.simple_judge_logic:
+        for conditions in BUFF_LOADING_CONDITION_TRANSLATION_DICT:
+            judge_conditions = BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]
+            if judge_condition_dict[conditions] is None:
+                continue
             else:
-                exec(buff_now.logic.xjudge)
-            if all_match:
-                buff_new = Buff(active_condition_dict, judge_condition_dict)
-                buff_new.dy.active = True
-                # 实例化一个新的Buff出来
-                buff_now.history.active_times += 1
-                buff_new.history.active_times = buff_now.history.active_times
-                buff_new.timeupdate(buff_now, action.get_skill_info(skill_tag=action_name, attr_info="ticks"), timenow)
-                buff_new.countupdate(be_hitted)
-                #   以上这些是初始化，只有在检测到事件的状态是“开始”标签时才会执行。
+                if judge_condition_dict[conditions] != getattr(skill_now, judge_conditions):
+                    all_match = False
+                    return all_match
+        else:
+            all_match = True
+    else:
+        exec(buff_now.logic.xjudge)
+    return all_match
+
+
+if __name__ == "__main__":      # 测试
+    Charname_box = ['艾莲', '苍角', '莱卡恩']
+    Judge_list_set = [['艾莲', '深海访客', '极地重金属'], ['苍角', '含羞恶面', '自由蓝调'], ['莱卡恩', '拘缚者', '镇星迪斯科']]
+    weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
+    exist_buff_dict = buff_exist_judge(Charname_box, Judge_list_set, weapon_dict)
+    timelimit = 3600
+    load_mission_dict = {}
+    LOADING_BUFF_DICT = {}
+    p = Preload.Preload()
+    name_dict = {}
+    for tick in tqdm.trange(timelimit):
+        p.do_preload(tick)
+        preload_action_list = p.preload_data.preloaded_action
+        if preload_action_list:
+            SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
+        BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
+        print(LOADING_BUFF_DICT)
+        # char_name = '艾莲'
+        # if not LOADING_BUFF_DICT[char_name] == []:
+        #     print(f'LOADING_BUFF_DICT提供了{len(LOADING_BUFF_DICT[char_name])}种buff！分别是：')
+        #     for buff in LOADING_BUFF_DICT[char_name]:
+        #         if isinstance(buff, Buff):
+        #             print(f'{buff.ft.name},\t 层数{buff.dy.count},\t 剩余时间{max(buff.dy.endticks - tick, 0)}, 被激活次数{exist_buff_dict[char_name][buff.ft.index].history.active_times}')
+
+
+
+
 
 
 

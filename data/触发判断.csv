@@ -1,4 +1,4 @@
-BuffName,id,OfficialName,SpConsumption,SpRecovery_hit,sp_threshold,FeverRecovery,ElementAbnormalAccumlation,SkillType,TriggerBuffLevel,ElementType,TimeCost,HitNumber,DmgRelated_Attributes,StunRelated_Attributes,Interruption_Resistance
+BuffName,id,OfficialName,SpConsumption,SpRecovery_hit,Sp_Threshold,FeverRecovery,ElementAbnormalAccumlation,SkillType,TriggerBuffLevel,ElementType,TimeCost,HitNumber,DmgRelated_Attributes,StunRelated_Attributes,Interruption_Resistance
 Ellen_PassiveSkill,,,,,,,,,,3,,,,,
 Ellen_UniqueSkill_1,,,,,,,,,3,3,,,,,
 Ellen_UniqueSkill_2,,,,,,,,,0,3,,,,,
