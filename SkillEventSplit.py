@@ -5,6 +5,7 @@ from TickClass import Tick
 import pandas as pd
 import tqdm
 from define import CHARACTER_DATA_PATH
+from Report import report_to_log
 character_config_data = pd.read_csv(CHARACTER_DATA_PATH)
 
 
@@ -19,7 +20,7 @@ def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, 
         if not isinstance(skill, Preload.SkillNode):
             raise ValueError(f"本次拆分的{skill}不是SkillNode类！")
         this_mission = LoadingMission(skill)
-        this_mission.mission_start()
+        this_mission.mission_start(timenow)
         if skill.skill_tag in name_dict:
             name_dict[skill.skill_tag] += 1
         else:
@@ -32,7 +33,7 @@ def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, 
             if not mission.mission_active_state:
                 to_remove.append(key)
         for key in to_remove:
-            print(f'{timenow}，{Load_mission_dict[key].mission_tag}已经结束，从Load_mission_dict中移除')
+            report_to_log(f"[Skill LOAD]:{timenow}:{Load_mission_dict[key].mission_tag}已经结束,已从Load中移除", level=2)
             Load_mission_dict.pop(key)
     return Load_mission_dict
 
@@ -49,7 +50,7 @@ class LoadingMission:
         CID = int(skill.skill.skill_tag[:4])
         self.mission_character = str(character_config_data.loc[character_config_data['CID'] == CID, 'name'].values[0])
 
-    def mission_start(self):
+    def mission_start(self, timenow):
         self.mission_active_state = True
         self.mission_already_start = True
         timecost = self.skill_node.skill.ticks
@@ -61,6 +62,7 @@ class LoadingMission:
             # 这里的键值也要向上取整，注意，这里产生的是一个int，所以要转化为float
             self.mission_dict[tick_key] = "hit"
         self.mission_dict[float(self.skill_node.preload_tick + timecost)] = "end"
+        report_to_log(f"[Skill LOAD]:{timenow}:{self.mission_tag}开始并拆分子任务。", level=4)
 
     def mission_end(self):
         self.mission_active_state = False

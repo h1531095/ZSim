@@ -6,9 +6,8 @@ from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXI
 from BuffExist_Judge import buff_exist_judge
 import Preload
 import tqdm
-import ast
 import numpy as np
-from LinkedList import LinkedList
+from Report import report_to_log
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
@@ -26,6 +25,7 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
             if time_now - 1 < sub_mission_start_tick <= time_now:
                 buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
                 LOADING_BUFF_DICT[char].append(buff_new)
+                report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
 
 
 def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict, character_name_box: list,
@@ -135,16 +135,14 @@ if __name__ == "__main__":      # 测试
         preload_action_list = p.preload_data.preloaded_action
         if preload_action_list:
             SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
-            for mission in load_mission_dict.values():
-                print(mission.mission_dict)
         BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
-        print(f'Calling BuffLoadLoop at tick {tick}')
-        char_name = '艾莲'
-        if not LOADING_BUFF_DICT[char_name] == []:
-            print(f'LOADING_BUFF_DICT提供了{len(LOADING_BUFF_DICT[char_name])}种buff！分别是：')
-            for buff in LOADING_BUFF_DICT[char_name]:
-                if isinstance(buff, Buff):
-                    print(f'{buff.ft.name},\t 层数{buff.dy.count},\t 剩余时间{max(buff.dy.endticks - tick, 0)}, 被激活次数{exist_buff_dict[char_name][buff.ft.index].history.active_times}')
+        print(LOADING_BUFF_DICT)
+        # char_name = '艾莲'
+        # if not LOADING_BUFF_DICT[char_name] == []:
+        #     print(f'LOADING_BUFF_DICT提供了{len(LOADING_BUFF_DICT[char_name])}种buff！分别是：')
+        #     for buff in LOADING_BUFF_DICT[char_name]:
+        #         if isinstance(buff, Buff):
+        #             print(f'{buff.ft.name},\t 层数{buff.dy.count},\t 剩余时间{max(buff.dy.endticks - tick, 0)}, 被激活次数{exist_buff_dict[char_name][buff.ft.index].history.active_times}')
 
 
 

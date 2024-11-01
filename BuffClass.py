@@ -158,7 +158,7 @@ class Buff:
         self.history.end_times = buff_0.history.end_times
         self.history.last_duration = buff_0.history.last_duration
         report_to_log(
-            f'[Skill INFO]:{timenow}:{self.ft.name}第{buff_0.history.end_times}次结束;duration:{buff_0.history.last_duration}')
+            f'[Buff INFO]:{timenow}:{self.ft.name}第{buff_0.history.end_times}次结束;duration:{buff_0.history.last_duration}', level=3)
 
     def update(self, char_name: str, timenow, timecost, sub_exist_buff_dict: dict, sub_mission: str):
         if self.ft.index not in sub_exist_buff_dict:
@@ -175,7 +175,7 @@ class Buff:
         buff_0.dy.active = True
         buff_0.readyjudge(timenow)
         if not buff_0.dy.ready:
-            print(f'{buff_0.ft.name}由于内置CD没转好并未成功触发！！')
+            report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.name}内置CD没就绪，并未成功触发", level=3)
             return
         if sub_mission == 'start':
             self.update_cause_start(timenow, timecost, sub_exist_buff_dict)
@@ -186,7 +186,6 @@ class Buff:
                 self.end(timenow, sub_exist_buff_dict)
         elif sub_mission == 'hit':
             self.update_cause_hit(timenow, sub_exist_buff_dict)
-
 
     def update_to_buff_0(self, timenow, buff_0):
         """
@@ -201,7 +200,7 @@ class Buff:
         buff_0.dy.startticks = self.dy.startticks
         buff_0.dy.endticks = self.dy.endticks
         buff_0.history.active_times += 1
-        report_to_log(f'[Skill INFO]:{timenow}:{buff_0.ft.name}第{buff_0.history.active_times}次开始)')
+        # report_to_log(f'[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发')
 
     def update_cause_start(self, timenow, timecost, exist_buff_dict: dict):
         buff_0 = exist_buff_dict[self.ft.index]
@@ -227,6 +226,7 @@ class Buff:
                 self.update_to_buff_0(timenow, buff_0)
                 # 这一类buff的层数计算往往非常直接，就是当前层数 + 步长；
                 # 当前层数应该从buff_0处获取（通用步骤，其他类型的层数更新也是这个流程），
+        # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
     def update_cause_end(self, timenow, exist_buff_dict):
         buff_0 = exist_buff_dict[self.ft.index]
@@ -240,6 +240,7 @@ class Buff:
             self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
             self.dy.ready = False
             self.update_to_buff_0(timenow, buff_0)
+        # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
     def update_cause_hit(self, timenow, exist_buff_dict: dict):
         buff_0 = exist_buff_dict[self.ft.index]
@@ -255,33 +256,6 @@ class Buff:
             self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
             self.dy.ready = False
             self.update_to_buff_0(timenow, buff_0)
+        # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
-    # def update_cause_hit(self, timenow, exist_buff_dict: dict):
-    #     buff_0 = exist_buff_dict[self.ft.index]
-    #     if not isinstance(buff_0, Buff):
-    #         raise TypeError(f'{buff_0}不是Buff类！')
-    #     if self.ft.hitincrease:
-    #         if (not self.ft.maxduration == 0) and self.ft.fresh:
-    #             """
-    #             这里需要考虑两个维度，
-    #             1、是否是瞬时buff（maxduraion=0控制），
-    #             2、是否是触发后可被更新的buff（fresh控制），
-    #             只有那些非瞬时buff，且fresh等于True的buff，才会在hit标签处更新时间。
-    #             其他情况都不会更新时间。
-    #             """
-    #             self.dy.startticks = timenow
-    #             self.dy.endticks = timenow + self.ft.maxduration
-    #             self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
-    #             self.update_to_buff_0(timenow, buff_0)
-    #         else:
-    #             if self.ft.maxduration == 0 and self.ft.fresh:
-    #                 self.dy.startticks = timenow
-    #                 self.dy.endticks = buff_0.dy.endticks
-    #                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
-    #                 self.update_to_buff_0(timenow, buff_0)
-    #             elif self.ft.maxduration != 0 and self.ft.fresh == False:
-    #                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
-    #                 self.update_to_buff_0(timenow, buff_0)
-    #             elif self.ft.maxduration == 0 and self.ft.fresh == False:
-    #                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
-    #                 self.update_to_buff_0(timenow, buff_0)
+
