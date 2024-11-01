@@ -546,7 +546,7 @@ class Event:
     class Eventinfomation:      #事件的信息
         def __init__(self, number, eventinfo_dict):
             self.eventid = eventinfo_dict['eventid']            #该次事件的ID，一般从1开始计数，
-            self.timenow = eventinfo_dict['timenow']            #该次事件发生时的时间点
+            self.timenow = eventinfo_dict['time_now']            #该次事件发生时的时间点
             self.char = eventinfo_dict['charactername']         #该次事件涉及的角色名
             self.actionname = eventinfo_dict['actionname']      #该次事件中，角色进行的动作的名称，或者索引
             self.number = number                                #该次事件的事件编号
@@ -1019,7 +1019,7 @@ TODO:
 
 #Enemyactive, character, eventinfo_dict, statefix_dict_default, stateoutsidebonus_dict_default, muldict_default
 actionlist_test = ['RA_FC','SNA_1', 'SNA_2','SNA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC' ]  #  'RA_FC', 'NA_2', 'NA_3_FC','RA_FC', 'SNA_1', 'SNA_2', 'SNA_3_FC' 'NA_1', 'NA_2', 'NA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC'
-eventinfokey_list = ['eventid', 'timenow', 'charactername', 'actionname']
+eventinfokey_list = ['eventid', 'time_now', 'charactername', 'actionname']
 buffactivekey_list = ['id', 'OfficialName', 'SpConsumption', 'SpRecovery_hit', 'FeverRecovery', 'ElementAbnormalAccumlation', 'SkillType', 'TriggerBuffLevel', 'ElementType', 'TimeCost', 'HitNumber', 'DmgRelated_Attributes', 'StunRelated_Attributes']
 allaction_dict = {}
 # 文件名
@@ -1369,7 +1369,7 @@ def EventCreat(actionlist, character):
         # 也就是每次action循环的末尾，但是timenow变量更新之前。
         # '''
         # # 记录循环开始标志
-        # timenow_2f = round(timenow,2)
+        # timenow_2f = round(time_now,2)
         # loop_start_row = {'当前时间': timenow_2f, '当前动作': actionkey_now, '是否触发': '', 'buff名称': '', '持续时间': '', '叠层就绪': '', '当前层数': ''}
         # # 两行空行
         # empty_row = {'当前时间': timenow_2f, '当前动作': '', '是否触发': '', 'buff名称': '', '持续时间': '', '叠层就绪': '', '当前层数': ''}
@@ -1377,7 +1377,7 @@ def EventCreat(actionlist, character):
         # # 准备数据
         # data = [loop_start_row]  # 插入起始行
         # for a in buffactive_namelist:
-        #     timenow_a = f"{timenow:.2f}" if isinstance(timenow, (int, float)) else str(timenow)
+        #     timenow_a = f"{time_now:.2f}" if isinstance(time_now, (int, float)) else str(time_now)
         #     allmatch_a = f"{buffinfodict_now[a]['allmatch']}" if isinstance(buffinfodict_now[a]['allmatch'], (int, float)) else str(buffinfodict_now[a]['allmatch'])
         #     duration_a = f"{buffinfodict_now[a]['duration']:.2f}" if isinstance(buffinfodict_now[a]['duration'], (int, float)) else str(buffinfodict_now[a]['duration'])
         #     ready_a = f"{buffinfodict_now[a]['ready']}" if isinstance(buffinfodict_now[a]['ready'], (int, float)) else str(buffinfodict_now[a]['ready'])

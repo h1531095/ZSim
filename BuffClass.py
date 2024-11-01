@@ -3,7 +3,9 @@ from Report import report_to_log
 from CharacterClass import Character
 import json
 
-debug = json.load(open('config.json')).get('debug')
+with open('config.json', 'r', encoding='utf-8') as file:
+    config = json.load(file)
+debug = config.get('debug')
 classkeydict = {
     'id': 'id',
     'oname': 'OfficialName',
@@ -42,7 +44,13 @@ Buffeffect_index = [
 # 在重构本程序的过程中,我思考过是否要把这个巨大的indexlist按照乘区划分拆成若干,这意味着Event中的Multi子类或许可以独立出来成为一个单独的父类存在.
 # 这样做的好处是:庞大复杂的Multi可以不用蜗居在Event下,结构更加清晰.但是坏处就是,Event和Multi必须1对1实例化,否则容易出现多个动作共用同一份乘区实例的情况,就很容易发生错误NTR(bushi
 
+
 class Buff:
+    """
+    config字典的键值来自：触发判断.csv
+    judge_config字典的键值来自：激活判断.csv
+    """
+
     def __init__(self, config, judge_config):
         self.ft = self.BuffFeature(config)
         self.dy = self.BuffDynamic()
@@ -84,7 +92,7 @@ class Buff:
             self.ready = True  # buff的可叠层状态,如果是True,就意味着是内置CD结束了,可以叠层,如果不是True,就不能叠层.
             self.startticks = 0  # buff上一次触发的时间(tick)
             self.endticks = 0  # buff计划课中,buff的结束时间
-            self.settle_times = 0   # buff目前已经被结算过的次数
+            self.settle_times = 0  # buff目前已经被结算过的次数
 
     class BuffLogic:
         def __init__(self):
@@ -132,53 +140,122 @@ class Buff:
         """
         用来执行buff的结束
         """
+        buff_0 = exist_buff_dict[self.ft.index]
+        # buff_0就是buff的源头。位于exsist_buff_dict中。
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f"{buff_0}不是Buff类！")
+        # 在修改buff的状态时，对buff_0进行相同的修改。以保证状态同步。
         self.dy.active = False
         self.dy.count = 0
-
-        # 先修改buff源的history
-        exist_buff_dict[self.ft.name].history.last_end = timenow
-        exist_buff_dict[self.ft.name].history.end_times += 1
-        exist_buff_dict[self.ft.name].history.last_duration = max(timenow - self.dy.startticks, 0)
-        exist_buff_dict[self.ft.name].dy.active = False
-
+        buff_0.dy.active = False
+        buff_0.dy.count = 0
+        # 同时，更新buff_0的触发历史记录。
+        buff_0.history.last_end = timenow
+        buff_0.history.end_times += 1
+        buff_0.history.last_duration = max(timenow - self.dy.startticks, 0)
         # 再把当前buff的实例化的history和buff源对齐
-        self.history.last_end = exist_buff_dict[self.ft.name].history.last_end
-        self.history.end_times = exist_buff_dict[self.ft.name].history.end_times
-        self.history.last_duration = exist_buff_dict[self.ft.name].history.last_duration
+        self.history.last_end = buff_0.history.last_end
+        self.history.end_times = buff_0.history.end_times
+        self.history.last_duration = buff_0.history.last_duration
         report_to_log(
-            f'[Skill INFO]:{timenow}:{self.ft.name}第{exist_buff_dict[self.ft.name].history.end_times}次结束;duration:{exist_buff_dict[self.ft.name].history.last_duration}')
+            f'[Buff INFO]:{timenow}:{self.ft.name}第{buff_0.history.end_times}次结束;duration:{buff_0.history.last_duration}', level=3)
 
-    def countupdate(self, be_hitted: bool):
-        """
-        如果 self.ft.hitincrease 为 False,则无需关心 be_hitted 的值,直接执行 self.dy.count 的增加操作.\n
-        如果 self.ft.hitincrease 为 True,则只在 be_hitted 为 True 时增加 self.dy.count.\n
-        """
-        if not self.ft.hitincrease or be_hitted:
-            self.dy.count = min(self.dy.count + self.ft.step, self.ft.maxcount)
+    def update(self, char_name: str, timenow, timecost, sub_exist_buff_dict: dict, sub_mission: str):
+        if self.ft.index not in sub_exist_buff_dict:
+            raise TypeError(f'{self.ft.index}并不存在于{char_name}的exist_buff_dict中！')
+        buff_0 = sub_exist_buff_dict[self.ft.index]
+        if buff_0.dy.active:
+            self.dy.startticks = buff_0.dy.startticks
+            self.dy.endticks = buff_0.dy.endticks
+            self.dy.count = buff_0.dy.count
+            self.dy.active = buff_0.dy.active
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        self.dy.active = True
+        buff_0.dy.active = True
+        buff_0.readyjudge(timenow)
+        if not buff_0.dy.ready:
+            report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.name}内置CD没就绪，并未成功触发", level=3)
+            return
+        if sub_mission == 'start':
+            self.update_cause_start(timenow, timecost, sub_exist_buff_dict)
+        elif sub_mission == 'end':
+            if self.ft.endjudge:
+                self.update_cause_end(timenow, sub_exist_buff_dict)
+            else:
+                self.end(timenow, sub_exist_buff_dict)
+        elif sub_mission == 'hit':
+            self.update_cause_hit(timenow, sub_exist_buff_dict)
 
-    def timeupdate(self, buff_0, timecost, timenow):
+    def update_to_buff_0(self, timenow, buff_0):
         """
-        在Buff确定要触发的时候,更新buff的starttime,endtime等一系列参数;\n
-        这里不包含内置Cd的判定,默认内置CD已经判定通过.\n
-        注意事项:\n
-        1,这个函数只修改 startticks 和 endticks两个数值\n
-        由于在本函数的开头,需要对buff的当前active进行判断,以筛选出那些"尚未结束但又触发"的buff,\n
-        所以,关于buff.dy.active的修改应在timeupdate函数生效后进行.故不在本函数内修改active.\n
-        2,关于freshtype是False的那些buff,也就是更新但不刷新时间的buff,它们在非重复触发的状态下,和普通buff是一致的.\n
-        所以只需要找出那些重复触发的此类buff,并不对时间做任何修改即可;\n
-        3,对于持续时间为0的瞬时buff,应将其看做持续时间为招式持续时间的有时长的buff一并对待.\n
+        该方法往往衔接在buff更新后使用。
+        由于在buff判定逻辑中，buff的层数、时间的刷新被视为重新激活了一个新的buff，
+        所以，这个方法需要向exist_buff_dict中的buff源头，也就是buff_0传递一些当前buff的参数
         """
-        if isinstance(buff_0, Buff):
-            raise ValueError(f"当前Buff源头{buff_0}并未实例化！")
-        if not self.ft.fresh:
-            if buff_0.dy.active:
-                return
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        buff_0.dy.ready = self.dy.ready
+        buff_0.dy.count = self.dy.count
+        buff_0.dy.startticks = self.dy.startticks
+        buff_0.dy.endticks = self.dy.endticks
+        buff_0.history.active_times += 1
+        # report_to_log(f'[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发')
+
+    def update_cause_start(self, timenow, timecost, exist_buff_dict: dict):
+        buff_0 = exist_buff_dict[self.ft.index]
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
         if self.ft.maxduration == 0:
-            self.dy.endticks = timenow + timecost
-            self.dy.startticks = timenow
-        if self.ft.prejudge:
+            if not self.ft.hitincrease:
+                # 所有瞬时buff中，非命中触发的那部分，绕开了“强化E伤害提高5%，且每命中一次再提高5%”这类buff
+                self.dy.startticks = timenow
+                self.dy.endticks = timenow + timecost
+                if not self.ft.hitincrease:
+                    self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                self.dy.ready = False
+                self.update_to_buff_0(timenow, buff_0)
+        else:
+            if self.ft.prejudge:
+                # 所有具有持续时间的buff中，只有抬手就触发的这一类，会在start标签处更新。
+                self.dy.startticks = timenow
+                self.dy.endticks = timenow + self.ft.maxduration
+                if not self.ft.hitincrease:
+                    self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                self.dy.ready = False
+                self.update_to_buff_0(timenow, buff_0)
+                # 这一类buff的层数计算往往非常直接，就是当前层数 + 步长；
+                # 当前层数应该从buff_0处获取（通用步骤，其他类型的层数更新也是这个流程），
+        # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
+
+    def update_cause_end(self, timenow, exist_buff_dict):
+        buff_0 = exist_buff_dict[self.ft.index]
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        # 指那些“强化E动作结束后，伤害增加X%”的buff,
+        # 至于buff.end()并非在这个环节做出修改，而是应该在主循环开头，遍历DynamicBuffList的时候进行修改。
+        if self.ft.endjudge:
             self.dy.startticks = timenow
             self.dy.endticks = timenow + self.ft.maxduration
-        else:
-            self.dy.startticks = timenow + timecost
-            self.dy.endticks = timenow + timecost + self.ft.maxduration
+            self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+            self.dy.ready = False
+            self.update_to_buff_0(timenow, buff_0)
+        # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
+
+    def update_cause_hit(self, timenow, exist_buff_dict: dict):
+        buff_0 = exist_buff_dict[self.ft.index]
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+
+        if self.ft.hitincrease:
+            # 处理非瞬时且可更新的buff（fresh = True 且 maxduration != 0）
+            if self.ft.fresh:
+                self.dy.startticks = timenow
+                self.dy.endticks = timenow + self.ft.maxduration if self.ft.maxduration != 0 else buff_0.dy.endticks
+            # 处理其他buff逻辑（fresh = False 或瞬时 buff）
+            self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+            self.dy.ready = False
+            self.update_to_buff_0(timenow, buff_0)
+        # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
+
+
