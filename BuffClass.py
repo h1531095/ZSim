@@ -1,7 +1,11 @@
 import math
+
+import pandas as pd
+
 from Report import report_to_log
 from CharacterClass import Character
 import json
+from define import EFFECT_FILE_PATH
 
 with open('config.json', 'r', encoding='utf-8') as file:
     config = json.load(file)
@@ -57,6 +61,7 @@ class Buff:
         self.sjc = self.BuffSimpleJudgeCondition(judge_config)
         self.logic = self.BuffLogic()
         self.history = self.BuffHistory()
+        self.effect_dct = self.__lookup_buff_effect(self.ft.index)
 
     class BuffFeature:
         def __init__(self, config):
@@ -127,6 +132,39 @@ class Buff:
             self.active_times = 0  # buff迄今为止激活过的次数
             self.last_duration = 0  # buff上一次的持续时间
             self.end_times = 0  # buff结束过的次数
+
+    @staticmethod
+    def __lookup_buff_effect(index: str) -> dict:
+        """
+        根据索引获取buff效果字典。
+
+        该方法从CSV文件中读取所有buff效果数据，并查找首列值为指定索引的行。
+        找到后，将该行的数据转换为字典并返回。
+
+        参数:
+        - index: buff索引。
+
+        返回:
+        - buff_effect: 包含buff效果的字典。
+        """
+        # 初始化一个空的字典来存储buff效果
+        buff_effect = {}
+        # 读取包含所有buff效果的CSV文件
+        all_buff_df = pd.read_csv(EFFECT_FILE_PATH)
+        try:
+            row = all_buff_df[all_buff_df['BuffName'] == index].to_dict("records")
+            row = row[0]
+        except IndexError | KeyError as e:
+            row = {}
+            report_to_log(f'[WARNING] {e}: 索引{index}没有找到，或buff效果csv结构错误', level=4)
+
+        if row:
+            for key, value in row.items():
+                if int(value) == 0:
+                    continue
+                else:
+                    buff_effect[key]: float = float(value)
+        return buff_effect
 
     def readyjudge(self, timenow):
         """
