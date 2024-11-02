@@ -22,8 +22,9 @@ def buff_add(timenow: float,
             # 这个语句的作用是，检查buff是否已经存在。检查的索引是buff.ft.index。
             if buff_existing_chek:
                 DYNAMIC_BUFF_DICT[char].remove(buff_existing_chek)
-                report_to_log(f'[Buff INFO]:{timenow}:老的{buff_existing_chek.ft.name}被移除,并已经添加新的buff.')
+                DYNAMIC_BUFF_DICT[char].append(buff)
+                report_to_log(f'[Buff ADD]:{timenow}:{buff_existing_chek.ft.name}刷新了')
             else:
                 DYNAMIC_BUFF_DICT[char].append(buff)
-                report_to_log(f'[Buff INFO]:{timenow}:{buff.ft.name}第{buff.dy.activetimes}次触发:endticks:{buff.dy.endticks}')
+                report_to_log(f'[Buff ADD]:{timenow}:{buff.ft.name}第{buff.history.active_times}次触发:endticks:{buff.dy.endticks}')
     return DYNAMIC_BUFF_DICT

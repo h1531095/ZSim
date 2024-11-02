@@ -1,34 +1,48 @@
-from CharSet import character_set       # 录入角色配置信息的函数
-# from CharacterClass import Character    # Character类
-from CharSet_new import Character
-from EnemySet import enemy_set
 from BuffExist_Judge import buff_exist_judge
-
-charnum, charname_box, char_active_box, judgelist_set, keybox = character_set()
-# charnum是实际角色数量.charname_box 是三个角色名;而charactive_box是三个实例化的角色,
-# judgelist_set是决定哪些buff和本次模拟有关的配置单,里面主要包括武器名,角色名以及驱动盘4件套,
-# keybox也是服务于判断哪些buff需要参与本次模拟的,
-# 最后两个传出的变量在计算环节和buff判断的轮询中不会用的,只在初始化时需要.
-
-
-def create_char_dict(char1: Character, char2: Character = None, char3:Character = None):
-    """
-    创建字典：
-    {角色名：角色对象}
-    对于空位生成一个占位符（类型待定）
-    """
-    char_dict = {}
-    for char in [char1, char2, char3]:
-        try:
-            char_dict[char.NAME] = char
-        except:
-            char_dict[id(char)] = 'empty'
-            
-    return char_dict
+from SkillEventSplit import SkillEventSplit
+from BuffLoad import BuffLoadLoop
+from Update_Buff import update_dynamic_bufflist
+import Skill_Class
+import tqdm
+import Preload
+from BuffAdd import buff_add
 
 
-enemyactive = enemy_set()
-exsistbuff_dict = buff_exist_judge(charname_box, judgelist_set, keybox)
-# 关于exsistbuff_dict 的详细注释和作用,在BuffExsist_Judge里.
-# 其结构为:{buff名A:实例化buffA, buff名B:实例化buffB......}
-DYNAMIC_BUFF_DICT = {'艾莲': {'在前台': True, 'dynamic_buff_list': ['buff名_艾莲']},  '苍角': {'在前台': False, 'dynamic_buff_list': ['buff名_苍角']}}
+
+DYNAMIC_BUFF_DICT = {}
+
+Charname_box = ['艾莲', '苍角', '莱卡恩']
+Judge_list_set = [['艾莲', '深海访客', '极地重金属'], ['苍角', '含羞恶面', '自由蓝调'], ['莱卡恩', '拘缚者', '镇星迪斯科']]
+weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
+exist_buff_dict = buff_exist_judge(Charname_box, Judge_list_set, weapon_dict)
+for name in Charname_box:
+    DYNAMIC_BUFF_DICT[name] = []
+timelimit = 1200
+load_mission_dict = {}
+LOADING_BUFF_DICT = {}
+p = Preload.Preload(Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
+name_dict = {}
+for tick in tqdm.trange(timelimit):
+    update_dynamic_bufflist(DYNAMIC_BUFF_DICT, tick, Charname_box, exist_buff_dict)
+    p.do_preload(tick)
+    preload_action_list = p.preload_data.preloaded_action
+    if preload_action_list:
+        SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
+    BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
+    buff_add(tick, LOADING_BUFF_DICT, DYNAMIC_BUFF_DICT)
+    char_name = '艾莲'
+    output = ';  '.join(f'{buff.ft.index}' for buff in DYNAMIC_BUFF_DICT[char_name])
+    print(f'{tick}:角色{char_name}的动态buff列表为{output}')
+    '''
+    DYNAMIC_BUFF_DICT = {
+    '艾莲':[buff1, buff2, buff3, buff4.........],
+    '苍角':[buff1, buff2, buff3, buff4.........],
+    '莱卡恩':[buff1, buff2, buff3, buff4.........]
+    }
+    mul_change_dict = {
+    '属性变化':{atk: a1, def: a2, hp: a3, ……}
+    '乘区变化':{增伤区:b1, 防御区:b2, ......}
+    }
+    
+    '''
+
