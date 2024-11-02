@@ -7,7 +7,8 @@ from BuffExist_Judge import buff_exist_judge
 import Preload
 import tqdm
 import numpy as np
-from Report import report_to_log
+from Report import report_to_log, report_buff_to_log
+import Skill_Class
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
@@ -26,6 +27,7 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
                 buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
                 LOADING_BUFF_DICT[char].append(buff_new)
                 report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
+                report_buff_to_log(char, time_now, mission.mission_tag, sub_mission, buff_0.ft.index, buff_new.dy.count, all_match,level=4)
 
 
 def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict, character_name_box: list,
@@ -128,7 +130,7 @@ if __name__ == "__main__":      # 测试
     timelimit = 3600
     load_mission_dict = {}
     LOADING_BUFF_DICT = {}
-    p = Preload.Preload()
+    p = Preload.Preload(Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
     name_dict = {}
     for tick in tqdm.trange(timelimit):
         p.do_preload(tick)
@@ -136,13 +138,7 @@ if __name__ == "__main__":      # 测试
         if preload_action_list:
             SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
         BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
-        print(LOADING_BUFF_DICT)
-        # char_name = '艾莲'
-        # if not LOADING_BUFF_DICT[char_name] == []:
-        #     print(f'LOADING_BUFF_DICT提供了{len(LOADING_BUFF_DICT[char_name])}种buff！分别是：')
-        #     for buff in LOADING_BUFF_DICT[char_name]:
-        #         if isinstance(buff, Buff):
-        #             print(f'{buff.ft.name},\t 层数{buff.dy.count},\t 剩余时间{max(buff.dy.endticks - tick, 0)}, 被激活次数{exist_buff_dict[char_name][buff.ft.index].history.active_times}')
+
 
 
 
