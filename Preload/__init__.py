@@ -15,7 +15,7 @@ INPUT_ACTION_LIST = pd.read_csv('./data/计算序列.csv')
 
 @dataclass
 class PreloadData:
-    def __init__(self, *args: tuple[Skill_Class.Skill, ...]):
+    def __init__(self, *args: Skill_Class.Skill):
         self.preloaded_action = LinkedList()
 
         '''data = pd.DataFrame(    # only for test
@@ -56,7 +56,8 @@ class Preload:
 
 
 if __name__ == '__main__':
-    p = Preload(Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
+    skills = (Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
+    p = Preload(*skills)
     for tick in trange(100000):
         p.do_preload(tick)
     print(p.preload_data.preloaded_action)
