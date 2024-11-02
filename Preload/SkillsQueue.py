@@ -1,7 +1,8 @@
+import pandas as pd
+
+from LinkedList import LinkedList
 from Report import report_to_log
 from Skill_Class import Skill
-from LinkedList import LinkedList
-import pandas as pd
 
 preload_skills = []  # 留一个全局接口，可能没用其实
 

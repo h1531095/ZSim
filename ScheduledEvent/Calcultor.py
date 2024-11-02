@@ -1,50 +1,39 @@
 from CharSet_new import Character
+from Preload import SkillNode
 from Enemy import Enemy
-from define import *
+import copy
+from BuffClass import Buff
+from Report import report_to_log
 
 
 # from BuffExist_Judge import buff_exist_judge
 
-class Caculator:
-    def __init__(self, char_statement: Character, enemy_statement: Enemy):
-        self.char_statement = char_statement
-        self.char_level = char_statement.level
-        self.enemy_statement = enemy_statement
+class MultiplierData:
+    def __int__(self, skill: SkillNode, character: Character, enemy: Enemy, dynamic_buff: dict = None):
+        if dynamic_buff is None:
+            dynamic_buff = {}
+        else:
+            pass
 
-    @staticmethod
-    def cal_dmg_expect(char_statement, enemy_statement):
-        dmg_expect = 0
-        return dmg_expect
+        if not isinstance(skill, SkillNode):
+            raise ValueError("错误的参数类型，应该为SkillNode")
+        if not isinstance(character, Character):
+            raise ValueError("错误的参数类型，应该为Character")
+        if not isinstance(enemy, Enemy):
+            raise ValueError("错误的参数类型，应该为Enemy")
+        if not isinstance(dynamic_buff, dict):
+            raise ValueError("错误的参数类型，应该为dict")
 
-    @staticmethod
-    def cal_dmg_crit(char_statement, enemy_statement):
-        dmg_crit = 0
-        return dmg_crit
+        self.char_name: str = character.NAME
+        self.char_cid: int = character.CID
 
-    @staticmethod
-    def cal_dmg_not_crit(char_statement, enemy_statement):
-        dmg_not_crit = 0
-        return dmg_not_crit
+        try:
+            self.char_buff: list = dynamic_buff[self.char_name]
+        except KeyError:
+            self.char_buff = []
+            report_to_log(f"动态Buff列表内没有角色{self.char_name}", level=4)
 
-    @staticmethod
-    def cal_anomaly_dmg(char_statement, enemy_statement):
-        anomaly_dmg = 0
-        return anomaly_dmg
-
-    @staticmethod
-    def cal_anomaly_dmg_equally():
-        anomaly_dmg_equally = 0
-        return anomaly_dmg_equally
-
-    @staticmethod
-    def cal_anomaly_buildup(char_statement, enemy_statement):
-        anomaly_buildup_expect = 0
-        return anomaly_buildup_expect
-
-    @staticmethod
-    def cal_stun_buildup(self, char_statement, enemy_statement):
-        stun_buildup_expect = 0
-        return stun_buildup_expect
+        self.static_statement = copy.deepcopy(character.Statement)
 
 
 if __name__ == '__main__':
