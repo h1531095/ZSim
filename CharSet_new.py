@@ -194,7 +194,7 @@ class Character:
                                    scPEN, scCRIT)
 
         # 角色技能列表，还没有写修改技能等级的接口
-        self.statement: dict = Character.Statement(self, crit_balancing=CRIT_BALANCING).statement
+        self.statement = Character.Statement(self, crit_balancing=CRIT_BALANCING)
         self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
         self.action_list = self.skill_object.action_list
         self.skills_dict = self.skill_object.skills_dict
