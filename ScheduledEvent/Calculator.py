@@ -243,7 +243,7 @@ class MultiplierData:
             for key, value in dynamic_statement.items():
                 if key in buff_effect_trans:
                     attr_name = buff_effect_trans[key]
-                    setattr(self, attr_name, getattr(self, attr_name)+value)
+                    setattr(self, attr_name, getattr(self, attr_name) + value)
                 else:
                     raise KeyError(f"Invalid buff multiplier key: {key}")
 
@@ -263,6 +263,7 @@ class Calculator:
 
         常规直伤 = 基础伤害区 * 增伤区 * 暴击区 * 防御区 * 抗性区 * 减易伤区 * 失衡易伤区 * 特殊乘区
         """
+
         def __init__(self, data: MultiplierData):
             self.base_dmg = self.cal_base_dmg(data)
             self.dmg_bonus = self.cal_dmg_bonus(data)
@@ -288,19 +289,20 @@ class Calculator:
                 '特殊倍率区': self.special_multiplier_zone
             }
 
-        def get_array_expect(self) -> np.ndarray:
-            array_expect: np.ndarray = np.array([self.base_dmg,
+        def get_array_expect(self) -> np.array:
+            array_expect: np.array = np.array([self.base_dmg,
                                                  self.dmg_bonus,
                                                  self.crit_expect,
                                                  self.defense_mul,
                                                  self.res_mul,
                                                  self.dmg_vulnerability,
                                                  self.stun_vulnerability,
-                                                 self.special_multiplier_zone])
+                                                 self.special_multiplier_zone
+                                                 ], dtype=np.float64)
             return array_expect
 
-        def get_array_crit(self) -> np.ndarray:
-            array_crit: np.ndarray = np.array([self.base_dmg,
+        def get_array_crit(self) -> np.array:
+            array_crit: np.array = np.array([self.base_dmg,
                                                self.dmg_bonus,
                                                self.crit_dmg,
                                                self.defense_mul,
@@ -308,19 +310,19 @@ class Calculator:
                                                self.dmg_vulnerability,
                                                self.stun_vulnerability,
                                                self.special_multiplier_zone
-                                               ])
+                                               ], dtype=np.float64)
             return array_crit
 
-        def get_array_not_crit(self) -> np.ndarray:
-            array_no_crit: np.ndarray = np.array([self.base_dmg,
-                                                 self.dmg_bonus,
-                                                 1,
-                                                 self.defense_mul,
-                                                 self.res_mul,
-                                                 self.dmg_vulnerability,
-                                                 self.stun_vulnerability,
-                                                 self.special_multiplier_zone
-            ])
+        def get_array_not_crit(self) -> np.array:
+            array_no_crit: np.array = np.array([self.base_dmg,
+                                                  self.dmg_bonus,
+                                                  1,
+                                                  self.defense_mul,
+                                                  self.res_mul,
+                                                  self.dmg_vulnerability,
+                                                  self.stun_vulnerability,
+                                                  self.special_multiplier_zone
+                                                  ], dtype=np.float64)
             return array_no_crit
 
         @staticmethod
@@ -526,7 +528,7 @@ class Calculator:
         """
         负责计算与储存与异常伤害有关的属性
 
-        异常伤害快照以 ndarray 形式储存，顺序为：异常积蓄值、基础伤害区、增伤区、减易伤区、异常精通区、等级、异常增伤区、异常暴击区
+        异常伤害快照以 array 形式储存，顺序为：异常积蓄值、基础伤害区、增伤区、减易伤区、异常精通区、等级、异常增伤区、异常暴击区
 
         异常积蓄值 = 基础积蓄值 * 异常掌控/100 * (1 + 属性异常积蓄效率提升) * (1 - 属性异常积蓄抗性)
         基础伤害区 = 攻击力 * 对应属性的异常伤害倍率
@@ -536,18 +538,24 @@ class Calculator:
         异常增伤区 = 单独异常增伤
         异常暴击区 单独考虑简一个角色
         """
+
         def __init__(self, data: MultiplierData):
             self.anomaly_buildup = self.cal_anomaly_buildup(data)
             self.base_damage = self.cal_base_damage(data)
             self.dmg_bonus = self.cal_dmg_bonus(data)
             self.am_mul = self.cal_am_mul(data)
             self.level = data.char_level
-            self.anomaly_bonus = self.cal_anomaly_bonus(data)
+            self.anomaly_bonus = self.cal_ano_dmg_mul(data)
             self.anomaly_crit = self.cal_anomaly_crit(data)
 
-            self.anomaly_snapshot = np.ndarray([
-                self.anomaly_buildup, self.base_damage, self.dmg_bonus, self.am_mul, self.level, self.anomaly_bonus, self.anomaly_crit
-            ])
+            self.anomaly_snapshot = np.array([self.anomaly_buildup,
+                                                self.base_damage,
+                                                self.dmg_bonus,
+                                                self.am_mul,
+                                                self.level,
+                                                self.anomaly_bonus,
+                                                self.anomaly_crit],
+                                               dtype=np.float64)
 
         @staticmethod
         def cal_anomaly_buildup(data: MultiplierData) -> float:
@@ -559,29 +567,55 @@ class Calculator:
             # 属性异常积蓄效率提升、属性异常积蓄抗性
             element_type = data.skill_node.skill.element_type
             if element_type == 0:
-                buildup_bonus = 1 + data.dynamic.physical_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
+                element_buildup_bonus = data.dynamic.physical_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.PHY_damage_resistance - data.dynamic.physical_anomaly_res_decrease
             elif element_type == 1:
-                buildup_bonus = 1 + data.dynamic.fire_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
+                element_buildup_bonus = data.dynamic.fire_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.FIRE_damage_resistance - data.dynamic.fire_anomaly_res_decrease
             elif element_type == 2:
-                buildup_bonus = 1 + data.dynamic.ice_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
+                element_buildup_bonus = data.dynamic.ice_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.ICE_damage_resistance - data.dynamic.ice_anomaly_res_decrease
             elif element_type == 3:
-                buildup_bonus = 1 + data.dynamic.electric_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
+                element_buildup_bonus = data.dynamic.electric_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.ELECTRIC_damage_resistance - data.dynamic.electric_anomaly_res_decrease
             elif element_type == 4:
-                buildup_bonus = 1 + data.dynamic.ether_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
+                element_buildup_bonus = data.dynamic.ether_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.ETHER_damage_resistance - data.dynamic.ether_anomaly_res_decrease
             else:
                 raise ValueError(f"Invalid element type: {element_type}")
 
-            anomaly_buildup = accumulation * (ap/100) * buildup_bonus * buildup_res
+            trigger_buff_level = data.skill_node.skill.trigger_buff_level
+            if trigger_buff_level == 0:
+                trigger_buildup_bonus = data.dynamic.normal_attack_anomaly_buildup_bonus
+            elif trigger_buff_level == 1:
+                trigger_buildup_bonus = data.dynamic.special_skill_anomaly_buildup_bonus
+            elif trigger_buff_level == 2:
+                trigger_buildup_bonus = data.dynamic.ex_special_skill_anomaly_buildup_bonus
+            elif trigger_buff_level == 3:
+                trigger_buildup_bonus = data.dynamic.dash_attack_anomaly_buildup_bonus
+            elif trigger_buff_level == 4:
+                trigger_buildup_bonus = data.dynamic.counter_attack_anomaly_buildup_bonus
+            elif trigger_buff_level == 5:
+                trigger_buildup_bonus = data.dynamic.qte_anomaly_buildup_bonus
+            elif trigger_buff_level == 6:
+                trigger_buildup_bonus = data.dynamic.ultimate_anomaly_buildup_bonus
+            elif trigger_buff_level == 7:
+                trigger_buildup_bonus = data.dynamic.quick_aid_anomaly_buildup_bonus
+            elif trigger_buff_level == 8:
+                trigger_buildup_bonus = data.dynamic.defensive_aid_anomaly_buildup_bonus
+            elif trigger_buff_level == 9:
+                trigger_buildup_bonus = data.dynamic.assault_aid_anomaly_buildup_bonus
+            else:
+                raise ValueError(f"Invalid trigger buff level: {trigger_buff_level}")
+
+            anomaly_buildup = accumulation * (ap / 100) * (
+                    1 + element_buildup_bonus + trigger_buildup_bonus) * buildup_res
             return anomaly_buildup
 
         @staticmethod
         def cal_base_damage(data: MultiplierData) -> float:
-            atk = data.static.atk * (1+data.dynamic.field_atk_percentage) + data.dynamic.atk
+            """基础伤害区 = 攻击力 * 对应属性的异常伤害倍率"""
+            atk = data.static.atk * (1 + data.dynamic.field_atk_percentage) + data.dynamic.atk
             element_type = data.skill_node.skill.element_type
             if element_type == 0:
                 base_damage = 7.13 * atk
@@ -599,19 +633,55 @@ class Calculator:
 
         @staticmethod
         def cal_dmg_bonus(data: MultiplierData) -> float:
-            pass
+            """增伤区 = 1 + 属性增伤 + 全增伤"""
+            element_type = data.skill_node.skill.element_type
+            if element_type == 0:
+                element_dmg_bonus = data.static.phy_dmg_bonus + data.dynamic.phy_dmg_bonus
+            elif element_type == 1:
+                element_dmg_bonus = data.static.fire_dmg_bonus + data.dynamic.fire_dmg_bonus
+            elif element_type == 2:
+                element_dmg_bonus = data.static.ice_dmg_bonus + data.dynamic.ice_dmg_bonus
+            elif element_type == 3:
+                element_dmg_bonus = data.static.electric_dmg_bonus + data.dynamic.electric_dmg_bonus
+            elif element_type == 4:
+                element_dmg_bonus = data.static.ether_dmg_bonus + data.dynamic.ether_dmg_bonus
+            else:
+                raise ValueError(f"Invalid element type: {element_type}")
+
+            dmg_bonus = 1 + element_dmg_bonus + data.dynamic.all_dmg_bonus + data.dynamic.anomaly_dmg_bonus
+            return dmg_bonus
 
         @staticmethod
         def cal_am_mul(data: MultiplierData) -> float:
-            pass
+            """异常精通区 = 异常精通 / 100"""
+            am = data.static.am * (1 + data.dynamic.field_anomaly_mastery) + data.dynamic.anomaly_mastery
+            am_mul = am / 100
+            return am_mul
 
         @staticmethod
-        def cal_anomaly_bonus(data: MultiplierData) -> float:
-            pass
+        def cal_ano_dmg_mul(data: MultiplierData) -> float:
+            element_type = data.skill_node.skill.element_type
+            if element_type == 0:
+                ano_dmg_mul = 1 + data.dynamic.assault_dmg_mul
+            elif element_type == 1:
+                ano_dmg_mul = 1 + data.dynamic.burn_dmg_mul
+            elif element_type == 2:
+                ano_dmg_mul = 1 + data.dynamic.freeze_dmg_mul
+            elif element_type == 3:
+                ano_dmg_mul = 1 + data.dynamic.shock_dmg_mul
+            elif element_type == 4:
+                ano_dmg_mul = 1 + data.dynamic.chaos_dmg_mul
+            else:
+                raise ValueError(f"Invalid element type: {element_type}")
+            return ano_dmg_mul
 
         @staticmethod
         def cal_anomaly_crit(data: MultiplierData) -> float:
-            pass
+            if data.char_name == '简':
+                #TODO 简的暴击被动还没写
+                raise NotImplementedError('简的暴击被动还没写')
+            else:
+                return 1
 
     class StunMul:
         """
@@ -619,6 +689,7 @@ class Calculator:
 
         失衡值累积 = 冲击力 * 失衡倍率 * (1 - 失衡抗性) * (1 + 失衡值提升 - 失衡值降低) * (1+ 受到失衡值提升 - 受到失衡值降低)
         """
+
         def __init__(self, data: MultiplierData):
             self.imp = self.cal_imp(data)
             self.stun_ratio = self.cal_stun_ratio(data)
@@ -626,8 +697,9 @@ class Calculator:
             self.stun_bonus = self.cal_stun_bonus(data)
             self.stun_received = self.cal_stun_received(data)
 
-        def get_stun_array(self) -> np.ndarray:
-            stun_array = np.array([self.imp, self.stun_ratio, self.stun_res, self.stun_bonus, self.stun_received])
+        def get_stun_array(self) -> np.array:
+            stun_array = np.array([self.imp, self.stun_ratio, self.stun_res, self.stun_bonus, self.stun_received],
+                                  dtype=np.float64)
             return stun_array
 
         @staticmethod
@@ -657,19 +729,19 @@ class Calculator:
 
     def cal_dmg_expect(self):
         """计算伤害期望"""
-        multipliers: np.ndarray = self.regular_multipliers.get_array_expect()
+        multipliers: np.array = self.regular_multipliers.get_array_expect()
         dmg_expect = np.prod(multipliers)
         return dmg_expect
 
     def cal_dmg_crit(self):
         """计算暴击伤害"""
-        multipliers: np.ndarray = self.regular_multipliers.get_array_crit()
+        multipliers: np.array = self.regular_multipliers.get_array_crit()
         dmg_crit = np.prod(multipliers)
         return dmg_crit
 
     def cal_dmg_not_crit(self):
         """计算非暴击伤害"""
-        multipliers: np.ndarray = self.regular_multipliers.get_array_not_crit()
+        multipliers: np.array = self.regular_multipliers.get_array_not_crit()
         dmg_not_crit = np.prod(multipliers)
         return dmg_not_crit
 
@@ -679,9 +751,10 @@ class Calculator:
 
     def cal_stun(self):
         """计算失衡值"""
-        multipliers: np.ndarray = self.stun_multipliers.get_stun_array()
+        multipliers: np.array = self.stun_multipliers.get_stun_array()
         stun = np.prod(multipliers)
         return stun
+
 
 if __name__ == '__main__':
     char = Character(name='艾莲')
@@ -700,7 +773,7 @@ if __name__ == '__main__':
     weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
     exist_buff_dict = buff_exist_judge(name_box, Judge_list_set, weapon_dict)
     all_match, judge_condition_dict, active_condition_dict = Buff.BuffLoad.BuffInitialize('Ellen_PassiveSkill',
-                                                                                     exist_buff_dict['艾莲'])
+                                                                                          exist_buff_dict['艾莲'])
     buff = Buff.Buff(active_condition_dict, judge_condition_dict)
     test_md = Calculator(skill, char, enemy, {'艾莲': [buff]})
     breakpoint()
