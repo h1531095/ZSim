@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from BuffClass import Buff
+import Buff
 from CharSet_new import Character
 from Enemy import Enemy
 from Preload import SkillNode
@@ -85,9 +85,9 @@ class MultiplierData:
         # 遍历角色身上的所有buff
         for buff_obj in char_buff:
             # 确保buff是Buff类的实例
-            if isinstance(buff_obj, Buff):
+            if isinstance(buff_obj, Buff.Buff):
                 # 检查buff的简单效果是否为空
-                if buff_obj.ft.simple_effect is not True:
+                if not buff_obj.ft.simple_effect:
                     raise ValueError(f"属性 ft.simple_effect 不能为：{buff_obj.ft.simple_effect}，功能还没写！")
 
                 # 获取buff的层数
@@ -691,16 +691,16 @@ if __name__ == '__main__':
     p = Preload.Preload(skills)
     skill = p.preload_data.skills_queue[0]
     enemy = Enemy()
-    import BuffLoad, BuffClass
-    from BuffExist_Judge import buff_exist_judge
+    import Buff.BuffLoad
+    from Buff.BuffExist_Judge import buff_exist_judge
 
     name_box = ['艾莲', '苍角', '莱卡恩']
     Judge_list_set = [['艾莲', '深海访客', '极地重金属'], ['苍角', '含羞恶面', '自由蓝调'],
                       ['莱卡恩', '拘缚者', '镇星迪斯科']]
     weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
     exist_buff_dict = buff_exist_judge(name_box, Judge_list_set, weapon_dict)
-    all_match, judge_condition_dict, active_condition_dict = BuffLoad.BuffInitialize('Ellen_PassiveSkill',
+    all_match, judge_condition_dict, active_condition_dict = Buff.BuffLoad.BuffInitialize('Ellen_PassiveSkill',
                                                                                      exist_buff_dict['艾莲'])
-    buff = BuffClass.Buff(active_condition_dict, judge_condition_dict)
+    buff = Buff.Buff(active_condition_dict, judge_condition_dict)
     test_md = Calculator(skill, char, enemy, {'艾莲': [buff]})
     breakpoint()
