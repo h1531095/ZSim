@@ -1,5 +1,8 @@
 from BuffClass import Buff
-def update_dynamic_bufflist(DYNAMIC_BUFF_DICT:dict, timetick, charname_box):
+from Report import report_to_log
+
+
+def update_dynamic_bufflist(DYNAMIC_BUFF_DICT:dict, timetick, charname_box, exist_buff_dict: dict):
     """
     该函数是buff修改三部曲的第一步,\n
     \n
@@ -10,12 +13,15 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT:dict, timetick, charname_box):
     最后,将这些bufflist中的所有buff,挨个判断结束状态,如果该结束的,则执行buff.end(),并且把buff从list中移除.
     """
     for charname in charname_box:
-        for _ in DYNAMIC_BUFF_DICT[charname]['dynamic_buff_list'][:]:
-            if isinstance(_, Buff):
-                if _.ft.simple_start_logic:
-                    if timetick >= _.dy.endticks:
-                        _.end(timetick)
-                        DYNAMIC_BUFF_DICT[charname]['dynamic_buff_list'].remove(_)
-                else:
-                    _.logic.xend
+        sub_exist_buff_dict = exist_buff_dict[charname]
+        for _ in DYNAMIC_BUFF_DICT[charname][:]:
+            if not isinstance(_, Buff):
+                raise TypeError(f'{_}不是Buff类！')
+            if _.ft.simple_start_logic:
+                if timetick >= _.dy.endticks:
+                    _.end(timetick, sub_exist_buff_dict)
+                    DYNAMIC_BUFF_DICT[charname].remove(_)
+                    report_to_log(f"[Buff END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)
+            else:
+                _.logic.xend
     return DYNAMIC_BUFF_DICT
