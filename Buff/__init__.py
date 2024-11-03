@@ -9,36 +9,6 @@ from define import EFFECT_FILE_PATH
 with open('./config.json', 'r', encoding='utf-8') as file:
     config = json.load(file)
 debug = config.get('debug')
-classkeydict = {
-    'id': 'id',
-    'oname': 'OfficialName',
-    'sp': 'SpConsumption',
-    'spr': 'SpRecovery_hit',
-    'fev': 'FeverRecovery',
-    'eaa': 'ElementAbnormalAccumlation',
-    'st': 'SkillType',
-    'tbl': 'TriggerBuffLevel',
-    'et': 'ElementType',
-    'tc': 'TimeCost',
-    'hn': 'HitNumber',
-    'da': 'DmgRelated_Attributes',
-    'sa': 'StunRelated_Attributes'
-}
-
-Buffeffect_index = [
-    "BuffName", "eventid", "charactername", "actionname",
-    "f_hp", "f_atk", "f_defs", "f_bs", "f_cr", "f_cd", "f_eap", "f_em", "f_pr", "f_pd", "f_spr", "f_spgr", "f_spm",
-    "f_phy", "f_fir", "f_ice", "f_ele", "f_eth",
-    "o_hp", "o_atk", "o_defs", "o_bs", "o_cr", "o_cd", "o_eap", "o_em", "o_pr", "o_pd", "o_spr", "o_spgr", "o_spm",
-    "o_phy", "o_fir", "o_ice", "o_ele", "o_eth",
-    "PhyBonus", "FireBonus", "IceBonus", "EleBonus", "EthBonus", "AttackType",
-    "NormalAttack", "SpecialSkill", "ExSpecial", "Dashattack", "Avoidattack", "QTE", "Q",
-    "BHaid", "Parryaid", "Assaultaid", "ElementalStatus", "ALLDMG", "Defincrease", "Defdecrease",
-    "Deffix", "Pendelta", "Pendelta_Ratio", "Element_reduce", "Element_penetrate", "PhyRes",
-    "FireRes", "IceRes", "EleRes", "EthRes", "AllRes", "Chance_to_be_crit", "Damage_from_crit",
-    "Dmgtaken_Increase", "Dmgtaken_Decrease", "StunDamage_TakeRatio", "StunDamage_TakeRatio_Delta",
-    "Special_Multiplication_Zone"
-]
 
 
 # 这个index列表里面装的是乘区类型中所有的项目,也是buff效果作用的范围.

@@ -11,7 +11,6 @@ import Skill_Class
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
-# EFFECT_FILE = pd.read_csv(EFFECT_FILE_PATH, index_col='BuffName')
 
 
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
