@@ -1,6 +1,6 @@
 import Preload
 from CharSet_new import Character
-from MultiplierData import MultiplierData
+from Calculator import MultiplierData
 import Enemy
 import BuffLoad, BuffClass
 from BuffExist_Judge import buff_exist_judge

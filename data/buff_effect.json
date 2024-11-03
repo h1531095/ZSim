@@ -1,0 +1,40 @@
+{
+  "Ellen_PassiveSkill": {
+    "冰属性伤害": 0.03
+  },
+  "Ellen_UniqueSkill_1": {
+    "固定暴击伤害": 1.00
+  },
+  "Ellen_UniqueSkill_2": {
+    "固定暴击伤害": 1.00
+  },
+  "DeepSeaVisitor_R1_crit_1": {
+    "固定暴击率": 0.1
+  },
+  "DeepSeaVisitor_R1_crit_2": {
+    "固定暴击率": 0.1
+  },
+  "DeepSeaVisitor_R1_ice": {
+    "冰属性伤害": 0.25
+  },
+  "DeepSeaVisitor_R2_crit_1": {
+    "固定暴击率": 0.1
+  },
+  "DeepSeaVisitor_R2_crit_2": {
+    "固定暴击率": 0.1
+  },
+  "DeepSeaVisitor_R2_ice": {
+    "冰属性伤害": 0.25
+  },
+  "Ice4_1": {},
+  "Ice4_2": {},
+  "Ice4_3": {},
+  "Ice4_4": {},
+  "Cangjiao_atkbuff": {
+    "固定攻击力": 500
+  },
+  "CangjiaoWeapon_atkbuff": {
+    "局内攻击力%": 0.128
+  },
+  "test": {}
+}
