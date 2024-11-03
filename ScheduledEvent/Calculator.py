@@ -526,7 +526,7 @@ class Calculator:
         """
         负责计算与储存与异常伤害有关的属性
 
-        异常伤害快照以 ndarray 形式储存，顺序为：异常继续值、基础伤害区、增伤区、减易伤区、异常精通区、等级、异常增伤区、异常暴击区
+        异常伤害快照以 ndarray 形式储存，顺序为：异常积蓄值、基础伤害区、增伤区、减易伤区、异常精通区、等级、异常增伤区、异常暴击区
 
         异常积蓄值 = 基础积蓄值 * 异常掌控/100 * (1 + 属性异常积蓄效率提升) * (1 - 属性异常积蓄抗性)
         基础伤害区 = 攻击力 * 对应属性的异常伤害倍率
@@ -581,7 +581,21 @@ class Calculator:
 
         @staticmethod
         def cal_base_damage(data: MultiplierData) -> float:
-            pass
+            atk = data.static.atk * (1+data.dynamic.field_atk_percentage) + data.dynamic.atk
+            element_type = data.skill_node.skill.element_type
+            if element_type == 0:
+                base_damage = 7.13 * atk
+            elif element_type == 1:
+                base_damage = 0.5 * atk
+            elif element_type == 2:
+                base_damage = 5 * atk
+            elif element_type == 3:
+                base_damage = 1.25 * atk
+            elif element_type == 4:
+                base_damage = 0.625 * atk
+            else:
+                raise ValueError(f"Invalid element type: {element_type}")
+            return base_damage
 
         @staticmethod
         def cal_dmg_bonus(data: MultiplierData) -> float:
