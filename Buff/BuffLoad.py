@@ -7,7 +7,6 @@ from Buff.BuffExist_Judge import buff_exist_judge
 import Preload
 import tqdm
 import numpy as np
-from Report import report_to_log
 import Skill_Class
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
@@ -94,8 +93,8 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict):
         raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
     if buff_name not in JUDGE_FILE.index:
         raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
-    judge_condition_dict = JUDGE_FILE.loc[buff_name].replace({pd.NA: None, pd.NaT: None, np.nan: None})
-    active_condition_dict = EXIST_FILE.loc[buff_name].replace({pd.NA: None, pd.NaT: None, np.nan: None})
+    judge_condition_dict = JUDGE_FILE.loc[buff_name].replace({np.nan: None})
+    active_condition_dict = EXIST_FILE.loc[buff_name].replace({np.nan: None})
     active_condition_dict['BuffName'] = buff_name
     # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
     return all_match, judge_condition_dict, active_condition_dict
