@@ -3,11 +3,9 @@ import math
 import pandas as pd
 
 from Report import report_to_log
-from CharacterClass import Character
 import json
 from define import EFFECT_FILE_PATH
 
-all_buff_df = pd.read_csv(EFFECT_FILE_PATH)
 with open('./config.json', 'r', encoding='utf-8') as file:
     config = json.load(file)
 debug = config.get('debug')
@@ -139,8 +137,8 @@ class Buff:
         """
         根据索引获取buff效果字典。
 
-        该方法从CSV文件中读取所有buff效果数据，并查找首列值为指定索引的行。
-        找到后，将该行的数据转换为字典并返回。
+        该方法从json文件中尝试读取所有buff效果数据
+        找到后，将数据转换为字典并返回。
 
         参数:
         - index: buff索引。
@@ -149,23 +147,15 @@ class Buff:
         - buff_effect: 包含buff效果的字典。
         """
         # 初始化一个空的字典来存储buff效果
-        buff_effect = {}
         # 读取包含所有buff效果的CSV文件
-
+        with open (EFFECT_FILE_PATH, 'r', encoding='utf-8') as f:
+            all_buff_js = json.load(f)
         try:
-            row = all_buff_df[all_buff_df['BuffName'] == index].to_dict("records")
-            row = row[0]
-        except IndexError | KeyError as e:
-            row = {}
-            report_to_log(f'[WARNING] {e}: 索引{index}没有找到，或buff效果csv结构错误', level=4)
-
-        if row:
-            for key, value in row.items():
-                if value == 0:
-                    continue
-                else:
-                    buff_effect[key] = value
-        return buff_effect
+            buff = all_buff_js[index]
+        except KeyError as e:
+            buff = {}
+            report_to_log(f'[WARNING] {e}: 索引{index}没有找到，或buff效果json结构错误', level=4)
+        return buff
 
     def readyjudge(self, timenow):
         """

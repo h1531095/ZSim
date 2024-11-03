@@ -1,5 +1,5 @@
-from BuffClass import Buff
-from Report import report_to_log
+from Buff import Buff
+from Report import report_to_log, report_buff_to_log
 
 
 def update_dynamic_bufflist(DYNAMIC_BUFF_DICT:dict, timetick, charname_box, exist_buff_dict: dict):
@@ -17,6 +17,7 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT:dict, timetick, charname_box, exis
         for _ in DYNAMIC_BUFF_DICT[charname][:]:
             if not isinstance(_, Buff):
                 raise TypeError(f'{_}不是Buff类！')
+            report_buff_to_log(timetick, _.ft.index, _.dy.count, True, level=4)
             if _.ft.simple_start_logic:
                 if timetick >= _.dy.endticks:
                     _.end(timetick, sub_exist_buff_dict)

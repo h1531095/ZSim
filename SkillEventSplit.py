@@ -1,7 +1,5 @@
 from LinkedList import LinkedList
-from Skill_Class import Skill
 import Preload
-from TickClass import Tick
 import pandas as pd
 import tqdm
 from define import CHARACTER_DATA_PATH
@@ -86,4 +84,10 @@ if __name__ == "__main__":      # 测试
         SkillEventSplit(preload_action_list, load_mission_dict, name_dict)
     for item in load_mission_dict:
         print(f"{item}, {load_mission_dict[item].mission_character_number}")
+
+# TODO: 将SkillEventSplit中，对于load_mission_dict的维护部分单独拆分，并且每个ticks查询，如果当前有hit子任务，则直接向schedule_event_list添加对应的SkillNode
+
+
+def is_hitting():
+    pass
 
