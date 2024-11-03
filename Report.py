@@ -2,6 +2,8 @@ import os
 from datetime import datetime
 from define import DEBUG, DEBUG_LEVEL
 import pandas as pd
+from collections import defaultdict
+buffered_data = defaultdict(lambda: defaultdict(int))
 
 
 def prepare_to_report():
@@ -39,37 +41,21 @@ def report_to_log(content, level=4):
             file.write(f"{content}\n")
 
 
-def report_buff_to_log(char_name: str, time_tick: str, action_name: str, sub_mission: str, buff_name: str, buff_count, all_match: bool, level=4):
+def report_buff_to_log(time_tick: str, buff_name: str, buff_count, all_match: bool, level=4):
     if DEBUG and DEBUG_LEVEL >= level:
-        report_file_path, buff_report_file_path_pre = prepare_to_report()
-        buff_report_file_path = buff_report_file_path_pre + f'{char_name}.csv'
+        if all_match:
+            buffered_data[time_tick][buff_name] += buff_count
 
-        # 检查文件是否已存在
-        if os.path.exists(buff_report_file_path):
-            df = pd.read_csv(buff_report_file_path)
 
-            # 检查 buff_name 是否已经在列名中
-            if buff_name not in df.columns:
-                df[buff_name] = None
-        else:
-            df = pd.DataFrame(columns=['time_tick', 'action name', 'sub_mission', buff_name])
-
-        # 创建新行
-        new_row = {'time_tick': time_tick, 'action name': action_name, 'sub_mission': sub_mission}
-        new_row[buff_name] = buff_count if all_match else None
-
-        # 过滤掉所有值为空的列
-        new_row_filtered = {k: v for k, v in new_row.items() if v is not None}
-
-        # 仅在 new_row_filtered 有数据时合并
-        if new_row_filtered:
-            df = pd.concat([df, pd.DataFrame([new_row_filtered])], ignore_index=True)
-
-        # 合并相同 time_tick 的行
-        df = df.groupby(['time_tick', 'action name', 'sub_mission'], as_index=False).agg(lambda x: x.sum() if x.notnull().any() else None)
-
-        # 保存更新后的 CSV 文件
-        df.to_csv(buff_report_file_path, index=False)
+def write_to_csv(char_name: str):
+    report_file_path, buff_report_file_path_pre = prepare_to_report()
+    buff_report_file_path = buff_report_file_path_pre + f'{char_name}.csv'
+    df = pd.DataFrame.from_dict(buffered_data, orient='index').reset_index()
+    df.rename(columns={'index': 'time_tick'}, inplace=True)
+    # 对 'time_tick' 列进行排序
+    df = df.sort_values(by='time_tick')
+    # 保存更新后的 CSV 文件
+    df.to_csv(buff_report_file_path, index=False)
 
 
 if __name__ == '__main__':
