@@ -182,9 +182,10 @@ class Skill:
                 raise ValueError("未找到技能")
             else:
                 _raw_skill_data = _raw_skill_data[0]
-            # 如果不是攻击力倍率，报错，未来可接复杂逻辑
-            if _raw_skill_data['diff_multiplier'] != 0:
-                raise ValueError("目前只支持攻击力倍率")
+            # 如果不是 攻击力/生命值/防御力/精通 倍率，报错，未来可接复杂逻辑
+            self.diff_multiplier = int(_raw_skill_data['diff_multiplier'])
+            if _raw_skill_data['diff_multiplier'] not in [0, 1, 2, 3]:
+                raise ValueError("目前只支持 攻击力/生命值/防御力/精通 倍率")
             # 储存技能Tag
             self.skill_tag = f'{CID}_{key}' if str(CID) not in key else key
             self.CN_skill_tag: str = _raw_skill_data['CN_skill_tag']

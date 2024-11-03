@@ -1,0 +1,457 @@
+from dataclasses import dataclass
+
+import json
+import numpy as np
+
+from BuffClass import Buff
+from CharSet_new import Character
+from Enemy import Enemy
+from Preload import SkillNode
+from Report import report_to_log
+
+
+class MultiplierData:
+    def __init__(self, skill_node: SkillNode, character_obj: Character, enemy_obj: Enemy, dynamic_buff: dict = None):
+        if dynamic_buff is None:
+            dynamic_buff = {}
+        else:
+            pass
+
+        if not isinstance(skill_node, SkillNode):
+            raise ValueError("错误的参数类型，应该为SkillNode")
+        if not isinstance(character_obj, Character):
+            raise ValueError("错误的参数类型，应该为Character")
+        if not isinstance(enemy_obj, Enemy):
+            raise ValueError("错误的参数类型，应该为Enemy")
+        if not isinstance(dynamic_buff, dict):
+            raise ValueError("错误的参数类型，应该为dict")
+
+        self.skill_node = skill_node
+
+        self.char_name = character_obj.NAME
+        self.char_level = character_obj.level
+        self.cid = character_obj.CID
+
+        try:
+            self.char_buff: list = dynamic_buff[self.char_name]
+        except KeyError:
+            self.char_buff = []
+            report_to_log(f"动态Buff列表内没有角色 {self.char_name}", level=4)
+
+        # 获取角色局外面板数据
+        static_statement: Character.Statement = character_obj.statement
+        self.static = self.StaticStatement(static_statement)
+        # 获取buff动态加成
+        dynamic_statement: dict = self.__cal_buff_total_bonus(self.char_buff)
+        self.dynamic = self.DynamicStatement(dynamic_statement)
+        # 获取敌人数据
+        self.enemy = enemy_obj
+
+        self.multiplier = Multiplier(self)
+
+    @dataclass
+    class StaticStatement:
+        def __init__(self, static_statement: Character.Statement):
+            """将角色面板抄下来！！！！！"""
+            self.atk: float = static_statement.ATK
+            self.hp: float = static_statement.HP
+            self.defense: float = static_statement.DEF
+            self.imp: float = static_statement.IMP
+            self.ap: float = static_statement.AP
+            self.am: float = static_statement.AM
+            self.crit_rate: float = static_statement.CRIT_rate
+            self.crit_damage: float = static_statement.CRIT_damage
+            self.sp_regen: float = static_statement.sp_regen
+            self.sp_get_ratio: float = static_statement.sp_get_ratio
+            self.sp_limit: float = static_statement.sp_limit
+            self.pen_ratio: float = static_statement.PEN_ratio
+            self.pen_numeric: float = static_statement.PEN_numeric
+            self.phy_dmg_bonus: float = static_statement.PHY_DMG_bonus
+            self.ice_dmg_bonus: float = static_statement.ICE_DMG_bonus
+            self.fire_dmg_bonus: float = static_statement.FIRE_DMG_bonus
+            self.ether_dmg_bonus: float = static_statement.ETHER_DMG_bonus
+            self.electric_dmg_bonus: float = static_statement.ELECTRIC_DMG_bonus
+
+    @staticmethod
+    def __cal_buff_total_bonus(char_buff: list) -> dict:
+        """
+        计算角色buff的总加成。
+
+        该方法首先读取buff效果的键值对，然后遍历角色身上的所有buff。
+        对于每个buff，检查其是否为Buff类型，然后根据buff的计数（count）来计算总加成。
+
+        参数:
+        - char_buff: 包含角色所有buff的列表。
+        """
+        # 初始化动态语句字典，用于累加buff效果的值
+        dynamic_statement: dict = {}
+
+        # 遍历角色身上的所有buff
+        for buff_obj in char_buff:
+            # 确保buff是Buff类的实例
+            if isinstance(buff_obj, Buff):
+                # 检查buff的简单效果是否为空
+                if buff_obj.ft.simple_effect is not True:
+                    raise ValueError(f"属性 ft.simple_effect 不能为：{buff_obj.ft.simple_effect}，功能还没写！")
+
+                # 获取buff的层数
+                count = buff_obj.dy.count
+                count = count if count > 0 else 0
+
+                # 遍历buff的每个效果和对应的值，并将其累加
+                for key, value in buff_obj.effect_dct.items():
+                    # 如果键值对在动态语句字典中，则累加值，否则初始化并赋值
+                    try:
+                        dynamic_statement[key] = dynamic_statement.get(key, 0) + value * count
+                    except TypeError:
+                        continue
+        return dynamic_statement
+
+    @dataclass
+    class DynamicStatement:
+        def __init__(self, dynamic_statement):
+            """
+            buff动态加成的初始化蟑螂桶
+            """
+            self.buff_name: str = ""
+            self.hp: float = 0
+            self.atk: float = 0
+            self.defense: float = 0
+            self.imp: float = 0
+            self.crit_rate: float = 0
+            self.crit_dmg: float = 0
+            self.anomaly_proficiency: float = 0
+            self.anomaly_mastery: float = 0
+            self.pen_ratio: float = 0
+            self.pen_numeric: float = 0
+            self.sp_regen: float = 0
+            self.sp_get_ratio: float = 0
+            self.sp_limit: float = 0
+            self.phy_dmg_bonus: float = 0
+            self.fire_dmg_bonus: float = 0
+            self.ice_dmg_bonus: float = 0
+            self.electric_dmg_bonus: float = 0
+            self.ether_dmg_bonus: float = 0
+            self.field_hp_percentage: float = 0
+            self.field_atk_percentage: float = 0
+            self.field_def_percentage: float = 0
+            self.field_imp_percentage: float = 0
+            self.field_crit_rate: float = 0
+            self.field_crit_dmg: float = 0
+            self.field_anomaly_proficiency: float = 0
+            self.field_anomaly_mastery: float = 0
+            self.field_pen_ratio: float = 0
+            self.field_pen_numeric: float = 0
+            self.field_sp_regen: float = 0
+            self.field_sp_get_ratio: float = 0
+            self.field_sp_limit: float = 0
+            self.attack_type_dmg_bonus: float = 0
+            self.normal_attack_dmg_bonus: float = 0
+            self.special_skill_dmg_bonus: float = 0
+            self.ex_special_skill_dmg_bonus: float = 0
+            self.dash_attack_dmg_bonus: float = 0
+            self.counter_attack_dmg_bonus: float = 0
+            self.qte_dmg_bonus: float = 0
+            self.ultimate_dmg_bonus: float = 0
+            self.quick_aid_dmg_bonus: float = 0
+            self.defensive_aid_dmg_bonus: float = 0
+            self.assault_aid_dmg_bonus: float = 0
+            self.anomaly_dmg_bonus: float = 0
+            self.all_dmg_bonus: float = 0
+            self.percentage_def_reduction: float = 0
+            self.def_reduction: float = 0
+            self.all_dmg_res_decrease: float = 0
+            self.physical_dmg_res_decrease: float = 0
+            self.fire_dmg_res_decrease: float = 0
+            self.ice_dmg_res_decrease: float = 0
+            self.electric_dmg_res_decrease: float = 0
+            self.ether_dmg_res_decrease: float = 0
+            self.all_anomaly_res_decrease: float = 0
+            self.physical_anomaly_res_decrease: float = 0
+            self.fire_anomaly_res_decrease: float = 0
+            self.ice_anomaly_res_decrease: float = 0
+            self.electric_anomaly_res_decrease: float = 0
+            self.ether_anomaly_res_decrease: float = 0
+            self.received_crit_dmg_bonus: float = 0
+            self.crit_rate_received_increase: float = 0
+            self.physical_vulnerability: float = 0
+            self.fire_vulnerability: float = 0
+            self.ice_vulnerability: float = 0
+            self.electric_vulnerability: float = 0
+            self.ether_vulnerability: float = 0
+            self.all_vulnerability: float = 0
+            self.received_stun_increase: float = 0
+            self.stun_vulnerability_increase: float = 0
+            self.special_multiplier_zone: float = 0
+
+            self.__read_dynamic_statement(dynamic_statement)
+
+        def __read_dynamic_statement(self, dynamic_statement: dict) -> None:
+            """
+            类方法，使用翻译json初始化动态面板
+            """
+            # 打开buff_effect_trans.json
+            with open("ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as f:
+                buff_effect_trans = json.load(f)
+                # 遍历dynamic_statement，根据json翻译，设置对应的属性值
+                for key, value in dynamic_statement.items():
+                    if key not in buff_effect_trans:
+                        raise KeyError(f"Invalid buff multiplier key: {key}")
+                    else:
+                        attr_name = buff_effect_trans[key]
+                        setattr(self, attr_name, value)
+
+
+class Multiplier:
+    def __init__(self, data: MultiplierData):
+        self.char_name = data.char_name
+        self.cid = data.cid
+        self.regular_dmg_multipliers = self.RegularDMGMul(data)
+
+    class RegularDMGMul:
+        def __init__(self, data: MultiplierData):
+            self.base_dmg = self.cal_base_dmg(data)
+            self.dmg_bonus = self.cal_dmg_bonus(data)
+            self.crit_rate = self.cal_crit_rate(data)
+            self.crit_dmg = self.cal_crit_dmg(data)
+            self.crit_expect = 1 + self.crit_rate * self.crit_dmg
+            self.defense_mul = self.cal_defense_mul(data)
+            self.res_mul = self.cal_res_mul(data)
+            self.dmg_vulnerability = self.cal_dmg_vulnerability(data)
+            self.stun_vulnerability = self.cal_stun_vulnerability(data)
+            self.special_multiplier_zone = self.cal_special_multiplier_zone(data)
+            # 常规伤害
+            self.regular_dmg_multipliers = {
+                '基础伤害区': self.base_dmg,
+                '增伤区': self.dmg_bonus,
+                '暴击率': self.crit_rate,
+                '暴击伤害': self.crit_dmg,
+                '暴击期望': self.crit_expect,
+                '防御区': self.defense_mul,
+                '抗性区': self.res_mul,
+                '减易伤区': self.dmg_vulnerability,
+                '失衡易伤区': self.stun_vulnerability,
+                '特殊倍率区': self.special_multiplier_zone
+            }
+
+        @staticmethod
+        def cal_base_dmg(data: MultiplierData) -> float:
+            """
+            基础伤害区 = 伤害倍率 * 对应属性
+
+            如非特殊注明，代理人技能的伤害倍率都是基于自身攻击力的，在代理人的技能页面可以轻易查阅技能的伤害倍率，
+            玩家也可以在战斗中于暂停菜单中看到技能的伤害倍率。
+            而代理人的攻击力也可以在代理人页面或战斗中的暂停菜单中查阅，当然考虑到战斗中可能存在的各种Buff，
+            实时的伤害计算请关注战斗中实际的攻击力数值。
+            """
+            # 伤害倍率 = 技能伤害倍率 / 攻击次数
+            dmg_ratio = data.skill_node.skill.damage_ratio / data.skill_node.hit_times
+            # 获取伤害对应属性
+            base_attr = data.skill_node.skill.diff_multiplier
+            # 属性为攻击力
+            if base_attr == 0:
+                # 攻击力 = 局外攻击力 * 局内百分比攻击力 + 局内固定攻击力
+                attr = data.static.atk * data.dynamic.field_atk_percentage + data.dynamic.atk
+            # 属性为生命值
+            elif base_attr == 1:
+                attr = data.static.hp * data.dynamic.field_hp_percentage + data.dynamic.hp
+            # 属性为防御力
+            elif base_attr == 2:
+                attr = data.static.defense * data.dynamic.field_def_percentage + data.dynamic.defense
+            # 属性为精通
+            elif base_attr == 3:
+                attr = data.static.am * data.dynamic.anomaly_mastery + data.dynamic.field_anomaly_mastery
+            else:
+                raise ValueError(f"Invalid damage type: {base_attr}")
+            base_dmg = dmg_ratio * attr
+            return base_dmg
+
+        @staticmethod
+        def cal_dmg_bonus(data: MultiplierData) -> float:
+            """
+            增伤区 = 100% + 属性增伤 + 伤害类型增伤 + 进攻类型增伤 + 全类型增伤
+
+            增伤区包含游戏中各种百分比形式的伤害提升/加成，造成伤害降低同样作用于该乘区，理解为负的增伤即可。
+            属性增伤即针对游戏中5种伤害属性(火(Fire)、电(Electric)、冰(Ice)、物理(Physical)和以太(Ether))的伤害加成。属性增伤常见于驱动盘位的主属性和音擎效果。
+            伤害类型增伤包括针对于各类技能(如普通攻击，强化特殊技，终结技等)的增伤。常见于音擎效果和鸣徽效果中。
+            进攻类型增伤即针对于角色进攻类型(斩击(Slash)、打击(Strike)和穿透(Pierce))的增伤。全类型增伤就是未作类型限定的增伤。
+
+            """
+            element_type = data.skill_node.skill.element_type
+            # 获取属性伤害加成，初始化为1.0
+            if element_type == 0:
+                element_dmg_bonus = data.static.phy_dmg_bonus + data.dynamic.phy_dmg_bonus
+            elif element_type == 1:
+                element_dmg_bonus = data.static.fire_dmg_bonus + data.dynamic.fire_dmg_bonus
+            elif element_type == 2:
+                element_dmg_bonus = data.static.electric_dmg_bonus + data.dynamic.electric_dmg_bonus
+            elif element_type == 3:
+                element_dmg_bonus = data.static.ice_dmg_bonus + data.dynamic.ice_dmg_bonus
+            elif element_type == 4:
+                element_dmg_bonus = data.static.ether_dmg_bonus + data.dynamic.ether_dmg_bonus
+            else:
+                raise ValueError(f"Invalid element type: {element_type}, must be a integer in 0~4")
+            # 获取指定Tag增伤
+            trigger_buff_level = data.skill_node.skill.trigger_buff_level
+            if trigger_buff_level == 0:
+                trigger_dmg_bonus = data.dynamic.normal_attack_dmg_bonus
+            elif trigger_buff_level == 1:
+                trigger_dmg_bonus = data.dynamic.special_skill_dmg_bonus
+            elif trigger_buff_level == 2:
+                trigger_dmg_bonus = data.dynamic.ex_special_skill_dmg_bonus
+            elif trigger_buff_level == 3:
+                trigger_dmg_bonus = data.dynamic.dash_attack_dmg_bonus
+            elif trigger_buff_level == 4:
+                trigger_dmg_bonus = data.dynamic.counter_attack_dmg_bonus
+            elif trigger_buff_level == 5:
+                trigger_dmg_bonus = data.dynamic.qte_dmg_bonus
+            elif trigger_buff_level == 6:
+                trigger_dmg_bonus = data.dynamic.ultimate_dmg_bonus
+            elif trigger_buff_level == 7:
+                trigger_dmg_bonus = data.dynamic.quick_aid_dmg_bonus
+            elif trigger_buff_level == 8:
+                trigger_dmg_bonus = data.dynamic.defensive_aid_dmg_bonus
+            elif trigger_buff_level == 9:
+                trigger_dmg_bonus = data.dynamic.assault_aid_dmg_bonus
+            else:
+                raise ValueError(f"Invalid trigger buff level: {trigger_buff_level}, must be a integer in 0~9")
+
+            dmg_bonus = 1 + element_dmg_bonus + trigger_dmg_bonus
+            return dmg_bonus
+
+        @staticmethod
+        def cal_crit_rate(data: MultiplierData) -> float:
+            """
+            暴击率 = 面板暴击率 + buff暴击率 + 受暴击概率增加
+            """
+            crit_rate = (data.static.crit_rate +
+                         data.dynamic.crit_rate +
+                         data.dynamic.field_crit_rate +
+                         data.dynamic.crit_rate_received_increase
+                         )
+            return crit_rate
+
+        @staticmethod
+        def cal_crit_dmg(data: MultiplierData) -> float:
+            """
+            暴击伤害 = 面板暴击伤害 + buff暴击伤害 + 受暴击伤害增加
+            """
+            crit_dmg = (data.static.crit_damage +
+                        data.dynamic.crit_dmg +
+                        data.dynamic.field_crit_dmg +
+                        data.dynamic.received_crit_dmg_bonus)
+            return crit_dmg
+
+        @staticmethod
+        def cal_defense_mul(data: MultiplierData) -> float:
+            """
+            防御区 = 攻击方等级基数 / (受击方有效防御 + 攻击方等级基数)
+
+            受击方有效防御 = 受击方防御 * (1 - 攻击方穿透率%) - 攻击方穿透值 ≥ 0
+            受击方防御 = (基础防御 * (1 + 战斗外防御%) + 战斗外固定防御) * (1 + 防御加成%) + 固定防御
+            """
+            attacker_level = data.char_level
+            # 定义域检查
+            if attacker_level < 0:
+                attacker_level = 0
+            elif attacker_level > 60:
+                attacker_level = 60
+            # 攻击方等级系数
+            k_attacker = np.floor(0.1551 * attacker_level ** 2 + 3.141 * attacker_level + 47.2039)
+            # 受击方防御
+            recipient_def = (data.enemy.max_DEF *
+                             (1 - data.dynamic.percentage_def_reduction) -
+                             data.dynamic.def_reduction)
+            # 穿透率
+            pen_ratio = data.static.pen_ratio + data.dynamic.pen_ratio
+            # 穿透值
+            pen_numeric = data.static.pen_numeric + data.dynamic.pen_numeric
+            # 受击方有效防御
+            effective_def = recipient_def * (1 - pen_ratio) - pen_numeric
+            # 防御区
+            defense_mul = k_attacker / (effective_def + k_attacker)
+            return defense_mul
+
+        @staticmethod
+        def cal_res_mul(data: MultiplierData) -> float:
+            """
+            抗性区 = 1 - 受击方抗性 + 受击方抗性降低 + 攻击方抗性穿透
+            """
+            element_type = data.skill_node.skill.element_type
+            # 获取抗性区，初始化为0
+            if element_type == 0:
+                element_res = data.enemy.PHY_damage_resistance - data.dynamic.physical_dmg_res_decrease
+            elif element_type == 1:
+                element_res = data.enemy.FIRE_damage_resistance - data.dynamic.fire_dmg_res_decrease
+            elif element_type == 2:
+                element_res = data.enemy.ICE_damage_resistance - data.dynamic.ice_dmg_res_decrease
+            elif element_type == 3:
+                element_res = data.enemy.ELECTRIC_damage_resistance - data.dynamic.electric_dmg_res_decrease
+            elif element_type == 4:
+                element_res = data.enemy.ETHER_damage_resistance - data.dynamic.ether_dmg_res_decrease
+            else:
+                raise ValueError(f"Invalid element type: {element_type}, must be a integer in 0~4")
+            res_mul = 1 - element_res + data.dynamic.all_dmg_res_decrease
+            return res_mul
+
+        @staticmethod
+        def cal_dmg_vulnerability(data: MultiplierData) -> float:
+            """
+            减易伤区 = 1 + 减易伤
+            """
+            element_type = data.skill_node.skill.element_type
+            # 获取抗性区，初始化为0
+            if element_type == 0:
+                element_vulnerability = data.dynamic.physical_vulnerability
+            elif element_type == 1:
+                element_vulnerability = data.dynamic.fire_vulnerability
+            elif element_type == 2:
+                element_vulnerability = data.dynamic.ice_vulnerability
+            elif element_type == 3:
+                element_vulnerability = data.dynamic.electric_vulnerability
+            elif element_type == 4:
+                element_vulnerability = data.dynamic.ether_vulnerability
+            else:
+                raise ValueError(f"Invalid element type: {element_type}, must be a integer in 0~4")
+            dmg_vulnerability = element_vulnerability + data.dynamic.all_vulnerability
+            return dmg_vulnerability
+
+        @staticmethod
+        def cal_stun_vulnerability(data: MultiplierData) -> float:
+            """
+            失衡时：失衡易伤区 = 1 + 怪物失衡易伤 + 失衡易伤增幅
+            非失衡时：失衡易伤区 = 1
+            """
+            stun_status: bool = data.enemy.dynamic.stun
+            if stun_status:
+                stun_vulnerability = 1 + data.enemy.stun_DMG_take_ratio + data.dynamic.stun_vulnerability_increase
+            else:
+                stun_vulnerability =  1
+            return stun_vulnerability
+
+        @staticmethod
+        def cal_special_multiplier_zone(data: MultiplierData) -> float:
+            return data.dynamic.special_multiplier_zone
+
+
+if __name__ == '__main__':
+    char = Character(name='艾莲')
+    import Preload
+
+    skills = char.skill_object
+    p = Preload.Preload(skills)
+    skill = p.preload_data.skills_queue[0]
+    enemy = Enemy()
+    import BuffLoad, BuffClass
+    from BuffExist_Judge import buff_exist_judge
+
+    name_box = ['艾莲', '苍角', '莱卡恩']
+    Judge_list_set = [['艾莲', '深海访客', '极地重金属'], ['苍角', '含羞恶面', '自由蓝调'],
+                      ['莱卡恩', '拘缚者', '镇星迪斯科']]
+    weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
+    exist_buff_dict = buff_exist_judge(name_box, Judge_list_set, weapon_dict)
+    all_match, judge_condition_dict, active_condition_dict = BuffLoad.BuffInitialize('Ellen_PassiveSkill',
+                                                                                     exist_buff_dict['艾莲'])
+    buff = BuffClass.Buff(active_condition_dict, judge_condition_dict)
+    test_md = MultiplierData(skill, char, enemy, {'艾莲': [buff]})
+    pass

@@ -160,10 +160,10 @@ class Buff:
 
         if row:
             for key, value in row.items():
-                if int(value) == 0:
+                if value == 0:
                     continue
                 else:
-                    buff_effect[key]: float = float(value)
+                    buff_effect[key] = value
         return buff_effect
 
     def readyjudge(self, timenow):
