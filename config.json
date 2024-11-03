@@ -18,7 +18,7 @@
     "ENEMY_DATA_PATH" : "./data/enemy.csv",
     "DEFAULT_SKILL_PATH" : "./data/default_skill.csv",
     "JUDGE_FILE_PATH": "./data/触发判断.csv",
-    "EFFECT_FILE_PATH": "./data/Buff效果.csv",
+    "EFFECT_FILE_PATH": "./data/buff_effect.json",
     "EXIST_FILE_PATH": "./data/激活判断.csv"
   },
   "translate": {
