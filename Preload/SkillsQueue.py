@@ -3,6 +3,7 @@ import pandas as pd
 from LinkedList import LinkedList
 from Report import report_to_log
 from Skill_Class import Skill
+from define import CHARACTER_DATA_PATH
 
 preload_skills = []  # 留一个全局接口，可能没用其实
 
@@ -16,10 +17,12 @@ class SkillNode:
         1、部分需要立即调用的信息；
         2、整个 Skill.InitSkill 对象，包含了技能的全部信息，用于计算器调用
         """
-        self.skill_tag = skill.skill_tag
-        self.preload_tick = preload_tick
-        self.hit_times = skill.hit_times
-        self.skill = skill
+        self.skill_tag: str = skill.skill_tag
+        self.char_name: str = skill.char_name
+        self.preload_tick: int = preload_tick
+        self.hit_times: int = skill.hit_times
+        self.skill: Skill.InitSkill = skill
+
 
 
 def get_skills_queue(preload_table: pd.DataFrame,
