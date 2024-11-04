@@ -54,6 +54,14 @@
   "冰伤害抗性降低": "ice_dmg_res_decrease",
   "电伤害抗性降低": "electric_dmg_res_decrease",
   "以太伤害抗性降低": "ether_dmg_res_decrease",
+
+  "全属性抗性穿透": "all_res_pen_increase",
+  "物理抗性穿透": "physical_res_pen_increase",
+  "火抗性穿透": "fire_res_pen_increase",
+  "冰抗性穿透": "ice_res_pen_increase",
+  "电抗性穿透": "electric_res_pen_increase",
+  "以太抗性穿透": "ether_res_pen_increase",
+
   "全属性异常抗性降低": "all_anomaly_res_decrease",
   "物理异常抗性降低": "physical_anomaly_res_decrease",
   "火异常抗性降低": "fire_anomaly_res_decrease",

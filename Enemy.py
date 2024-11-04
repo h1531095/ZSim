@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from Report import report_to_log
@@ -150,11 +151,11 @@ class Enemy:
         else:
             pass
 
-    def update_anomaly(self, element: str = "ALL", *, times: int = 1) -> None:
+    def update_anomaly(self, element: str | int = "ALL", *, times: int = 1) -> None:
         """更新怪物异常值，触发一次异常后调用。"""
         # 检查参数类型
-        if not isinstance(element, str):
-            raise TypeError(f"element参数类型错误，必须是字符串，实际类型为{type(element)}")
+        if not isinstance(element, (str, int)) :
+            raise TypeError(f"element参数类型错误，必须是整数或字符串，实际类型为{type(element)}")
         if not isinstance(times, int):
             raise TypeError(f"times参数必须是整数，实际类型为{type(times)}")
         if times <= 0:
@@ -163,16 +164,16 @@ class Enemy:
         update_ratio = 1.02
         '''游戏中，每次异常增加2%对应属性异常值'''
 
-        for _ in range(times):
-            if element.upper() == 'ICE' or element == '冰':
+        for _ in range(np.floor(times)):
+            if element.upper() == 'ICE' or element == '冰' or element == 2:
                 self.max_anomaly_ICE *= update_ratio
-            elif element.upper() == 'FIRE' or element == '火':
+            elif element.upper() == 'FIRE' or element == '火' or element == 1:
                 self.max_anomaly_FIRE *= update_ratio
-            elif element.upper() == 'ETHER' or element == '以太':
+            elif element.upper() == 'ETHER' or element == '以太' or element == 4:
                 self.max_anomaly_ETHER *= update_ratio
-            elif element.upper() == 'ELECTRIC' or element == '电':
+            elif element.upper() == 'ELECTRIC' or element == '电' or element == 3:
                 self.max_anomaly_ELECTRIC *= update_ratio
-            elif element.upper() == 'PHY' or element == '物理':
+            elif element.upper() == 'PHY' or element == '物理' or element == 0:
                 self.max_anomaly_PHY *= update_ratio
             elif 'ALL' in element.upper() or '全部' in element or '所有' in element:
                 self.max_anomaly_ICE *= update_ratio
@@ -181,7 +182,7 @@ class Enemy:
                 self.max_anomaly_ELECTRIC *= update_ratio
                 self.max_anomaly_PHY *= update_ratio
             else:
-                print(f"输入了不支持的属性 {element}")
+                raise ValueError(f"输入了不支持的元素种类：{element}")
 
     class EnemyDynamic:
         def __init__(self):
