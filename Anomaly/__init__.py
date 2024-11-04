@@ -2,16 +2,9 @@ from dataclasses import dataclass
 import Enemy
 import numpy as np
 
-# TODO: __init__.py 只含有基类以及基类的方法与函数
-
-#TODO: anomaly_snapshot.py 负责抄快照。需要内置一个快照累加的方法。异常伤害快照以 ndarray 形式储存，
-# 顺序为：异常积蓄值，基础伤害区，增伤区，减易伤区，异常精通区，等级系数（只会传入角色等级）——该系数需要先加权平均等级，最后再换算成等级系数，因为涉及向下取整，异常增伤区，异常爆击区
-# self.snpa_shot的2个索引，0:buildup  1:np.ndarray
 
 #TODO: anomaly_dot.py 触发属性异常后，需要通过已经计算好的快照，生成一个Dot类实例，
-
-element_type_list = ['PHY', 'FIRE', 'ICE', 'ELECTRIC', 'ETHER']
-
+#TODO: 属性异常的debuff效果以及dot效果
 
 @dataclass
 class AnomalyEffect:
@@ -29,6 +22,7 @@ class AnomalyEffect:
 
     def __post_init__(self):
         # 从Enemy获取 max_anomaly的值
+        element_type_list = ['PHY', 'FIRE', 'ICE', 'ELECTRIC', 'ETHER']
         self.max_anomaly = getattr(self.enemy, f'max_anomaly_{element_type_list[self.element_type]}', None)
 
     def update_max_anomaly(self):
@@ -52,9 +46,6 @@ class AnomalyEffect:
             self.current_anomaly /= self.current_anomaly
             output = self.element_type, self.current_ndarray
             self.current_anomaly = np.float64(0)
-            self.current_ndarray = np.zeros((9,1), dtype=np.float64)
+            self.current_ndarray = np.zeros((9, 1), dtype=np.float64)
+            self.update_max_anomaly()
             return output
-
-
-
-
