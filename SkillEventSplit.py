@@ -1,10 +1,7 @@
 from LinkedList import LinkedList
 import Preload
-import pandas as pd
 import tqdm
-from define import CHARACTER_DATA_PATH
 from Report import report_to_log
-character_config_data = pd.read_csv(CHARACTER_DATA_PATH)
 
 
 def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, name_dict: dict, timenow):
@@ -45,8 +42,7 @@ class LoadingMission:
         self.mission_start_tick = skill.preload_tick
         self.mission_end_tick = skill.preload_tick + skill.skill.ticks
         self.skill_node = skill
-        CID = int(skill.skill.skill_tag[:4])
-        self.mission_character = str(character_config_data.loc[character_config_data['CID'] == CID, 'name'].values[0])
+        self.mission_character = skill.char_name
 
     def mission_start(self, timenow):
         self.mission_active_state = True
