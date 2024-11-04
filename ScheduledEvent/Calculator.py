@@ -245,7 +245,11 @@ class MultiplierData:
 
 
 class Calculator:
-    def __init__(self, skill_node: SkillNode, character_obj: Character, enemy_obj: Enemy, dynamic_buff: dict = None):
+    def __init__(self,
+                 skill_node: SkillNode,
+                 character_obj: Character,
+                 enemy_obj: Enemy,
+                 dynamic_buff: dict = None):
         """
         Calculator 是 Schedule 阶段获得 SkillNode 后的计算处理逻辑
 
@@ -272,6 +276,7 @@ class Calculator:
         self.cid = data.cid
 
         self.element_type = data.skill_node.skill.element_type
+        self.skill_tag = data.skill_node.skill_tag
 
         # 初始化各种乘区
         self.regular_multipliers = self.RegularMul(data)
@@ -563,6 +568,7 @@ class Calculator:
 
         def __init__(self, data: MultiplierData):
 
+            self.element_type = data.skill_node.skill.element_type
             self.anomaly_buildup: np.float64 = self.cal_anomaly_buildup(data)
 
             self.base_damage: float = self.cal_base_damage(data)
@@ -716,20 +722,19 @@ class Calculator:
             else:
                 return 1
 
-        @staticmethod
         def cal_res_pen(self, data: MultiplierData) -> float:
-            if self.elem_type == 0:
+            if self.element_type == 0:
                 element_res_pen = data.dynamic.physical_res_pen_increase
-            elif self.elem_type == 1:
+            elif self.element_type == 1:
                 element_res_pen = data.dynamic.fire_res_pen_increase
-            elif self.elem_type == 2:
+            elif self.element_type == 2:
                 element_res_pen = data.dynamic.ice_res_pen_increase
-            elif self.elem_type == 3:
+            elif self.element_type == 3:
                 element_res_pen = data.dynamic.electric_res_pen_increase
-            elif self.elem_type == 4:
+            elif self.element_type == 4:
                 element_res_pen = data.dynamic.ether_res_pen_increase
             else:
-                raise ValueError(f"Invalid element type: {self.elem_type}")
+                raise ValueError(f"Invalid element type: {self.element_type}")
             return element_res_pen
 
     class StunMul:
@@ -776,32 +781,32 @@ class Calculator:
             stun_received = 1 + data.dynamic.received_stun_increase
             return stun_received
 
-    def cal_dmg_expect(self):
+    def cal_dmg_expect(self) -> np.float64:
         """计算伤害期望"""
         multipliers: np.array = self.regular_multipliers.get_array_expect()
         dmg_expect = np.prod(multipliers)
         return dmg_expect
 
-    def cal_dmg_crit(self):
+    def cal_dmg_crit(self) -> np.float64:
         """计算暴击伤害"""
         multipliers: np.array = self.regular_multipliers.get_array_crit()
         dmg_crit = np.prod(multipliers)
         return dmg_crit
 
-    def cal_dmg_not_crit(self):
+    def cal_dmg_not_crit(self) -> np.float64:
         """计算非暴击伤害"""
         multipliers: np.array = self.regular_multipliers.get_array_not_crit()
         dmg_not_crit = np.prod(multipliers)
         return dmg_not_crit
 
-    def cal_anomaly_snapshot(self):
+    def cal_anomaly_snapshot(self) -> tuple[int, np.float64, np.ndarray]:
         """计算异常值快照"""
         element_type: int = self.element_type
         build_up: np.float64 = self.anomaly_multipliers.anomaly_buildup
         snapshot: np.ndarray = self.anomaly_multipliers.anomaly_snapshot
         return element_type, build_up, snapshot
 
-    def cal_stun(self):
+    def cal_stun(self) -> np.float64:
         """计算失衡值"""
         multipliers: np.array = self.stun_multipliers.get_stun_array()
         stun = np.prod(multipliers)

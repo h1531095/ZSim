@@ -118,7 +118,7 @@ class Skill:
         for key in __keys:
             skill = self.InitSkill(skill_dataframe=self.skill_dataframe, key=key, normal_level=normal_level,
                                    special_level=special_level, dodge_level=dodge_level, chain_level=chain_level,
-                                   assist_level=assist_level, core_level=core_level, CID=self.CID)
+                                   assist_level=assist_level, core_level=core_level, CID=self.CID, char_name=self.name)
             self.skills_dict[key] = skill
         self.action_list = self.__create_action_list()
 
@@ -169,6 +169,7 @@ class Skill:
                      normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
                      core_level=6,
                      CID=0,
+                     char_name=None
                      ):
             """
             初始化角色的技能。
@@ -186,6 +187,7 @@ class Skill:
             self.diff_multiplier = int(_raw_skill_data['diff_multiplier'])
             if _raw_skill_data['diff_multiplier'] not in [0, 1, 2, 3]:
                 raise ValueError("目前只支持 攻击力/生命值/防御力/精通 倍率")
+            self.char_name = char_name
             # 储存技能Tag
             self.skill_tag = f'{CID}_{key}' if str(CID) not in key else key
             self.CN_skill_tag: str = _raw_skill_data['CN_skill_tag']
