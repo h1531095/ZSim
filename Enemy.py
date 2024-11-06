@@ -195,6 +195,8 @@ class Enemy:
             self.burn = False  # 灼烧状态
             self.corruption = False  # 侵蚀状态
 
+            self.dynamic_debuff_list = []   # 用来装debuff的list
+
             self.frozen_tick = 0
             self.frostbite_tick = 0
             self.assault_tick = 0

@@ -1,10 +1,11 @@
-from Report import report_to_log
+import Enemy
 from Buff import Buff
 
 
 def buff_add(timenow: float,
              LOADING_BUFF_DICT: dict,
-             DYNAMIC_BUFF_DICT: dict):
+             DYNAMIC_BUFF_DICT: dict,
+             enemy: Enemy.Enemy):
     """
     该函数是Buff三部曲中的最后一步。
     它负责把LOADING_BUFF_DICT中的待加载的buff添加到对应角色的Dynamic_Buff_List中，\n
@@ -22,9 +23,13 @@ def buff_add(timenow: float,
             # 这个语句的作用是，检查buff是否已经存在。检查的索引是buff.ft.index。
             if buff_existing_check:
                 DYNAMIC_BUFF_DICT[char].remove(buff_existing_check)
-                DYNAMIC_BUFF_DICT[char].append(buff)
                 # report_to_log(f'[Buff ADD]:{timenow}:{buff_existing_check.ft.name}刷新了')
-            else:
-                DYNAMIC_BUFF_DICT[char].append(buff)
+            DYNAMIC_BUFF_DICT[char].append(buff)
+            if char == 'enemy':
+                debuff_existing_check = next((existing_buff for existing_buff in enemy.dynamic.dynamic_debuff_list if existing_buff.ft.index == buff.ft.index), None)
+                if debuff_existing_check:
+                    enemy.dynamic.dynamic_debuff_list.remove(debuff_existing_check)
+                enemy.dynamic.dynamic_debuff_list.append(buff)
+                # 只有在处理enemy的buff时，需要将改动同时同步到buff中。
                 # report_to_log(f'[Buff ADD]:{timenow}:{buff.ft.name}第{buff.history.active_times}次触发:endticks:{buff.dy.endticks}')
     return DYNAMIC_BUFF_DICT

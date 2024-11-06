@@ -57,6 +57,7 @@ class Buff:
             self.hitincrease = config['hitincrease']  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
             self.cd = config['increaseCD']  # buff的叠层内置CD
             self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
+            self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
 
     class BuffDynamic:
         def __init__(self):
@@ -67,6 +68,7 @@ class Buff:
             self.startticks = 0  # buff上一次触发的时间(tick)
             self.endticks = 0  # buff计划课中,buff的结束时间
             self.settle_times = 0  # buff目前已经被结算过的次数
+            self.buff_from = None   # debuff的专用属性，用于记录debuff的来源。
 
     class BuffLogic:
         def __init__(self):
@@ -186,7 +188,7 @@ class Buff:
         elif sub_mission == 'hit':
             self.update_cause_hit(timenow, sub_exist_buff_dict)
 
-    def update_to_buff_0(self, timenow, buff_0):
+    def update_to_buff_0(self, buff_0):
         """
         该方法往往衔接在buff更新后使用。
         由于在buff判定逻辑中，buff的层数、时间的刷新被视为重新激活了一个新的buff，
@@ -213,7 +215,7 @@ class Buff:
                 if not self.ft.hitincrease:
                     self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
                 self.dy.ready = False
-                self.update_to_buff_0(timenow, buff_0)
+                self.update_to_buff_0(buff_0)
         else:
             if self.ft.prejudge:
                 # 所有具有持续时间的buff中，只有抬手就触发的这一类，会在start标签处更新。
@@ -222,7 +224,7 @@ class Buff:
                 if not self.ft.hitincrease:
                     self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
                 self.dy.ready = False
-                self.update_to_buff_0(timenow, buff_0)
+                self.update_to_buff_0(buff_0)
                 # 这一类buff的层数计算往往非常直接，就是当前层数 + 步长；
                 # 当前层数应该从buff_0处获取（通用步骤，其他类型的层数更新也是这个流程），
         # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
@@ -238,7 +240,7 @@ class Buff:
             self.dy.endticks = timenow + self.ft.maxduration
             self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
             self.dy.ready = False
-            self.update_to_buff_0(timenow, buff_0)
+            self.update_to_buff_0(buff_0)
         # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
     def update_cause_hit(self, timenow, exist_buff_dict: dict):
@@ -254,7 +256,16 @@ class Buff:
             # 处理其他buff逻辑（fresh = False 或瞬时 buff）
             self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
             self.dy.ready = False
-            self.update_to_buff_0(timenow, buff_0)
+            self.update_to_buff_0(buff_0)
         # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
-
+# TODO：Buff类的拓展：实现debuff（包括exist judge阶段的debuff初始化）
+# TODO：新建一个Dot类，使其继承Buff类，并且拥有自己的独立方法——能够向schedule event 中添加计划事件
+# TODO：完成属性异常的基类搭建，完成属性异常在触发后自动向dynamic buff dict中添加debuff的功能
+# TODO：在属性异常的基类中，完成添加dot事件的功能
+# dynamic_buff_dict / buff_exist_dict= {
+# 'charA':[buff1,buff2,buff3......],
+# 'charB':[buff1,buff2,buff3......],
+# 'charC':[buff1,buff2......],
+# 'enemy':[debuff1,debuff2,debuff3......]
+# }

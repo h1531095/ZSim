@@ -1,8 +1,9 @@
 from Buff import Buff
 from Report import report_to_log, report_buff_to_log
+import Enemy
 
 
-def update_dynamic_bufflist(DYNAMIC_BUFF_DICT:dict, timetick, charname_box, exist_buff_dict: dict):
+def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: dict, enemy: Enemy.Enemy):
     """
     该函数是buff修改三部曲的第一步,\n
     \n
@@ -12,17 +13,25 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT:dict, timetick, charname_box, exis
     它会轮询charname_box,并且以其中的角色名为key,到DICT中去提取对应的dynamic_buff_list \n
     最后,将这些bufflist中的所有buff,挨个判断结束状态,如果该结束的,则执行buff.end(),并且把buff从list中移除.
     """
-    for charname in charname_box:
+    for charname in exist_buff_dict:
         sub_exist_buff_dict = exist_buff_dict[charname]
         for _ in DYNAMIC_BUFF_DICT[charname][:]:
             if not isinstance(_, Buff):
                 raise TypeError(f'{_}不是Buff类！')
-            report_buff_to_log(timetick, _.ft.index, _.dy.count, True, level=4)
+            if _.ft.is_debuff and charname != 'enemy':
+                raise ValueError(f'{_.ft.index}是debuff但是却进入了{charname}的buff池！')
+            if (not _.ft.is_debuff) and charname == 'enemy':
+                raise ValueError(f'{_.ft.index}是buff但是却在enemy的debuff池中！')
+            report_buff_to_log(charname, timetick, _.ft.index, _.dy.count, True, level=4)
             if _.ft.simple_start_logic:
                 if timetick >= _.dy.endticks:
+                    # 不管是不是debuff，时间到点了就要结束。所以buff.end()以及对应的DYNAMIC_BUFF_DICT的修改都是必须进行的。
                     _.end(timetick, sub_exist_buff_dict)
                     DYNAMIC_BUFF_DICT[charname].remove(_)
                     report_to_log(f"[Buff END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)
+                    if _.ft.is_debuff:
+                        # debuff比正常的buff需要多执行一步，那就是将DYNAMIC_BUFF_DICT的修改同步到enemy.dynamic.dynamic_debuff_list中。
+                        enemy.dynamic.dynamic_debuff_list.remove(_)
             else:
                 _.logic.xend
     return DYNAMIC_BUFF_DICT
