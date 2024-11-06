@@ -3,7 +3,7 @@ import numpy as np
 import Calculator as Cal
 from Enemy import Enemy
 from Report import report_to_log
-from ScheduledEvent import ElementType
+from define import ElementType
 
 
 class CalAnomaly:

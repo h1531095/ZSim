@@ -1,19 +1,18 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import NewType
 
 import numpy as np
 import pandas as pd
 
 import Buff.BuffAdd
-import Buff.BuffLoad
+import Buff
 import Enemy
 import Preload
 from Buff.BuffExist_Judge import buff_exist_judge
 from Calculator import Calculator
 from CharSet_new import Character
 
-ElementType = NewType("ElementType", int)
+
 
 @dataclass
 class ScData:
