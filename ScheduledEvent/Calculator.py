@@ -8,7 +8,7 @@ from CharSet_new import Character
 from Enemy import Enemy
 from Preload import SkillNode
 from Report import report_to_log
-from ScheduledEvent import ElementType
+from define import ElementType
 
 
 class MultiplierData:

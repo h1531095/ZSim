@@ -1,6 +1,6 @@
 import pandas as pd
 import Report
-from ScheduledEvent import ElementType
+from define import ElementType
 from define import *
 
 

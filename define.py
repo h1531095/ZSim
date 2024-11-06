@@ -1,5 +1,6 @@
 import json
-
+from typing import NewType
+ElementType = NewType("ElementType", int)
 
 _config = json.load(open('config.json',encoding="utf-8-sig"))
 
