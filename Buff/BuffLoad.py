@@ -8,23 +8,31 @@ import Preload
 import tqdm
 import numpy as np
 import Skill_Class
+import Enemy
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
 
 
-def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
+def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT, enemy: Enemy):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
     if not all_match:
         return
-    for char in selected_characters:
+    if not buff_0.ft.is_debuff:
+        for char in selected_characters:
+            buff_new = Buff(active_condition_dict, judge_condition_dict)
+            for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
+                if time_now - 1 < sub_mission_start_tick <= time_now:
+                    buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                    LOADING_BUFF_DICT[char].append(buff_new)
+                    # report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
+    else:
         buff_new = Buff(active_condition_dict, judge_condition_dict)
         for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
             if time_now - 1 < sub_mission_start_tick <= time_now:
                 buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-                LOADING_BUFF_DICT[char].append(buff_new)
-                # report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
+        enemy.EnemyDynamic.dynamic_debuff_list.append(buff_new)
 
 
 def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict, character_name_box: list,

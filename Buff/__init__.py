@@ -57,6 +57,7 @@ class Buff:
             self.hitincrease = config['hitincrease']  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
             self.cd = config['increaseCD']  # buff的叠层内置CD
             self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
+            self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
 
     class BuffDynamic:
         def __init__(self):
@@ -67,6 +68,7 @@ class Buff:
             self.startticks = 0  # buff上一次触发的时间(tick)
             self.endticks = 0  # buff计划课中,buff的结束时间
             self.settle_times = 0  # buff目前已经被结算过的次数
+            self.buff_from = None   # debuff的专用属性，用于记录debuff的来源。
 
     class BuffLogic:
         def __init__(self):
@@ -257,4 +259,7 @@ class Buff:
             self.update_to_buff_0(timenow, buff_0)
         # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
-
+# TODO：Buff类的拓展：实现debuff（包括exist judge阶段的debuff初始化）
+# TODO：新建一个Dot类，使其继承Buff类，并且拥有自己的独立方法——能够向schedule event 中添加计划事件
+# TODO：完成属性异常的基类搭建，完成属性异常在触发后自动向dynamic buff dict中添加debuff的功能
+# TODO：在属性异常的基类中，完成添加dot事件的功能
