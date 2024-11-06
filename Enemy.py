@@ -11,6 +11,7 @@ class EnemySettings:
         self.forced_no_stun = False
         self.forced_no_anomaly = False
         self.forced_stun_DMG_take_ratio: float = 1.5
+        self.forced_anomaly: int = 0
 
 
 class Enemy:
@@ -192,7 +193,7 @@ class Enemy:
             self.assault = False  # 畏缩状态
             self.shock = False  # 感电状态
             self.burn = False  # 灼烧状态
-            self.corruption = False  # 混乱状态
+            self.corruption = False  # 侵蚀状态
 
             self.frozen_tick = 0
             self.frostbite_tick = 0
@@ -202,7 +203,7 @@ class Enemy:
             self.corruption_tick = 0
 
         def __str__(self):
-            return f"失衡: {self.stun}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 混乱：{self.corruption}"
+            return f"失衡: {self.stun}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 侵蚀：{self.corruption}"
 
 
 if __name__ == '__main__':

@@ -1,9 +1,10 @@
 import pandas as pd
 import Report
+from ScheduledEvent import ElementType
 from define import *
 
 
-def lookup_name_or_cid(name: str = None, cid: int = None) -> tuple:
+def lookup_name_or_cid(name: str = None, cid: int = None) -> tuple[str, int]:
     """
     初始化角色名称和CID（角色ID）。
 
@@ -218,7 +219,7 @@ class Skill:
             # TriggerBuffLevel
             self.trigger_buff_level: int = int(_raw_skill_data['trigger_buff_level'])
             # 元素相关
-            self.element_type: int = int(_raw_skill_data['element_type'])
+            self.element_type: ElementType = ElementType(int(_raw_skill_data['element_type']))
             self.element_damage_percent: float = float(_raw_skill_data['element_damage_percent'])
             # 动画相关
             self.ticks: int = int(_raw_skill_data['ticks'])

@@ -22,8 +22,8 @@ class PreloadData:
             {'skill_tag': ['1221_NA_1', '1221_NA_2', '1221_NA_3', '1221_NA_4', '1221_NA_5']}
         )'''
         self.skills_queue: LinkedList = SkillsQueue.get_skills_queue(INPUT_ACTION_LIST, *args)
-        self.current_node: SkillNode = None
-        self.last_node: SkillNode = None
+        self.current_node: SkillNode | None = None
+        self.last_node: SkillNode | None = None
 
 
 class Preload:

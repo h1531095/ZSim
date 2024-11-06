@@ -8,56 +8,95 @@ from CharSet_new import Character
 from Enemy import Enemy
 from Preload import SkillNode
 from Report import report_to_log
+from ScheduledEvent import ElementType
 
 
 class MultiplierData:
-    def __init__(self, skill_node: SkillNode, character_obj: Character, enemy_obj: Enemy, dynamic_buff: dict = None):
-        self.skill_node = skill_node
+    def __init__(self, enemy_obj: Enemy, dynamic_buff: dict = None, character_obj: Character = None):
 
+        self.skill_node: SkillNode | None = None # 此类内部不调用
         self.char_name = character_obj.NAME
         self.char_level = character_obj.level
         self.cid = character_obj.CID
 
-        try:
-            self.char_buff: list = dynamic_buff[self.char_name]
-        except KeyError:
-            self.char_buff = []
-            report_to_log(f"动态Buff列表内没有角色 {self.char_name}", level=4)
-
         # 获取角色局外面板数据
-        static_statement: Character.Statement = character_obj.statement
-        self.static = self.StaticStatement(static_statement)
+        static_statement: Character.Statement | None = getattr(character_obj, 'statement', None)
+        self.static = self.StaticStatement(static_statement)    # 按理来说静态面板在角色都没有的情况下根本没必要生成，但是屎山就是这样搭建的，尊重
         # 获取buff动态加成
-        dynamic_statement: dict = self.__cal_buff_total_bonus(self.char_buff)
+        dynamic_statement: dict = self.get_buff_bonus(dynamic_buff)
         self.dynamic = self.DynamicStatement(dynamic_statement)
         # 获取敌人数据
         self.enemy_obj = enemy_obj
 
+    def get_buff_bonus(self, dynamic_buff) -> dict:
+        try:
+            char_buff: list = dynamic_buff[self.char_name]
+        except KeyError:
+            char_buff = []
+            report_to_log(f"动态Buff列表内没有角色 {self.char_name}", level=4)
+        try:
+            enemy_buff: list = self.enemy_obj.dynamic.dynamic_debuff_list
+        except AttributeError:
+            try:
+                enemy_buff: list = dynamic_buff['enemy']
+            except KeyError:
+                enemy_buff: list = []
+        enabled_buff: list = char_buff + enemy_buff
+        dynamic_statement: dict = self.__cal_buff_total_bonus(enabled_buff)
+        return dynamic_statement
+
     @dataclass
     class StaticStatement:
-        def __init__(self, static_statement: Character.Statement):
-            """将角色面板抄下来！！！！！"""
-            self.atk: float = static_statement.ATK
-            self.hp: float = static_statement.HP
-            self.defense: float = static_statement.DEF
-            self.imp: float = static_statement.IMP
-            self.ap: float = static_statement.AP
-            self.am: float = static_statement.AM
-            self.crit_rate: float = static_statement.CRIT_rate
-            self.crit_damage: float = static_statement.CRIT_damage
-            self.sp_regen: float = static_statement.sp_regen
-            self.sp_get_ratio: float = static_statement.sp_get_ratio
-            self.sp_limit: float = static_statement.sp_limit
-            self.pen_ratio: float = static_statement.PEN_ratio
-            self.pen_numeric: float = static_statement.PEN_numeric
-            self.phy_dmg_bonus: float = static_statement.PHY_DMG_bonus
-            self.ice_dmg_bonus: float = static_statement.ICE_DMG_bonus
-            self.fire_dmg_bonus: float = static_statement.FIRE_DMG_bonus
-            self.ether_dmg_bonus: float = static_statement.ETHER_DMG_bonus
-            self.electric_dmg_bonus: float = static_statement.ELECTRIC_DMG_bonus
+        atk: float
+        hp: float
+        defense: float
+        imp: float
+        ap: float
+        am: float
+        crit_rate: float
+        crit_damage: float
+        sp_regen: float
+        sp_get_ratio: float
+        sp_limit: float
+        pen_ratio: float
+        pen_numeric: float
+        phy_dmg_bonus: float
+        ice_dmg_bonus: float
+        fire_dmg_bonus: float
+        ether_dmg_bonus: float
+        electric_dmg_bonus: float
+
+        def __init__(self, static_statement: Character.Statement | None):
+            """将角色面板抄下来！！！！！如果没有角色传入，那就生成屎！！！"""
+            attribute_map = {
+                'atk': 'ATK',
+                'hp': 'HP',
+                'defense': 'DEF',
+                'imp': 'IMP',
+                'ap': 'AP',
+                'am': 'AM',
+                'crit_rate': 'CRIT_rate',
+                'crit_damage': 'CRIT_damage',
+                'sp_regen': 'sp_regen',
+                'sp_get_ratio': 'sp_get_ratio',
+                'sp_limit': 'sp_limit',
+                'pen_ratio': 'PEN_ratio',
+                'pen_numeric': 'PEN_numeric',
+                'phy_dmg_bonus': 'PHY_DMG_bonus',
+                'ice_dmg_bonus': 'ICE_DMG_bonus',
+                'fire_dmg_bonus': 'FIRE_DMG_bonus',
+                'ether_dmg_bonus': 'ETHER_DMG_bonus',
+                'electric_dmg_bonus': 'ELECTRIC_DMG_bonus'
+            }
+            if static_statement is None:
+                for attr in attribute_map.keys():
+                    setattr(self, attr, 0.0)
+            else:
+                for attr, static_attr in attribute_map.items():
+                    setattr(self, attr, getattr(static_statement, static_attr))
 
     @staticmethod
-    def __cal_buff_total_bonus(char_buff: list) -> dict:
+    def __cal_buff_total_bonus(enabled_buff: list) -> dict:
         """
         计算角色buff的总加成。
 
@@ -71,10 +110,13 @@ class MultiplierData:
         dynamic_statement: dict = {}
 
         # 遍历角色身上的所有buff
-        for buff_obj in char_buff:
+        for buff_obj in enabled_buff:
             # 确保buff是Buff类的实例
-            if isinstance(buff_obj, Buff.Buff):
+            if not isinstance(buff_obj, Buff.Buff):
+                raise TypeError(f"{buff_obj} 不是Buff类型，无法计算！")
+            else:
                 # 检查buff的简单效果是否为空
+                buff_obj: Buff.Buff
                 if not buff_obj.ft.simple_effect:
                     raise ValueError(f"属性 ft.simple_effect 不能为：{buff_obj.ft.simple_effect}，功能还没写！")
 
@@ -91,7 +133,6 @@ class MultiplierData:
                         continue
         return dynamic_statement
 
-    @dataclass
     class DynamicStatement:
         def __init__(self, dynamic_statement):
             """
@@ -269,7 +310,8 @@ class Calculator:
             raise ValueError("错误的参数类型，应该为dict")
 
         # 创建MultiplierData对象，用于计算各种战斗中的乘区数据
-        data = MultiplierData(skill_node, character_obj, enemy_obj, dynamic_buff)
+        data = MultiplierData(enemy_obj, dynamic_buff, character_obj)
+        data.skill_node = skill_node
 
         # 初始化角色名称和角色ID
         self.char_name = data.char_name
@@ -300,7 +342,7 @@ class Calculator:
             self.res_mul = self.cal_res_mul(data)
             self.dmg_vulnerability = self.cal_dmg_vulnerability(data)
             self.stun_vulnerability = self.cal_stun_vulnerability(data)
-            self.special_multiplier_zone = self.cal_special_multiplier_zone(data)
+            self.special_multiplier_zone = self.cal_special_mul(data)
             # 常规伤害
             self.regular_dmg_multipliers = {
                 '基础伤害区': self.base_dmg,
@@ -316,7 +358,7 @@ class Calculator:
             }
 
         def get_array_expect(self) -> np.array:
-            array_expect: np.array = np.array([self.base_dmg,
+            array_expect: np.ndarray = np.array([self.base_dmg,
                                                  self.dmg_bonus,
                                                  self.crit_expect,
                                                  self.defense_mul,
@@ -329,7 +371,7 @@ class Calculator:
 
         def get_array_crit(self) -> np.array:
             when_crit_mul = 1 + self.crit_dmg
-            array_crit: np.array = np.array([self.base_dmg,
+            array_crit: np.ndarray = np.array([self.base_dmg,
                                                self.dmg_bonus,
                                                when_crit_mul,
                                                self.defense_mul,
@@ -460,8 +502,8 @@ class Calculator:
                         data.dynamic.received_crit_dmg_bonus)
             return crit_dmg
 
-        @staticmethod
-        def cal_defense_mul(data: MultiplierData) -> float:
+
+        def cal_defense_mul(self, data: MultiplierData) -> float:
             """
             防御区 = 攻击方等级基数 / (受击方有效防御 + 攻击方等级基数)
 
@@ -469,33 +511,53 @@ class Calculator:
             受击方防御 = (基础防御 * (1 + 战斗外防御%) + 战斗外固定防御) * (1 + 防御加成%) + 固定防御
             """
             attacker_level = data.char_level
-            # 定义域检查
-            if attacker_level < 0:
-                attacker_level = 0
-            elif attacker_level > 60:
-                attacker_level = 60
             # 攻击方等级系数
-            k_attacker = np.floor(0.1551 * attacker_level ** 2 + 3.141 * attacker_level + 47.2039)
-            # 受击方防御
-            recipient_def = (data.enemy_obj.max_DEF *
-                             (1 - data.dynamic.percentage_def_reduction) -
-                             data.dynamic.def_reduction)
-            # 穿透率
-            pen_ratio = data.static.pen_ratio + data.dynamic.pen_ratio
-            # 穿透值
-            pen_numeric = data.static.pen_numeric + data.dynamic.pen_numeric
+            k_attacker = self.cal_k_attacker(attacker_level)
             # 受击方有效防御
-            effective_def = recipient_def * (1 - pen_ratio) - pen_numeric
+            effective_def = self.cal_recipient_def(data)
             # 防御区
             defense_mul = k_attacker / (effective_def + k_attacker)
             return defense_mul
 
         @staticmethod
-        def cal_res_mul(data: MultiplierData) -> float:
+        def cal_recipient_def(data: MultiplierData, addon_pen_ratio: float = 0.0, addon_pen_numeric: float = 0.0) -> float:
+            # 受击方防御
+            recipient_def = (data.enemy_obj.max_DEF *
+                             (1 - data.dynamic.percentage_def_reduction) -
+                             data.dynamic.def_reduction)
+            # 穿透率
+            pen_ratio: float = data.static.pen_ratio + data.dynamic.pen_ratio + addon_pen_ratio
+            # 穿透值
+            pen_numeric: float = data.static.pen_numeric + data.dynamic.pen_numeric + addon_pen_numeric
+            # 受击方有效防御
+            effective_def: float = recipient_def * (1 - pen_ratio) - pen_numeric
+            return effective_def
+
+        @staticmethod
+        def cal_k_attacker(attacker_level: int) -> int:
+            # 定义域检查
+            if attacker_level < 0:
+                report_to_log(f"角色等级{attacker_level}过低，将被设置为0")
+                attacker_level = 0
+            elif attacker_level > 60:
+                report_to_log(f"角色等级{attacker_level}过高，将被设置为60")
+                attacker_level = 60
+            # 攻击方等级系数
+            values: list[int] = [
+                0, 50, 54, 58, 62, 66, 71, 76, 82, 88, 94, 100, 107, 114, 121, 129, 137, 145, 153, 162, 172,
+                181, 191, 201, 211, 222, 233, 245, 258, 268, 281, 293, 306, 319, 333, 347, 362, 377, 393, 409, 421,
+                436, 452, 469, 485, 502, 519, 537, 556, 573, 592, 612, 629, 649, 669, 689, 709, 730, 751, 772, 794
+            ]
+            k_attacker = values[attacker_level]
+            return k_attacker
+
+        @staticmethod
+        def cal_res_mul(data: MultiplierData, *,element_type: ElementType | None = None, snapshot_res_pen = 0) -> float:
             """
             抗性区 = 1 - 受击方抗性 + 受击方抗性降低 + 攻击方抗性穿透
             """
-            element_type = data.skill_node.skill.element_type
+            if element_type is None:
+                element_type = data.skill_node.skill.element_type
             # 获取抗性区，初始化为0
             if element_type == 0:
                 element_res = data.enemy_obj.PHY_damage_resistance - data.dynamic.physical_dmg_res_decrease + data.dynamic.physical_res_pen_increase
@@ -509,15 +571,16 @@ class Calculator:
                 element_res = data.enemy_obj.ETHER_damage_resistance - data.dynamic.ether_dmg_res_decrease + data.dynamic.ether_res_pen_increase
             else:
                 raise ValueError(f"Invalid element type: {element_type}, must be a integer in 0~4")
-            res_mul = 1 - element_res + data.dynamic.all_dmg_res_decrease + data.dynamic.all_res_pen_increase
+            res_mul = 1 - element_res + data.dynamic.all_dmg_res_decrease + data.dynamic.all_res_pen_increase - snapshot_res_pen
             return res_mul
 
         @staticmethod
-        def cal_dmg_vulnerability(data: MultiplierData) -> float:
+        def cal_dmg_vulnerability(data: MultiplierData, *, element_type: ElementType = None) -> float:
             """
             减易伤区 = 1 + 减易伤
             """
-            element_type = data.skill_node.skill.element_type
+            if element_type is None:
+                element_type: ElementType = data.skill_node.skill.element_type
             # 获取抗性区，初始化为0
             if element_type == 0:
                 element_vulnerability = data.dynamic.physical_vulnerability
@@ -548,14 +611,14 @@ class Calculator:
             return stun_vulnerability
 
         @staticmethod
-        def cal_special_multiplier_zone(data: MultiplierData) -> float:
+        def cal_special_mul(data: MultiplierData) -> float:
             return 1 + data.dynamic.special_multiplier_zone
 
     class AnomalyMul:
         """
         负责计算与储存与异常伤害有关的属性
 
-        异常伤害快照以 array 形式储存，顺序为：异常积蓄值、基础伤害区、增伤区、减易伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透
+        异常伤害快照以 array 形式储存，顺序为：基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透
 
         异常积蓄值 = 基础积蓄值 * 异常掌控/100 * (1 + 属性异常积蓄效率提升) * (1 - 属性异常积蓄抗性)
         基础伤害区 = 攻击力 * 对应属性的异常伤害倍率
