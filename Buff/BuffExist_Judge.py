@@ -27,7 +27,7 @@ def instantiate_buff(row_data, judge_row_data, buff_name):
     return Buff(row_dict, judge_row_dict)
 
 
-def process_buff(judged_buff, charname, weapon_dict, sub_exist_buff_dict):
+def process_buff(judged_buff, charname, weapon_dict, sub_exist_buff_dict, exist_debuff_dict):
     # 判断武器相关Buff
     if judged_buff.ft.is_weapon:
         weapon_name, refinement = weapon_dict[charname]
@@ -35,19 +35,20 @@ def process_buff(judged_buff, charname, weapon_dict, sub_exist_buff_dict):
             # 如果武器的名字和精炼等级都对上了，那么就通过。
             judged_buff.ft.exist = True
             if judged_buff.ft.is_debuff:
-                exist_buff_dict['enemy'][judged_buff.ft.index] = judged_buff
+                exist_debuff_dict[judged_buff.ft.index] = judged_buff
             else:
                 sub_exist_buff_dict[judged_buff.ft.index] = judged_buff
     else:
         judged_buff.ft.exist = True
         if judged_buff.ft.is_debuff:
-            exist_buff_dict['enemy'][judged_buff.ft.index] = judged_buff
+            exist_debuff_dict[judged_buff.ft.index] = judged_buff
         else:
             sub_exist_buff_dict[judged_buff.ft.index] = judged_buff
 
 
 # 主函数：判断Buff存在性并更新存在Buff字典
 def buff_exist_judge(charname_box, judge_list_set, weapon_dict):
+    exist_debuff_dict = {}
     total_judge_condition_list = list(itertools.chain.from_iterable(judge_list_set))
     for k, charname in enumerate(charname_box):
         sub_exist_buff_dict = {}
@@ -64,9 +65,11 @@ def buff_exist_judge(charname_box, judge_list_set, weapon_dict):
             if (buff_from in judge_list_set[k]) or ((buff_from in total_judge_condition_list) and (judged_buff.ft.add_buff_to != 100)):
                 # 虽然当前正在处理的是角色A的buff，但是如果角色B的buff也能加给A（此时该buff的 add_buff_to的值就不是100了）
                 #  那么buff也会被列入A角色的exist_buff_dict中。
-                process_buff(judged_buff, charname, weapon_dict, sub_exist_buff_dict)
+                process_buff(judged_buff, charname, weapon_dict, sub_exist_buff_dict, exist_debuff_dict)
 
         exist_buff_dict[charname] = sub_exist_buff_dict
+
+    exist_buff_dict['enemy'] = exist_debuff_dict
     return exist_buff_dict
 
 
@@ -78,9 +81,13 @@ if __name__ == "__main__":
     weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
 
     exist_buff_dict = buff_exist_judge(Charname_box, Judge_list_set, weapon_dict)
+    for name, sub_dict in exist_buff_dict.items():
+        print(name)
+        for _ in sub_dict.values():
+            print(_.ft.index)
 
-    for buffs in exist_buff_dict['enemy']:
-        buff_now = exist_buff_dict['enemy'][buffs]
-        if not isinstance(buff_now, Buff):
-            raise TypeError(f'{buff_now}不是Buff类！')
-        print(f'{buffs}, {buff_now.ft.endjudge}')
+    # for buffs in exist_buff_dict['enemy']:
+    #     buff_now = exist_buff_dict['enemy'][buffs]
+    #     if not isinstance(buff_now, Buff):
+    #         raise TypeError(f'{buff_now}不是Buff类！')
+    #     print(f'{buffs}, {buff_now.ft.endjudge}')

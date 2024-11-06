@@ -8,13 +8,12 @@ import Preload
 import tqdm
 import numpy as np
 import Skill_Class
-import Enemy
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
 
 
-def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT, enemy: Enemy):
+def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
     if not all_match:
@@ -31,8 +30,8 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
         buff_new = Buff(active_condition_dict, judge_condition_dict)
         for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
             if time_now - 1 < sub_mission_start_tick <= time_now:
-                buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-        enemy.EnemyDynamic.dynamic_debuff_list.append(buff_new)
+                buff_new.update('enemy', time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                LOADING_BUFF_DICT['enemy'].append(buff_new)
 
 
 def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict, character_name_box: list,
@@ -70,9 +69,11 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
             所以，一旦事件的is_happening函数返回True（事件正在发生），就需要在每个tick判断当前发生的具体事件，用函数check_current_event()实现
             并且核心是一组if elif 判断，不同的分支执行不同的更新规则；  """
     # 初始化LOADING_BUFF_DICT
-    for character in character_name_box:
+    all_name_box = character_name_box + ['enemy']
+    for character in all_name_box:
         LOADING_BUFF_DICT[character] = []
     # 遍历load_mission_dict中的任务
+    sub_exist_debuff_dict = existbuff_dict['enemy']
     for mission in load_mission_dict.values():
         if not isinstance(mission, LoadingMission):
             raise TypeError(f"当前{mission}不是SkillNode类！")
@@ -87,8 +88,10 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
             # 提前计算添加Buff的角色列表
             adding_code = str(int(buff_0.ft.add_buff_to)).zfill(3)
             selected_characters = [character_name_box[i] for i in range(len(character_name_box)) if adding_code[i] == '1']
-            # 处理每个 Buff 的逻辑
+            # 处理每个buff的逻辑，但是要区分是buff还是debuff
             process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT)
+        for buff_key, buff_0 in sub_exist_debuff_dict.items():
+            process_buff(buff_0, sub_exist_debuff_dict, mission, time_now, '100', LOADING_BUFF_DICT)
     return LOADING_BUFF_DICT
 
 

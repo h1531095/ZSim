@@ -3,7 +3,7 @@ from datetime import datetime
 from define import DEBUG, DEBUG_LEVEL
 import pandas as pd
 from collections import defaultdict
-buffered_data = defaultdict(lambda: defaultdict(int))
+buffered_data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
 
 def prepare_to_report():
@@ -41,21 +41,24 @@ def report_to_log(content, level=4):
             file.write(f"{content}\n")
 
 
-def report_buff_to_log(time_tick: str, buff_name: str, buff_count, all_match: bool, level=4):
+def report_buff_to_log(character_name: str, time_tick, buff_name: str, buff_count, all_match: bool, level=4):
     if DEBUG and DEBUG_LEVEL >= level:
         if all_match:
-            buffered_data[time_tick][buff_name] += buff_count
+            buffered_data[character_name][time_tick][buff_name] += buff_count
 
 
-def write_to_csv(char_name: str):
-    report_file_path, buff_report_file_path_pre = prepare_to_report()
-    buff_report_file_path = buff_report_file_path_pre + f'{char_name}.csv'
-    df = pd.DataFrame.from_dict(buffered_data, orient='index').reset_index()
-    df.rename(columns={'index': 'time_tick'}, inplace=True)
-    # 对 'time_tick' 列进行排序
-    df = df.sort_values(by='time_tick')
-    # 保存更新后的 CSV 文件
-    df.to_csv(buff_report_file_path, index=False)
+def write_to_csv():
+    for char_name in buffered_data:
+        if char_name not in buffered_data:
+            raise ValueError('你tmd函数写错了！')
+        report_file_path, buff_report_file_path_pre = prepare_to_report()
+        buff_report_file_path = buff_report_file_path_pre + f'{char_name}.csv'
+        df = pd.DataFrame.from_dict(buffered_data[char_name], orient='index').reset_index()
+        df.rename(columns={'index': 'time_tick'}, inplace=True)
+        # 对 'time_tick' 列进行排序
+        df = df.sort_values(by='time_tick')
+        # 保存更新后的 CSV 文件
+        df.to_csv(buff_report_file_path, index=False)
 
 
 if __name__ == '__main__':
