@@ -1,6 +1,7 @@
 from Buff import Buff
 from Report import report_to_log, report_buff_to_log
 import Enemy
+import Dot
 
 
 def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: dict, enemy: Enemy.Enemy):
@@ -34,4 +35,15 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
                         enemy.dynamic.dynamic_debuff_list.remove(_)
             else:
                 _.logic.xend
+        update_dot(enemy, timetick)
     return DYNAMIC_BUFF_DICT
+
+
+def update_dot(enemy: Enemy.Enemy, timetick):
+    for _ in enemy.dynamic.dynamic_dot_list[:]:
+        if not isinstance(_, Dot.Dot):
+            raise TypeError(f'Enemy的dot列表中的{_}不是Dot类！')
+        if timetick >= _.dy.endticks:
+            _.end(timetick)
+            enemy.dynamic.dynamic_dot_list.remove(_)
+            report_to_log(f"[Dot END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)

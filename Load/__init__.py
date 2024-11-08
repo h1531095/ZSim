@@ -4,20 +4,17 @@ from Report import report_to_log
 
 class LoadingMission:
     def __init__(self, mission: Preload.SkillNode):
-        self.mission_type = 0
-        self.mission_tag = mission.skill_tag
-        self.mission_dict = {}
-        self.mission_already_start = False
         self.mission_active_state = False
-        self.mission_start_tick = mission.preload_tick
-        self.mission_end_tick = mission.preload_tick + mission.skill.ticks
         self.mission_node = mission
+        self.mission_dict = {}
+        self.mission_start_tick = mission.preload_tick
+        self.hitted_count = 0  # 已经结算的hit数量
+        self.mission_tag = mission.skill_tag
+        self.mission_end_tick = mission.preload_tick + mission.skill.ticks
         self.mission_character = mission.char_name
-        self.hitted_count = 0   # 已经结算的hit数量
 
     def mission_start(self, timenow):
         self.mission_active_state = True
-        self.mission_already_start = True
         timecost = self.mission_node.skill.ticks
         time_step = (timecost - 1)/self.mission_node.hit_times
         self.mission_dict[float(self.mission_node.preload_tick + 1)] = "start"
@@ -31,8 +28,9 @@ class LoadingMission:
 
     def mission_end(self):
         self.mission_active_state = False
+        self.hitted_count = 0
         self.mission_dict = {}
 
     def check_myself(self, timenow):
-        if self.mission_active_state < timenow:
+        if self.mission_end_tick < timenow:
             self.mission_end()
