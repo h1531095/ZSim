@@ -196,6 +196,7 @@ class Enemy:
             self.corruption = False  # 侵蚀状态
 
             self.dynamic_debuff_list = []   # 用来装debuff的list
+            self.dynamic_dot_list = []      # 用来装dot的list
 
             self.frozen_tick = 0
             self.frostbite_tick = 0
