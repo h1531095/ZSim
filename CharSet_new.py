@@ -505,21 +505,4 @@ class Character:
 
 
 if __name__ == "__main__":
-    def class_once_test():
-        char = Character(name="柳", weapon='时流贤者',
-                         equip_set4='混沌爵士', equip_set2_a='雷暴重金属',
-                         drive4='异常精通', drive5='电属性伤害%', drive6='异常掌控',
-                         scAnomalyProficiency=10, scATK_percent=14, scCRIT=4)  # 实例化默认角色
-        char_dynamic = Character.Statement(char)
-        skill_object = char.skill_object
-        skill_object.get_skill_info(skill_tag=char.action_list[0], attr_info='damage_ratio')
-        report_to_log(f"[ACTION LIST]:{char.NAME}:{char.action_list}")
-        report_to_log(f"[SKILLS DICT]:{char.NAME}:{char.skills_dict}")
-        report_to_log(f"[CHAR EQUIP]:{char.NAME}:{char.equip_sets}")
-        report_to_log(f"[CHAR WEAPON]:{char.NAME}:{char.weapon_ID}-{char.weapon_level}")
-        report_to_log(f"[CHAR STATUS]:{char.NAME}:{char.statement}")
-
-    time = 0
-    for i in tqdm(range((times := 100))):
-        time += timeit.timeit(class_once_test, number=1)
-    print(f'Create {times} Character Objects in {time:.2f} seconds, average time:{(time/times*1000):.2f} ms')
+    pass
