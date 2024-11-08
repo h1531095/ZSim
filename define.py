@@ -1,6 +1,8 @@
 import json
 from typing import NewType
 ElementType = NewType("ElementType", int)
+INVALID_ELEMENT_ERROR = "Invalid element type"
+ID_CACHE_JSON = 'results/id_cache.json'
 
 _config = json.load(open('config.json',encoding="utf-8-sig"))
 

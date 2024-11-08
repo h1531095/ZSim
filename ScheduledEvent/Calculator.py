@@ -8,7 +8,7 @@ from CharSet_new import Character
 from Enemy import Enemy
 from Preload import SkillNode
 from Report import report_to_log
-from define import ElementType
+from define import ElementType, INVALID_ELEMENT_ERROR
 
 
 class MultiplierData:
@@ -422,7 +422,7 @@ class Calculator:
             elif base_attr == 3:
                 attr = data.static.am * (1 + data.dynamic.anomaly_mastery) + data.dynamic.field_anomaly_mastery
             else:
-                raise ValueError(f"Invalid damage type: {base_attr}")
+                assert False, INVALID_ELEMENT_ERROR
             base_dmg = dmg_ratio * attr
             return base_dmg
 
@@ -435,7 +435,6 @@ class Calculator:
             属性增伤即针对游戏中5种伤害属性(火(Fire)、电(Electric)、冰(Ice)、物理(Physical)和以太(Ether))的伤害加成。属性增伤常见于驱动盘位的主属性和音擎效果。
             伤害类型增伤包括针对于各类技能(如普通攻击，强化特殊技，终结技等)的增伤。常见于音擎效果和鸣徽效果中。
             进攻类型增伤即针对于角色进攻类型(斩击(Slash)、打击(Strike)和穿透(Pierce))的增伤。全类型增伤就是未作类型限定的增伤。
-
             """
             element_type = data.skill_node.skill.element_type
             # 获取属性伤害加成，初始化为1.0
@@ -443,9 +442,9 @@ class Calculator:
                 element_dmg_bonus = data.static.phy_dmg_bonus + data.dynamic.phy_dmg_bonus
             elif element_type == 1:
                 element_dmg_bonus = data.static.fire_dmg_bonus + data.dynamic.fire_dmg_bonus
-            elif element_type == 2:
-                element_dmg_bonus = data.static.electric_dmg_bonus + data.dynamic.electric_dmg_bonus
             elif element_type == 3:
+                element_dmg_bonus = data.static.electric_dmg_bonus + data.dynamic.electric_dmg_bonus
+            elif element_type == 2:
                 element_dmg_bonus = data.static.ice_dmg_bonus + data.dynamic.ice_dmg_bonus
             elif element_type == 4:
                 element_dmg_bonus = data.static.ether_dmg_bonus + data.dynamic.ether_dmg_bonus
@@ -474,7 +473,7 @@ class Calculator:
             elif trigger_buff_level == 9:
                 trigger_dmg_bonus = data.dynamic.assault_aid_dmg_bonus
             else:
-                raise ValueError(f"Invalid trigger buff level: {trigger_buff_level}, must be a integer in 0~9")
+                assert False, 'Invalid trigger_level'
 
             dmg_bonus = 1 + element_dmg_bonus + trigger_dmg_bonus
             return dmg_bonus
@@ -570,7 +569,7 @@ class Calculator:
             elif element_type == 4:
                 element_res = data.enemy_obj.ETHER_damage_resistance - data.dynamic.ether_dmg_res_decrease + data.dynamic.ether_res_pen_increase
             else:
-                raise ValueError(f"Invalid element type: {element_type}, must be a integer in 0~4")
+                assert False, INVALID_ELEMENT_ERROR
             res_mul = 1 - element_res + data.dynamic.all_dmg_res_decrease + data.dynamic.all_res_pen_increase - snapshot_res_pen
             return res_mul
 
@@ -593,7 +592,7 @@ class Calculator:
             elif element_type == 4:
                 element_vulnerability = data.dynamic.ether_vulnerability
             else:
-                raise ValueError(f"Invalid element type: {element_type}, must be a integer in 0~4")
+                assert False, INVALID_ELEMENT_ERROR
             dmg_vulnerability = 1 + element_vulnerability + data.dynamic.all_vulnerability
             return dmg_vulnerability
 
@@ -682,7 +681,7 @@ class Calculator:
                 element_buildup_bonus = data.dynamic.ether_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.ETHER_damage_resistance - data.dynamic.ether_anomaly_res_decrease
             else:
-                raise ValueError(f"Invalid element type: {element_type}")
+                assert False, INVALID_ELEMENT_ERROR
 
             trigger_buff_level = data.skill_node.skill.trigger_buff_level
             if trigger_buff_level == 0:
@@ -706,10 +705,12 @@ class Calculator:
             elif trigger_buff_level == 9:
                 trigger_buildup_bonus = data.dynamic.assault_aid_anomaly_buildup_bonus
             else:
-                raise ValueError(f"Invalid trigger buff level: {trigger_buff_level}")
+                assert False, INVALID_ELEMENT_ERROR
+
+            element_dmg_percentage = data.skill_node.skill.element_damage_percent
 
             anomaly_buildup = accumulation * (ap / 100) * (
-                    1 + element_buildup_bonus + trigger_buildup_bonus) * buildup_res
+                    1 + element_buildup_bonus + trigger_buildup_bonus) * buildup_res * element_dmg_percentage
             return np.float64(anomaly_buildup)
 
         @staticmethod
@@ -728,7 +729,7 @@ class Calculator:
             elif element_type == 4:
                 base_damage = 0.625 * atk
             else:
-                raise ValueError(f"Invalid element type: {element_type}")
+                assert False, INVALID_ELEMENT_ERROR
             return base_damage
 
         @staticmethod
@@ -746,7 +747,7 @@ class Calculator:
             elif element_type == 4:
                 element_dmg_bonus = data.static.ether_dmg_bonus + data.dynamic.ether_dmg_bonus
             else:
-                raise ValueError(f"Invalid element type: {element_type}")
+                assert False, INVALID_ELEMENT_ERROR
 
             dmg_bonus = 1 + element_dmg_bonus + data.dynamic.all_dmg_bonus + data.dynamic.anomaly_dmg_bonus
             return dmg_bonus
@@ -773,7 +774,7 @@ class Calculator:
             elif element_type == 4:
                 ano_dmg_mul = 1 + data.dynamic.chaos_dmg_mul
             else:
-                raise ValueError(f"Invalid element type: {element_type}")
+                assert False, INVALID_ELEMENT_ERROR
             return ano_dmg_mul
 
         @staticmethod
@@ -797,7 +798,7 @@ class Calculator:
             elif self.element_type == 4:
                 element_res_pen = data.dynamic.ether_res_pen_increase
             else:
-                raise ValueError(f"Invalid element type: {self.element_type}")
+                assert False, INVALID_ELEMENT_ERROR
             return element_res_pen
 
     class StunMul:
@@ -862,11 +863,13 @@ class Calculator:
         dmg_not_crit = np.prod(multipliers)
         return dmg_not_crit
 
-    def cal_anomaly_snapshot(self) -> tuple[int, np.float64, np.ndarray]:
-        """计算异常值快照"""
+    def cal_snapshot(self) -> tuple[int, np.float64, np.ndarray]:
+        """计算异常值与失衡值快照，返回一个一维数组，用于计算异常伤害的虚拟角色，鬼知道为什么那么麻烦"""
         element_type: int = self.element_type
         build_up: np.float64 = self.anomaly_multipliers.anomaly_buildup
-        snapshot: np.ndarray = self.anomaly_multipliers.anomaly_snapshot
+        anomaly_snapshot: np.ndarray = self.anomaly_multipliers.anomaly_snapshot
+        stun_snapshot: np.ndarray = np.array([self.stun_multipliers.imp, self.stun_multipliers.stun_bonus])
+        snapshot = np.concatenate((anomaly_snapshot, stun_snapshot))
         return element_type, build_up, snapshot
 
     def cal_stun(self) -> np.float64:
@@ -898,5 +901,5 @@ if __name__ == '__main__':
     test_md = Calculator(skill, char, enemy, {'艾莲': [buff]})
     de = test_md.cal_dmg_expect()
     dc = test_md.cal_dmg_crit()
-    sps = test_md.cal_anomaly_snapshot()
+    sps = test_md.cal_snapshot()
     breakpoint()

@@ -16,8 +16,8 @@ class CalAnomaly:
         self.enemy_obj = enemy_obj
         self.anomaly_obj = anomaly_obj
         self.dynamic_buff = dynamic_buff
-        snapshot: tuple[ElementType | int, np.ndarray] = self.anomaly_obj.snapshot
-        element_type: ElementType | int = snapshot[0]
+        snapshot: tuple[ElementType, np.ndarray] = self.anomaly_obj.snapshot
+        self.element_type: ElementType = snapshot[0]
 
         # self.dmg_sp 以 array 形式储存，顺序为：基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透
         self.dmg_sp: np.ndarray = snapshot[1]
@@ -34,11 +34,11 @@ class CalAnomaly:
         # 抗性区
         res_mul: float = Cal.Calculator.RegularMul.cal_res_mul(
                 data,
-                element_type=element_type,
+                element_type=self.element_type,
                 snapshot_res_pen = self.dmg_sp[8])
         # 减易伤区
         vulnerability_mul: float = Cal.Calculator.RegularMul.cal_dmg_vulnerability(
-                data, element_type=element_type)
+                data, element_type=self.element_type)
         # 失衡易伤区
         stun_vulnerability: float = Cal.Calculator.RegularMul.cal_stun_vulnerability(data)
         # 特殊乘区
@@ -119,5 +119,23 @@ class CalAnomaly:
 
 
 class CalDisorder(CalAnomaly):
-    def __init__(self, anomaly_obj, enemy_obj: Enemy, dynamic_buff: dict):
-        super().__init__(anomaly_obj, enemy_obj, dynamic_buff)
+    def __init__(self, disorder_obj, enemy_obj: Enemy, dynamic_buff: dict):
+        super().__init__(disorder_obj, enemy_obj, dynamic_buff)
+        self.final_multipliers[0] = self.cal_disorder_base_dmg(np.float64(self.final_multipliers[0]))
+
+    def cal_disorder_base_dmg(self, base_mul: np.float64) -> np.float64:
+        t_s = np.float64(self.anomaly_obj.remaining_tick / 60)
+        match self.element_type:
+            case 0: # 强击紊乱
+                disorder_base_dmg: np.float64 = (base_mul / 7.13) * (np.floor(t_s) * 0.075 + 4.5)
+            case 1: # 灼烧紊乱
+                disorder_base_dmg: np.float64 = (base_mul / 0.5) * (np.floor(t_s) * 0.5 + 4.5)
+            case 2: # 霜寒紊乱
+                disorder_base_dmg: np.float64 = (base_mul / 5) * (np.floor(t_s/0.5) * 0.075 + 4.5)
+            case 3: # 感电紊乱
+                disorder_base_dmg: np.float64 = (base_mul / 1.25) * (np.floor(t_s) * 1.25 + 4.5)
+            case 4: # 侵蚀紊乱
+                disorder_base_dmg: np.float64 = (base_mul / 0.625) * (np.floor(t_s/0.5) * 0.625 + 4.5)
+            case _:
+                assert False, f"Invalid Element Type {self.element_type}"
+        return np.float64(disorder_base_dmg)

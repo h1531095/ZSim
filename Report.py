@@ -1,8 +1,15 @@
+import json
 import os
 from datetime import datetime
-from define import DEBUG, DEBUG_LEVEL
+
+import numpy as np
+from tqdm import trange
+
+from RandomNumberGenerator import MAX_SIGNED_INT64
+from define import DEBUG, DEBUG_LEVEL, ElementType
 import pandas as pd
 from collections import defaultdict
+
 buffered_data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
 
@@ -17,9 +24,9 @@ def prepare_to_report():
     return report_file_path, buff_report_file_path_pre
 
 
-def report_to_log(content, level=4):
+def report_to_log(content:str = None, level=4) -> None:
     """
-    如果满足调试级别要求 DEBUG_LEVEL >= level，则将指定内容写入日志文件中。
+    如果满足调试级别要求 DEBUG_LEVEL <= level，则将指定内容写入日志文件中。
 
     参数:
     - content: 要写入日志文件的内容。
@@ -34,7 +41,11 @@ def report_to_log(content, level=4):
     如果检查通过，则生成一个带有当前日期和时间戳的日志文件名，并确保对应的日志目录存在。
     最后，将content写入到日志文件中。
     """
-    if DEBUG and DEBUG_LEVEL >= level:
+
+    if not DEBUG or content is None:
+        return
+
+    if DEBUG and DEBUG_LEVEL <= level:
         report_file_path, buff_report_file_path_pre = prepare_to_report()
         # 写入日志
         with open(report_file_path, 'a', encoding='utf-8-sig') as file:
@@ -42,7 +53,7 @@ def report_to_log(content, level=4):
 
 
 def report_buff_to_log(character_name: str, time_tick, buff_name: str, buff_count, all_match: bool, level=4):
-    if DEBUG and DEBUG_LEVEL >= level:
+    if DEBUG and DEBUG_LEVEL <= level:
         if all_match:
             buffered_data[character_name][time_tick][buff_name] += buff_count
 
@@ -60,8 +71,73 @@ def write_to_csv():
         # 保存更新后的 CSV 文件
         df.to_csv(buff_report_file_path, index=False)
 
+def get_result_id() -> int:
+    from define import ID_CACHE_JSON
+    cache_path = ID_CACHE_JSON
+    if not os.path.exists(cache_path):
+        with open(cache_path, 'w') as f:
+            json.dump({}, f, indent=4)
+    with open (cache_path, 'r+') as f:
+        try:
+            id_cache_dict = json.load(f)
+        except json.decoder.JSONDecodeError:
+            id_cache_dict = {}
+        id_lst = list(id_cache_dict.keys())
+        if id_lst:
+            current_id = int(id_lst[-1]) + 1
+        else:
+            current_id = 0
+        id_cache_dict[str(current_id)] = datetime.now().strftime('%Y-%m-%d_%H%M')
+        f.seek(0)
+        json.dump(id_cache_dict, f, indent=4)
+        f.truncate()
+        return current_id
+
+def report_dmg_result(
+        tick: int,
+        element_type: ElementType | int,
+        skill_tag: str = None,
+        dmg_expect: float | np.float64 = None,
+        dmg_crit: float | np.float64 = None,
+        is_anomaly: bool = False,
+        is_disorder: bool = False,
+        rid = get_result_id(),
+        **kwargs
+        ):
+    if is_anomaly:
+        match element_type:
+            case 0:
+                skill_tag = '强击'
+            case 1:
+                skill_tag = '灼烧'
+            case 2:
+                skill_tag = '碎冰'
+            case 3:
+                skill_tag = '感电'
+            case 4:
+                skill_tag = '侵蚀'
+    if is_disorder:
+        skill_tag += '紊乱'
+    result_dict = {
+        'tick': tick,
+        'element_type': element_type,
+        'skill_tag': skill_tag,
+        'dmg_expect': float(dmg_expect),
+        'dmg_crit': float(dmg_crit),
+    }
+    result_dict.update(kwargs)
+    result_df = pd.DataFrame([result_dict])
+    result_path = f'./results/{rid}.csv'
+    if os.path.exists(result_path):
+        result_df.to_csv(result_path, mode='a', header=False, index=False)
+    else:
+        result_df.to_csv(result_path, index=False)
+
+
 
 if __name__ == '__main__':
-    report_to_log('test', level=4)
+
+    for i in trange(10000):
+        report_dmg_result(tick = i, element_type=0, skill_tag='test', dmg_expect=MAX_SIGNED_INT64, dmg_crit=MAX_SIGNED_INT64)
 
 # TODO: 彻底实现三个角色分别生成三个缓存，并且最后录入三个csv并保存的功能。
