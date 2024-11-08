@@ -21,7 +21,10 @@ class PreloadData:
         '''data = pd.DataFrame(    # only for test
             {'skill_tag': ['1221_NA_1', '1221_NA_2', '1221_NA_3', '1221_NA_4', '1221_NA_5']}
         )'''
-        self.skills_queue: LinkedList = SkillsQueue.get_skills_queue(INPUT_ACTION_LIST, *args)
+
+        max_tick, skills_queue = SkillsQueue.get_skills_queue(INPUT_ACTION_LIST, *args)
+        self.max_tick:int = max_tick
+        self.skills_queue: LinkedList = skills_queue
         self.current_node: SkillNode | None = None
         self.last_node: SkillNode | None = None
 
