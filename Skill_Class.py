@@ -3,7 +3,7 @@ import Report
 from define import *
 
 
-def lookup_name_or_cid(name: str = None, cid: int = None) -> tuple:
+def lookup_name_or_cid(name: str = None, cid: int = None) -> tuple[str, int]:
     """
     初始化角色名称和CID（角色ID）。
 
@@ -61,6 +61,7 @@ class Skill:
                  ):
         """
         根据提供的角色、各技能等级，创建一个角色的技能对象。
+
         成功创建的对象会包含角色的名称、ID、核心技等级、包含全部技能的字典
         skills_dict：
             -keys: 该角色的全部技能标签（skill_tag）
@@ -172,7 +173,8 @@ class Skill:
                      char_name=None
                      ):
             """
-            初始化角色的技能。
+            初始化角色的单个技能。
+
             会在执行class Skill的时候自动调用，不用手动创建此类的对象
             继承自此类的对象会包含输入的技能（key）的全部属性
             """
@@ -218,7 +220,7 @@ class Skill:
             # TriggerBuffLevel
             self.trigger_buff_level: int = int(_raw_skill_data['trigger_buff_level'])
             # 元素相关
-            self.element_type: int = int(_raw_skill_data['element_type'])
+            self.element_type: ElementType = ElementType(int(_raw_skill_data['element_type']))
             self.element_damage_percent: float = float(_raw_skill_data['element_damage_percent'])
             # 动画相关
             self.ticks: int = int(_raw_skill_data['ticks'])
