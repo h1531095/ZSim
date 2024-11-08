@@ -34,8 +34,6 @@ class AnomalyEffect:
             raise TypeError(f'所传入的属性标号不正确！')
         if new_snap_shot[1] is not np.float64:
             raise TypeError(f'所传入的快照元组的第2个元素应该是np.float64！')
-        if new_snap_shot[2] != (9, 1):
-            raise TypeError(f'所传入的快照元组的第3个元素目前是{new_snap_shot[2].shape}的矩阵，但它应是一个9×1的矩阵！')
         ndarray = new_snap_shot[2]
         build_up_value = new_snap_shot[1]
         cal_result_1 = build_up_value * ndarray
@@ -43,7 +41,7 @@ class AnomalyEffect:
         self.current_ndarray += build_up_value
         if self.current_anomaly >= self.max_anomaly:
             self.anomaly_times += 1
-            self.current_anomaly /= self.current_anomaly
+            self.current_ndarray = self.current_ndarray/self.current_anomaly
             output = self.element_type, self.current_ndarray
             self.current_anomaly = np.float64(0)
             self.current_ndarray = np.zeros((9, 1), dtype=np.float64)

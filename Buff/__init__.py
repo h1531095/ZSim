@@ -129,7 +129,7 @@ class Buff:
             report_to_log(f'[WARNING] {e}: 索引{index}没有找到，或buff效果json结构错误', level=4)
         return buff
 
-    def readyjudge(self, timenow):
+    def ready_judge(self, timenow):
         """
         用来判断内置CD是否就绪
         """
@@ -174,7 +174,7 @@ class Buff:
             raise TypeError(f'{buff_0}不是Buff类！')
         self.dy.active = True
         buff_0.dy.active = True
-        buff_0.readyjudge(timenow)
+        buff_0.ready_judge(timenow)
         if not buff_0.dy.ready:
             # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.name}内置CD没就绪，并未成功触发", level=3)
             return
@@ -259,13 +259,5 @@ class Buff:
             self.update_to_buff_0(buff_0)
         # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
-# TODO：Buff类的拓展：实现debuff（包括exist judge阶段的debuff初始化）
-# TODO：新建一个Dot类，使其继承Buff类，并且拥有自己的独立方法——能够向schedule event 中添加计划事件
-# TODO：完成属性异常的基类搭建，完成属性异常在触发后自动向dynamic buff dict中添加debuff的功能
-# TODO：在属性异常的基类中，完成添加dot事件的功能
-# dynamic_buff_dict / buff_exist_dict= {
-# 'charA':[buff1,buff2,buff3......],
-# 'charB':[buff1,buff2,buff3......],
-# 'charC':[buff1,buff2......],
-# 'enemy':[debuff1,debuff2,debuff3......]
-# }
+
+

@@ -141,4 +141,3 @@ if __name__ == '__main__':
     for i in trange(10000):
         report_dmg_result(tick = i, element_type=0, skill_tag='test', dmg_expect=MAX_SIGNED_INT64, dmg_crit=MAX_SIGNED_INT64)
 
-# TODO: 彻底实现三个角色分别生成三个缓存，并且最后录入三个csv并保存的功能。

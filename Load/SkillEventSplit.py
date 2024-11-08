@@ -2,19 +2,20 @@ from LinkedList import LinkedList
 import Preload
 import tqdm
 from Report import report_to_log
+import Load
 
 
 def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, name_dict: dict, timenow):
     to_remove = []
     for mission in Load_mission_dict.values():
-        if not isinstance(mission, LoadingMission):
+        if not isinstance(mission, Load.LoadingMission):
             raise TypeError(f'{mission}并非LoadingMission类！')
         mission.check_myself(timenow)
     for i in range(len(preloaded_action_list)):
         skill = preloaded_action_list.pop_head()
         if not isinstance(skill, Preload.SkillNode):
             raise ValueError(f"本次拆分的{skill}不是SkillNode类！")
-        this_mission = LoadingMission(skill)
+        this_mission = Load.LoadingMission(skill)
         this_mission.mission_start(timenow)
         if skill.skill_tag in name_dict:
             name_dict[skill.skill_tag] += 1
@@ -23,7 +24,7 @@ def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, 
         key = skill.skill_tag + f'[{name_dict[skill.skill_tag]}]'
         Load_mission_dict[key] = this_mission
         for key, mission in Load_mission_dict.items():
-            if not isinstance(mission, LoadingMission):
+            if not isinstance(mission, Load.LoadingMission):
                 raise TypeError(f'{mission}并非LoadingMission类！')
             if not mission.mission_active_state:
                 to_remove.append(key)
@@ -33,38 +34,7 @@ def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, 
     return Load_mission_dict
 
 
-class LoadingMission:
-    def __init__(self, skill: Preload.SkillNode):
-        self.mission_tag = skill.skill_tag
-        self.mission_dict = {}
-        self.mission_already_start = False
-        self.mission_active_state = False
-        self.mission_start_tick = skill.preload_tick
-        self.mission_end_tick = skill.preload_tick + skill.skill.ticks
-        self.skill_node = skill
-        self.mission_character = skill.char_name
 
-    def mission_start(self, timenow):
-        self.mission_active_state = True
-        self.mission_already_start = True
-        timecost = self.skill_node.skill.ticks
-        time_step = (timecost - 1)/self.skill_node.hit_times
-        self.mission_dict[float(self.skill_node.preload_tick+1)] = "start"
-        for i in range(self.skill_node.hit_times):
-            tick_key = self.skill_node.preload_tick + time_step * (i+1)
-            # 由于timetick在循环中的自增量是整数，所以为了保证能和键值准确匹配，
-            # 这里的键值也要向上取整，注意，这里产生的是一个int，所以要转化为float
-            self.mission_dict[tick_key] = "hit"
-        self.mission_dict[float(self.skill_node.preload_tick + timecost)] = "end"
-        report_to_log(f"[Skill LOAD]:{timenow}:{self.mission_tag}开始并拆分子任务。", level=4)
-
-    def mission_end(self):
-        self.mission_active_state = False
-        self.mission_dict = {}
-
-    def check_myself(self, timenow):
-        if self.mission_active_state < timenow:
-            self.mission_end()
 
 
 if __name__ == "__main__":      # 测试
@@ -82,8 +52,4 @@ if __name__ == "__main__":      # 测试
         print(f"{item}, {load_mission_dict[item].mission_character_number}")
 
 # TODO: 将SkillEventSplit中，对于load_mission_dict的维护部分单独拆分，并且每个ticks查询，如果当前有hit子任务，则直接向schedule_event_list添加对应的SkillNode
-
-
-def is_hitting():
-    pass
 
