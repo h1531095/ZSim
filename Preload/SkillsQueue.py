@@ -26,7 +26,7 @@ class SkillNode:
 
 def get_skills_queue(preload_table: pd.DataFrame,
                      *skills: Skill,
-                     ) -> LinkedList:
+                     ) -> tuple[int, LinkedList]:
     """
     提取dataframe中，‘skill_tag’列的信息
     并将其与输入的 Skill 类比对
@@ -79,7 +79,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
                 break
         if not found:
             raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")
-    return skills_queue
+    return preload_tick_stamp, skills_queue
 
 
 if __name__ == '__main__':

@@ -75,6 +75,7 @@ def get_result_id() -> int:
     from define import ID_CACHE_JSON
     cache_path = ID_CACHE_JSON
     if not os.path.exists(cache_path):
+        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
         with open(cache_path, 'w') as f:
             json.dump({}, f, indent=4)
     with open (cache_path, 'r+') as f:
