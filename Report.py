@@ -64,4 +64,3 @@ def write_to_csv():
 if __name__ == '__main__':
     report_to_log('test', level=4)
 
-# TODO: 彻底实现三个角色分别生成三个缓存，并且最后录入三个csv并保存的功能。

@@ -1,0 +1,86 @@
+from dataclasses import dataclass
+global event_list
+
+
+class Dot:
+    def __init__(self):
+        self.ft = self.DotFeature()
+        self.dy = self.DotDynamic()
+        self.history = self.DotHistory()
+        pass
+
+    @dataclass
+    class DotFeature:
+        """
+        这里记录了Dot的固定属性。其中需要注意的是，effect_rules属性，它记录了dot的更新规则。
+        更新指的是：更新自身时间、层数、内置CD等属性，同时也有可能是造成伤害。
+        0：无更新——只有效果，没有更新机制。
+        1：根据时间更新——完全依赖内置CD
+        2：命中时更新——依赖内置CD，同时需要外部进行“hit”判断，外部函数或许需要联动LoadingMission和TimeTick
+        3：缓存式更新——依赖内置CD，以及Dot.Dynamic中的动态记录模块，来记录伤害积累。
+
+        """
+        increase_cd: int = 0
+        index: str = None
+        name: str = None
+        dot_from: str = None
+        effect_rules: int = None
+        max_count: int = None
+        max_duration: int = None
+        incremental_step: int = None
+        extra_debuff_index: str = None
+        max_effect_times: int = None
+
+    @dataclass
+    class DotDynamic:
+        start_ticks: int = 0
+        end_ticks: int = 0
+        active: bool = None
+        count: int = 0
+        ready: bool = None
+        effect_times: int = 0
+
+    @dataclass
+    class DotHistory:
+        start_times: int = 0
+        end_times: int = 0
+        last_start_ticks: int = 0
+        last_end_ticks: int = 0
+        last_duration: int = 0
+
+    def ready_judge(self, timenow):
+        if not self.dy.ready:
+            if timenow - self.dy.start_ticks >= self.dy.end_ticks:
+                self.dy.ready = True
+
+    def end(self, timenow):
+        self.dy.active = False
+        self.dy.count = 0
+        self.history.last_end_ticks = timenow
+        self.history.last_duration = timenow - self.dy.start_ticks
+        self.history.end_times += 1
+
+    def start(self, timenow):
+        self.dy.active = True
+        self.dy.start_ticks = timenow
+        self.dy.end_ticks = self.dy.start_ticks + self.ft.max_duration
+        self.history.start_times += 1
+        self.history.last_start_ticks = timenow
+        self.dy.count = 1
+        self.dy.effect_times = max(self.ft.max_effect_times - 1, 0)
+
+
+    def spawn_judge(self):
+
+        pass
+
+
+    def damage_spawn(self):
+        global event_list
+        self.spawn_judge()
+        pass
+
+
+# TODO：新建一个Dot类事件，使其继承Buff类，并且拥有自己的独立方法——能够向schedule event 中添加计划事件
+# TODO：完成属性异常的基类搭建，完成属性异常在触发后自动向dynamic buff dict中添加debuff的功能
+# TODO：在属性异常的基类中，完成添加dot事件的功能

@@ -1,8 +1,9 @@
 from Buff import Buff
 from Skill_Class import Skill
+from Load.SkillEventSplit import SkillEventSplit
 import pandas as pd
-from SkillEventSplit import SkillEventSplit, LoadingMission
-from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH, EFFECT_FILE_PATH
+import Load
+from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH
 from Buff.BuffExist_Judge import buff_exist_judge
 import Preload
 import tqdm
@@ -23,14 +24,14 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
             buff_new = Buff(active_condition_dict, judge_condition_dict)
             for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
                 if time_now - 1 < sub_mission_start_tick <= time_now:
-                    buff_new.update(char, time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                    buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
                     LOADING_BUFF_DICT[char].append(buff_new)
                     # report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
     else:
         buff_new = Buff(active_condition_dict, judge_condition_dict)
         for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
             if time_now - 1 < sub_mission_start_tick <= time_now:
-                buff_new.update('enemy', time_now, mission.skill_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                buff_new.update('enemy', time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
                 LOADING_BUFF_DICT['enemy'].append(buff_new)
 
 
@@ -75,7 +76,7 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
     # 遍历load_mission_dict中的任务
     sub_exist_debuff_dict = existbuff_dict['enemy']
     for mission in load_mission_dict.values():
-        if not isinstance(mission, LoadingMission):
+        if not isinstance(mission, Load.LoadingMission):
             raise TypeError(f"当前{mission}不是SkillNode类！")
         character_name = mission.mission_character
         if character_name not in existbuff_dict:
@@ -110,8 +111,8 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict):
     return all_match, judge_condition_dict, active_condition_dict
 
 
-def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: LoadingMission):
-    skill_now = mission.skill_node.skill
+def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Load.LoadingMission):
+    skill_now = mission.mission_node.skill
     if not isinstance(skill_now, Skill.InitSkill):
         raise TypeError(f"{skill_now}并非Skill类！")
     if buff_now.ft.simple_judge_logic:
@@ -144,7 +145,7 @@ if __name__ == "__main__":      # 测试
         p.do_preload(tick)
         preload_action_list = p.preload_data.preloaded_action
         if preload_action_list:
-            SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
+           SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
         BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
 
 
