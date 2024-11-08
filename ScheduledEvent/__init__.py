@@ -3,15 +3,15 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
+import Report
 import Buff.BuffAdd
-import Buff
+import Buff.BuffLoad
 import Enemy
 import Preload
+from Anomaly import AnomalyEffect as AnE
 from Buff.BuffExist_Judge import buff_exist_judge
-from Calculator import Calculator
+from .Calculator import Calculator
 from CharSet_new import Character
-
 
 
 @dataclass
@@ -63,17 +63,19 @@ class ScheduledEvent:
             for event in self.data.event_list[:]:
                 # 添加buff
                 if isinstance(event, Buff.Buff):
-                    raise NotImplementedError
+                    raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
                 elif isinstance(event, Preload.SkillNode):
                     if event.preload_tick <= self.data.tick:
                         self.skill_event(event)
                         self.data.event_list.remove(event)
+                elif isinstance(event, AnE):
+                    raise NotImplementedError
                 else:
                     raise NotImplementedError(f"Wrong event type: {type(event)}")
 
     def solve_buff(self) -> None:
         """提前处理Buff实例"""
-        Buff.BuffAdd.buff_add(self.data.tick, self.data.loading_buff, self.data.dynamic_buff)
+        Buff.BuffAdd.buff_add(self.data.tick, self.data.loading_buff, self.data.dynamic_buff, self.data.enemy)
         buff_events = []
         other_events = []
         for event in self.data.event_list[:]:
@@ -83,38 +85,21 @@ class ScheduledEvent:
                 other_events.append(event)
         self.data.event_list = buff_events + other_events
 
-    def skill_event(self, event):
+    def skill_event(self, event: Preload.SkillNode) -> None:
         """SkillNode处理分支逻辑"""
         cal_obj = Calculator(skill_node=event,
-                             character_obj=self.data.char_obj_list[event.char_name],
+                             character_obj=self.data.char_obj_list[event.skill.char_name],
                              enemy_obj=self.data.enemy,
                              dynamic_buff=self.data.dynamic_buff)
-        anomaly_snapshot = self.output_and_cal_snapshot(cal_obj)
+        snapshot = cal_obj.cal_snapshot()
+        Report.report_dmg_result(tick=self.data.tick,
+                                  element_type=event.skill.element_type,
+                                  skill_tag=event.skill_tag,
+                                  dmg_expect=cal_obj.cal_dmg_expect(),
+                                  dmg_crit=cal_obj.cal_dmg_crit()
+                                 )
 
-    @staticmethod
-    def output_and_cal_snapshot(cal_obj: Calculator) -> np.ndarray:
-        skill_tag: str = cal_obj.skill_tag
-        element_type: int = cal_obj.element_type
-        dmg_expect: np.float64 = cal_obj.cal_dmg_expect()
-        dmg_crit: np.float64 = cal_obj.cal_dmg_crit()
-        stun: np.float64 = cal_obj.cal_stun()
-        buildup: np.float64 = cal_obj.anomaly_multipliers.anomaly_buildup
-        snapshot: np.ndarray = cal_obj.cal_anomaly_snapshot()[2]
-        output_data = {
-            'skill_tag': skill_tag,
-            'element_type': element_type,
-            'dmg_expect': dmg_expect,
-            'dmg_crit': dmg_crit,
-            'stun': stun,
-            'buildup': buildup,
-            'snapshot': snapshot
-        }
 
-        df = pd.DataFrame([output_data])
-        file_path = 'output.csv'
-        df.to_csv(file_path, mode='a', header=not Path(file_path).exists(), index=False)
-        print(f"{output_data['skill_tag']} 伤害期望: {output_data['dmg_expect']}")
-        return snapshot
 
 
 if __name__ == '__main__':
