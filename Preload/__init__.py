@@ -43,6 +43,9 @@ class Preload:
         self.preload_data = PreloadData(*args)
         self.skills_queue = self.preload_data.skills_queue
 
+    def __str__(self):
+        return f"Preload Data: \n{self.preload_data.preloaded_action}"
+
     def do_preload(self, tick: int):
         if self.preload_data.current_node is None:
             this_node = self.skills_queue.pop_head()
