@@ -1,17 +1,16 @@
 from dataclasses import dataclass, field
 
-from Buff.BuffExist_Judge import buff_exist_judge
-from Enemy import Enemy
-from Load.LoadDamageEvent import DamageEventJudge
-from Load.SkillEventSplit import SkillEventSplit
-from Buff.BuffLoad import BuffLoadLoop
-from Update_Buff import update_dynamic_bufflist
-from CharSet_new import Character
 import tqdm
+
+import Buff
+import Load
 import Preload
-from Buff.BuffAdd import buff_add
-from Report import write_to_csv
 import ScheduledEvent as ScE
+from CharSet_new import Character
+from Enemy import Enemy
+from Report import write_to_csv
+from Update_Buff import update_dynamic_bufflist
+
 
 @dataclass
 class InitData:
@@ -46,7 +45,7 @@ class LoadData:
     name_dict = {}
 
     def __post_init__(self):
-        self.exist_buff_dict = buff_exist_judge(self.name_box, self.Judge_list_set, self.weapon_dict)
+        self.exist_buff_dict = Buff.buff_exist_judge(self.name_box, self.Judge_list_set, self.weapon_dict)
 
 @dataclass
 class ScheduleData:
@@ -75,10 +74,10 @@ def main_loop(tick: int):
 
     # Load
     if preload_list:
-        SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
-    BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, load_data.name_box, load_data.LOADING_BUFF_DICT)
-    buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
-    DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
+        Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
+    Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, load_data.name_box, load_data.LOADING_BUFF_DICT)
+    Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
+    Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
 
     # ScheduledEvent
     scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
@@ -107,5 +106,3 @@ if __name__ == '__main__':
 
     for tick in tqdm.trange(MAX_TICK):
         main_loop(tick)
-
-

@@ -1,9 +1,11 @@
-import Preload
+from Load.LoadDamageEvent import DamageEventJudge
+from Load.SkillEventSplit import SkillEventSplit
+from Preload import SkillNode
 from Report import report_to_log
 
 
 class LoadingMission:
-    def __init__(self, mission: Preload.SkillNode):
+    def __init__(self, mission: SkillNode):
         self.mission_active_state = False
         self.mission_node = mission
         self.mission_dict = {}
