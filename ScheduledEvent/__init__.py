@@ -3,10 +3,10 @@ import Buff.BuffAdd
 import Buff.BuffLoad
 import Enemy
 import Preload
-from main import ScheduleData
+# from main import ScheduleData
 from Anomaly import AnomalyEffect as AnE
 from Buff.BuffExist_Judge import buff_exist_judge
-from .Calculator import Calculator
+from ScheduledEvent.Calculator import Calculator
 from CharSet_new import Character
 
 
@@ -19,9 +19,10 @@ class ScheduledEvent:
     2、遍历事件列表，从开始到结束，将每一个事件派发到分支逻辑链内进行处理
     """
 
-    def __init__(self, data: ScheduleData, tick: int, dynamic_buff: dict, *, loading_buff: dict = None):
+    def __init__(self,dynamic_buff: dict, data, tick: int, *, loading_buff: dict = None):
 
         self.data = data
+        self.data.dynamic_buff = dynamic_buff
 
         if loading_buff is None:
             loading_buff = {}
@@ -30,12 +31,9 @@ class ScheduledEvent:
 
         if not isinstance(tick, int):
             raise ValueError(f'tick参数必须为整数，但你输入了{tick}')
-        if not isinstance(dynamic_buff, dict):
-            raise ValueError(f'dynamic_buff参数必须为包含Buff类的字典，但你输入了{dynamic_buff}')
 
         # 更新Data
         self.tick = tick
-        self.data.dynamic_buff = dynamic_buff
         self.data.loading_buff = loading_buff
 
     def event_start(self):
@@ -71,11 +69,19 @@ class ScheduledEvent:
 
     def skill_event(self, event: Preload.SkillNode) -> None:
         """SkillNode处理分支逻辑"""
+        char_obj = None
+        for character in self.data.char_obj_list:
+            if character.NAME == event.skill.char_name:
+                char_obj = character
+        if char_obj is None:
+            assert False, f"{event.skill.char_name} not found in char_obj_list"
+
         cal_obj = Calculator(skill_node=event,
-                             character_obj=self.data.char_obj_list[event.skill.char_name],
+                             character_obj=char_obj,
                              enemy_obj=self.data.enemy,
                              dynamic_buff=self.data.dynamic_buff)
         snapshot = cal_obj.cal_snapshot()
+        # TODO 对接 Anomaly
         Report.report_dmg_result(tick=self.tick,
                                   element_type=event.skill.element_type,
                                   skill_tag=event.skill_tag,

@@ -2,7 +2,8 @@ from dataclasses import dataclass, field
 
 from Buff.BuffExist_Judge import buff_exist_judge
 from Enemy import Enemy
-from SkillEventSplit import SkillEventSplit
+from Load.LoadDamageEvent import DamageEventJudge
+from Load.SkillEventSplit import SkillEventSplit
 from Buff.BuffLoad import BuffLoadLoop
 from Update_Buff import update_dynamic_bufflist
 from CharSet_new import Character
@@ -10,7 +11,7 @@ import tqdm
 import Preload
 from Buff.BuffAdd import buff_add
 from Report import write_to_csv
-
+import ScheduledEvent as ScE
 
 @dataclass
 class InitData:
@@ -28,6 +29,7 @@ class CharacterData:
     name_box: list
 
     def __post_init__(self):
+        self.char_obj_list = []
         if self.name_box:
             for name in self.name_box:
                 char_obj = Character(name=name)
@@ -76,17 +78,23 @@ def main_loop(tick: int):
         SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
     BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, load_data.name_box, load_data.LOADING_BUFF_DICT)
     buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
+    DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
 
     # ScheduledEvent
+    scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
+    scheduled.event_start()
 
     # Write Buffer Data
-    pass
+    write_to_csv()
 
 if __name__ == '__main__':
     # global data
     init_data = InitData()
     char_data = CharacterData(name_box=init_data.name_box)
-    load_data = LoadData(name_box=init_data.name_box, Judge_list_set=init_data.Judge_list_set, weapon_dict=init_data.weapon_dict)
+    load_data = LoadData(
+            name_box=init_data.name_box,
+            Judge_list_set=init_data.Judge_list_set,
+            weapon_dict=init_data.weapon_dict)
     schedule_data = ScheduleData(enemy = Enemy(), char_obj_list=char_data.char_obj_list)
     global_stats = GlobalStats(name_box=init_data.name_box)
 

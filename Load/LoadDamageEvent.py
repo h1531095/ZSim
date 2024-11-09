@@ -62,7 +62,6 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy,
             raise TypeError(f'{mission}不是LoadingMission类！')
         for sub_mission_tick in mission.mission_dict:
             if timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'hit':
-                print(timetick)
                 SpawnDamageEvent(mission, event_list)
             # 当Mission触发时，检查 effect_rules == 2 的 Dot
                 ProcessHitUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)
