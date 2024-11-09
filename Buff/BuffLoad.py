@@ -1,14 +1,11 @@
-from Buff import Buff
-from Skill_Class import Skill
-from Load.SkillEventSplit import SkillEventSplit
-import pandas as pd
-import Load
-from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH
-from Buff.BuffExist_Judge import buff_exist_judge
-import Preload
-import tqdm
 import numpy as np
-import Skill_Class
+import pandas as pd
+
+import Load
+from Buff import Buff
+from Buff.BuffExist_Judge import buff_exist_judge
+from Load.SkillEventSplit import SkillEventSplit
+from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
@@ -139,8 +136,11 @@ if __name__ == "__main__":      # 测试
     timelimit = 3600
     load_mission_dict = {}
     LOADING_BUFF_DICT = {}
-    p = Preload.Preload(Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
+    import Preload
+    from Skill_Class import Skill
+    p = Preload.Preload(Skill(CID=1221), Skill(CID=1191))
     name_dict = {}
+    import tqdm
     for tick in tqdm.trange(timelimit):
         p.do_preload(tick)
         preload_action_list = p.preload_data.preloaded_action
