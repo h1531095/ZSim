@@ -70,7 +70,7 @@ def main_loop(tick: int):
     update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
 
     # Preload
-    preload.do_preload(tick)
+    preload.do_preload(tick, schedule_data.enemy)
     preload_list = preload.preload_data.preloaded_action
 
     # Load
