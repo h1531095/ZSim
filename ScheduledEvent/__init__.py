@@ -8,7 +8,8 @@ from AnomalyBar import AnomalyBar as AnE
 from Buff.BuffExist_Judge import buff_exist_judge
 from ScheduledEvent.Calculator import Calculator
 from CharSet_new import Character
-# import AnomalyBar
+import AnomalyBar
+import UpdateAnomaly
 
 
 class ScheduledEvent:
@@ -84,8 +85,7 @@ class ScheduledEvent:
         snapshot = cal_obj.cal_snapshot()
         stun = cal_obj.cal_stun()
         self.data.enemy.update_stun(stun)
-
-
+        UpdateAnomaly.update_anomaly(self.data.enemy, snapshot)
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,
                                  skill_tag=event.skill_tag,

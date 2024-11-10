@@ -4,6 +4,15 @@ import AnomalyBar
 from Report import report_to_log
 from define import ENEMY_DATA_PATH
 
+# 把属性异常标号从数字翻译成str的中转字典，用于和getattr方法联动。
+trans_element_number_to_str = {
+    0:'PHY',
+    1:'FIRE',
+    2:'ICE',
+    3:'ELECTRIC',
+    4:'ETHER',
+    5:'FIREICE'
+}
 
 class EnemySettings:
     def __init__(self):
@@ -67,12 +76,12 @@ class Enemy:
         """
         enemy实例化的时候，6种异常积蓄条也随着一起实例化。
         """
-        self.fireice_anomaly_bar = AnomalyBar.FireIceAnomaly(enemy=self)
-        self.ice_anomaly_bar = AnomalyBar.IceAnomaly(enemy=self)
-        self.fire_anomaly_bar = AnomalyBar.FireAnomaly(enemy=self)
-        self.physical_anomaly_bar = AnomalyBar.PhysicalAnomaly(enemy=self)
-        self.ether_anomaly_bar = AnomalyBar.EtherAnomaly(enemy=self)
-        self.electric_anomaly_bar = AnomalyBar.ElectricAnomaly(enemy=self)
+        self.fireice_anomaly_bar = AnomalyBar.FireIceAnomaly()
+        self.ice_anomaly_bar = AnomalyBar.IceAnomaly()
+        self.fire_anomaly_bar = AnomalyBar.FireAnomaly()
+        self.physical_anomaly_bar = AnomalyBar.PhysicalAnomaly()
+        self.ether_anomaly_bar = AnomalyBar.EtherAnomaly()
+        self.electric_anomaly_bar = AnomalyBar.ElectricAnomaly()
         """
         由于在AnomalyBar的init中有一个update_anomaly函数，
         该函数可以根据传入new_snap_shot: tuple 的第0位的属性标号，
@@ -90,6 +99,11 @@ class Enemy:
             4: self.ether_anomaly_bar,
             5: self.fireice_anomaly_bar,
         }
+        # 在初始化阶段更新属性异常条最大值。
+        for element_type in self.anomaly_bars_dict:
+            anomaly_bar = self.anomaly_bars_dict[element_type]
+            max_value = getattr(self, f'max_anomaly_{trans_element_number_to_str[element_type]}')
+            anomaly_bar.max_value = max_value
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
