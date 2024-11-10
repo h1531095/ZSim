@@ -103,6 +103,6 @@ if __name__ == '__main__':
     # Get max time, and in case, add it by 60
     MAX_TICK = preload.preload_data.max_tick + 60
 
-    for tick in tqdm.trange(MAX_TICK):
+    for tick in tqdm.trange(200):
         main_loop(tick)
     write_to_csv()

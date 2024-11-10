@@ -133,33 +133,33 @@ def report_dmg_result(
 
 def thread_log_writer():
     report_file_path, _ = prepare_to_report()
-    with open(report_file_path, 'a', encoding='utf-8') as file:
-        while True:
+    while True:
+        with open(report_file_path, 'a', encoding='utf-8') as file:
             content = log_queue.get()
-            if content is None:
-                break
             file.write(f"{content}\n")
-            log_queue.task_done()
+        log_queue.task_done()
 
 def thread_result_writer(rid = get_result_id()):
     result_path = f'./results/{rid}.csv'
     new_file = os.path.exists(result_path)
     while True:
         result_dict = result_queue.get()
-        if result_dict is None:
-            break
         result_df = pd.DataFrame([result_dict])
         if new_file:
-            result_df.to_csv(result_path, index=False)
-        else:
             result_df.to_csv(result_path, mode='a', header=False, index=False)
+        else:
+            result_df.to_csv(result_path, index=False)
+            new_file = True
         result_queue.task_done()
 
 log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
 log_writer_thread.start()
+log_queue.join()
 
 result_writer_thread = threading.Thread(target=thread_result_writer, daemon=True)
 result_writer_thread.start()
+result_queue.join()
+
 
 if __name__ == '__main__':
 
