@@ -84,7 +84,6 @@ def main_loop(tick: int):
     scheduled.event_start()
 
     # Write Buffer Data
-    write_to_csv()
 
 if __name__ == '__main__':
     # global data
@@ -106,3 +105,4 @@ if __name__ == '__main__':
 
     for tick in tqdm.trange(MAX_TICK):
         main_loop(tick)
+    write_to_csv()

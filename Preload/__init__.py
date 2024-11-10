@@ -5,10 +5,10 @@ from tqdm import trange
 
 import Skill_Class
 from LinkedList import LinkedList
-from Preload import SkillsQueue
-from Preload import watchdog
-from Preload.SkillsQueue import SkillNode
 from Report import report_to_log
+from . import SkillsQueue
+from . import watchdog
+from .SkillsQueue import SkillNode
 
 INPUT_ACTION_LIST = pd.read_csv('./data/计算序列.csv')
 

@@ -1,8 +1,10 @@
-import pandas as pd
-import json
-from Buff import Buff
-from define import EXIST_FILE_PATH, JUDGE_FILE_PATH
 import itertools
+import json
+
+import pandas as pd
+
+from Buff.buff_class import Buff
+from define import EXIST_FILE_PATH, JUDGE_FILE_PATH
 
 # 加载文件
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')

@@ -1,5 +1,5 @@
 import Enemy
-from Buff import Buff
+from Buff.buff_class import Buff
 
 
 def buff_add(timenow: float,
