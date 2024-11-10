@@ -1,6 +1,6 @@
 import Enemy
 import Load
-import Dot
+from Dot import BaseDot
 
 
 def SpawnDamageEvent(mission: Load.LoadingMission | Dot.Dot, event_list: list):

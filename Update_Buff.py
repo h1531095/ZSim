@@ -1,7 +1,7 @@
 from Buff import Buff
 from Report import report_to_log, report_buff_to_log
 import Enemy
-import Dot
+from Dot import BaseDot
 
 
 def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: dict, enemy: Enemy.Enemy):
