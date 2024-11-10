@@ -56,10 +56,11 @@ class AnomalyBar:
                 raise ValueError(f'传入的快照数组列数为{new_ndarray.shape[1]}，小于快照缓存的列数！')
 
         cal_result_1 = build_up_value * new_ndarray
-        print(cal_result_1)
-        print(self.current_ndarray)
+        # print(cal_result_1)
+        # print(self.current_ndarray)
         self.current_ndarray += cal_result_1
         self.current_anomaly += build_up_value
+        pass
 
     def check_myself(self):
         # 仅用于检查自身是否积满的函数。不包含调用spawn_output的功能。

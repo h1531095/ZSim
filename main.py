@@ -1,7 +1,5 @@
 from dataclasses import dataclass, field
 
-import tqdm
-
 import Buff
 import Load
 import Preload
@@ -65,26 +63,35 @@ class GlobalStats:
         for name in self.name_box + ['enemy']:
             self.DYNAMIC_BUFF_DICT[name] = []
 
-def main_loop(tick: int):
-    # Tick Update
-    update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
+def main_loop(stop_tick: int|None = None):
+    tick = 0
+    while True:
+        # Tick Update
+        update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
 
-    # Preload
-    preload.do_preload(tick, schedule_data.enemy)
-    preload_list = preload.preload_data.preloaded_action
+        # Preload
+        preload.do_preload(tick, schedule_data.enemy)
+        preload_list = preload.preload_data.preloaded_action
 
-    # Load
-    if preload_list:
-        Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
-    Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, load_data.name_box, load_data.LOADING_BUFF_DICT)
-    Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
-    Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
+        if stop_tick is None:
+            if len(preload.preload_data.skills_queue) == 0:
+                stop_tick = tick + 120
+        elif tick >= stop_tick:
+            break
 
-    # ScheduledEvent
-    scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
-    scheduled.event_start()
+        # Load
+        if preload_list:
+            Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
+        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, load_data.name_box, load_data.LOADING_BUFF_DICT)
+        Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
+        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
 
-    # Write Buffer Data
+        # ScheduledEvent
+        scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
+        scheduled.event_start()
+
+        tick += 1
+
 
 if __name__ == '__main__':
     # global data
@@ -101,11 +108,7 @@ if __name__ == '__main__':
     skills = (char.skill_object for char in char_data.char_obj_list)
     preload = Preload.Preload(*skills)
 
-    # Get max time, and in case, add it by 60
-    MAX_TICK = preload.preload_data.max_tick + 60
-
-    for tick in tqdm.trange(MAX_TICK):
-        main_loop(tick)
+    main_loop()
     write_to_csv()
 
     Report.log_queue.join()

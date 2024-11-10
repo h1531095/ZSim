@@ -85,14 +85,16 @@ class ScheduledEvent:
         snapshot = cal_obj.cal_snapshot()
         stun = cal_obj.cal_stun()
         self.data.enemy.update_stun(stun)
-        UpdateAnomaly.update_anomaly(self.data.enemy, snapshot)
+        if snapshot[1] >= 0.0001:
+            UpdateAnomaly.update_anomaly(self.data.enemy, snapshot)
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,
                                  skill_tag=event.skill_tag,
                                  dmg_expect=cal_obj.cal_dmg_expect(),
                                  dmg_crit=cal_obj.cal_dmg_crit(),
-                                 stun = stun,
-                                 stun_status = self.data.enemy.dynamic.stun
+                                 stun_status = self.data.enemy.dynamic.stun,
+                                 buildup = snapshot[1],
+                                 enemy_dynamic = self.data.enemy.dynamic.__str__()
                                  )
 
 

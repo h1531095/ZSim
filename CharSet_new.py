@@ -497,11 +497,8 @@ class Character:
         self.PEN_numeric += (scPEN * 9)
         self.baseCRIT_score += (scCRIT * 4.8)
 
-    def _init_skill(self, skill_name: str, skill_level: int):
-        """
-        未来对接 Skill 类使用
-        """
-        pass
+    def __str__(self):
+        return f"{self.NAME} {self.level}级"
 
 
 if __name__ == "__main__":

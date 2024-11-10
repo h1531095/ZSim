@@ -723,9 +723,11 @@ class Calculator:
                 assert False, INVALID_ELEMENT_ERROR
 
             element_dmg_percentage = data.skill_node.skill.element_damage_percent
+            hit_times = data.skill_node.hit_times
 
-            anomaly_buildup = accumulation * (ap / 100) * (
-                    1 + element_buildup_bonus + trigger_buildup_bonus) * buildup_res * element_dmg_percentage
+            anomaly_buildup = (accumulation * (ap / 100) * (
+                    1 + element_buildup_bonus + trigger_buildup_bonus) *
+                               buildup_res * element_dmg_percentage / hit_times)
             return np.float64(anomaly_buildup)
 
         @staticmethod

@@ -264,6 +264,12 @@ class Skill:
             else:
                 raise ValueError(f"Invalid skill_type: {skill_type}")
 
+        def __str__(self) -> str:
+            return self.skill_tag
+
+    def __str__(self) -> str:
+        return self.name + "Skills"
+
 
 if __name__ == '__main__':
     test_object = Skill(name='艾莲')
