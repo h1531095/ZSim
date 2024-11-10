@@ -39,8 +39,8 @@ class Enemy:
         self.CRIT_damage: float = float(self.data_dict['暴击伤害'])
         self.able_to_be_stunned: bool = bool(self.data_dict['能否失衡'])
         self.able_to_get_anomaly: bool = bool(self.data_dict['能否异常'])
-        self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度'])
-        self.stun_recovery_time: float = float(self.data_dict['失衡恢复时间'])
+        self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度']) / 60
+        self.stun_recovery_time: float = float(self.data_dict['失衡恢复时间']) * 60
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
 
@@ -216,6 +216,9 @@ class Enemy:
             else:
                 raise ValueError(f"输入了不支持的元素种类：{element}")
 
+    def update_stun(self, stun: np.float64) -> None:
+        self.dynamic.stun_bar += stun
+
     class EnemyDynamic:
         def __init__(self):
             self.stun = False  # 失衡状态
@@ -229,6 +232,9 @@ class Enemy:
             self.dynamic_debuff_list = []   # 用来装debuff的list
             self.dynamic_dot_list = []      # 用来装dot的list
 
+            self.stun_bar = 0
+            self.stun_tick = 0
+
             self.frozen_tick = 0
             self.frostbite_tick = 0
             self.assault_tick = 0
@@ -237,7 +243,7 @@ class Enemy:
             self.corruption_tick = 0
 
         def __str__(self):
-            return f"失衡: {self.stun}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 侵蚀：{self.corruption}"
+            return f"失衡: {self.stun}, 失衡条: {self.stun_bar:.2f}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 侵蚀：{self.corruption}"
 
 
 if __name__ == '__main__':

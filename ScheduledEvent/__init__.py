@@ -76,19 +76,23 @@ class ScheduledEvent:
                 char_obj = character
         if char_obj is None:
             assert False, f"{event.skill.char_name} not found in char_obj_list"
-
+        # 计算伤害的对象
         cal_obj = Calculator(skill_node=event,
                              character_obj=char_obj,
                              enemy_obj=self.data.enemy,
                              dynamic_buff=self.data.dynamic_buff)
         snapshot = cal_obj.cal_snapshot()
-        # TODO 对接 AnomalyBar
-        # AnomalyBar.update_anomaly(self.data.enemy, snapshot)
+        stun = cal_obj.cal_stun()
+        self.data.enemy.update_stun(stun)
+
+
         Report.report_dmg_result(tick=self.tick,
-                                  element_type=event.skill.element_type,
-                                  skill_tag=event.skill_tag,
-                                  dmg_expect=cal_obj.cal_dmg_expect(),
-                                  dmg_crit=cal_obj.cal_dmg_crit()
+                                 element_type=event.skill.element_type,
+                                 skill_tag=event.skill_tag,
+                                 dmg_expect=cal_obj.cal_dmg_expect(),
+                                 dmg_crit=cal_obj.cal_dmg_crit(),
+                                 stun = stun,
+                                 stun_status = self.data.enemy.dynamic.stun
                                  )
 
 
