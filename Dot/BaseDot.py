@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-global event_list
 
 
 class Dot:
@@ -7,7 +6,6 @@ class Dot:
         self.ft = self.DotFeature()
         self.dy = self.DotDynamic()
         self.history = self.DotHistory()
-        pass
 
     @dataclass
     class DotFeature:
@@ -70,17 +68,10 @@ class Dot:
         self.dy.effect_times = max(self.ft.max_effect_times - 1, 0)
 
 
-    def spawn_judge(self):
-
-        pass
 
 
-    def damage_spawn(self):
-        global event_list
-        self.spawn_judge()
-        pass
 
 
-# TODO：新建一个Dot类事件，使其继承Buff类，并且拥有自己的独立方法——能够向schedule event 中添加计划事件
+
 # TODO：完成属性异常的基类搭建，完成属性异常在触发后自动向dynamic buff dict中添加debuff的功能
 # TODO：在属性异常的基类中，完成添加dot事件的功能
