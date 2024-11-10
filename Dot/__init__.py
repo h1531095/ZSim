@@ -1,6 +1,6 @@
 from BaseDot import Dot
 
 
-class BigDot():
+class DotNode():
     def __init__(self):
-
+        pass

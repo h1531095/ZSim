@@ -4,10 +4,11 @@ import Buff.BuffLoad
 import Enemy
 import Preload
 # from main import ScheduleData
-from Anomaly import AnomalyEffect as AnE
+from AnomalyBar import AnomalyBar as AnE
 from Buff.BuffExist_Judge import buff_exist_judge
 from ScheduledEvent.Calculator import Calculator
 from CharSet_new import Character
+# import AnomalyBar
 
 
 class ScheduledEvent:
@@ -81,10 +82,9 @@ class ScheduledEvent:
                              enemy_obj=self.data.enemy,
                              dynamic_buff=self.data.dynamic_buff)
         snapshot = cal_obj.cal_snapshot()
-        # TODO 对接 Anomaly
-        # 对接 Enemy 失衡条
         stun = cal_obj.cal_stun()
         self.data.enemy.update_stun(stun)
+
 
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,

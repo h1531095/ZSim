@@ -41,7 +41,7 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
 
 def update_dot(enemy: Enemy.Enemy, timetick):
     for _ in enemy.dynamic.dynamic_dot_list[:]:
-        if not isinstance(_, Dot.Dot):
+        if not isinstance(_, BaseDot.Dot):
             raise TypeError(f'Enemy的dot列表中的{_}不是Dot类！')
         if timetick >= _.dy.endticks:
             _.end(timetick)
