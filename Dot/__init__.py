@@ -1,6 +1,6 @@
-from BaseDot import Dot
+from .BaseDot import Dot
 
 
-class DotNode():
+class DotNode:
     def __init__(self):
         pass

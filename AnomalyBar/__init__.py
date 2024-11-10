@@ -1,6 +1,5 @@
 from .Anomalies import PhysicalAnomaly, FireAnomaly, IceAnomaly, ElectricAnomaly, EtherAnomaly, FireIceAnomaly
 from .AnomalyBarClass import AnomalyBar
-from .UpdateAnomaly import update_anomaly
 
 __all__ = [
     'AnomalyBar',
@@ -11,9 +10,6 @@ __all__ = [
     'EtherAnomaly',
     'FireIceAnomaly',
 ]
-
-
-
 
     # √TODO：属性异常应该拓展以下属性：①是否激活、②上一次激活时间、③、内置CD（虽然暂时没有改动的可能，但是要留好接口）④：已经处于异常状态的时间
     # √TODO：属性异常计算和快照累加的函数 ，

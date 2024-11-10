@@ -94,7 +94,7 @@ if __name__ == '__main__':
             name_box=init_data.name_box,
             Judge_list_set=init_data.Judge_list_set,
             weapon_dict=init_data.weapon_dict)
-    schedule_data = ScheduleData(enemy = Enemy(), char_obj_list=char_data.char_obj_list)
+    schedule_data = ScheduleData(enemy=Enemy(), char_obj_list=char_data.char_obj_list)
     global_stats = GlobalStats(name_box=init_data.name_box)
 
     # Initialize Preload Data
