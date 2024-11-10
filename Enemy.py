@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import AnomalyBar
 from Report import report_to_log
 from define import ENEMY_DATA_PATH
 
@@ -48,7 +48,7 @@ class Enemy:
         max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(self.able_to_get_anomaly,
                                                                               self.QTE_triggerable_times)
 
-        self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = self.max_anomaly_ELECTRIC = max_element_anomaly
+        self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = self.max_anomaly_ELECTRIC = self.max_anomaly_FIREICE = max_element_anomaly
 
         # 初始化敌人其他防御属性
         self.interruption_resistance_level: int = int(self.data_dict['抗打断等级'])
@@ -63,6 +63,34 @@ class Enemy:
         self.settings = EnemySettings()
         self.__apply_settings(self.settings)
         self.dynamic = self.EnemyDynamic()
+
+        """
+        enemy实例化的时候，6种异常积蓄条也随着一起实例化。
+        """
+        self.fireice_anomaly_bar = AnomalyBar.FireIceAnomaly(enemy=self)
+        self.ice_anomaly_bar = AnomalyBar.IceAnomaly(enemy=self)
+        self.fire_anomaly_bar = AnomalyBar.FireAnomaly(enemy=self)
+        self.physical_anomaly_bar = AnomalyBar.PhysicalAnomaly(enemy=self)
+        self.ether_anomaly_bar = AnomalyBar.EtherAnomaly(enemy=self)
+        self.electric_anomaly_bar = AnomalyBar.ElectricAnomaly(enemy=self)
+        """
+        由于在AnomalyBar的init中有一个update_anomaly函数，
+        该函数可以根据传入new_snap_shot: tuple 的第0位的属性标号，
+        找到对应的anomaly_bar的实例，并且执行它的update_snap_shot 函数。
+        以更新对应的积蓄快照。
+        本来，这个dict应该建立在update_anomaly函数中，但是考虑到该函数会反复调用，频繁地创建这个dict会导致性能的浪费。
+        所以将其挪到Enemy的init中，这样，这个dict只在Enemy实例化时被创建一次，
+        然后update_anomaly函数将通过enemy.anomaly_bars_dict来调出对应的anomaly_bars实例。
+        """
+        self.anomaly_bars_dict = {
+            0: self.physical_anomaly_bar,
+            1: self.fire_anomaly_bar,
+            2: self.ice_anomaly_bar,
+            3: self.electric_anomaly_bar,
+            4: self.ether_anomaly_bar,
+            5: self.fireice_anomaly_bar,
+        }
+
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
     @staticmethod
@@ -176,12 +204,15 @@ class Enemy:
                 self.max_anomaly_ELECTRIC *= update_ratio
             elif element.upper() == 'PHY' or element == '物理' or element == 0:
                 self.max_anomaly_PHY *= update_ratio
+            elif element.upper() == 'FIREICE' or element == '烈霜' or element == 5:
+                self.max_anomaly_FIREICE *= update_ratio
             elif 'ALL' in element.upper() or '全部' in element or '所有' in element:
                 self.max_anomaly_ICE *= update_ratio
                 self.max_anomaly_FIRE *= update_ratio
                 self.max_anomaly_ETHER *= update_ratio
                 self.max_anomaly_ELECTRIC *= update_ratio
                 self.max_anomaly_PHY *= update_ratio
+                self.max_anomaly_FIREICE *= update_ratio
             else:
                 raise ValueError(f"输入了不支持的元素种类：{element}")
 
@@ -211,4 +242,4 @@ class Enemy:
 
 if __name__ == '__main__':
     test = Enemy(enemy_index_ID=11432, enemy_sub_ID=900011432)
-    print(test.stun_recovery_rate)
+    print(test.ice_anomaly_bar.max_anomaly)
