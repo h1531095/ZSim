@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-
+from functools import lru_cache
 import numpy as np
 
 import Buff
@@ -11,7 +11,7 @@ from Report import report_to_log
 from define import ElementType, INVALID_ELEMENT_ERROR
 
 with open("ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as f:
-    buff_effect_trans = json.load(f)
+    buff_effect_trans: dict = json.load(f)
 
 class MultiplierData:
     def __init__(self, enemy_obj: Enemy, dynamic_buff: dict = None, character_obj: Character = None):
@@ -43,33 +43,47 @@ class MultiplierData:
                 enemy_buff: list = dynamic_buff['enemy']
             except KeyError:
                 enemy_buff: list = []
-        enabled_buff: list = char_buff + enemy_buff
+        enabled_buff: tuple = tuple(char_buff + enemy_buff)
         dynamic_statement: dict = self.__cal_buff_total_bonus(enabled_buff)
         return dynamic_statement
 
-    @dataclass
     class StaticStatement:
-        atk: float
-        hp: float
-        defense: float
-        imp: float
-        ap: float
-        am: float
-        crit_rate: float
-        crit_damage: float
-        sp_regen: float
-        sp_get_ratio: float
-        sp_limit: float
-        pen_ratio: float
-        pen_numeric: float
-        phy_dmg_bonus: float
-        ice_dmg_bonus: float
-        fire_dmg_bonus: float
-        ether_dmg_bonus: float
-        electric_dmg_bonus: float
+
+        _instance_cache = {}
+        _max_cache_size = 128
+
+        def __new__(cls, static_statement: Character.Statement | None):
+            cache_key = tuple(sorted(static_statement.statement.items()))
+            if cache_key in cls._instance_cache:
+                return  cls._instance_cache[cache_key]
+            else:
+                instance = super().__new__(cls)
+                if len(cls._instance_cache) >= cls._max_cache_size:
+                    cls._instance_cache.popitem()
+                cls._instance_cache[cache_key] = instance
+                return instance
 
         def __init__(self, static_statement: Character.Statement | None):
             """将角色面板抄下来！！！！！如果没有角色传入，那就生成屎！！！"""
+            self.atk: float = 0.0
+            self.hp: float = 0.0
+            self.defense: float = 0.0
+            self.imp: float = 0.0
+            self.ap: float = 0.0
+            self.am: float = 0.0
+            self.crit_rate: float = 0.0
+            self.crit_damage: float = 0.0
+            self.sp_regen: float = 0.0
+            self.sp_get_ratio: float = 0.0
+            self.sp_limit: float = 0.0
+            self.pen_ratio: float = 0.0
+            self.pen_numeric: float = 0.0
+            self.phy_dmg_bonus: float = 0.0
+            self.ice_dmg_bonus: float = 0.0
+            self.fire_dmg_bonus: float = 0.0
+            self.ether_dmg_bonus: float = 0.0
+            self.electric_dmg_bonus: float = 0.0
+
             attribute_map = {
                 'atk': 'ATK',
                 'hp': 'HP',
@@ -91,14 +105,14 @@ class MultiplierData:
                 'electric_dmg_bonus': 'ELECTRIC_DMG_bonus'
             }
             if static_statement is None:
-                for attr in attribute_map.keys():
-                    setattr(self, attr, 0.0)
+                pass
             else:
                 for attr, static_attr in attribute_map.items():
-                    setattr(self, attr, getattr(static_statement, static_attr))
+                    setattr(self, attr, getattr(static_statement, static_attr, 0.0))
 
     @staticmethod
-    def __cal_buff_total_bonus(enabled_buff: list) -> dict:
+    @lru_cache(maxsize=128)
+    def __cal_buff_total_bonus(enabled_buff: tuple) -> dict:
         """
         计算角色buff的总加成。
 
@@ -269,7 +283,7 @@ class MultiplierData:
 
         def __read_dynamic_statement(self, dynamic_statement: dict) -> None:
             """
-            类方法，使用翻译json初始化动态面板
+            使用翻译json初始化动态面板
             """
             # 打开buff_effect_trans.json
 

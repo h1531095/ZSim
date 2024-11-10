@@ -5,6 +5,7 @@ import tqdm
 import Buff
 import Load
 import Preload
+import Report
 import ScheduledEvent as ScE
 from CharSet_new import Character
 from Enemy import Enemy
@@ -106,3 +107,6 @@ if __name__ == '__main__':
     for tick in tqdm.trange(MAX_TICK):
         main_loop(tick)
     write_to_csv()
+
+    Report.log_queue.join()
+    Report.result_queue.join()
