@@ -2,14 +2,28 @@ import numpy as np
 import pandas as pd
 
 import Load
-from Buff import Buff
+from Skill_Class import Skill
 from Buff.BuffExist_Judge import buff_exist_judge
-from Load.SkillEventSplit import SkillEventSplit
+from Buff.buff_class import Buff
 from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
+JUDGE_FILE = JUDGE_FILE.replace({np.nan: None})
+EXIST_FILE = EXIST_FILE.replace({np.nan: None})
 
+
+class BuffInitCache:
+    def __init__(self):
+        self.cache = {}
+
+    def get(self, key):
+        return self.cache.get(key)
+
+    def add(self, key, value):
+        self.cache[key] = value
+
+buff_init_cache = BuffInitCache()
 
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
@@ -93,7 +107,11 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
     return LOADING_BUFF_DICT
 
 
+
 def BuffInitialize(buff_name: str, existbuff_dict: dict):
+    cache_key = (buff_name, tuple(existbuff_dict.items()))
+    if (cached_results := buff_init_cache.get(cache_key)) is not None:
+        return cached_results
     # 对单个buff进行初始化，抛出一个触发状态参数，两个参数序列。
     all_match = False
     buff_now = existbuff_dict[buff_name]
@@ -101,11 +119,13 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict):
         raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
     if buff_name not in JUDGE_FILE.index:
         raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
-    judge_condition_dict = JUDGE_FILE.loc[buff_name].replace({np.nan: None})
-    active_condition_dict = EXIST_FILE.loc[buff_name].replace({np.nan: None})
+    judge_condition_dict = JUDGE_FILE.loc[buff_name].copy()
+    active_condition_dict = EXIST_FILE.loc[buff_name].copy()
     active_condition_dict['BuffName'] = buff_name
     # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
-    return all_match, judge_condition_dict, active_condition_dict
+    results = all_match, judge_condition_dict, active_condition_dict
+    buff_init_cache.add(cache_key, results)
+    return results
 
 
 def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Load.LoadingMission):
@@ -137,7 +157,6 @@ if __name__ == "__main__":      # 测试
     load_mission_dict = {}
     LOADING_BUFF_DICT = {}
     import Preload
-    from Skill_Class import Skill
     p = Preload.Preload(Skill(CID=1221), Skill(CID=1191))
     name_dict = {}
     import tqdm
@@ -145,7 +164,7 @@ if __name__ == "__main__":      # 测试
         p.do_preload(tick)
         preload_action_list = p.preload_data.preloaded_action
         if preload_action_list:
-           SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
+           Load.SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
         BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
 
 
