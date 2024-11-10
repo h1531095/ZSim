@@ -154,11 +154,11 @@ def thread_result_writer(rid = get_result_id()):
 
 log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
 log_writer_thread.start()
-log_queue.join()
+
 
 result_writer_thread = threading.Thread(target=thread_result_writer, daemon=True)
 result_writer_thread.start()
-result_queue.join()
+
 
 
 if __name__ == '__main__':

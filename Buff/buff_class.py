@@ -20,14 +20,37 @@ class Buff:
     config字典的键值来自：触发判断.csv
     judge_config字典的键值来自：激活判断.csv
     """
+    _instance_cache = {}
+    _max_cache_size = 256
 
-    def __init__(self, config, judge_config):
-        self.ft = self.BuffFeature(config)
-        self.dy = self.BuffDynamic()
-        self.sjc = self.BuffSimpleJudgeCondition(judge_config)
-        self.logic = self.BuffLogic()
-        self.history = self.BuffHistory()
-        self.effect_dct = self.__lookup_buff_effect(self.ft.index)
+    def __new__(cls, config: dict, judge_config: dict):
+        # 将配置字典转换为 hashable，以便用作缓存的键
+        cache_key = (tuple(sorted(config.items())), tuple(sorted(judge_config.items())))
+
+        # 检查缓存中是否存在相同的实例
+        if cache_key in cls._instance_cache:
+            return cls._instance_cache[cache_key]
+
+        # 检查缓存溢出例
+        if len(cls._instance_cache) >= cls._max_cache_size:
+            # 移除最旧的实例
+            cls._instance_cache.popitem()
+
+        # 如果不存在，则创建新实例
+        instance = super(Buff, cls).__new__(cls)
+        cls._instance_cache[cache_key] = instance
+        return instance
+
+    def __init__(self, config: dict, judge_config: dict):
+        if not hasattr(self, 'ft'):
+            self.ft = self.BuffFeature(config)
+            self.dy = self.BuffDynamic()
+            self.sjc = self.BuffSimpleJudgeCondition(judge_config)
+            self.logic = self.BuffLogic()
+            self.history = self.BuffHistory()
+            self.effect_dct = self.__lookup_buff_effect(self.ft.index)
+        else:
+            self.history.active_times += 1
 
     class BuffFeature:
         def __init__(self, config):
