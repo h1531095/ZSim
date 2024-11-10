@@ -23,7 +23,6 @@ class BuffInitCache:
     def add(self, key, value):
         self.cache[key] = value
 
-buff_init_cache = BuffInitCache()
 
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
@@ -108,10 +107,12 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
 
 
 
-def BuffInitialize(buff_name: str, existbuff_dict: dict):
+def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache()):
+
     cache_key = (buff_name, tuple(existbuff_dict.items()))
-    if (cached_results := buff_init_cache.get(cache_key)) is not None:
+    if (cached_results := cache.get(cache_key)) is not None:
         return cached_results
+
     # 对单个buff进行初始化，抛出一个触发状态参数，两个参数序列。
     all_match = False
     buff_now = existbuff_dict[buff_name]
@@ -123,8 +124,9 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict):
     active_condition_dict = EXIST_FILE.loc[buff_name].copy()
     active_condition_dict['BuffName'] = buff_name
     # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
+
     results = all_match, judge_condition_dict, active_condition_dict
-    buff_init_cache.add(cache_key, results)
+    cache.add(cache_key, results)
     return results
 
 
@@ -133,16 +135,12 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
     if not isinstance(skill_now, Skill.InitSkill):
         raise TypeError(f"{skill_now}并非Skill类！")
     if buff_now.ft.simple_judge_logic:
-        for conditions in BUFF_LOADING_CONDITION_TRANSLATION_DICT:
-            judge_conditions = BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]
-            if judge_condition_dict[conditions] is None:
-                continue
-            else:
-                if judge_condition_dict[conditions] != getattr(skill_now, judge_conditions):
+        all_match = True
+        for condition, judge_condition in BUFF_LOADING_CONDITION_TRANSLATION_DICT.items():
+            if judge_condition_dict[condition] is not None:
+                if judge_condition_dict[condition] != getattr(skill_now, judge_condition):
                     all_match = False
-                    return all_match
-        else:
-            all_match = True
+                    break
     else:
         exec(buff_now.logic.xjudge)
     return all_match

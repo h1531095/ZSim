@@ -1,17 +1,20 @@
 import json
 import os
+import queue
+import threading
+from collections import defaultdict
 from datetime import datetime
 
 import numpy as np
+import pandas as pd
 from tqdm import trange
 
 from RandomNumberGenerator import MAX_SIGNED_INT64
 from define import DEBUG, DEBUG_LEVEL, ElementType
-import pandas as pd
-from collections import defaultdict
 
 buffered_data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-
+log_queue = queue.Queue()
+result_queue = queue.Queue()
 
 def prepare_to_report():
     # 获取当前日期和时间
@@ -46,10 +49,8 @@ def report_to_log(content:str = None, level=4) -> None:
         return
 
     if DEBUG and DEBUG_LEVEL <= level:
-        report_file_path, buff_report_file_path_pre = prepare_to_report()
         # 写入日志
-        with open(report_file_path, 'a', encoding='utf-8-sig') as file:
-            file.write(f"{content}\n")
+        log_queue.put(content)
 
 
 def report_buff_to_log(character_name: str, time_tick, buff_name: str, buff_count, all_match: bool, level=4):
@@ -102,7 +103,6 @@ def report_dmg_result(
         dmg_crit: float | np.float64 = None,
         is_anomaly: bool = False,
         is_disorder: bool = False,
-        rid = get_result_id(),
         **kwargs
         ):
     if is_anomaly:
@@ -127,13 +127,38 @@ def report_dmg_result(
         'dmg_crit': float(dmg_crit),
     }
     result_dict.update(kwargs)
-    result_df = pd.DataFrame([result_dict])
-    result_path = f'./results/{rid}.csv'
-    if os.path.exists(result_path):
-        result_df.to_csv(result_path, mode='a', header=False, index=False)
-    else:
-        result_df.to_csv(result_path, index=False)
+    result_queue.put(result_dict)
 
+
+
+def thread_log_writer():
+    report_file_path, _ = prepare_to_report()
+    while True:
+        with open(report_file_path, 'a', encoding='utf-8') as file:
+            content = log_queue.get()
+            file.write(f"{content}\n")
+        log_queue.task_done()
+
+def thread_result_writer(rid = get_result_id()):
+    result_path = f'./results/{rid}.csv'
+    new_file = os.path.exists(result_path)
+    while True:
+        result_dict = result_queue.get()
+        result_df = pd.DataFrame([result_dict])
+        if new_file:
+            result_df.to_csv(result_path, mode='a', header=False, index=False)
+        else:
+            result_df.to_csv(result_path, index=False)
+            new_file = True
+        result_queue.task_done()
+
+log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
+log_writer_thread.start()
+log_queue.join()
+
+result_writer_thread = threading.Thread(target=thread_result_writer, daemon=True)
+result_writer_thread.start()
+result_queue.join()
 
 
 if __name__ == '__main__':

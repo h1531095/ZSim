@@ -10,6 +10,8 @@ from Preload import SkillNode
 from Report import report_to_log
 from define import ElementType, INVALID_ELEMENT_ERROR
 
+with open("ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as f:
+    buff_effect_trans = json.load(f)
 
 class MultiplierData:
     def __init__(self, enemy_obj: Enemy, dynamic_buff: dict = None, character_obj: Character = None):
@@ -270,8 +272,7 @@ class MultiplierData:
             类方法，使用翻译json初始化动态面板
             """
             # 打开buff_effect_trans.json
-            with open("ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as f:
-                buff_effect_trans = json.load(f)
+
             # 确保所有的属性都有默认值
             for value in buff_effect_trans.values():
                 if not hasattr(self, value):
