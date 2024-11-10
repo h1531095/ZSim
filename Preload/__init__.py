@@ -4,6 +4,7 @@ import pandas as pd
 from tqdm import trange
 
 import Skill_Class
+from Enemy import Enemy
 from LinkedList import LinkedList
 from Report import report_to_log
 from . import SkillsQueue
@@ -23,10 +24,32 @@ class PreloadData:
         )'''
 
         max_tick, skills_queue = SkillsQueue.get_skills_queue(INPUT_ACTION_LIST, *args)
-        self.max_tick:int = max_tick
+        self.max_tick: int = max_tick
         self.skills_queue: LinkedList = skills_queue
         self.current_node: SkillNode | None = None
         self.last_node: SkillNode | None = None
+
+
+def stun_judge(enemy) -> bool:
+    """
+    判断敌人是否处于 失衡 状态，并更新 失衡 状态
+    """
+    if not enemy.able_to_be_stunned:
+        return False
+
+    if enemy.dynamic.stun:
+        # Stunned, count the time and reset when stun time is out.
+        if enemy.stun_recovery_time <= enemy.dynamic.stun_tick:
+            enemy.dynamic.stun = False
+            enemy.dynamic.stun_bar = 0
+            enemy.dynamic.stun_tick = 0
+        else:
+            enemy.dynamic.stun_tick += 1
+    else:
+        # Not stunned, check the stun bar.
+        if enemy.dynamic.stun_bar >= enemy.max_stun:
+            enemy.dynamic.stun = True
+    return enemy.dynamic.stun
 
 
 class Preload:
@@ -46,7 +69,9 @@ class Preload:
     def __str__(self):
         return f"Preload Data: \n{self.preload_data.preloaded_action}"
 
-    def do_preload(self, tick: int):
+    def do_preload(self, tick: int, enemy: Enemy = None):
+        if isinstance(enemy, Enemy):
+            stun_status: bool = stun_judge(enemy)
         if self.preload_data.current_node is None:
             this_node = self.skills_queue.pop_head()
             self.preload_data.current_node = this_node
