@@ -1,17 +1,27 @@
-from Buff import Buff
-from Skill_Class import Skill
-from Load.SkillEventSplit import SkillEventSplit
-import pandas as pd
-import Load
-from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH
-from Buff.BuffExist_Judge import buff_exist_judge
-import Preload
-import tqdm
 import numpy as np
-import Skill_Class
+import pandas as pd
+
+import Load
+from Skill_Class import Skill
+from Buff.BuffExist_Judge import buff_exist_judge
+from Buff.buff_class import Buff
+from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH
 
 EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
+JUDGE_FILE = JUDGE_FILE.replace({np.nan: None})
+EXIST_FILE = EXIST_FILE.replace({np.nan: None})
+
+
+class BuffInitCache:
+    def __init__(self):
+        self.cache = {}
+
+    def get(self, key):
+        return self.cache.get(key)
+
+    def add(self, key, value):
+        self.cache[key] = value
 
 
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
@@ -96,7 +106,13 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
     return LOADING_BUFF_DICT
 
 
-def BuffInitialize(buff_name: str, existbuff_dict: dict):
+
+def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache()):
+
+    cache_key = (buff_name, tuple(existbuff_dict.items()))
+    if (cached_results := cache.get(cache_key)) is not None:
+        return cached_results
+
     # 对单个buff进行初始化，抛出一个触发状态参数，两个参数序列。
     all_match = False
     buff_now = existbuff_dict[buff_name]
@@ -104,11 +120,14 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict):
         raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
     if buff_name not in JUDGE_FILE.index:
         raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
-    judge_condition_dict = JUDGE_FILE.loc[buff_name].replace({np.nan: None})
-    active_condition_dict = EXIST_FILE.loc[buff_name].replace({np.nan: None})
+    judge_condition_dict = JUDGE_FILE.loc[buff_name].copy()
+    active_condition_dict = EXIST_FILE.loc[buff_name].copy()
     active_condition_dict['BuffName'] = buff_name
     # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
-    return all_match, judge_condition_dict, active_condition_dict
+
+    results = all_match, judge_condition_dict, active_condition_dict
+    cache.add(cache_key, results)
+    return results
 
 
 def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Load.LoadingMission):
@@ -116,16 +135,12 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
     if not isinstance(skill_now, Skill.InitSkill):
         raise TypeError(f"{skill_now}并非Skill类！")
     if buff_now.ft.simple_judge_logic:
-        for conditions in BUFF_LOADING_CONDITION_TRANSLATION_DICT:
-            judge_conditions = BUFF_LOADING_CONDITION_TRANSLATION_DICT[conditions]
-            if judge_condition_dict[conditions] is None:
-                continue
-            else:
-                if judge_condition_dict[conditions] != getattr(skill_now, judge_conditions):
+        all_match = True
+        for condition, judge_condition in BUFF_LOADING_CONDITION_TRANSLATION_DICT.items():
+            if judge_condition_dict[condition] is not None:
+                if judge_condition_dict[condition] != getattr(skill_now, judge_condition):
                     all_match = False
-                    return all_match
-        else:
-            all_match = True
+                    break
     else:
         exec(buff_now.logic.xjudge)
     return all_match
@@ -139,13 +154,15 @@ if __name__ == "__main__":      # 测试
     timelimit = 3600
     load_mission_dict = {}
     LOADING_BUFF_DICT = {}
-    p = Preload.Preload(Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
+    import Preload
+    p = Preload.Preload(Skill(CID=1221), Skill(CID=1191))
     name_dict = {}
+    import tqdm
     for tick in tqdm.trange(timelimit):
         p.do_preload(tick)
         preload_action_list = p.preload_data.preloaded_action
         if preload_action_list:
-           SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
+           Load.SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
         BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
 
 

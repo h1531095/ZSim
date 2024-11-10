@@ -1,14 +1,16 @@
+
+import Dot
 import Enemy
-import Load
-from Dot import BaseDot
+from .loading_mission import LoadingMission
 
 
-def SpawnDamageEvent(mission: Load.LoadingMission | Dot.Dot, event_list: list):
+
+def SpawnDamageEvent(mission: LoadingMission | Dot.Dot, event_list: list):
     """
     负责往event_list中添加伤害生成事件，添加的内容是实例：
     要么是SkillNode的实例，要么是Dot的实例。
     """
-    if isinstance(mission, Load.LoadingMission):
+    if isinstance(mission, LoadingMission):
         if mission.hitted_count > mission.mission_node.hit_times:
             raise ValueError(f'{mission.mission_tag}目前是第{mission.hitted_count}，最多{mission.mission_node.hit_times}')
         mission.hitted_count += 1
@@ -58,11 +60,10 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy,
     """
     # 处理 Load.Mission 任务
     for mission in load_mission_dict.values():
-        if not isinstance(mission, Load.LoadingMission):
+        if not isinstance(mission, LoadingMission):
             raise TypeError(f'{mission}不是LoadingMission类！')
         for sub_mission_tick in mission.mission_dict:
             if timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'hit':
-                print(timetick)
                 SpawnDamageEvent(mission, event_list)
             # 当Mission触发时，检查 effect_rules == 2 的 Dot
                 ProcessHitUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)

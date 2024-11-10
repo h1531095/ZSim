@@ -1,30 +1,15 @@
-from dataclasses import dataclass
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
 import Report
 import Buff.BuffAdd
 import Buff.BuffLoad
 import Enemy
 import Preload
+# from main import ScheduleData
 from Anomaly import AnomalyEffect as AnE
 from Buff.BuffExist_Judge import buff_exist_judge
-from .Calculator import Calculator
+from ScheduledEvent.Calculator import Calculator
 from CharSet_new import Character
 
 
-@dataclass
-class ScData:
-    event_list = []
-    char_obj_list = []
-    loading_buff = {}
-    dynamic_buff = {}
-    tick = 0
-    enemy: Enemy = Enemy.Enemy()
-
-
-#TODO Schedule逻辑开发
 class ScheduledEvent:
     """
     计划事件方法类
@@ -34,11 +19,11 @@ class ScheduledEvent:
     2、遍历事件列表，从开始到结束，将每一个事件派发到分支逻辑链内进行处理
     """
 
-    def __init__(self):
-        self.data = ScData
+    def __init__(self,dynamic_buff: dict, data, tick: int, *, loading_buff: dict = None):
 
-    def event_start(self, tick: int, event_list: list, dynamic_buff: dict, *, loading_buff: dict = None):
-        """Schedule主逻辑"""
+        self.data = data
+        self.data.dynamic_buff = dynamic_buff
+
         if loading_buff is None:
             loading_buff = {}
         elif not isinstance(loading_buff, dict):
@@ -46,17 +31,14 @@ class ScheduledEvent:
 
         if not isinstance(tick, int):
             raise ValueError(f'tick参数必须为整数，但你输入了{tick}')
-        if not isinstance(event_list, list):
-            raise ValueError(f'event_list参数必须为列表，但你输入了{event_list}')
-        if not isinstance(dynamic_buff, dict):
-            raise ValueError(f'dynamic_buff参数必须为包含Buff类的字典，但你输入了{dynamic_buff}')
 
-
-        # 更新ScData
-        self.data.tick = tick
-        self.data.dynamic_buff = dynamic_buff
-        self.data.event_list = event_list
+        # 更新Data
+        self.tick = tick
         self.data.loading_buff = loading_buff
+
+    def event_start(self):
+        """Schedule主逻辑"""
+
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
@@ -65,7 +47,7 @@ class ScheduledEvent:
                 if isinstance(event, Buff.Buff):
                     raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
                 elif isinstance(event, Preload.SkillNode):
-                    if event.preload_tick <= self.data.tick:
+                    if event.preload_tick <= self.tick:
                         self.skill_event(event)
                         self.data.event_list.remove(event)
                 elif isinstance(event, AnE):
@@ -75,7 +57,7 @@ class ScheduledEvent:
 
     def solve_buff(self) -> None:
         """提前处理Buff实例"""
-        Buff.BuffAdd.buff_add(self.data.tick, self.data.loading_buff, self.data.dynamic_buff, self.data.enemy)
+        Buff.BuffAdd.buff_add(self.tick, self.data.loading_buff, self.data.dynamic_buff, self.data.enemy)
         buff_events = []
         other_events = []
         for event in self.data.event_list[:]:
@@ -87,19 +69,25 @@ class ScheduledEvent:
 
     def skill_event(self, event: Preload.SkillNode) -> None:
         """SkillNode处理分支逻辑"""
+        char_obj = None
+        for character in self.data.char_obj_list:
+            if character.NAME == event.skill.char_name:
+                char_obj = character
+        if char_obj is None:
+            assert False, f"{event.skill.char_name} not found in char_obj_list"
+
         cal_obj = Calculator(skill_node=event,
-                             character_obj=self.data.char_obj_list[event.skill.char_name],
+                             character_obj=char_obj,
                              enemy_obj=self.data.enemy,
                              dynamic_buff=self.data.dynamic_buff)
         snapshot = cal_obj.cal_snapshot()
-        Report.report_dmg_result(tick=self.data.tick,
+        # TODO 对接 Anomaly
+        Report.report_dmg_result(tick=self.tick,
                                   element_type=event.skill.element_type,
                                   skill_tag=event.skill_tag,
                                   dmg_expect=cal_obj.cal_dmg_expect(),
                                   dmg_crit=cal_obj.cal_dmg_crit()
                                  )
-
-
 
 
 if __name__ == '__main__':
