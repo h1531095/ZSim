@@ -8,28 +8,24 @@ class AnomalyBar:
     这是属性异常类的基类。其中包含了属性异常的基本属性，以及几个基本方法。
     """
     element_type: int = None  # 属性种类编号(1~5)
+    is_disorder: bool = None # 是否是紊乱实例
     is_full: bool = False  # 是否积满了
     current_ndarray: np.ndarray = None  # 当前快照总和
     current_anomaly: np.float64 = None  # 当前已经累计的积蓄值
     anomaly_times: int = 0  # 迄今为止触发过的异常次数
-    active: bool = None    # 正处于属性异常状态下
     cd: int = None  # 属性异常的内置CD，
     last_active: int = None  # 上一次属性异常的时间
     max_anomaly: int = None  # 最大积蓄值
+    ready: bool = None  # 内置CD状态
 
     def __post_init__(self):
         # 初始化时，自动重置current_ndarray以及current_anomaly，内置CD一般为3秒，所以是180
         self.current_ndarray = np.zeros((1, 1), dtype=np.float64)
         self.current_anomaly = np.float64(0)
         self.cd = 180
-        self.active = False
-
-    def get_current_snapshot(self):
-        # 获取当前的快照和current_anomaly，供外部使用
-        return self.current_ndarray, self.current_anomaly
-
-    def update_max_anomaly(self, new_value):
-        self.max_anomaly = new_value
+        self.is_disorder = False
+        self.last_active = 0
+        self.ready = True
 
     def update_snap_shot(self, new_snap_shot: tuple):
         """
@@ -56,12 +52,9 @@ class AnomalyBar:
                 raise ValueError(f'传入的快照数组列数为{new_ndarray.shape[1]}，小于快照缓存的列数！')
 
         cal_result_1 = build_up_value * new_ndarray
-        print(cal_result_1)
-        print(self.current_ndarray)
         self.current_ndarray += cal_result_1
         self.current_anomaly += build_up_value
 
-    def check_myself(self):
-        # 仅用于检查自身是否积满的函数。不包含调用spawn_output的功能。
-        if self.current_anomaly >= self.max_anomaly:
-            self.is_full = True
+    def ready_judge(self, timenow):
+        if timenow - self.last_active >= self.cd:
+            self.ready = True
