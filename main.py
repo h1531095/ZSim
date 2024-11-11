@@ -17,21 +17,39 @@ class InitData:
     Judge_list_set = [['艾莲', '深海访客', '极地重金属'],
                       ['苍角', '含羞恶面', '自由蓝调'],
                       ['莱卡恩', '拘缚者', '镇星迪斯科']]
-    weapon_dict = {'艾莲': ['深海访客', 1],
-                   '苍角': ['含羞恶面', 5],
-                   '莱卡恩': ['拘缚者', 1]}
+    char_0 = {'name' : name_box[0],
+              'weapon': '深海访客', 'weapon_level': 1,
+              'equip_set4': '极地重金属', 'equip_set2_a': '啄木鸟电音',
+              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
+              'scATK_percent': 10, 'scCRIT': 20}
+    char_1 = {'name' : name_box[1],
+              'weapon': '含羞恶面', 'weapon_level': 5,
+              'equip_set4': '摇摆爵士', 'equip_set2_a': '自由蓝调',
+              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '能量自动回复%',
+              'scATK_percent': 10, 'scCRIT': 20}
+    char_2 = {'name' : name_box[2],
+              'weapon': '拘缚者', 'weapon_level': 1,
+              'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
+              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '冲击力%',
+              'scATK_percent': 10, 'scCRIT': 20}
+    weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
+                   name_box[1]: [char_1['weapon'], char_1['weapon_level']],
+                   name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
 
 @dataclass
 class CharacterData:
     char_obj_list: list[Character] = field(init=False)
-    name_box: list
+    InitData: InitData
 
     def __post_init__(self):
         self.char_obj_list = []
-        if self.name_box:
-            for name in self.name_box:
-                char_obj = Character(name=name)
+        if self.InitData.name_box:
+            i = 0
+            for _ in self.InitData.name_box:
+                char_dict = getattr(InitData, f'char_{i}')
+                char_obj = Character(**char_dict)
                 self.char_obj_list.append(char_obj)
+                i += 1
 
 @dataclass
 class LoadData:
@@ -97,7 +115,7 @@ def main_loop(stop_tick: int|None = None):
 if __name__ == '__main__':
     # global data
     init_data = InitData()
-    char_data = CharacterData(name_box=init_data.name_box)
+    char_data = CharacterData(init_data)
     load_data = LoadData(
             name_box=init_data.name_box,
             Judge_list_set=init_data.Judge_list_set,

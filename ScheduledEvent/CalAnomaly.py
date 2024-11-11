@@ -1,6 +1,7 @@
 import numpy as np
 
-import Calculator as Cal
+from .Calculator import Calculator as Cal
+from .Calculator import MultiplierData as MulData
 from Enemy import Enemy
 from Report import report_to_log
 from define import ElementType
@@ -11,7 +12,7 @@ class CalAnomaly:
         """
         Schedule 节点对于异常伤害的分支逻辑，用于计算异常伤害
 
-        调用方法 cal_anomaly_dmg() 输出伤害期望
+        调用方法 cal_anomaly_dmg() 输出.伤害期望
         """
         self.enemy_obj = enemy_obj
         self.anomaly_obj = anomaly_obj
@@ -23,7 +24,7 @@ class CalAnomaly:
         self.dmg_sp: np.ndarray = snapshot[1]
 
         # 根据动态buff读取怪物面板
-        self.data = Cal.MultiplierData(enemy_obj = self.enemy_obj, dynamic_buff = self.dynamic_buff)
+        self.data = MulData(enemy_obj = self.enemy_obj, dynamic_buff = self.dynamic_buff)
 
         # 虚拟角色等级
         v_char_level: int = np.floor(self.dmg_sp[3])
@@ -32,17 +33,17 @@ class CalAnomaly:
         # 防御区
         def_mul: np.float64 = self.cal_def_mul(self.data, v_char_level)
         # 抗性区
-        res_mul: float = Cal.Calculator.RegularMul.cal_res_mul(
+        res_mul: float = Cal.RegularMul.cal_res_mul(
                 self.data,
                 element_type=self.element_type,
                 snapshot_res_pen = self.dmg_sp[8])
         # 减易伤区
-        vulnerability_mul: float = Cal.Calculator.RegularMul.cal_dmg_vulnerability(
+        vulnerability_mul: float = Cal.RegularMul.cal_dmg_vulnerability(
                 self.data, element_type=self.element_type)
         # 失衡易伤区
-        stun_vulnerability: float = Cal.Calculator.RegularMul.cal_stun_vulnerability(self.data)
+        stun_vulnerability: float = Cal.RegularMul.cal_stun_vulnerability(self.data)
         # 特殊乘区
-        special_mul: float = Cal.Calculator.RegularMul.cal_special_mul(self.data)
+        special_mul: float = Cal.RegularMul.cal_special_mul(self.data)
 
         self.final_multipliers: np.ndarray = self.set_final_multipliers(
                 k_level, def_mul, res_mul, vulnerability_mul, stun_vulnerability, special_mul)
@@ -71,9 +72,9 @@ class CalAnomaly:
     def cal_def_mul(self, data, v_char_level) -> np.float64:
         """防御区 = 攻击方等级基数 / (受击方有效防御 + 攻击方等级基数)"""
         # 攻击方等级系数
-        k_attacker: int = Cal.Calculator.RegularMul.cal_k_attacker(v_char_level)
+        k_attacker: int = Cal.RegularMul.cal_k_attacker(v_char_level)
         # 受击方有效防御
-        recipient_def: float = Cal.Calculator.RegularMul.cal_recipient_def(
+        recipient_def: float = Cal.RegularMul.cal_recipient_def(
                 data,
                 addon_pen_ratio=float(self.dmg_sp[6]),
                 addon_pen_numeric=float(self.dmg_sp[7])
@@ -143,7 +144,7 @@ class CalDisorder(CalAnomaly):
     def cal_disorder_stun(self) -> np.float64:
         imp = self.final_multipliers[9]
         stun_ratio = 3
-        stun_res = Cal.Calculator.StunMul.cal_stun_res(self.data)
+        stun_res = Cal.StunMul.cal_stun_res(self.data)
         stun_bonus = self.final_multipliers[10]
-        stun_received = Cal.Calculator.StunMul.cal_stun_received(self.data)
+        stun_received = Cal.StunMul.cal_stun_received(self.data)
         return np.float64(np.prod([imp, stun_ratio, stun_res, stun_bonus, stun_received]))
