@@ -124,11 +124,11 @@ col1, col2, col3 = st.columns(3)
 all_name_df = pd.read_csv(CHARACTER_DATA_PATH)
 name_list = all_name_df['name'].tolist()
 with col1:
-    selected_char_0 = st.selectbox('选择角色1', name_list, index=name_list.index('艾莲'))
+    selected_char_0 = st.selectbox('选择角色1', name_list, index=name_list.index(InitData.name_box[0]))
 with col2:
-    selected_char_1 = st.selectbox('选择角色2', name_list, index=name_list.index('苍角'))
+    selected_char_1 = st.selectbox('选择角色2', name_list, index=name_list.index(InitData.name_box[1]))
 with col3:
-    selected_char_2 = st.selectbox('选择角色3', name_list, index=name_list.index('莱卡恩'))
+    selected_char_2 = st.selectbox('选择角色3', name_list, index=name_list.index(InitData.name_box[2]))
 
 # 输入框
 char_0_inputs = {}
@@ -209,20 +209,21 @@ if st.session_state.submit_role_info:
         st.session_state.submit_role_info = False
 
     if st.session_state.submit:
-        # 将修改后的数据保存回 CSV 文件
-        edited_data.to_csv('./data/计算序列.csv', index=False)
 
-        preload = Preload.Preload(*skills)
-
-        # 运行主程序
-        main_loop()
-        write_to_csv()
-
-        Report.log_queue.join()
-        Report.result_queue.join()
+        with st.spinner('正在计算技能序列···'):
+            # 将修改后的数据保存回 CSV 文件
+            edited_data.to_csv('./data/计算序列.csv', index=False)
+            # Preload准备
+            preload = Preload.Preload(*skills)
+            # 运行主程序
+            main_loop()
+            write_to_csv()
+        with st.spinner('等待IO完成···'):
+            Report.log_queue.join()
+            Report.result_queue.join()
 
         # 读取results中编号最大的csv文件
-        results_dir = './results'
+        results_dir = 'results'
         csv_files = [f for f in os.listdir(results_dir) if f.endswith('.csv')]
 
         if not csv_files:
@@ -248,13 +249,13 @@ if st.session_state.submit_role_info:
                 df = pd.read_csv(file_path)
 
                 # 显示读取的 CSV 文件内容
-                st.write(f"计算结果位于: {max_file}")
+                st.write(f"计算结果位于服务器的: {results_dir}/{max_file}，或者你可以下载到客户端")
                 st.dataframe(df)
 
-                # 计算 dmg_expect 列的累加值
-                df['cumulative_dmg_expect'] = df['dmg_expect'].cumsum()
+                # 计算瞬时dps
+                df['cumulative_dmg_expect'] = df['dmg_expect'].cumsum()/df['tick']
 
                 # 使用 st.line_chart 绘制折线图
-                st.line_chart(df.set_index('tick')['cumulative_dmg_expect'])
+                st.line_chart(df.set_index('tick')['cumulative_dmg_expect'], x_label='tick', y_label='cumulative_dmg_expect')
 
         st.success("程序执行完成！")
