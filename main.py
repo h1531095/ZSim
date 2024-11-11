@@ -91,6 +91,7 @@ def main_loop(stop_tick: int|None = None):
         scheduled.event_start()
 
         tick += 1
+        print(f"\r{tick}", end='')
 
 
 if __name__ == '__main__':
