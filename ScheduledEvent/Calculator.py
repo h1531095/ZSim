@@ -723,9 +723,11 @@ class Calculator:
                 assert False, INVALID_ELEMENT_ERROR
 
             element_dmg_percentage = data.skill_node.skill.element_damage_percent
+            hit_times = data.skill_node.hit_times
 
-            anomaly_buildup = accumulation * (ap / 100) * (
-                    1 + element_buildup_bonus + trigger_buildup_bonus) * buildup_res * element_dmg_percentage
+            anomaly_buildup = (accumulation * (ap / 100) * (
+                    1 + element_buildup_bonus + trigger_buildup_bonus) *
+                               buildup_res * element_dmg_percentage / hit_times)
             return np.float64(anomaly_buildup)
 
         @staticmethod
@@ -846,8 +848,8 @@ class Calculator:
             return stun_ratio
 
         @staticmethod
-        def cal_stun_res(data: MultiplierData) -> float:
-            stun_res = 1 - data.dynamic.stun_res
+        def cal_stun_res(data: MultiplierData, over_stun_res: float = 0) -> float:
+            stun_res = 1 - data.dynamic.stun_res - over_stun_res
             return stun_res
 
         @staticmethod
@@ -856,8 +858,8 @@ class Calculator:
             return stun_bonus
 
         @staticmethod
-        def cal_stun_received(data: MultiplierData) -> float:
-            stun_received = 1 + data.dynamic.received_stun_increase
+        def cal_stun_received(data: MultiplierData, over_stun_received: float = 0) -> float:
+            stun_received = 1 + data.dynamic.received_stun_increase + over_stun_received
             return stun_received
 
     def cal_dmg_expect(self) -> np.float64:

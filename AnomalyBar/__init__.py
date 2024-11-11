@@ -1,5 +1,6 @@
 from .Anomalies import PhysicalAnomaly, FireAnomaly, IceAnomaly, ElectricAnomaly, EtherAnomaly, FireIceAnomaly
 from .AnomalyBarClass import AnomalyBar
+from Disorder import Disorder
 
 __all__ = [
     'AnomalyBar',
@@ -9,6 +10,7 @@ __all__ = [
     'ElectricAnomaly',
     'EtherAnomaly',
     'FireIceAnomaly',
+    'Disorder'
 ]
 
     # √TODO：属性异常应该拓展以下属性：①是否激活、②上一次激活时间、③、内置CD（虽然暂时没有改动的可能，但是要留好接口）④：已经处于异常状态的时间

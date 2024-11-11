@@ -23,26 +23,26 @@ class CalAnomaly:
         self.dmg_sp: np.ndarray = snapshot[1]
 
         # 根据动态buff读取怪物面板
-        data = Cal.MultiplierData(enemy_obj = self.enemy_obj, dynamic_buff = self.dynamic_buff)
+        self.data = Cal.MultiplierData(enemy_obj = self.enemy_obj, dynamic_buff = self.dynamic_buff)
 
         # 虚拟角色等级
         v_char_level: int = np.floor(self.dmg_sp[3])
         # 等级系数
         k_level = self.cal_k_level(v_char_level)
         # 防御区
-        def_mul: np.float64 = self.cal_def_mul(data, v_char_level)
+        def_mul: np.float64 = self.cal_def_mul(self.data, v_char_level)
         # 抗性区
         res_mul: float = Cal.Calculator.RegularMul.cal_res_mul(
-                data,
+                self.data,
                 element_type=self.element_type,
                 snapshot_res_pen = self.dmg_sp[8])
         # 减易伤区
         vulnerability_mul: float = Cal.Calculator.RegularMul.cal_dmg_vulnerability(
-                data, element_type=self.element_type)
+                self.data, element_type=self.element_type)
         # 失衡易伤区
-        stun_vulnerability: float = Cal.Calculator.RegularMul.cal_stun_vulnerability(data)
+        stun_vulnerability: float = Cal.Calculator.RegularMul.cal_stun_vulnerability(self.data)
         # 特殊乘区
-        special_mul: float = Cal.Calculator.RegularMul.cal_special_mul(data)
+        special_mul: float = Cal.Calculator.RegularMul.cal_special_mul(self.data)
 
         self.final_multipliers: np.ndarray = self.set_final_multipliers(
                 k_level, def_mul, res_mul, vulnerability_mul, stun_vulnerability, special_mul)
@@ -139,3 +139,11 @@ class CalDisorder(CalAnomaly):
             case _:
                 assert False, f"Invalid Element Type {self.element_type}"
         return np.float64(disorder_base_dmg)
+
+    def cal_disorder_stun(self) -> np.float64:
+        imp = self.final_multipliers[9]
+        stun_ratio = 3
+        stun_res = Cal.Calculator.StunMul.cal_stun_res(self.data)
+        stun_bonus = self.final_multipliers[10]
+        stun_received = Cal.Calculator.StunMul.cal_stun_received(self.data)
+        return np.float64(np.prod([imp, stun_ratio, stun_res, stun_bonus, stun_received]))
