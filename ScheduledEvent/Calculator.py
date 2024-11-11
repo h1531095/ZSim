@@ -848,8 +848,8 @@ class Calculator:
             return stun_ratio
 
         @staticmethod
-        def cal_stun_res(data: MultiplierData) -> float:
-            stun_res = 1 - data.dynamic.stun_res
+        def cal_stun_res(data: MultiplierData, over_stun_res: float = 0) -> float:
+            stun_res = 1 - data.dynamic.stun_res - over_stun_res
             return stun_res
 
         @staticmethod
@@ -858,8 +858,8 @@ class Calculator:
             return stun_bonus
 
         @staticmethod
-        def cal_stun_received(data: MultiplierData) -> float:
-            stun_received = 1 + data.dynamic.received_stun_increase
+        def cal_stun_received(data: MultiplierData, over_stun_received: float = 0) -> float:
+            stun_received = 1 + data.dynamic.received_stun_increase + over_stun_received
             return stun_received
 
     def cal_dmg_expect(self) -> np.float64:
