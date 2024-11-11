@@ -1,16 +1,15 @@
-import Report
 import Buff.BuffAdd
 import Buff.BuffLoad
 import Enemy
 import Preload
-# from main import ScheduleData
+import Report
+import UpdateAnomaly
 from AnomalyBar import AnomalyBar as AnE
 from AnomalyBar import Disorder
 from Buff.BuffExist_Judge import buff_exist_judge
+from CharSet_new import Character
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator
-from CharSet_new import Character
-import UpdateAnomaly
 
 
 class ScheduledEvent:

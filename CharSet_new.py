@@ -61,17 +61,26 @@ class Character:
         -非暴击配平逻辑，未来会通过 config.json 控制
         不复杂，麻烦，重要性较高
         """
-        # 参数类型
+        # 参数类型检查，贼长
         if not isinstance(name, str):
             raise TypeError("char_name must be a string")
         if CID is not None and not isinstance(CID, int):
-            raise TypeError("CID must be an integer")
+            try:
+                CID = int(CID)
+            except ValueError:
+                raise ValueError("CID must be an integer")
         if not isinstance(sp_limit, int):
-            raise TypeError("sp_limit must be an integer")
+            try:
+                sp_limit = int(sp_limit)
+            except ValueError:
+                raise TypeError("sp_limit must be an integer")
         if weapon is not None and not isinstance(weapon, str):
             raise TypeError("weapon must be a string")
         if not isinstance(weapon_level, int):
-            raise TypeError("weapon_level must be an integer")
+            try:
+                weapon_level = int(weapon_level)
+            except ValueError:
+                raise TypeError("weapon_level must be an integer")
         if equip_set4 is not None and not isinstance(equip_set4, str):
             raise TypeError("equip_set4 must be a string")
         if equip_set2_a is not None and not isinstance(equip_set2_a, str):
@@ -87,23 +96,50 @@ class Character:
         if drive6 is not None and not isinstance(drive6, str):
             raise TypeError("drive6 must be a string")
         if not isinstance(scATK_percent, (int, float)):
-            raise TypeError("scATK_percent must be a number")
+            try:
+                scATK_percent = float(scATK_percent)
+            except ValueError:
+                raise TypeError("scATK_percent must be a number")
         if not isinstance(scATK, (int, float)):
-            raise TypeError("scATK must be a number")
+            try:
+                scATK = float(scATK)
+            except ValueError:
+                raise TypeError("scATK must be a number")
         if not isinstance(scHP_percent, (int, float)):
-            raise TypeError("scHP_percent must be a number")
+            try:
+                scHP_percent = float(scHP_percent)
+            except ValueError:
+                raise TypeError("scHP_percent must be a number")
         if not isinstance(scHP, (int, float)):
-            raise TypeError("scHP must be a number")
+            try:
+                scHP = float(scHP)
+            except ValueError:
+                raise TypeError("scHP must be a number")
         if not isinstance(scDEF_percent, (int, float)):
-            raise TypeError("scDEF_percent must be a number")
+            try:
+                scDEF_percent = float(scDEF_percent)
+            except ValueError:
+                raise TypeError("scDEF_percent must be a number")
         if not isinstance(scDEF, (int, float)):
-            raise TypeError("scDEF must be a number")
+            try:
+                scDEF = float(scDEF)
+            except ValueError:
+                raise TypeError("scDEF must be a number")
         if not isinstance(scAnomalyProficiency, (int, float)):
-            raise TypeError("scAnomalyProficiency must be a number")
+            try:
+                scAnomalyProficiency = float(scAnomalyProficiency)
+            except ValueError:
+                raise TypeError("scAnomalyProficiency must be a number")
         if not isinstance(scPEN, (int, float)):
-            raise TypeError("scPEN must be a number")
+            try:
+                scPEN = float(scPEN)
+            except ValueError:
+                raise TypeError("scPEN must be a number")
         if not isinstance(scCRIT, (int, float)):
-            raise TypeError("scCRIT must be a number")
+            try:
+                scCRIT = float(scCRIT)
+            except ValueError:
+                raise TypeError("scCRIT must be a number")
 
         # 从数据库中查找角色信息，并核对必填项
         self.NAME, self.CID = lookup_name_or_cid(name, CID)
@@ -299,6 +335,9 @@ class Character:
                 CRIT_rate = CRIT_rate_numeric
             return min(5.0, CRIT_damage), min(1.0, CRIT_rate)
 
+        def __str__(self) -> str:
+            return f"角色静态面板：{self.NAME}"
+
     def _init_base_attribute(self, char_name: str):
         """
         初始化角色基础属性。
@@ -375,7 +414,7 @@ class Character:
                 else:
                     raise ValueError(f"请输入正确的精炼等级")
             else:
-                raise ValueError(f"请输入正确的武器名称")
+                raise ValueError(f"请输入正确的武器名称，{weapon} 不存在！")
 
     def _init_equip_set(self, equip_set4: str, equip_set2_a: str, equip_set2_b: str, equip_set2_c: str):
         """
@@ -432,44 +471,44 @@ class Character:
         # 匹配4-6号位
         for drive in drive_parts:
             match drive:
-                case '生命值%':
+                case '生命值%' | '生命值':
                     self.HP_percent += 0.3
-                case '攻击力%':
+                case '攻击力%' | '攻击力':
                     self.ATK_percent += 0.3
-                case '防御力%':
+                case '防御力%' | '防御力':
                     self.DEF_percent += 0.48
-                case '暴击率%':
+                case '暴击率%' | '暴击率':
                     # self.CRIT_rate_numeric += 0.24
                     self.baseCRIT_score += 48
-                case '暴击伤害%':
+                case '暴击伤害%' | '暴击伤害':
                     # self.CRIT_damage_numeric += 0.48
                     self.baseCRIT_score += 48
                 case '异常精通':
                     self.AP_numeric += 92
-                case '穿透率%':
+                case '穿透率%' | '穿透率':
                     self.PEN_ratio += 0.24
-                case '冰属性伤害%':
+                case '冰属性伤害%' | '冰属性伤害':
                     self.ICE_DMG_bonus += 0.3
-                case '火属性伤害%':
+                case '火属性伤害%' | '火属性伤害':
                     self.FIRE_DMG_bonus += 0.3
-                case '电属性伤害%':
+                case '电属性伤害%' | '电属性伤害':
                     self.ELECTRIC_DMG_bonus += 0.3
-                case '以太属性伤害%':
+                case '以太属性伤害%' | '以太属性伤害':
                     self.ETHER_DMG_bonus += 0.3
-                case '物理属性伤害%':
+                case '物理属性伤害%' | '物理属性伤害':
                     self.PHY_DMG_bonus += 0.3
                 case '异常掌控':
                     self.AM_percent += 0.3
-                case '冲击力%':
+                case '冲击力%' | '冲击力':
                     self.IMP_percent += 0.18
-                case '能量自动回复%':
+                case '能量自动回复%' | '能量自动回复':
                     self.sp_regen_percent += 0.6
                 case None:
                     continue
                 case 'None':
                     continue
                 case _:
-                    raise ValueError(f"词条 {drive} 不存在")
+                    raise ValueError(f"提供的主词条名称 {drive} 不存在")
 
     def _init_secondary_drive(self, scATK_percent: int, scATK: int, scHP_percent: int, scHP: int, scDEF_percent: int,
                               scDEF: int, scAnomalyProficiency: int, scPEN: int, scCRIT: int):
@@ -477,10 +516,10 @@ class Character:
         初始化副词条
         """
         # 类型检查
-        if not all(isinstance(x, int) for x in
+        if not all(isinstance(x, (int, float)) for x in
                    [scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN,
                     scCRIT]):
-            raise TypeError("词条数量必须是整数.")
+            raise TypeError("词条数量必须是数.")
 
         # 参数有效性检查
         if any(x < 0 for x in
