@@ -17,7 +17,7 @@ class CalAnomaly:
         self.enemy_obj = enemy_obj
         self.anomaly_obj = anomaly_obj
         self.dynamic_buff = dynamic_buff
-        snapshot: tuple[ElementType, np.ndarray] = self.anomaly_obj.snapshot
+        snapshot: tuple[ElementType, np.ndarray] = (self.anomaly_obj.element_type, self.anomaly_obj.current_ndarray)
         self.element_type: ElementType = snapshot[0]
 
         # self.dmg_sp 以 array 形式储存，顺序为：基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透
