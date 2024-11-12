@@ -2,6 +2,7 @@ from AnomalyBar import AnomalyBar
 from AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
 import numpy as np
 import Enemy
+import Buff
 
 
 def spawn_output(anomaly_bar, mode_number):
@@ -24,7 +25,30 @@ def spawn_output(anomaly_bar, mode_number):
     return output
 
 
-def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list):
+def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, exist_buff_dict: dict, timenow: int, enemy: Enemy.Enemy):
+    """
+    该函数的作用是创建属性异常附带的debuff和dot，
+    debuff与dot的index写在了Anomaly.accompany_debuff和Anomaly.accompany_dot里。
+    这里通过Buff的BuffInitialize函数来根据Buff名，直接提取对应的双字典，
+    并且直接放进Buff的构造函数内，对新的Buff进行实例化。
+    然后，回传给exist_buff_dict中的Buff0。
+    """
+    if bar.accompany_debuff:
+        all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, exist_buff_dict)
+        anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
+        #   修改一些必要的属性。
+        anomaly_debuff_new.dy.count = 1
+        anomaly_debuff_new.dy.active = True
+        anomaly_debuff_new.dy.startticks = timenow
+        anomaly_debuff_new.dy.endticks = timenow + anomaly_debuff_new.ft.maxduration
+        anomaly_debuff_new.update_to_buff_0(exist_buff_dict[bar.accompany_debuff])
+        DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
+        enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
+    if bar.accompany_dot:
+        pass
+
+
+def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list, DYNAMIC_BUFF_DICT:dict, exist_buff_dict: dict, timenow: int):
     """
     该函数需要在Loading阶段，submission是End的时候运行。
     用于判断该次属性异常触发应该是新建、替换还是触发紊乱。
@@ -44,7 +68,7 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
             active_anomaly_check += 1
             active_anomaly_list.append(element_number)
         if active_anomaly_check >= 2:
-            raise ValueError(f'当前存在两种以上的异常状态！！！')
+            raise ValueError(f'当前同时存在两种以上的异常状态！！！')
     bar.max_anomaly = getattr(enemy, f'max_anomaly_{enemy.trans_element_number_to_str[element_type]}')
     if len(active_anomaly_list) != 0:
         last_anomaly_element_type = active_anomaly_list[0]
@@ -72,10 +96,9 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 """
                 mode_number = 0
                 new_anomaly = spawn_output(bar, mode_number)
+                anomaly_effect_active(bar, DYNAMIC_BUFF_DICT, exist_buff_dict['enemy'], timenow, enemy)
                 event_list.append(new_anomaly)
-                if element_type in [0,2]:
-                    pass
-                print(f'触发异常！种类是{element_type}')
+                print(f'触发{enemy.trans_element_number_to_str[element_type]}属性异常！')
             elif element_type not in active_anomaly_list and len(active_anomaly_list) > 0:
                 '''
                 这个分支意味着：要结算紊乱。那么需要复制的就不应该是新的这个属性异常，而应该是老的属性异常的bar实例。
@@ -89,6 +112,15 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 event_list.append(disorder)
                 event_list.append(new_anomaly)
                 print(f'触发紊乱！')
+            setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)       # 同步更新enemy.dynamic下面的属性异常状态。
+
+
+            # TODO: 实现属性异常触发后，同步向DYNAMIC_BUFF_DICT添加buff，或是添加Dot，
+            # TODO：当前问题：新的buff的实例化需要读取CSV，频繁读取可能会影响性能。需要重新定位实例化Buff的位置。
+
+
+
+
 
 
 
