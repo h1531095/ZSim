@@ -279,5 +279,6 @@ class Buff:
             self.update_to_buff_0(buff_0)
         # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
-
+    def __str__(self) -> str:
+        return f'Buff: {self.ft.name}'
 

@@ -1,13 +1,15 @@
-import Report
 import Buff.BuffAdd
 import Buff.BuffLoad
 import Enemy
 import Preload
-# from main import ScheduleData
+import Report
+import UpdateAnomaly
 from AnomalyBar import AnomalyBar as AnE
+from AnomalyBar import Disorder
 from Buff.BuffExist_Judge import buff_exist_judge
-from ScheduledEvent.Calculator import Calculator
 from CharSet_new import Character
+from .CalAnomaly import CalAnomaly, CalDisorder
+from .Calculator import Calculator
 
 
 
@@ -52,7 +54,9 @@ class ScheduledEvent:
                         self.skill_event(event)
                         self.data.event_list.remove(event)
                 elif isinstance(event, AnE):
-                    raise NotImplementedError
+                    self.anomaly_event(event)
+                elif isinstance(event, Disorder):
+                    self.disorder_event(event)
                 else:
                     raise NotImplementedError(f"Wrong event type: {type(event)}")
 
@@ -84,16 +88,38 @@ class ScheduledEvent:
         snapshot = cal_obj.cal_snapshot()
         stun = cal_obj.cal_stun()
         self.data.enemy.update_stun(stun)
-        self.data.enemy.anomaly_bars_dict[snapshot[0]].update_snap_shot(snapshot)
-        print(self.data.enemy.anomaly_bars_dict[snapshot[0]].current_ndarray)
+        if snapshot[1] >= 0.0001:
+            UpdateAnomaly.update_anomaly(self.data.enemy, snapshot)
+
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,
                                  skill_tag=event.skill_tag,
                                  dmg_expect=cal_obj.cal_dmg_expect(),
                                  dmg_crit=cal_obj.cal_dmg_crit(),
-                                 stun = stun,
-                                 stun_status = self.data.enemy.dynamic.stun
+                                 stun_status = self.data.enemy.dynamic.stun,
+                                 buildup = snapshot[1],
+                                 enemy_dynamic = self.data.enemy.dynamic.__str__()
                                  )
+
+    def anomaly_event(self, event: AnE) -> None:
+        """Anomaly处理分支逻辑"""
+        cal_obj = CalAnomaly(anomaly_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
+        dmg_anomaly = cal_obj.cal_anomaly_dmg()
+        Report.report_dmg_result(tick=self.tick,
+                                 element_type=event.element_type,
+                                 dmg_expect=dmg_anomaly,
+                                 is_anomaly=True)
+
+    def disorder_event(self, event:Disorder):
+        cal_obj = CalDisorder(disorder_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
+        dmg_disorder = cal_obj.cal_anomaly_dmg()
+        stun = cal_obj.cal_disorder_stun()
+        self.data.enemy.update_stun(stun)
+        Report.report_dmg_result(tick=self.tick,
+                                 element_type=event.element_type,
+                                 dmg_expect=dmg_disorder,
+                                 is_anomaly=True,
+                                 is_disorder=True)
 
 
 if __name__ == '__main__':

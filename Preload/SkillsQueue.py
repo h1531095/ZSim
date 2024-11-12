@@ -22,6 +22,9 @@ class SkillNode:
         self.hit_times: int = skill.hit_times
         self.skill: Skill.InitSkill = skill
 
+    def __str__(self) -> str:
+        return f"SkillNode: {self.skill_tag}"
+
 
 
 def get_skills_queue(preload_table: pd.DataFrame,

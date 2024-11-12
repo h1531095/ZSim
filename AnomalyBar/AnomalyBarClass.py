@@ -52,8 +52,10 @@ class AnomalyBar:
                 raise ValueError(f'传入的快照数组列数为{new_ndarray.shape[1]}，小于快照缓存的列数！')
 
         cal_result_1 = build_up_value * new_ndarray
+
         self.current_ndarray += cal_result_1
         self.current_anomaly += build_up_value
+        pass
 
     def ready_judge(self, timenow):
         if timenow - self.last_active >= self.cd:

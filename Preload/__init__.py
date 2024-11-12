@@ -11,7 +11,7 @@ from . import SkillsQueue
 from . import watchdog
 from .SkillsQueue import SkillNode
 
-INPUT_ACTION_LIST = pd.read_csv('./data/计算序列.csv')
+from define import INPUT_ACTION_LIST
 
 
 @dataclass
@@ -23,7 +23,7 @@ class PreloadData:
             {'skill_tag': ['1221_NA_1', '1221_NA_2', '1221_NA_3', '1221_NA_4', '1221_NA_5']}
         )'''
 
-        max_tick, skills_queue = SkillsQueue.get_skills_queue(INPUT_ACTION_LIST, *args)
+        max_tick, skills_queue = SkillsQueue.get_skills_queue(pd.read_csv(INPUT_ACTION_LIST), *args)
         self.max_tick: int = max_tick
         self.skills_queue: LinkedList = skills_queue
         self.current_node: SkillNode | None = None
