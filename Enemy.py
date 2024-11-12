@@ -245,14 +245,6 @@ class Enemy:
             self.shock = False  # 感电状态
             self.burn = False  # 灼烧状态
             self.corruption = False  # 侵蚀状态
-            dict1 = {
-                0: 'assault',
-                1: 'burn',
-                2: 'frostbite',
-                3: 'shock',
-                4: 'corruption',
-                5: 'burn_frostbite'
-            }
 
             self.dynamic_debuff_list = []   # 用来装debuff的list
             self.dynamic_dot_list = []      # 用来装dot的list

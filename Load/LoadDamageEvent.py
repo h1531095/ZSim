@@ -4,7 +4,6 @@ import Enemy
 from .loading_mission import LoadingMission
 
 
-
 def SpawnDamageEvent(mission: LoadingMission | Dot.Dot, event_list: list):
     """
     负责往event_list中添加伤害生成事件，添加的内容是实例：
@@ -53,10 +52,19 @@ def ProcessHitUpdateDots(timetick: int, dot_list: list, event_list: list):
                 SpawnDamageEvent(dot, event_list)
 
 
-def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy, event_list: list):
+def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy, event_list: list, DYNAMIC_BUFF_DICT, exist_buff_dict):
     """
     DamageEvent的Judge函数：轮询load_mission_dict以及enemy.dynamic_dot_list，判断是否应生成Hit事件。
     并且当Hit时间生成时，将对应的实例添加到event_list中。
+    当前可能产生Hit的mission类型共有两种，第一种是动作类，第二种是Dot类。
+        1-动作类：
+            首先应该查询mission.mission_dict，并且查询所有的键值，检查是否有键值需要在本tick处理。
+            如果有，则应该将mission.mission_node传递给Schedule Event List。
+        2-Dot类：
+            首先应明确是固定随时间变化的Dot，还是命中后才产生伤害的Dot。这一条件以Dot.effect_rules来区分。
+            如果effect_rules = 1，则表明是仅根据时间和内置CD来产生伤害的，则应该每个Tick都随着本函数执行一次判断；
+            如果effect_rules = 2，则表明是根据命中来产生伤害的，则应该和动作类mission一起判断。
+    同时，本函数还会在子任务是end的时候检查enemy的积蓄值。如果积蓄值满，则会触发异常（update_anomaly函数）
     """
     # 处理 Load.Mission 任务
     for mission in load_mission_dict.values():
@@ -65,11 +73,11 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy,
         for sub_mission_tick in mission.mission_dict:
             if timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'hit':
                 SpawnDamageEvent(mission, event_list)
-            # 当Mission触发时，检查 effect_rules == 2 的 Dot????
+            # 当Mission触发时，检查 effect_rules == 2 的 Dot
                 ProcessHitUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)
-            elif timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'end':
+            elif timetick-1 <= sub_mission_tick < timetick and mission.mission_dict[sub_mission_tick] == 'end':
                 # 在end处进行属性异常检查。
-                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list)
+                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, DYNAMIC_BUFF_DICT, exist_buff_dict, timetick)
 
     # 始终检查 effect_rules == 1 的 Dot
     ProcessTimeUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)

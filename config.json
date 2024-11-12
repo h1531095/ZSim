@@ -23,6 +23,7 @@
   },
   "translate": {
     "id":  "skill_tag",
+    "From": "char_name",
     "OfficialName":  "CN_skill_tag",
     "SpConsumption":  "sp_consume",
     "SpRecovery_hit": "sp_recovery",
@@ -32,7 +33,7 @@
     "SkillType": "skill_type",
     "TriggerBuffLevel": "trigger_buff_level" ,
     "ElementType": "element_type",
-    "TimeCost": "",
+    "TimeCost": "ticks",
     "HitNumber": "hit_times",
     "DmgRelated_Attributes": "diff_multiplier",
     "StunRelated_Attributes": "",
