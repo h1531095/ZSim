@@ -17,6 +17,8 @@ class AnomalyBar:
     last_active: int = None  # 上一次属性异常的时间
     max_anomaly: int = None  # 最大积蓄值
     ready: bool = None  # 内置CD状态
+    accompany_debuff: bool = None   # 是否在激活时伴生debuff
+    accompany_dot: bool = None  # 是否在激活时伴生dot
 
     def __post_init__(self):
         # 初始化时，自动重置current_ndarray以及current_anomaly，内置CD一般为3秒，所以是180

@@ -73,6 +73,8 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 mode_number = 0
                 new_anomaly = spawn_output(bar, mode_number)
                 event_list.append(new_anomaly)
+                if element_type in [0,2]:
+                    pass
                 print(f'触发异常！种类是{element_type}')
             elif element_type not in active_anomaly_list and len(active_anomaly_list) > 0:
                 '''
