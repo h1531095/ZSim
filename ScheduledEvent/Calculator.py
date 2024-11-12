@@ -30,11 +30,11 @@ class MultiplierData:
         # 获取角色局外面板数据
         static_statement: Character.Statement | None = getattr(character_obj, 'statement', None)
         self.static = self.StaticStatement(static_statement)    # 按理来说静态面板在角色都没有的情况下根本没必要生成，但是屎山就是这样搭建的，尊重
+        # 获取敌人数据
+        self.enemy_obj = enemy_obj
         # 获取buff动态加成
         dynamic_statement: dict = self.get_buff_bonus(dynamic_buff)
         self.dynamic = self.DynamicStatement(dynamic_statement)
-        # 获取敌人数据
-        self.enemy_obj = enemy_obj
 
     def get_buff_bonus(self, dynamic_buff) -> dict:
         if self.char_name is None:
@@ -47,6 +47,7 @@ class MultiplierData:
                 report_to_log(f"[WARNING] 动态Buff列表内没有角色 {self.char_name}", level=4)
         try:
             enemy_buff: list = self.enemy_obj.dynamic.dynamic_debuff_list
+            pass
         except AttributeError:
             report_to_log(f"[WARNING] self.enemy_obj 中找不到动态buff列表", level=4)
             try:
