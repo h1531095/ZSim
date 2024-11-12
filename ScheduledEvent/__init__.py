@@ -45,14 +45,14 @@ class ScheduledEvent:
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
-            for event in self.data.event_list[:]:
+            for _ in range(len(self.data.event_list)):
+                event = self.data.event_list.pop(0)
                 # 添加buff
                 if isinstance(event, Buff.Buff):
                     raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
                 elif isinstance(event, Preload.SkillNode):
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
-                        self.data.event_list.remove(event)
                 elif isinstance(event, AnE):
                     self.anomaly_event(event)
                 elif isinstance(event, Disorder):
