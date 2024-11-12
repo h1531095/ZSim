@@ -100,7 +100,7 @@ def report_dmg_result(
         tick: int,
         element_type: ElementType | int,
         skill_tag: str = None,
-        dmg_expect: float | np.float64 = None,
+        dmg_expect: float | np.float64 = 0,
         dmg_crit: float | np.float64 = None,
         is_anomaly: bool = False,
         is_disorder: bool = False,
@@ -120,6 +120,8 @@ def report_dmg_result(
                 skill_tag = '侵蚀'
     if is_disorder:
         skill_tag += '紊乱'
+    if dmg_crit is None:
+        dmg_crit = 'nan'
     result_dict = {
         'tick': tick,
         'element_type': element_type,

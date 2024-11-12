@@ -16,10 +16,16 @@ with open("ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as
 class MultiplierData:
     def __init__(self, enemy_obj: Enemy, dynamic_buff: dict = None, character_obj: Character = None):
 
-        self.skill_node: SkillNode | None = None # 此类内部不调用
-        self.char_name = character_obj.NAME
-        self.char_level = character_obj.level
-        self.cid = character_obj.CID
+        self.skill_node: SkillNode | None = None # 此类内部不调用该属性
+
+        if character_obj is None:
+            self.char_name = None
+            self.char_level = None
+            self.cid = None
+        else:
+            self.char_name = character_obj.NAME
+            self.char_level = character_obj.level
+            self.cid = character_obj.CID
 
         # 获取角色局外面板数据
         static_statement: Character.Statement | None = getattr(character_obj, 'statement', None)
@@ -31,17 +37,22 @@ class MultiplierData:
         self.enemy_obj = enemy_obj
 
     def get_buff_bonus(self, dynamic_buff) -> dict:
-        try:
-            char_buff: list = dynamic_buff[self.char_name]
-        except KeyError:
+        if self.char_name is None:
             char_buff = []
-            report_to_log(f"动态Buff列表内没有角色 {self.char_name}", level=4)
+        else:
+            try:
+                char_buff: list = dynamic_buff[self.char_name]
+            except KeyError:
+                char_buff = []
+                report_to_log(f"[WARNING] 动态Buff列表内没有角色 {self.char_name}", level=4)
         try:
             enemy_buff: list = self.enemy_obj.dynamic.dynamic_debuff_list
         except AttributeError:
+            report_to_log(f"[WARNING] self.enemy_obj 中找不到动态buff列表", level=4)
             try:
                 enemy_buff: list = dynamic_buff['enemy']
             except KeyError:
+                report_to_log(f"[WARNING] dynamic_buff 中依然找不到动态buff列表", level=4)
                 enemy_buff: list = []
         enabled_buff: tuple = tuple(char_buff + enemy_buff)
         dynamic_statement: dict = self.__cal_buff_total_bonus(enabled_buff)
@@ -53,7 +64,10 @@ class MultiplierData:
         _max_cache_size = 128
 
         def __new__(cls, static_statement: Character.Statement | None):
-            cache_key = tuple(sorted(static_statement.statement.items()))
+            if static_statement is None:
+                cache_key = None
+            else:
+                cache_key = tuple(sorted(static_statement.statement.items()))
             if cache_key in cls._instance_cache:
                 return  cls._instance_cache[cache_key]
             else:

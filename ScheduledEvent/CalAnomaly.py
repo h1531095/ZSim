@@ -1,3 +1,5 @@
+from decimal import Decimal, ROUND_DOWN
+
 import numpy as np
 
 from .Calculator import Calculator as Cal
@@ -27,7 +29,7 @@ class CalAnomaly:
         self.data = MulData(enemy_obj = self.enemy_obj, dynamic_buff = self.dynamic_buff)
 
         # 虚拟角色等级
-        v_char_level: int = np.floor(self.dmg_sp[3])
+        v_char_level: int = int(np.floor(self.dmg_sp[0,3] + 0.0000001))  # 加一个极小的数避免精度向下丢失导致的误差
         # 等级系数
         k_level = self.cal_k_level(v_char_level)
         # 防御区
@@ -36,7 +38,7 @@ class CalAnomaly:
         res_mul: float = Cal.RegularMul.cal_res_mul(
                 self.data,
                 element_type=self.element_type,
-                snapshot_res_pen = self.dmg_sp[8])
+                snapshot_res_pen = self.dmg_sp[0,8])
         # 减易伤区
         vulnerability_mul: float = Cal.RegularMul.cal_dmg_vulnerability(
                 self.data, element_type=self.element_type)
@@ -49,7 +51,7 @@ class CalAnomaly:
                 k_level, def_mul, res_mul, vulnerability_mul, stun_vulnerability, special_mul)
 
     @staticmethod
-    def cal_k_level(v_char_level) ->np.float64:
+    def cal_k_level(v_char_level: int) ->np.float64:
         """等级区 = trunc(1+ 1/59* (等级 - 1), 4)"""
         # 定义域检查
         if v_char_level < 0:
@@ -76,8 +78,8 @@ class CalAnomaly:
         # 受击方有效防御
         recipient_def: float = Cal.RegularMul.cal_recipient_def(
                 data,
-                addon_pen_ratio=float(self.dmg_sp[6]),
-                addon_pen_numeric=float(self.dmg_sp[7])
+                addon_pen_ratio=float(self.dmg_sp[0,6]),
+                addon_pen_numeric=float(self.dmg_sp[0,7])
         )
         # 计算防御区
         defense_mul = k_attacker / (recipient_def + k_attacker)
@@ -92,11 +94,11 @@ class CalAnomaly:
                               special_mul) -> np.ndarray:
         """将计算结果写入 self.final_multipliers """
         # self.dmg_sp 以 array 形式储存，顺序为：基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透
-        base_dmg = self.dmg_sp[0]
-        dmg_bonus = self.dmg_sp[1]
-        am_mul = self.dmg_sp[2]
-        anomaly_bonus = self.dmg_sp[4]
-        anomaly_crit = self.dmg_sp[5]
+        base_dmg = self.dmg_sp[0,0]
+        dmg_bonus = self.dmg_sp[0,1]
+        am_mul = self.dmg_sp[0,2]
+        anomaly_bonus = self.dmg_sp[0,4]
+        anomaly_crit = self.dmg_sp[0,5]
         # 将所有乘数放入一个数组
         results = np.array([
             base_dmg,
@@ -142,9 +144,9 @@ class CalDisorder(CalAnomaly):
         return np.float64(disorder_base_dmg)
 
     def cal_disorder_stun(self) -> np.float64:
-        imp = self.final_multipliers[9]
+        imp = self.final_multipliers[0,9]
         stun_ratio = 3
         stun_res = Cal.StunMul.cal_stun_res(self.data)
-        stun_bonus = self.final_multipliers[10]
+        stun_bonus = self.final_multipliers[0,10]
         stun_received = Cal.StunMul.cal_stun_received(self.data)
         return np.float64(np.prod([imp, stun_ratio, stun_res, stun_bonus, stun_received]))
