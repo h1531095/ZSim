@@ -2,7 +2,9 @@ from BaseDot import Dot
 
 
 class Ignite(Dot):
-    pass
+    def __init__(self):
+        super().__init__()
+
 
 
 class Corruption(Dot):
