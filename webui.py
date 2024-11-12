@@ -5,12 +5,14 @@ import pandas as pd
 import streamlit as st
 
 import Buff
+import Load
 import Preload
 import Report
+import ScheduledEvent as ScE
 from CharSet_new import Character
 from Enemy import Enemy
 from Report import write_to_csv
-from main import main_loop
+from Update_Buff import update_dynamic_bufflist
 from define import CHARACTER_DATA_PATH
 
 
@@ -84,6 +86,34 @@ class GlobalStats:
         for name in self.name_box + ['enemy']:
             self.DYNAMIC_BUFF_DICT[name] = []
 
+def main_loop(stop_tick: int | None = None):
+    tick = 0
+    while True:
+        # Tick Update
+        update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
+
+        # Preload
+        preload.do_preload(tick, schedule_data.enemy, init_data.name_box)
+        preload_list = preload.preload_data.preloaded_action
+
+        if stop_tick is None:
+            if len(preload.preload_data.skills_queue) == 0:
+                stop_tick = tick + 120
+        elif tick >= stop_tick:
+            break
+
+        # Load
+        if preload_list:
+            Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
+        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, load_data.name_box, load_data.LOADING_BUFF_DICT)
+        Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
+        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, global_stats.DYNAMIC_BUFF_DICT, load_data.exist_buff_dict)
+
+        # ScheduledEvent
+        scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
+        scheduled.event_start()
+        tick += 1
+        print(f"\r{tick}", end='')
 
 # Streamlit UI
 st.title("角色配置与运行")

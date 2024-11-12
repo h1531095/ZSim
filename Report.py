@@ -60,7 +60,6 @@ def report_buff_to_log(character_name: str, time_tick, buff_name: str, buff_coun
 
 
 def write_to_csv():
-    print(buffered_data.keys())
     for char_name in buffered_data:
         if char_name not in buffered_data:
             raise ValueError('你tmd函数写错了！')
