@@ -89,7 +89,11 @@ class ScheduledEvent:
         stun = cal_obj.cal_stun()
         self.data.enemy.update_stun(stun)
         if snapshot[1] >= 0.0001:
-            UpdateAnomaly.update_anomaly(self.data.enemy, snapshot)
+            element_type_code = snapshot[0]
+            updated_bar = self.data.enemy.anomaly_bars_dict[element_type_code]
+            if isinstance(updated_bar, AnE):
+                updated_bar.update_snap_shot(snapshot)
+                print(updated_bar.current_anomaly)
 
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,

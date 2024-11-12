@@ -34,7 +34,6 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
     bar = enemy.anomaly_bars_dict[element_type]
     if not isinstance(bar, AnomalyBar):
         raise TypeError(f'{type(bar)}不是Anomaly类！')
-
     '''
     只要调用了本函数，就要顺便检查一下当前的异常情况。以防意外触发了两种异常状态还不报错搁那儿嘎嘎算。
     '''

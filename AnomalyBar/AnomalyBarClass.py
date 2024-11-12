@@ -55,7 +55,6 @@ class AnomalyBar:
 
         self.current_ndarray += cal_result_1
         self.current_anomaly += build_up_value
-        pass
 
     def ready_judge(self, timenow):
         if timenow - self.last_active >= self.cd:
