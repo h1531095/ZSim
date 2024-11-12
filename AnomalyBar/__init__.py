@@ -1,6 +1,6 @@
 from .Anomalies import PhysicalAnomaly, FireAnomaly, IceAnomaly, ElectricAnomaly, EtherAnomaly, FireIceAnomaly
 from .AnomalyBarClass import AnomalyBar
-from .Disorder import Disorder
+from .CopyAnomalyForOutput import Disorder
 
 __all__ = [
     'AnomalyBar',
