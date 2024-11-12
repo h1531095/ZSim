@@ -81,7 +81,7 @@ class GlobalStats:
         for name in self.name_box + ['enemy']:
             self.DYNAMIC_BUFF_DICT[name] = []
 
-def main_loop(stop_tick: int|None = None):
+def main_loop(stop_tick: int | None = None):
     tick = 0
     while True:
         # Tick Update
