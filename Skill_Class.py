@@ -226,6 +226,8 @@ class Skill:
             self.ticks: int = int(_raw_skill_data['ticks'])
             temp_hit_times = int(_raw_skill_data['hit_times'])
             self.hit_times: int = temp_hit_times if temp_hit_times > 0 else 1
+            self.on_field: bool = bool(_raw_skill_data['on_field'])
+            self.anomaly_attack: bool = bool(_raw_skill_data['anomaly_attack'])
 
             self.skill_attr_dict = {attr: getattr(self, attr)
                                     for attr in dir(self)

@@ -45,6 +45,7 @@ class ScheduledEvent:
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
+            # 其余事件挨个处理
             for _ in range(len(self.data.event_list)):
                 event = self.data.event_list.pop(0)
                 # 添加buff
@@ -59,6 +60,9 @@ class ScheduledEvent:
                     self.disorder_event(event)
                 else:
                     raise NotImplementedError(f"Wrong event type: {type(event)}")
+            # 计算过程中如果又有新的事件生成，则继续循环
+            if self.data.event_list:
+                self.event_start()
 
     def solve_buff(self) -> None:
         """提前处理Buff实例"""

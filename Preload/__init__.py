@@ -69,7 +69,7 @@ class Preload:
     def __str__(self):
         return f"Preload Data: \n{self.preload_data.preloaded_action}"
 
-    def do_preload(self, tick: int, enemy: Enemy = None):
+    def do_preload(self, tick: int, enemy: Enemy = None, name_box: list[str] = None):
         if isinstance(enemy, Enemy):
             stun_status: bool = stun_judge(enemy)
         if self.preload_data.current_node is None:
@@ -84,6 +84,19 @@ class Preload:
                 report_to_log(f"[PRELOAD]:In tick: {tick}, {this_node.skill_tag} has been preloaded")
                 self.preload_data.last_node = this_node
                 self.preload_data.current_node = None
+            if (isinstance(name_box, list)
+                    and all(isinstance(name, str) for name in name_box)
+                    and this_node.skill.on_field):
+                name_index = name_box.index(this_node.char_name)
+
+                if name_index == 1:
+                    name_switch = name_box.pop(0)
+                    name_box.append(name_switch)
+                elif name_index == 2:
+                    name_switch = name_box.pop(0)
+                    name_box.append(name_switch)
+                    name_switch = name_box.pop(0)
+                    name_box.append(name_switch)
 
 
 if __name__ == '__main__':
