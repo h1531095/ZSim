@@ -1,4 +1,4 @@
-
+import UpdateAnomaly
 import Dot
 import Enemy
 from .loading_mission import LoadingMission
@@ -65,7 +65,11 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy,
         for sub_mission_tick in mission.mission_dict:
             if timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'hit':
                 SpawnDamageEvent(mission, event_list)
-            # 当Mission触发时，检查 effect_rules == 2 的 Dot
+            # 当Mission触发时，检查 effect_rules == 2 的 Dot????
                 ProcessHitUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)
+            elif timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'end':
+                # 在end处进行属性异常检查。
+                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list)
+
     # 始终检查 effect_rules == 1 的 Dot
     ProcessTimeUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)

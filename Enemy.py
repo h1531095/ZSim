@@ -5,14 +5,7 @@ from Report import report_to_log
 from define import ENEMY_DATA_PATH
 
 # 把属性异常标号从数字翻译成str的中转字典，用于和getattr方法联动。
-trans_element_number_to_str = {
-    0:'PHY',
-    1:'FIRE',
-    2:'ICE',
-    3:'ELECTRIC',
-    4:'ETHER',
-    5:'FIREICE'
-}
+
 
 class EnemySettings:
     def __init__(self):
@@ -73,9 +66,13 @@ class Enemy:
         self.__apply_settings(self.settings)
         self.dynamic = self.EnemyDynamic()
 
+        # 下面的两个dict本来写在外面的，但是别的程序也要用这两个dict，所以索性写进来了。我是天才。
+        self.trans_element_number_to_str = {0: 'PHY', 1: 'FIRE', 2: 'ICE', 3: 'ELECTRIC', 4: 'ETHER', 5: 'FIREICE'}
+        self.trans_anomaly_effect_to_str = {0: 'assault', 1: 'burn', 2: 'frostbite', 3: 'shock', 4: 'corruption', 5: 'burn_frostbite'}
         """
         enemy实例化的时候，6种异常积蓄条也随着一起实例化。
         """
+
         self.fireice_anomaly_bar = AnomalyBar.FireIceAnomaly()
         self.ice_anomaly_bar = AnomalyBar.IceAnomaly()
         self.fire_anomaly_bar = AnomalyBar.FireAnomaly()
@@ -102,7 +99,7 @@ class Enemy:
         # 在初始化阶段更新属性异常条最大值。
         for element_type in self.anomaly_bars_dict:
             anomaly_bar = self.anomaly_bars_dict[element_type]
-            max_value = getattr(self, f'max_anomaly_{trans_element_number_to_str[element_type]}')
+            max_value = getattr(self, f'max_anomaly_{self.trans_element_number_to_str[element_type]}')
             anomaly_bar.max_value = max_value
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
@@ -243,10 +240,19 @@ class Enemy:
             self.stun = False  # 失衡状态
             self.frozen = False  # 冻结状态
             self.frostbite = False  # 霜寒状态
+            self.burn_frostbite = False # 烈霜状态
             self.assault = False  # 畏缩状态
             self.shock = False  # 感电状态
             self.burn = False  # 灼烧状态
             self.corruption = False  # 侵蚀状态
+            dict1 = {
+                0: 'assault',
+                1: 'burn',
+                2: 'frostbite',
+                3: 'shock',
+                4: 'corruption',
+                5: 'burn_frostbite'
+            }
 
             self.dynamic_debuff_list = []   # 用来装debuff的list
             self.dynamic_dot_list = []      # 用来装dot的list

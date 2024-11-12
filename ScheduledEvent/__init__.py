@@ -12,6 +12,7 @@ from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator
 
 
+
 class ScheduledEvent:
     """
     计划事件方法类
@@ -89,6 +90,7 @@ class ScheduledEvent:
         self.data.enemy.update_stun(stun)
         if snapshot[1] >= 0.0001:
             UpdateAnomaly.update_anomaly(self.data.enemy, snapshot)
+
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,
                                  skill_tag=event.skill_tag,

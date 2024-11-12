@@ -18,7 +18,7 @@ class Dot:
         3：缓存式更新——依赖内置CD，以及Dot.Dynamic中的动态记录模块，来记录伤害积累。
 
         """
-        increase_cd: int = 0
+        update_cd: int = 0
         index: str = None
         name: str = None
         dot_from: str = None
