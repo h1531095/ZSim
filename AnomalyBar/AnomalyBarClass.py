@@ -8,7 +8,7 @@ class AnomalyBar:
     这是属性异常类的基类。其中包含了属性异常的基本属性，以及几个基本方法。
     """
     element_type: int = None  # 属性种类编号(1~5)
-    is_disorder: bool = None # 是否是紊乱实例
+    is_disorder: bool = None    # 是否是紊乱实例
     is_full: bool = False  # 是否积满了
     current_ndarray: np.ndarray = None  # 当前快照总和
     current_anomaly: np.float64 = None  # 当前已经累计的积蓄值
@@ -17,6 +17,9 @@ class AnomalyBar:
     last_active: int = None  # 上一次属性异常的时间
     max_anomaly: int = None  # 最大积蓄值
     ready: bool = None  # 内置CD状态
+    accompany_debuff: str = None   # 是否在激活时伴生debuff的index
+    accompany_dot: str = None  # 是否在激活时伴生dot的index
+
 
     def __post_init__(self):
         # 初始化时，自动重置current_ndarray以及current_anomaly，内置CD一般为3秒，所以是180
@@ -26,6 +29,12 @@ class AnomalyBar:
         self.is_disorder = False
         self.last_active = 0
         self.ready = True
+        self.max_duration = 600
+
+    def duration(self, timetick: int):
+        duration = timetick - self.last_active
+        assert duration <= self.max_duration, f'该异常早就结束了！不应该触发紊乱！'
+        return duration
 
     def update_snap_shot(self, new_snap_shot: tuple):
         """

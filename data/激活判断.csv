@@ -15,3 +15,5 @@ Ice4_4,False,False,极地重金属_test,False,极地重金属_碎冰,False,True,
 Cangjiao_atkbuff,False,False,苍角,False,苍角低质量攻击力buff_受击支援触发,False,True,1800,0,1.0,0,1.0,True,False,True,False,False,0.0,True,True,False,True,True,0.0,111
 CangjiaoWeapon_atkbuff,True,False,含羞恶面,False,含羞恶面攻击力加成_受击支援触发,False,True,600,0,1.0,0,1.0,True,False,True,False,False,0.0,True,True,False,True,True,5.0,111
 test,False,True,艾莲,False,艾莲组队被动,False,True,600,0.0,10.0,0.0,2.0,False,False,True,False,True,60,True,True,True,True,True,0.0,100
+霜寒,False,True,enemy,False,霜寒,False,True,600,0.0,1.0,0.0,1.0,False,False,True,False,False,0.0,True,True,True,True,True,0.0,100
+畏缩,False,True,enemy,False,畏缩,False,True,600,0.0,1.0,0.0,1.0,False,False,True,False,False,0.0,True,True,True,True,True,0.0,100

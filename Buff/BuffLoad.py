@@ -45,6 +45,7 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
                 LOADING_BUFF_DICT['enemy'].append(buff_new)
 
 
+
 def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict, character_name_box: list,
                  LOADING_BUFF_DICT: dict):
     """
@@ -108,11 +109,7 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
 
 
 def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache()):
-
     cache_key = (buff_name, tuple(existbuff_dict.items()))
-    if (cached_results := cache.get(cache_key)) is not None:
-        return cached_results
-
     # 对单个buff进行初始化，抛出一个触发状态参数，两个参数序列。
     all_match = False
     buff_now = existbuff_dict[buff_name]
@@ -131,6 +128,17 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache
 
 
 def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Load.LoadingMission):
+    """
+        如果judge_condition_dict的全部内容是None，说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
+    """
+
+    if judge_condition_dict.count() == 0:
+        all_match_p = False
+        return all_match_p
+
+    """
+    正常buff的判断逻辑
+    """
     skill_now = mission.mission_node.skill
     if not isinstance(skill_now, Skill.InitSkill):
         raise TypeError(f"{skill_now}并非Skill类！")
