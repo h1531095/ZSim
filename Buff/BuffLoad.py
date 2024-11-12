@@ -22,6 +22,9 @@ class BuffInitCache:
 
     def add(self, key, value):
         self.cache[key] = value
+        max_cache = 128
+        while len(self.cache) > max_cache:
+            self.cache.popitem()
 
 
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
@@ -110,6 +113,8 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
 
 def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache()):
     cache_key = (buff_name, tuple(existbuff_dict.items()))
+    if cache_key in cache.cache:
+        return cache.get(cache_key)
     # 对单个buff进行初始化，抛出一个触发状态参数，两个参数序列。
     all_match = False
     buff_now = existbuff_dict[buff_name]

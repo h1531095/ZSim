@@ -88,7 +88,7 @@ def main_loop(stop_tick: int | None = None):
         update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
 
         # Preload
-        preload.do_preload(tick, schedule_data.enemy)
+        preload.do_preload(tick, schedule_data.enemy, init_data.name_box)
         preload_list = preload.preload_data.preloaded_action
 
         if stop_tick is None:
