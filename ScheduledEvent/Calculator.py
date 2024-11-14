@@ -147,11 +147,13 @@ class MultiplierData:
             else:
                 # 检查buff的简单效果是否为空
                 buff_obj: Buff.Buff
+                  
                 if not buff_obj.ft.simple_effect:
                     raise NotImplementedError(f"属性 ft.simple_effect 不能为：{buff_obj.ft.simple_effect}，功能还没写！")
                 if not buff_obj.dy.active:
                     report_to_log(f"[Buff Effect] 动态buff列表中混入了未激活buff: {str(buff_obj)}，已跳过")
                     continue
+
 
                 # 获取buff的层数
                 count = buff_obj.dy.count
