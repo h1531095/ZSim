@@ -151,8 +151,8 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
     if buff_now.ft.simple_judge_logic:
         all_match = True
         for condition, judge_condition in BUFF_LOADING_CONDITION_TRANSLATION_DICT.items():
-            if judge_condition_dict[condition] is not None:
-                if judge_condition_dict[condition] != getattr(skill_now, judge_condition):
+            if (cond := judge_condition_dict[condition]) is not None:
+                if cond != getattr(skill_now, judge_condition):
                     all_match = False
                     break
     else:

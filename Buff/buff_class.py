@@ -1,5 +1,7 @@
 import json
 
+import pandas as pd
+
 from Report import report_to_log
 from define import EFFECT_FILE_PATH
 
@@ -23,9 +25,9 @@ class Buff:
     _instance_cache = {}
     _max_cache_size = 256
 
-    def __new__(cls, config: dict, judge_config: dict):
+    def __new__(cls, config: pd.Series, judge_config: pd.Series):
         # 将配置字典转换为 hashable，以便用作缓存的键
-        cache_key = (tuple(sorted(config.items())), tuple(sorted(judge_config.items())))
+        cache_key = hash((tuple(sorted(config.items())), tuple(sorted(judge_config.items()))))
 
         # 检查缓存中是否存在相同的实例
         if cache_key in cls._instance_cache:
@@ -41,7 +43,7 @@ class Buff:
         cls._instance_cache[cache_key] = instance
         return instance
 
-    def __init__(self, config: dict, judge_config: dict):
+    def __init__(self, config: pd.Series, judge_config: pd.Series):
         if not hasattr(self, 'ft'):
             self.ft = self.BuffFeature(config)
             self.dy = self.BuffDynamic()

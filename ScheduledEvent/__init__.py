@@ -6,7 +6,7 @@ import Report
 from AnomalyBar import AnomalyBar as AnB
 from AnomalyBar import Disorder
 from Buff.BuffExist_Judge import buff_exist_judge
-from CharSet_new import Character
+from Character import Character
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator
 
