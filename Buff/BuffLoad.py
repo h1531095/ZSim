@@ -82,7 +82,8 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
             ②动作开始时/结束时更新（由prejudge和endjudge分别控制，endjudge是10.16新增的参数，用来标志那些结束时更新的buff，但是游戏中  目前暂无此类buff）
             ③动作命中时更新（由hitincrease控制，如果hitincrease为True，则需要检索事件链表内的hit节点）
             所以，一旦事件的is_happening函数返回True（事件正在发生），就需要在每个tick判断当前发生的具体事件，用函数check_current_event()实现
-            并且核心是一组if elif 判断，不同的分支执行不同的更新规则；  """
+            并且核心是一组if elif 判断，不同的分支执行不同的更新规则；
+    """
     # 初始化LOADING_BUFF_DICT
     all_name_box = character_name_box + ['enemy']
     for character in all_name_box:

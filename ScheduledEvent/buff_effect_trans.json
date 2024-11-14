@@ -121,5 +121,7 @@
   "混沌伤害增幅": "chaos_dmg_mul",
   "紊乱伤害增幅": "disorder_dmg_mul",
 
-  "特殊乘区": "special_multiplier_zone"
+  "特殊乘区": "special_multiplier_zone",
+
+  "失衡延长": "stun_tick_increase"
 }

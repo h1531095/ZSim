@@ -42,7 +42,8 @@ class Enemy:
         self.able_to_be_stunned: bool = bool(self.data_dict['能否失衡'])
         self.able_to_get_anomaly: bool = bool(self.data_dict['能否异常'])
         self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度']) / 60
-        self.stun_recovery_time: float = float(self.data_dict['失衡恢复时间']) * 60
+        self.stun_recovery_time: float = 0.0
+        self.restore_stun_recovery_time()
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
 
@@ -103,6 +104,15 @@ class Enemy:
             anomaly_bar.max_value = max_value
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
+
+    def restore_stun_recovery_time(self):
+        """
+        根据敌人数据表中的恢复时间，计算恢复时间对应的tick数。
+        """
+        self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
+
+    def increase_stun_recovery_time(self, increase_tick: int):
+        self.stun_recovery_time += increase_tick
 
     @staticmethod
     def __lookup_enemy(enemy_data: pd.DataFrame,
