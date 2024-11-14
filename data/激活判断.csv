@@ -1,4 +1,4 @@
-BuffName,is_weapon,is_debuff,from,exist,name,active,durationtype,maxduration,duration,maxcount,count,incrementalstep,prejudge,endjudge,freshtype,alltime,hitincrease,increaseCD,readyto_increase,simple_judge_logic,simple_start_logic,simple_end_logic,simple_effect,refinement,add_buff_to
+BuffName,is_weapon,is_debuff,from,exist,name,active,durationtype,maxduration,duration,maxcount,count,incrementalstep,prejudge,endjudge,freshtype,alltime,hitincrease,increaseCD,readyto_increase,simple_judge_logic,simple_start_logic,simple_end_logic,simple_hit_logic,refinement,add_buff_to
 Ellen_PassiveSkill,False,False,艾莲,False,艾莲组队被动,False,True,600,0.0,10.0,0.0,1.0,False,False,True,False,True,0.0,True,True,True,True,True,0.0,100
 Ellen_UniqueSkill_1,False,False,艾莲,False,艾莲核心被动_冲刺攻击触发,False,False,0,0.0,1.0,0.0,1.0,False,False,True,False,False,0.0,True,True,True,True,True,0.0,100
 Ellen_UniqueSkill_2,False,False,艾莲,False,艾莲核心被动_SNA触发,False,False,0,0.0,1.0,0.0,1.0,False,False,True,False,False,0.0,True,True,True,True,True,0.0,100
