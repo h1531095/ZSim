@@ -1,5 +1,4 @@
 import json
-from dataclasses import dataclass
 from functools import lru_cache
 import numpy as np
 
@@ -148,8 +147,13 @@ class MultiplierData:
             else:
                 # 检查buff的简单效果是否为空
                 buff_obj: Buff.Buff
-                if not buff_obj.ft.simple_hit_logic:
-                    raise ValueError(f"属性 ft.simple_effect 不能为：{buff_obj.ft.simple_hit_logic}，功能还没写！")
+                  
+                if not buff_obj.ft.simple_effect:
+                    raise NotImplementedError(f"属性 ft.simple_effect 不能为：{buff_obj.ft.simple_effect}，功能还没写！")
+                if not buff_obj.dy.active:
+                    report_to_log(f"[Buff Effect] 动态buff列表中混入了未激活buff: {str(buff_obj)}，已跳过")
+                    continue
+
 
                 # 获取buff的层数
                 count = buff_obj.dy.count
@@ -294,6 +298,8 @@ class MultiplierData:
 
             self.special_multiplier_zone: float = 0.0
 
+            self.stun_tick_increase: float = 0.0
+
             self.__read_dynamic_statement(dynamic_statement)
 
         def __read_dynamic_statement(self, dynamic_statement: dict) -> None:
@@ -354,6 +360,9 @@ class Calculator:
         self.regular_multipliers = self.RegularMul(data)
         self.anomaly_multipliers = self.AnomalyMul(data)
         self.stun_multipliers = self.StunMul(data)
+
+        # 处理失衡时间增加
+        self.update_stun_tick(enemy_obj, data)
 
     class RegularMul:
         """
@@ -909,6 +918,12 @@ class Calculator:
         multipliers: np.array = self.stun_multipliers.get_stun_array()
         stun = np.prod(multipliers)
         return stun
+
+    @staticmethod
+    def update_stun_tick(enemy_obj: Enemy, data):
+        """专门更新延长失衡时间的 buff"""
+        if data.dynamic.stun_tick_increase > 0:
+            enemy_obj.increase_stun_recovery_time(data.dynamic.stun_tick_increase)
 
 
 if __name__ == '__main__':

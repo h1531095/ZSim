@@ -7,7 +7,7 @@ class PhysicalAnomaly(AnomalyBar):
     def __post_init__(self):
         super().__post_init__()
         self.element_type = 0
-        self.accompany_debuff = '畏缩'
+        self.accompany_debuff = 'Buff-异常-畏缩'
 
 
 @dataclass
@@ -23,7 +23,7 @@ class IceAnomaly(AnomalyBar):
     def __post_init__(self):
         super().__post_init__()  # 调用父类的初始化方法
         self.element_type = 2  # 冰属性
-        self.accompany_debuff = '霜寒'
+        self.accompany_debuff = 'Buff-异常-霜寒'
         self.accompany_dot = '冻结'
 
 
@@ -50,4 +50,4 @@ class FireIceAnomaly(AnomalyBar):
         super().__post_init__()  # 调用父类的初始化方法
         self.element_type = 5  # 烈霜属性（星见雅专属）
         self.accompany_dot = '冻结'
-        self.accompany_debuff = '霜寒'
+        self.accompany_debuff = 'Buff-异常-霜寒'

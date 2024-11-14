@@ -40,7 +40,11 @@ def process_csv_file(file_path):
 
     # 处理除首行首列外的数据
     for row_index in tqdm(range(1, len(rows))):
+        if row_index == 'add_buff_to':
+            continue
         for col_index in range(1, len(rows[row_index])):
+            if col_index == 'add_buff_to':
+                continue
             rows[row_index][col_index] = process_cell(rows[row_index][col_index])
 
     # 将处理后的数据写回文件
