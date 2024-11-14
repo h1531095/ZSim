@@ -217,6 +217,7 @@ if st.session_state.submit_role_info:
             # 运行主程序
             main_loop()
             write_to_csv()
+            print('\n')
         with st.spinner('等待IO完成···'):
             Report.log_queue.join()
             Report.result_queue.join()

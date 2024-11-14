@@ -3,14 +3,21 @@ import Buff.BuffLoad
 import Enemy
 import Preload
 import Report
-import UpdateAnomaly
-from AnomalyBar import AnomalyBar as AnE
+from AnomalyBar import AnomalyBar as AnB
 from AnomalyBar import Disorder
 from Buff.BuffExist_Judge import buff_exist_judge
 from CharSet_new import Character
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator
 
+
+class ScConditionData:
+    """
+    用于记录在本tick可能的判断 buff 数据，以方便后续计算伤害
+    """
+    def __init__(self):
+        self.buff_list: list = []
+        self.when_crit: bool = False
 
 
 class ScheduledEvent:
@@ -22,10 +29,13 @@ class ScheduledEvent:
     2、遍历事件列表，从开始到结束，将每一个事件派发到分支逻辑链内进行处理
     """
 
-    def __init__(self,dynamic_buff: dict, data, tick: int, *, loading_buff: dict = None):
+    def __init__(self, dynamic_buff: dict, data, tick: int, *, loading_buff: dict = None, judging_buff: dict = None):
 
         self.data = data
         self.data.dynamic_buff = dynamic_buff
+
+        if isinstance(judging_buff, dict):
+            judge_condition = ScConditionData()
 
         if loading_buff is None:
             loading_buff = {}
@@ -41,7 +51,6 @@ class ScheduledEvent:
 
     def event_start(self):
         """Schedule主逻辑"""
-
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
@@ -54,19 +63,19 @@ class ScheduledEvent:
                 elif isinstance(event, Preload.SkillNode):
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
-                elif isinstance(event, AnE):
+                elif isinstance(event, AnB):
                     self.anomaly_event(event)
                 elif isinstance(event, Disorder):
                     self.disorder_event(event)
                 else:
-                    raise NotImplementedError(f"Wrong event type: {type(event)}")
+                    raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
             # 计算过程中如果又有新的事件生成，则继续循环
             if self.data.event_list:
                 self.event_start()
 
     def solve_buff(self) -> None:
         """提前处理Buff实例"""
-        Buff.BuffAdd.buff_add(self.tick, self.data.loading_buff, self.data.dynamic_buff, self.data.enemy)
+        Buff.buff_add(self.tick, self.data.loading_buff, self.data.dynamic_buff, self.data.enemy)
         buff_events = []
         other_events = []
         for event in self.data.event_list[:]:
@@ -95,7 +104,7 @@ class ScheduledEvent:
         if snapshot[1] >= 0.0001:
             element_type_code = snapshot[0]
             updated_bar = self.data.enemy.anomaly_bars_dict[element_type_code]
-            if isinstance(updated_bar, AnE):
+            if isinstance(updated_bar, AnB):
                 updated_bar.update_snap_shot(snapshot)
 
         Report.report_dmg_result(tick=self.tick,
@@ -103,13 +112,13 @@ class ScheduledEvent:
                                  skill_tag=event.skill_tag,
                                  dmg_expect=cal_obj.cal_dmg_expect(),
                                  dmg_crit=cal_obj.cal_dmg_crit(),
-                                 stun_status = self.data.enemy.dynamic.stun,
-                                 buildup = snapshot[1],
-                                 enemy_dynamic = self.data.enemy.dynamic.__str__()
+                                 stun_status=self.data.enemy.dynamic.stun,
+                                 buildup=snapshot[1],
+                                 enemy_dynamic=self.data.enemy.dynamic.__str__()
                                  )
 
-    def anomaly_event(self, event: AnE) -> None:
-        """Anomaly处理分支逻辑"""
+    def anomaly_event(self, event: AnB) -> None:
+        """普通异常伤害处理分支逻辑"""
         cal_obj = CalAnomaly(anomaly_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
         Report.report_dmg_result(tick=self.tick,
@@ -117,7 +126,8 @@ class ScheduledEvent:
                                  dmg_expect=dmg_anomaly,
                                  is_anomaly=True)
 
-    def disorder_event(self, event:Disorder):
+    def disorder_event(self, event: Disorder):
+        """紊乱处理分支逻辑"""
         cal_obj = CalDisorder(disorder_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         stun = cal_obj.cal_disorder_stun()

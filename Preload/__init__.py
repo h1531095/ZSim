@@ -7,11 +7,10 @@ import Skill_Class
 from Enemy import Enemy
 from LinkedList import LinkedList
 from Report import report_to_log
+from define import INPUT_ACTION_LIST
 from . import SkillsQueue
 from . import watchdog
 from .SkillsQueue import SkillNode
-
-from define import INPUT_ACTION_LIST
 
 
 @dataclass
@@ -43,6 +42,7 @@ def stun_judge(enemy) -> bool:
             enemy.dynamic.stun = False
             enemy.dynamic.stun_bar = 0
             enemy.dynamic.stun_tick = 0
+            enemy.restore_stun_recovery_time()
         else:
             enemy.dynamic.stun_tick += 1
     else:
