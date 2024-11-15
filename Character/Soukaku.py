@@ -34,7 +34,7 @@ class Soukaku(Character):
                 if node.skill_tag in ['1131_E_EX_1', '1131_E_EX_2', '1131_E_EX_3', '1131_QTE']:
                     self.vortex += 1
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
-                elif node.skill_tag is '1131_Q':
+                elif node.skill_tag == '1131_Q':
                     self.vortex = 3
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
             # 这里不能 elif
@@ -43,5 +43,5 @@ class Soukaku(Character):
                     self.vortex = 0
                     from main import init_data, load_data
                     char = init_data.name_box[1]
-                    load_data.LOADING_BUFF_DICT[char].append('Buff-角色-苍角-核心被动-2')
+                    # load_data.LOADING_BUFF_DICT[char].append('Buff-角色-苍角-核心被动-2')
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")

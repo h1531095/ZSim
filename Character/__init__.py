@@ -48,7 +48,7 @@ def character_factory(
         return Character(**char_init_args)
 
 
-def _skill_node_filter(*args, **kwargs):
+def _skill_node_filter(*args, **kwargs) -> list[SkillNode]:
     """过滤出输入的 SKillNode，并作为列表返回"""
     skill_nodes: list[SkillNode] = []
     for arg in args:
