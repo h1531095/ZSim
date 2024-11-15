@@ -44,6 +44,9 @@ def character_factory(
     elif name == '艾莲':
         from .Ellen import Ellen
         return Ellen(**char_init_args)
+    elif name == '雅':
+        from .Miyabi import Miyabi
+        return Miyabi(**char_init_args)
     else:
         return Character(**char_init_args)
 

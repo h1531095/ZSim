@@ -1,5 +1,6 @@
 import json
 import importlib
+import pandas as pd
 from Report import report_to_log
 from define import EFFECT_FILE_PATH
 import importlib.util
@@ -195,8 +196,8 @@ class Buff:
             self.last_duration = 0  # buff上一次的持续时间
             self.end_times = 0  # buff结束过的次数
             self.real_count = 0  # 莱特组队被动专用的字段，用于记录实层。
-    @staticmethod
-    def __lookup_buff_effect(index: str) -> dict:
+
+    def __lookup_buff_effect(self, index: str) -> dict:
         """
         根据索引获取buff效果字典。
 
@@ -211,14 +212,34 @@ class Buff:
         """
         # 初始化一个空的字典来存储buff效果
         # 读取包含所有buff效果的CSV文件
-        with open (EFFECT_FILE_PATH, 'r', encoding='utf-8') as f:
-            all_buff_js = json.load(f)
+        all_buff_js = self.__convert_buff_js(EFFECT_FILE_PATH)
         try:
             buff = all_buff_js[index]
         except KeyError as e:
             buff = {}
             report_to_log(f'[WARNING] {e}: 索引{index}没有找到，或buff效果json结构错误', level=4)
         return buff
+
+    @staticmethod
+    def __convert_buff_js(csv_file):
+        df = pd.read_csv(csv_file)
+        # 初始化结果字典
+        result = {}
+        # 遍历 DataFrame 的每一行
+        for index, row in df.iterrows():
+            name = row['名称']
+            value = {}
+            # 处理 key-value 对
+            for i in range(1, 21, 2):
+                try:
+                    key = row[f'key{i}']
+                    val = row[f'value{i}']
+                    if pd.notna(key) and pd.notna(val):
+                        value[key] = float(val)
+                except KeyError:
+                    continue
+            result[name] = value
+        return result
 
     def ready_judge(self, timenow):
         """
