@@ -3,6 +3,13 @@ from AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
 import numpy as np
 import Enemy
 import Buff
+import importlib
+from Dot.BaseDot import Dot
+
+
+anomlay_dot_dict = {
+    1: 'Ignite'
+}
 
 
 def spawn_output(anomaly_bar, mode_number):
@@ -96,6 +103,15 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 anomaly_effect_active(bar, DYNAMIC_BUFF_DICT, exist_buff_dict['enemy'], timenow, enemy)
                 event_list.append(new_anomaly)
                 print(f'触发{enemy.trans_element_number_to_str[element_type]}属性异常！')
+                new_dot = spawn_anomaly_dot(element_type, timenow, new_anomaly)
+                if new_dot:
+                    for dots in enemy.dynamic.dynamic_dot_list[:]:
+                        if dots.ft.index == new_dot.ft.index:
+                            dots.end(timenow)
+                            enemy.dynamic.dynamic_dot_list.remove(dots)
+                    enemy.dynamic.dynamic_dot_list.append(new_dot)
+                    # event_list.append(new_dot)
+                    print(f'触发dot：{new_dot.ft.index}')
             elif element_type not in active_anomaly_list and len(active_anomaly_list) > 0:
                 '''
                 这个分支意味着：要结算紊乱。那么需要复制的就不应该是新的这个属性异常，而应该是老的属性异常的bar实例。
@@ -111,6 +127,30 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 print(f'触发紊乱！')
             setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)       # 同步更新enemy.dynamic下面的属性异常状态。
 
+
+def spawn_anomaly_dot(element_type, timenow, bar=None):
+    if element_type in anomlay_dot_dict:
+        class_name = anomlay_dot_dict[element_type]
+        new_dot = create_dot_instance(class_name, bar)
+        if isinstance(new_dot, Dot):
+            new_dot.start(timenow)
+        return new_dot
+    else:
+        return False
+
+
+def create_dot_instance(class_name, bar=None):
+    # 动态导入相应模块
+    module_name = f"Dot.Dots.{class_name}"  # 假设你的类都在dot.DOTS模块中
+    try:
+        module = importlib.import_module(module_name)  # 导入模块
+        class_obj = getattr(module, class_name)  # 获取类对象
+        if bar:
+            return class_obj(bar)
+        else:
+            return class_obj()  # 创建并返回类实例
+    except (ModuleNotFoundError, AttributeError) as e:
+        raise ValueError(f"Error loading class {class_name}: {e}")
 
             # TODO: 实现属性异常触发后，同步向DYNAMIC_BUFF_DICT添加buff，或是添加Dot，
             # TODO：当前问题：新的buff的实例化需要读取CSV，频繁读取可能会影响性能。需要重新定位实例化Buff的位置。
