@@ -1,6 +1,7 @@
 import json
 from functools import lru_cache
 import numpy as np
+import pandas as pd
 
 import Buff
 from Character import Character
@@ -149,9 +150,9 @@ class MultiplierData:
                 buff_obj: Buff.Buff
                 # if not buff_obj.ft.simple_hit_logic:
                 #     raise NotImplementedError(f"属性 ft.simple_effect 不能为：{buff_obj.ft.simple_hit_logic}，功能还没写！")
-                # if not buff_obj.dy.active:
-                #     report_to_log(f"[Buff Effect] 动态buff列表中混入了未激活buff: {str(buff_obj)}，已跳过")
-                #     continue
+                if not buff_obj.dy.active:
+                     report_to_log(f"[Buff Effect] 动态buff列表中混入了未激活buff: {str(buff_obj)}，已跳过")
+                     continue
 
 
                 # 获取buff的层数
@@ -673,7 +674,7 @@ class Calculator:
 
             self.base_damage: float = self.cal_base_damage(data)
             self.dmg_bonus: float = self.cal_dmg_bonus(data)
-            self.am_mul: float = self.cal_am_mul(data)
+            self.ap_mul: float = self.cal_ap_mul(data)
             self.level: int = data.char_level
             self.anomaly_bonus: float = self.cal_ano_dmg_mul(data)
             self.anomaly_crit: float = self.cal_anomaly_crit(data)
@@ -684,7 +685,7 @@ class Calculator:
             self.anomaly_snapshot = np.array([
                                                 self.base_damage,
                                                 self.dmg_bonus,
-                                                self.am_mul,
+                                                self.ap_mul,
                                                 self.level,
                                                 self.anomaly_bonus,
                                                 self.anomaly_crit,
@@ -700,7 +701,7 @@ class Calculator:
             # 基础蓄积值
             accumulation = data.skill_node.skill.anomaly_accumulation
             # 异常掌控
-            ap = data.static.ap * (1 + data.dynamic.field_anomaly_proficiency) + data.dynamic.anomaly_proficiency
+            am = data.static.am * (1 + data.dynamic.field_anomaly_mastery) + data.dynamic.anomaly_mastery
             # 属性异常积蓄效率提升、属性异常积蓄抗性
             element_type = data.skill_node.skill.element_type
             if element_type == 0:
@@ -748,7 +749,7 @@ class Calculator:
             element_dmg_percentage = data.skill_node.skill.element_damage_percent
             hit_times = data.skill_node.hit_times
 
-            anomaly_buildup = (accumulation * (ap / 100) * (
+            anomaly_buildup = (accumulation * (am / 100) * (
                     1 + element_buildup_bonus + trigger_buildup_bonus) *
                                buildup_res * element_dmg_percentage / hit_times)
             return np.float64(anomaly_buildup)
@@ -793,11 +794,11 @@ class Calculator:
             return dmg_bonus
 
         @staticmethod
-        def cal_am_mul(data: MultiplierData) -> float:
+        def cal_ap_mul(data: MultiplierData) -> float:
             """异常精通区 = 异常精通 / 100"""
-            am = data.static.am * (1 + data.dynamic.field_anomaly_mastery) + data.dynamic.anomaly_mastery
-            am_mul = am / 100
-            return am_mul
+            ap = data.static.ap * (1 + data.dynamic.field_anomaly_proficiency) + data.dynamic.anomaly_proficiency
+            ap_mul = ap / 100
+            return ap_mul
 
         @staticmethod
         def cal_ano_dmg_mul(data: MultiplierData) -> float:
