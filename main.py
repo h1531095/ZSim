@@ -5,7 +5,7 @@ import Load
 import Preload
 import Report
 import ScheduledEvent as ScE
-from CharSet_new import Character
+from Character import Character, character_factory
 from Enemy import Enemy
 from Report import write_to_csv
 from Update_Buff import update_dynamic_bufflist
@@ -50,7 +50,7 @@ class CharacterData:
             i = 0
             for _ in self.InitData.name_box:
                 char_dict = getattr(InitData, f'char_{i}')
-                char_obj = Character(**char_dict)
+                char_obj: Character = character_factory(**char_dict)
                 self.char_obj_list.append(char_obj)
                 i += 1
 
@@ -83,7 +83,7 @@ class GlobalStats:
     def __post_init__(self):
         for name in self.name_box + ['enemy']:
             self.DYNAMIC_BUFF_DICT[name] = []
-
+tick = 0
 def main_loop(stop_tick: int | None = None):
     global tick
     while True:
@@ -110,8 +110,11 @@ def main_loop(stop_tick: int | None = None):
         # ScheduledEvent
         scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
         scheduled.event_start()
+
         tick += 1
         print(f"\r{tick}", end='')
+
+
 
 
 if __name__ == '__main__':
@@ -127,6 +130,7 @@ if __name__ == '__main__':
     # Initialize Preload Data
     skills = (char.skill_object for char in char_data.char_obj_list)
     preload = Preload.Preload(*skills)
+
 
     main_loop()
     write_to_csv()

@@ -198,8 +198,6 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
                 """
                 final_condition = process_string(csv_judge_condition)
                 if getattr(skill_now, judge_condition) not in final_condition:
-                    all_match = False
-                    break
     else:
         buff_now.logic.xjudge
     return all_match
