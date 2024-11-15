@@ -20,6 +20,7 @@ class AnomalyBar:
     accompany_debuff: str = None   # 是否在激活时伴生debuff的index
     accompany_dot: str = None  # 是否在激活时伴生dot的index
     active: bool = None    # 当前异常条是否激活，这一属性和enemy下面的异常开关同步。
+    max_duration = None
 
 
     def __post_init__(self):
@@ -30,7 +31,7 @@ class AnomalyBar:
         self.is_disorder = False
         self.last_active = 0
         self.ready = True
-        self.max_duration = 600
+
 
     def duration(self, timetick: int):
         duration = timetick - self.last_active
@@ -48,6 +49,7 @@ class AnomalyBar:
         new_ndarray = new_snap_shot[2].reshape(1, -1)  # 将数据重塑为一行多列的形式
         build_up_value = new_snap_shot[1]  # 获取积蓄值
 
+
         if self.current_ndarray.shape[1] != new_ndarray.shape[1]:
             # 扩展 current_ndarray 列数，保持已有数据，新增的部分会填充为零
             if self.current_ndarray.shape[1] < new_ndarray.shape[1]:
@@ -62,7 +64,6 @@ class AnomalyBar:
                 raise ValueError(f'传入的快照数组列数为{new_ndarray.shape[1]}，小于快照缓存的列数！')
 
         cal_result_1 = build_up_value * new_ndarray
-
         self.current_ndarray += cal_result_1
         self.current_anomaly += build_up_value
 

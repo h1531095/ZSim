@@ -8,7 +8,9 @@ from Dot.BaseDot import Dot
 
 
 anomlay_dot_dict = {
-    1: 'Ignite'
+    1: 'Ignite',
+    3: 'Shock',
+    4: 'Corruption'
 }
 
 
@@ -32,7 +34,7 @@ def spawn_output(anomaly_bar, mode_number):
     return output
 
 
-def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, sub_exist_buff_dict: dict, timenow: int, enemy: Enemy.Enemy):
+def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, sub_exist_buff_dict: dict, timenow: int, enemy: Enemy.Enemy, new_anomaly, element_type):
     """
     该函数的作用是创建属性异常附带的debuff和dot，
     debuff与dot的index写在了Anomaly.accompany_debuff和Anomaly.accompany_dot里。
@@ -48,7 +50,15 @@ def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, sub_exist_bu
         DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
         enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
     if bar.accompany_dot:
-        pass
+        new_dot = spawn_anomaly_dot(element_type, timenow, new_anomaly)
+        if new_dot:
+            for dots in enemy.dynamic.dynamic_dot_list[:]:
+                if dots.ft.index == new_dot.ft.index:
+                    dots.end(timenow)
+                    enemy.dynamic.dynamic_dot_list.remove(dots)
+            enemy.dynamic.dynamic_dot_list.append(new_dot)
+            # event_list.append(new_dot)
+            print(f'触发dot：{new_dot.ft.index}')
 
 
 def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list, DYNAMIC_BUFF_DICT: dict, exist_buff_dict: dict, timenow: int):
@@ -100,18 +110,10 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 """
                 mode_number = 0
                 new_anomaly = spawn_output(bar, mode_number)
-                anomaly_effect_active(bar, DYNAMIC_BUFF_DICT, exist_buff_dict['enemy'], timenow, enemy)
+                anomaly_effect_active(bar, DYNAMIC_BUFF_DICT, exist_buff_dict['enemy'], timenow, enemy, new_anomaly, element_type)
                 event_list.append(new_anomaly)
                 print(f'触发{enemy.trans_element_number_to_str[element_type]}属性异常！')
-                new_dot = spawn_anomaly_dot(element_type, timenow, new_anomaly)
-                if new_dot:
-                    for dots in enemy.dynamic.dynamic_dot_list[:]:
-                        if dots.ft.index == new_dot.ft.index:
-                            dots.end(timenow)
-                            enemy.dynamic.dynamic_dot_list.remove(dots)
-                    enemy.dynamic.dynamic_dot_list.append(new_dot)
-                    # event_list.append(new_dot)
-                    print(f'触发dot：{new_dot.ft.index}')
+
             elif element_type not in active_anomaly_list and len(active_anomaly_list) > 0:
                 '''
                 这个分支意味着：要结算紊乱。那么需要复制的就不应该是新的这个属性异常，而应该是老的属性异常的bar实例。

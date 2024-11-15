@@ -34,7 +34,6 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
 
     def special_hit_logic(self):
         main_module = sys.modules['__main__']
-
         enemy = main_module.schedule_data.enemy
         dynamic_buff = main_module.global_stats.DYNAMIC_BUFF_DICT
         char_list = main_module.char_data.char_obj_list

@@ -17,8 +17,7 @@ def SpawnDamageEvent(mission: LoadingMission | Dot.Dot, event_list: list):
     elif isinstance(mission, Dot.Dot):
         if mission.dy.effect_times > mission.ft.max_effect_times:
             raise ValueError('该Dot任务已经完成，应当被删除！')
-        if mission.ft.effect_rules == 1:
-            event_list.append(mission.anomaly_data)
+        event_list.append(mission.anomaly_data)
 
 
 def ProcessTimeUpdateDots(timetick: int, dot_list: list, event_list: list):
@@ -52,6 +51,9 @@ def ProcessHitUpdateDots(timetick: int, dot_list: list, event_list: list):
             dot.ready_judge(timetick)
             if dot.dy.ready:
                 SpawnDamageEvent(dot, event_list)
+                dot.dy.ready = False
+                dot.dy.last_effect_ticks = timetick
+                dot.dy.effect_times += 1
 
 
 def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy, event_list: list, DYNAMIC_BUFF_DICT, exist_buff_dict):
