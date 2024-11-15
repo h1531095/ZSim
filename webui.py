@@ -19,7 +19,7 @@ from define import CHARACTER_DATA_PATH
 # 定义数据类
 @dataclass
 class InitData:
-    name_box = ['艾莲', '苍角', '莱卡恩']
+    name_box = ['艾莲', '苍角', '莱特']
     Judge_list_set = [['艾莲', '深海访客', '极地重金属'],
                       ['苍角', '含羞恶面', '自由蓝调'],
                       ['莱卡恩', '拘缚者', '镇星迪斯科']]

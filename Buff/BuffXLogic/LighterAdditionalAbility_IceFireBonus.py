@@ -1,21 +1,10 @@
 from Buff import Buff
 from ScheduledEvent import Calculator
 from ScheduledEvent.Calculator import MultiplierData
-global char_data, schedule_data, global_stats, load_data, tick
+import sys
 
 
-enemy = schedule_data.enemy
-dynamic_buff = global_stats.dynamic_buff
-char_list = char_data.char_obj_list
-for _ in char_list:
-    if _.CID == '1161':
-        character = _
-        mul_data = MultiplierData(enemy, dynamic_buff, character)
-        break
-else:
-    raise ValueError(f'char_list中并未找到角色莱特')
-
-class LithterExtraSkill_IceFireBonus(Buff.BuffLogic):
+class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
     """
     这个buff的特性是：能叠20层，每层起码有1.25%冰火增伤。但是，每次层数更新时，都会检测冲击力，
     冲击力超过170的部分，都会以0.025%的数值增幅到这个1.25%的基础数值上。
@@ -44,11 +33,23 @@ class LithterExtraSkill_IceFireBonus(Buff.BuffLogic):
         pass
 
     def special_hit_logic(self):
-        buff_0 = load_data.exist_buff_dict['莱特'][self.buff_instance.ft.index]
+        main_module = sys.modules['__main__']
+
+        enemy = main_module.schedule_data.enemy
+        dynamic_buff = main_module.global_stats.DYNAMIC_BUFF_DICT
+        char_list = main_module.char_data.char_obj_list
+        for _ in char_list:
+            if _.CID == 1161:
+                character = _
+                mul_data = MultiplierData(enemy, dynamic_buff, character)
+                break
+        else:
+            raise ValueError(f'char_list中并未找到角色莱特')
+        buff_0 = main_module.load_data.exist_buff_dict['莱特'][self.buff_instance.ft.index]
         buff_i = self.buff_instance
         buff_i.dy.active = True
-        buff_i.dy.startticks = tick
-        buff_i.dy.endticks = tick + buff_i.ft.maxduration
+        buff_i.dy.startticks = main_module.tick
+        buff_i.dy.endticks = main_module.tick + buff_i.ft.maxduration
 
         real_count = buff_0.history.real_count
         real_count = min(real_count + 5, 100)
@@ -61,8 +62,11 @@ class LithterExtraSkill_IceFireBonus(Buff.BuffLogic):
         sum_fake_count = real_count / 5 * fake_count_delta
         buff_i.dy.count = real_count + sum_fake_count
         buff_i.update_to_buff_0(buff_0)
+        # print('buff_i：', main_module.tick, buff_i.dy.active, buff_i.dy.startticks, buff_i.dy.endticks, real_count, sum_fake_count)
+        # print('buff_0：', buff_0.dy.active, buff_0.dy.startticks, buff_0.dy.endticks, buff_0.history.real_count)
 
 
     def special_end_logic(self):
         # 实现特定的结束逻辑
         pass
+

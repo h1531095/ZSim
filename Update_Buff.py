@@ -5,6 +5,7 @@ from Dot import BaseDot
 
 
 def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: dict, enemy: Enemy.Enemy):
+    update_anomaly_bar(timetick, enemy)
     """
     该函数是buff修改三部曲的第一步,\n
     \n
@@ -47,3 +48,10 @@ def update_dot(enemy: Enemy.Enemy, timetick):
             _.end(timetick)
             enemy.dynamic.dynamic_dot_list.remove(_)
             report_to_log(f"[Dot END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)
+
+def update_anomaly_bar(time_now: int ,enemy: Enemy.Enemy):
+    for element_type, bar in enemy.anomaly_bars_dict.items():
+        bar.check_myself(time_now)
+        setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], bar.active)
+
+

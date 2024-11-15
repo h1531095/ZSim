@@ -39,15 +39,19 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
     这样，它就一定会在buff_go_to函数中导致'enemy'字段进入selected_characters列表，这样一来，enemy会被当成正常角色来执行正常的buff添加和update。
     """
     for char in selected_characters:
-        buff_new = Buff(active_condition_dict, judge_condition_dict)
+        """
+        在20241115的更新中，我将原本位于这一行的buff_new的实例化，挪到了通过判定的分支内。这样可以节省一部分性能。
+        """
         for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
             if time_now - 1 < sub_mission_start_tick <= time_now:
                 """
                 筛选出正在发生的子任务，如果子任务正在发生就直接执行update，把子任务的str传进buff.update()函数
                 并且触发对应的分支（start、hit、end），完成符合buff属性的时间、层数更新。
                 """
+                buff_new = Buff(active_condition_dict, judge_condition_dict)
                 buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-                LOADING_BUFF_DICT[char].append(buff_new)
+                if buff_new.dy.is_changed:
+                    LOADING_BUFF_DICT[char].append(buff_new)
                 # report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
     # else:
     #     buff_new = Buff(active_condition_dict, judge_condition_dict)
@@ -166,9 +170,8 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
         如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
         说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
     """
-
-    if all(value is None for value in judge_condition_dict.values()) and buff_now.ft.simple_judge_logic:
-        return False  # 字典中所有值都是None，跳过判断，返回False
+    if (not any(value if value is None else True for value in judge_condition_dict.values)) and buff_now.ft.simple_judge_logic:
+        return False
 
     """
     正常buff的判断逻辑
@@ -188,6 +191,7 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
             所以需要BUFF_LOADING_CONDITION_TRANSLATION_DICT进行翻译。
             """
             csv_judge_condition = judge_condition_dict[condition]
+
             if csv_judge_condition is not None:
                 """
                 如果键值下面是None则直接跳过。
@@ -207,11 +211,13 @@ def process_string(s):
     由于getattr方法获得的技能属性的数值永远是单个的，所以用 技能属性 in list 的判定逻辑，
     这样就可以实现“或”逻辑。
     """
-    if '|' in s:
-        split_list = s.split('|')
-        return [int(item) if item.isdigit() else item for item in split_list]
-    else:
-        return [int(s) if s.isdigit() else s]
+    if isinstance(s, str):
+        if '|' in s:
+            split_list = s.split('|')
+            return [int(item) if item.isdigit() else item for item in split_list]
+        else:
+            return [int(s) if s.isdigit() else s]
+    return [s]
 
 
 if __name__ == "__main__":      # 测试

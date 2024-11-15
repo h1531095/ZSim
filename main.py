@@ -10,13 +10,16 @@ from Enemy import Enemy
 from Report import write_to_csv
 from Update_Buff import update_dynamic_bufflist
 
+tick = 0
+
+
 
 @dataclass
 class InitData:
-    name_box = ['艾莲', '苍角', '莱卡恩']
+    name_box = ['艾莲', '苍角', '莱特']
     Judge_list_set = [['艾莲', '深海访客', '极地重金属'],
                       ['苍角', '含羞恶面', '自由蓝调'],
-                      ['莱卡恩', '拘缚者', '镇星迪斯科']]
+                      ['莱特', '拘缚者', '镇星迪斯科']]
     char_0 = {'name' : name_box[0],
               'weapon': '深海访客', 'weapon_level': 1,
               'equip_set4': '极地重金属', 'equip_set2_a': '啄木鸟电音',
@@ -82,7 +85,7 @@ class GlobalStats:
             self.DYNAMIC_BUFF_DICT[name] = []
 tick = 0
 def main_loop(stop_tick: int | None = None):
-    tick = 0
+    global tick
     while True:
         # Tick Update
         update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
@@ -115,7 +118,6 @@ def main_loop(stop_tick: int | None = None):
 
 
 if __name__ == '__main__':
-    # global data
     init_data = InitData()
     char_data = CharacterData(init_data)
     load_data = LoadData(
