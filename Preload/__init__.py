@@ -69,7 +69,7 @@ class Preload:
     def __str__(self):
         return f"Preload Data: \n{self.preload_data.preloaded_action}"
 
-    def do_preload(self, tick: int, enemy: Enemy = None, name_box: list[str] = None):
+    def do_preload(self, tick: int, enemy: Enemy = None, name_box: list[str] = None, char_data = None):
         if isinstance(enemy, Enemy):
             stun_status: bool = stun_judge(enemy)
         if self.preload_data.current_node is None:
@@ -97,7 +97,9 @@ class Preload:
                     name_box.append(name_switch)
                     name_switch = name_box.pop(0)
                     name_box.append(name_switch)
-
+            if char_data is not None:
+                for char in char_data.char_obj_list:
+                    char.special_resources(this_node)
 
 if __name__ == '__main__':
     skills = (Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
