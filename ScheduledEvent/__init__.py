@@ -3,7 +3,9 @@ import Buff.BuffLoad
 import Enemy
 import Preload
 import Report
+
 from AnomalyBar import AnomalyBar as AnB
+
 from AnomalyBar import Disorder
 from Buff.BuffExist_Judge import buff_exist_judge
 from Character import Character
