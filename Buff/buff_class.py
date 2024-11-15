@@ -3,6 +3,7 @@ import importlib
 from Report import report_to_log
 from define import EFFECT_FILE_PATH
 import importlib.util
+import pandas as pd
 from copy import deepcopy
 
 with open('./config.json', 'r', encoding='utf-8') as file:
