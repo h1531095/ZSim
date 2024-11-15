@@ -80,7 +80,18 @@ class GlobalStats:
     def __post_init__(self):
         for name in self.name_box + ['enemy']:
             self.DYNAMIC_BUFF_DICT[name] = []
+
 tick = 0
+
+init_data = InitData()
+char_data = CharacterData(init_data)
+load_data = LoadData(
+        name_box=init_data.name_box,
+        Judge_list_set=init_data.Judge_list_set,
+        weapon_dict=init_data.weapon_dict)
+schedule_data = ScheduleData(enemy=Enemy(), char_obj_list=char_data.char_obj_list)
+global_stats = GlobalStats(name_box=init_data.name_box)
+
 def main_loop(stop_tick: int | None = None):
     tick = 0
     while True:
@@ -88,7 +99,7 @@ def main_loop(stop_tick: int | None = None):
         update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
 
         # Preload
-        preload.do_preload(tick, schedule_data.enemy, init_data.name_box)
+        preload.do_preload(tick, schedule_data.enemy, init_data.name_box, char_data)
         preload_list = preload.preload_data.preloaded_action
 
         if stop_tick is None:
@@ -116,14 +127,7 @@ def main_loop(stop_tick: int | None = None):
 
 if __name__ == '__main__':
     # global data
-    init_data = InitData()
-    char_data = CharacterData(init_data)
-    load_data = LoadData(
-            name_box=init_data.name_box,
-            Judge_list_set=init_data.Judge_list_set,
-            weapon_dict=init_data.weapon_dict)
-    schedule_data = ScheduleData(enemy=Enemy(), char_obj_list=char_data.char_obj_list)
-    global_stats = GlobalStats(name_box=init_data.name_box)
+
 
     # Initialize Preload Data
     skills = (char.skill_object for char in char_data.char_obj_list)
