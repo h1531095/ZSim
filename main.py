@@ -13,14 +13,14 @@ from Update_Buff import update_dynamic_bufflist
 
 @dataclass
 class InitData:
-    name_box = ['艾莲', '苍角', '莱特']
-    Judge_list_set = [['艾莲', '深海访客', '极地重金属'],
+    name_box = ['柳', '苍角', '莱特']
+    Judge_list_set = [['柳', '深海访客', '极地重金属'],
                       ['苍角', '含羞恶面', '自由蓝调'],
                       ['莱特', '拘缚者', '镇星迪斯科']]
     char_0 = {'name' : name_box[0],
               'weapon': '深海访客', 'weapon_level': 1,
               'equip_set4': '极地重金属', 'equip_set2_a': '啄木鸟电音',
-              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
+              'drive4' : '异常精通', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
               'scATK_percent': 10, 'scCRIT': 20}
     char_1 = {'name' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,
@@ -30,7 +30,7 @@ class InitData:
     char_2 = {'name' : name_box[2],
               'weapon': '拘缚者', 'weapon_level': 1,
               'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '冲击力%',
+              'drive4' : '异常精通', 'drive5' : '攻击力%', 'drive6' : '冲击力%',
               'scATK_percent': 10, 'scCRIT': 20}
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
