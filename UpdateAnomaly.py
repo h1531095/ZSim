@@ -37,18 +37,14 @@ def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, exist_buff_d
         all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, exist_buff_dict)
         anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
         #   修改一些必要的属性。
-        anomaly_debuff_new.dy.count = 1
-        anomaly_debuff_new.dy.active = True
-        anomaly_debuff_new.dy.startticks = timenow
-        anomaly_debuff_new.dy.endticks = timenow + anomaly_debuff_new.ft.maxduration
-        anomaly_debuff_new.update_to_buff_0(exist_buff_dict[bar.accompany_debuff])
+        anomaly_debuff_new.simple_start(timenow, exist_buff_dict['enemy'])
         DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
         enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
     if bar.accompany_dot:
         pass
 
 
-def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list, DYNAMIC_BUFF_DICT:dict, exist_buff_dict: dict, timenow: int):
+def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list, DYNAMIC_BUFF_DICT: dict, exist_buff_dict: dict, timenow: int):
     """
     该函数需要在Loading阶段，submission是End的时候运行。
     用于判断该次属性异常触发应该是新建、替换还是触发紊乱。
