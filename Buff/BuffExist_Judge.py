@@ -64,8 +64,8 @@ def buff_exist_judge(charname_box, judge_list_set, weapon_dict):
 
             judged_buff.dy.exist = False
             buff_from = judged_buff.ft.bufffrom
-            if (buff_from in judge_list_set[k]) or ((buff_from in total_judge_condition_list) and (judged_buff.ft.add_buff_to != 100)) or (buff_from == 'enemy'):
-                # 虽然当前正在处理的是角色A的buff，但是如果角色B的buff也能加给A（此时该buff的 add_buff_to的值就不是100了）
+            if (buff_from in judge_list_set[k]) or ((buff_from in total_judge_condition_list) and (judged_buff.ft.add_buff_to != 1000)) or (buff_from == 'enemy'):
+                # 虽然当前正在处理的是角色A的buff，但是如果角色B的buff也能加给A（此时该buff的 add_buff_to的值就不是1000了）
                 #  那么buff也会被列入A角色的exist_buff_dict中。
                 process_buff(judged_buff, charname, weapon_dict, sub_exist_buff_dict, exist_debuff_dict)
 

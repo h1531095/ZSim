@@ -19,6 +19,7 @@ class AnomalyBar:
     ready: bool = None  # 内置CD状态
     accompany_debuff: str = None   # 是否在激活时伴生debuff的index
     accompany_dot: str = None  # 是否在激活时伴生dot的index
+    active: bool = None    # 当前异常条是否激活，这一属性和enemy下面的异常开关同步。
 
 
     def __post_init__(self):
@@ -68,3 +69,8 @@ class AnomalyBar:
     def ready_judge(self, timenow):
         if timenow - self.last_active >= self.cd:
             self.ready = True
+
+    def check_myself(self, timenow: int):
+        if self.active and (self.last_active + self.max_duration < timenow):
+            self.active = False
+            print(f'属性{self.element_type}的异常状态结束了！')

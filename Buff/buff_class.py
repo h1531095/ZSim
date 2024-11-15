@@ -2,12 +2,13 @@ import json
 import importlib
 from Report import report_to_log
 from define import EFFECT_FILE_PATH
-global char_data, schedule_data, global_stats, load_data, tick
+import importlib.util
+from copy import deepcopy
 
 with open('./config.json', 'r', encoding='utf-8') as file:
     config = json.load(file)
 debug = config.get('debug')
-
+use_cache = False
 
 # 这个index列表里面装的是乘区类型中所有的项目,也是buff效果作用的范围.
 # 这个列表中的内容:在Buff效果.csv 中作为索引存在;而在 Event父类中,它们又包含了 info子类的部分内容 和 multiplication子类的全部内容,
@@ -15,9 +16,9 @@ debug = config.get('debug')
 # 在重构本程序的过程中,我思考过是否要把这个巨大的indexlist按照乘区划分拆成若干,这意味着Event中的Multi子类或许可以独立出来成为一个单独的父类存在.
 # 这样做的好处是:庞大复杂的Multi可以不用蜗居在Event下,结构更加清晰.但是坏处就是,Event和Multi必须1对1实例化,否则容易出现多个动作共用同一份乘区实例的情况,就很容易发生错误NTR(bushi
 buff_logic_map = {
-    'Buff-角色-莱特-额外能力-冰火增伤': 'BuffXLogic.LighterAdditionalAbility_IceFireBonus',
-    # 其他 Buff 的映射
+    'Buff-角色-莱特-额外能力-冰火增伤': '.BuffXLogic.LighterAdditionalAbility_IceFireBonus'
 }
+
 # 该字典用于复杂逻辑的buff的映射。key是Buff命（新版），value是模块文件名。
 
 class Buff:
@@ -28,7 +29,16 @@ class Buff:
     _instance_cache = {}
     _max_cache_size = 256
 
+    # 如果禁用缓存，每次都创建新的实例
+
+
     def __new__(cls, config: dict, judge_config: dict):
+        if not use_cache:
+            return super(Buff, cls).__new__(cls)
+        # 如果是深拷贝操作，直接返回已有实例
+        if config is None and judge_config is None:
+            return super(Buff, cls).__new__(cls)
+
         # 将配置字典转换为 hashable，以便用作缓存的键
         cache_key = (tuple(sorted(config.items())), tuple(sorted(judge_config.items())))
 
@@ -66,10 +76,11 @@ class Buff:
         """
         try:
             module_name = buff_logic_map.get(self.ft.index)
+
             if module_name:
                 # 动态加载模块
-                module = importlib.import_module(module_name)
-                logic_class = getattr(module, self.ft.index)
+                module = importlib.import_module(module_name, package='Buff')
+                logic_class = getattr(module, "LighterExtraSkill_IceFireBonus")
                 self.logic = logic_class(self)
             else:
                 # 默认逻辑
@@ -77,7 +88,7 @@ class Buff:
         except ModuleNotFoundError:
             # 处理模块找不到的情况
             print(f"Module for {self.ft.index} not found. Falling back to default logic.")
-            pass
+
 
     class BuffFeature:
         def __init__(self, config):
@@ -117,6 +128,15 @@ class Buff:
             self.endticks = 0  # buff计划课中,buff的结束时间
             self.settle_times = 0  # buff目前已经被结算过的次数
             self.buff_from = None   # debuff的专用属性，用于记录debuff的来源。
+            """
+            在20241115的更新中，新增了buff.dy.is_change属性。
+            该字段记录了当前buff是否已经成功被变更属性。通过该字段就可以区分进入update函数的buff是否真实地改变了数据，
+            而update_to_buff_0的函数也需要严格根据这个参数的情况来执行。
+            这能够避免某些本应在hit处更新的buff，于start处执行了update函数，被分入start分支后，
+            该buff虽然没有改变属性，但是无条件执行了update_to_buff_0，
+            从而污染了源头数据。导致部分叠层、以及其他属性变更出现问题。
+            """
+            self.is_changed = False
 
     class BuffLogic:
         """
@@ -243,9 +263,8 @@ class Buff:
         self.dy.active = True
         self.dy.startticks = timenow
         self.dy.endticks = timenow + self.ft.maxduration
-        self.dy.count = min(buff_0.count + self.ft.step, self.ft.maxduration)
+        self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxduration)
         self.update_to_buff_0(buff_0)
-
 
     def update(self, char_name: str, timenow, timecost, sub_exist_buff_dict: dict, sub_mission: str):
         """
@@ -256,6 +275,7 @@ class Buff:
         if self.ft.index not in sub_exist_buff_dict:
             raise TypeError(f'{self.ft.index}并不存在于{char_name}的exist_buff_dict中！')
         buff_0 = sub_exist_buff_dict[self.ft.index]
+
         if buff_0.dy.active:
             """
             如果update函数运行时，检测到Buff0已经active，则意味着我们需要更新一个已经被激活的buff。
@@ -284,8 +304,6 @@ class Buff:
         elif sub_mission == 'end':
             if self.ft.endjudge:
                 self.update_cause_end(timenow, sub_exist_buff_dict)
-            else:
-                self.end(timenow, sub_exist_buff_dict)
         elif sub_mission == 'hit':
             self.update_cause_hit(timenow, sub_exist_buff_dict)
 
@@ -297,6 +315,7 @@ class Buff:
         """
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
+        buff_0.dy.active = self.dy.active
         buff_0.dy.ready = self.dy.ready
         buff_0.dy.count = self.dy.count
         buff_0.dy.startticks = self.dy.startticks
@@ -324,7 +343,7 @@ class Buff:
                     self.dy.endticks = timenow + timecost
                     self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
                     self.dy.ready = False
-                    self.update_to_buff_0(buff_0)
+                    self.dy.is_changed = True
             else:
                 if self.ft.prejudge:
                     """
@@ -339,7 +358,7 @@ class Buff:
                     if not self.ft.hitincrease:
                         self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
                     self.dy.ready = False
-                    self.update_to_buff_0(buff_0)
+                    self.dy.is_changed = True
                     """ 
                     所有因start标签而更新的buff，它们的底层逻辑往往和Hit更新互斥，
                     它们的层数计算往往非常直接，就是当前层数 + 步长；
@@ -347,8 +366,11 @@ class Buff:
                     总体层数又被min函数掐死，不用担心移除。
                     """
         else:
-            self.logic.xstart
+            self.logic.xstart()
+            self.dy.is_changed = True
+        if self.dy.is_changed:
             self.update_to_buff_0(buff_0)
+
         # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
 
     def update_cause_end(self, timenow, exist_buff_dict):
@@ -369,10 +391,12 @@ class Buff:
                 self.dy.endticks = timenow + self.ft.maxduration
                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
                 self.dy.ready = False
-                self.update_to_buff_0(buff_0)
+                self.dy.is_changed = True
             # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
         else:
-            self.logic.xend
+            self.logic.xend()
+            self.dy.is_changed = True
+        if self.dy.is_changed:
             self.update_to_buff_0(buff_0)
 
     def update_cause_hit(self, timenow, exist_buff_dict: dict):
@@ -411,12 +435,14 @@ class Buff:
                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
                 self.dy.ready = False
                 self.dy.active = True
-                self.update_to_buff_0(buff_0)
+                self.dy.is_changed = True
             # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
         else:
-            self.logic.xhit
+            self.logic.xhit()
+            self.dy.is_changed = True
+        if self.dy.is_changed:
             self.update_to_buff_0(buff_0)
+
 
     def __str__(self) -> str:
         return f'Buff: {self.ft.name}'
-
