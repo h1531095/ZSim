@@ -12,8 +12,6 @@ from Update_Buff import update_dynamic_bufflist
 
 tick = 0
 
-
-
 @dataclass
 class InitData:
     name_box = ['艾莲', '苍角', '莱特']
@@ -83,7 +81,7 @@ class GlobalStats:
     def __post_init__(self):
         for name in self.name_box + ['enemy']:
             self.DYNAMIC_BUFF_DICT[name] = []
-tick = 0
+
 def main_loop(stop_tick: int | None = None):
     global tick
     while True:
@@ -130,7 +128,6 @@ if __name__ == '__main__':
     # Initialize Preload Data
     skills = (char.skill_object for char in char_data.char_obj_list)
     preload = Preload.Preload(*skills)
-
 
     main_loop()
     write_to_csv()
