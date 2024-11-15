@@ -3,7 +3,7 @@ from functools import lru_cache
 import numpy as np
 
 import Buff
-from CharSet_new import Character
+from Character import Character
 from Enemy import Enemy
 from Preload import SkillNode
 from Report import report_to_log

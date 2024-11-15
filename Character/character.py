@@ -534,7 +534,12 @@ class Character:
         self.PEN_numeric += (scPEN * 9)
         self.baseCRIT_score += (scCRIT * 4.8)
 
-    def __str__(self):
+
+    def special_resources(self, *args, **kwargs) -> None:
+        """父类中不包含默认特殊资源"""
+        return None
+
+    def __str__(self) -> str:
         return f"{self.NAME} {self.level}级"
 
 # TODO 每个拥有特殊资源的角色单独写类，继承自Character
