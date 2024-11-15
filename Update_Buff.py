@@ -44,7 +44,7 @@ def update_dot(enemy: Enemy.Enemy, timetick):
     for _ in enemy.dynamic.dynamic_dot_list[:]:
         if not isinstance(_, BaseDot.Dot):
             raise TypeError(f'Enemy的dot列表中的{_}不是Dot类！')
-        if timetick >= _.dy.endticks:
+        if timetick >= _.dy.end_ticks:
             _.end(timetick)
             enemy.dynamic.dynamic_dot_list.remove(_)
             report_to_log(f"[Dot END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)
