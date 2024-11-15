@@ -25,7 +25,7 @@ def spawn_output(anomaly_bar, mode_number):
     return output
 
 
-def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, exist_buff_dict: dict, timenow: int, enemy: Enemy.Enemy):
+def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, sub_exist_buff_dict: dict, timenow: int, enemy: Enemy.Enemy):
     """
     该函数的作用是创建属性异常附带的debuff和dot，
     debuff与dot的index写在了Anomaly.accompany_debuff和Anomaly.accompany_dot里。
@@ -34,10 +34,10 @@ def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, exist_buff_d
     然后，回传给exist_buff_dict中的Buff0。
     """
     if bar.accompany_debuff:
-        all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, exist_buff_dict)
+        all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, sub_exist_buff_dict)
         anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
         #   修改一些必要的属性。
-        anomaly_debuff_new.simple_start(timenow, exist_buff_dict['enemy'])
+        anomaly_debuff_new.simple_start(timenow, sub_exist_buff_dict)
         DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
         enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
     if bar.accompany_dot:
@@ -79,7 +79,8 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
             enemy.update_anomaly(element_type)
             bar.ready = False
             bar.anomaly_times += 1
-            bar.last_anomaly_time = time_now
+            bar.last_active = time_now
+            bar.active = True
 
             '''
             更新完毕，现在正式进入分支判断
