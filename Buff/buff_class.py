@@ -146,6 +146,16 @@ class Buff:
                 self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
                 self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
                 self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
+                # self.single_deal = config['single_deal']    #  记录了这个buff的叠层是否是独立结算。
+                """
+                在20241116的更新中，更新了新的buff结算逻辑，针对“层数独立结算”的buff，
+                在BuffFeature下新增了一个参数：single_deal
+                buff在更新或者新建实例时，应该检测该参数是否为True，
+                如果是True，则应该检索当前DYNAMIC_BUFF_DICT中的buff是否存在，
+                如果存在，则应该直接更新self.dy.init_buff_box，
+                
+                """
+
 
     class BuffDynamic:
         def __init__(self):
@@ -157,6 +167,7 @@ class Buff:
             self.endticks = 0  # buff计划课中,buff的结束时间
             self.settle_times = 0  # buff目前已经被结算过的次数
             self.buff_from = None   # debuff的专用属性，用于记录debuff的来源。
+            self.init_buff_box = []    #  如果self.ft.single_deal是True，则需要创建这个list。
             """
             在20241115的更新中，新增了buff.dy.is_change属性。
             该字段记录了当前buff是否已经成功被变更属性。通过该字段就可以区分进入update函数的buff是否真实地改变了数据，
