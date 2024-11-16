@@ -1,8 +1,9 @@
+import copy
 import json
 import importlib
+from functools import lru_cache
 
 import numpy as np
-import pandas as pd
 from Report import report_to_log
 from define import EFFECT_FILE_PATH
 import importlib.util
@@ -96,32 +97,48 @@ class Buff:
 
 
     class BuffFeature:
+        bf_instance_cache = {}
+        max_cache_size = 256
+
+        def __new__(cls, config):
+            cache_key = hash(tuple(sorted(config.items())))
+            if cache_key in cls.bf_instance_cache:
+                return cls.bf_instance_cache[cache_key]
+            instance = super(Buff.BuffFeature, cls).__new__(cls)
+
+            if len(cls.bf_instance_cache) >= cls.max_cache_size:
+                cls.bf_instance_cache.popitem()
+
+            cls.bf_instance_cache[cache_key] = instance
+            return instance
+
         def __init__(self, config):
-            self.simple_judge_logic = config['simple_judge_logic']  # 复杂判断逻辑,指的是buff在判断阶段(装载到Loading self dict的步骤中的复杂逻辑)
-            self.simple_start_logic = config[
-                'simple_start_logic']  # 复杂开始逻辑,指的是buff在触发后的初始化阶段,并不能按照csv的规则来简单初始化的,比如,buff最大持续时间不确定的,buff的起始层数不确定的等等
-            self.simple_end_logic = config[
-                'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
-            self.simple_hit_logic = config['simple_effect']  # 复杂效果逻辑,指的是buff的效果无法用常规的csv来记录的,比如随机增加攻击力的,或者其他的复杂buff效果;
-            self.index = config['BuffName']  # buff的英文名,也是buff的索引
-            self.is_weapon = config['is_weapon']  # buff是否是武器特效
-            self.refinement = config['refinement']  # 武器特效的精炼等级
-            self.bufffrom = config['from']  # buff的来源,可以是角色名,也可以是其他,这个字段用来和配置文件比对,比对成功则证明这个buff是可以触发的;
-            self.name = config['name']  # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
-            self.exist = config['exist']  # buff是否参与了计算,即是否允许被激活
-            self.durationtype = config['durationtype']  # buff的持续时间类型,如果是True,就是有持续时间的,如果是False,就没有持续时间类型,属于瞬时buff.
-            self.maxduration = config['maxduration']  # buff最大持续时间
-            self.maxcount = config['maxcount']  # buff允许被叠加的最大层数
-            self.step = config['incrementalstep']  # buff的自增步长,也可以理解为叠层事件发生时的叠层效率.
-            self.prejudge = config['prejudge']  # buff的抬手判定类型,True是攻击抬手时会产生判定；False则是不会产生判定
-            self.endjudge = config['endjudge']  # buff的结束判定类型，True是攻击或动作结束时会产生判定，False则不会产生判定。
-            self.fresh = config['freshtype']  # buff的刷新类型,True是刷新层数时,刷新时间,False是刷新层数是,不影响时间.
-            self.alltime = config['alltime']  # buff的永远生效类型,True是无条件永远生效,False是有条件
-            self.hitincrease = config['hitincrease']  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
-            self.cd = config['increaseCD']  # buff的叠层内置CD
-            self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
-            self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
-            self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
+            if not hasattr(self, 'name'):
+                self.simple_judge_logic = config['simple_judge_logic']  # 复杂判断逻辑,指的是buff在判断阶段(装载到Loading self dict的步骤中的复杂逻辑)
+                self.simple_start_logic = config[
+                    'simple_start_logic']  # 复杂开始逻辑,指的是buff在触发后的初始化阶段,并不能按照csv的规则来简单初始化的,比如,buff最大持续时间不确定的,buff的起始层数不确定的等等
+                self.simple_end_logic = config[
+                    'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
+                self.simple_hit_logic = config['simple_effect']  # 复杂效果逻辑,指的是buff的效果无法用常规的csv来记录的,比如随机增加攻击力的,或者其他的复杂buff效果;
+                self.index = config['BuffName']  # buff的英文名,也是buff的索引
+                self.is_weapon = config['is_weapon']  # buff是否是武器特效
+                self.refinement = config['refinement']  # 武器特效的精炼等级
+                self.bufffrom = config['from']  # buff的来源,可以是角色名,也可以是其他,这个字段用来和配置文件比对,比对成功则证明这个buff是可以触发的;
+                self.name = config['name']  # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
+                self.exist = config['exist']  # buff是否参与了计算,即是否允许被激活
+                self.durationtype = config['durationtype']  # buff的持续时间类型,如果是True,就是有持续时间的,如果是False,就没有持续时间类型,属于瞬时buff.
+                self.maxduration = config['maxduration']  # buff最大持续时间
+                self.maxcount = config['maxcount']  # buff允许被叠加的最大层数
+                self.step = config['incrementalstep']  # buff的自增步长,也可以理解为叠层事件发生时的叠层效率.
+                self.prejudge = config['prejudge']  # buff的抬手判定类型,True是攻击抬手时会产生判定；False则是不会产生判定
+                self.endjudge = config['endjudge']  # buff的结束判定类型，True是攻击或动作结束时会产生判定，False则不会产生判定。
+                self.fresh = config['freshtype']  # buff的刷新类型,True是刷新层数时,刷新时间,False是刷新层数是,不影响时间.
+                self.alltime = config['alltime']  # buff的永远生效类型,True是无条件永远生效,False是有条件
+                self.hitincrease = config['hitincrease']  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
+                self.cd = config['increaseCD']  # buff的叠层内置CD
+                self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
+                self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
+                self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
 
     class BuffDynamic:
         def __init__(self):
@@ -172,6 +189,20 @@ class Buff:
 
 
     class BuffSimpleJudgeCondition:
+
+        sjc_instance_cache = {}
+        max_size = 128
+
+        def __new__(cls, judgeconfig):
+            cache_key = hash(tuple(sorted(judgeconfig.items())))
+            if cache_key in cls.sjc_instance_cache:
+                return cls.sjc_instance_cache[cache_key]
+            instance = object.__new__(cls)
+
+            if len(cls.sjc_instance_cache) >= cls.max_size:
+                cls.sjc_instance_cache.popitem()
+
+            cls.sjc_instance_cache[cache_key] = instance
         def __init__(self, judgeconfig):
             self.id = judgeconfig['id']
             self.oname = judgeconfig['OfficialName']
@@ -223,6 +254,7 @@ class Buff:
         return buff
 
     @staticmethod
+    @lru_cache(maxsize=64)
     def __convert_buff_js(csv_file):
         df = pd.read_csv(csv_file)
         width = int(np.ceil(df.shape[1] / 2))
