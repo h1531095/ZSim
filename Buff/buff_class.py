@@ -1,4 +1,3 @@
-import copy
 import json
 import importlib
 from functools import lru_cache
@@ -8,7 +7,6 @@ from Report import report_to_log
 from define import EFFECT_FILE_PATH
 import importlib.util
 import pandas as pd
-from copy import deepcopy
 
 with open('./config.json', 'r', encoding='utf-8') as file:
     config = json.load(file)
@@ -35,8 +33,7 @@ class Buff:
     _instance_cache = {}
     _max_cache_size = 256
 
-
-    def __new__(cls, config: dict=None, judge_config: dict=None):
+    def __new__(cls, config: dict = None, judge_config: dict = None):
         if not use_cache:
             return super(Buff, cls).__new__(cls)
         # 如果是深拷贝操作，直接返回已有实例
@@ -126,12 +123,12 @@ class Buff:
                     'simple_start_logic']  # 复杂开始逻辑,指的是buff在触发后的初始化阶段,并不能按照csv的规则来简单初始化的,比如,buff最大持续时间不确定的,buff的起始层数不确定的等等
                 self.simple_end_logic = config[
                     'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
-                self.simple_hit_logic = config['simple_effect']  # 复杂效果逻辑,指的是buff的效果无法用常规的csv来记录的,比如随机增加攻击力的,或者其他的复杂buff效果;
+                self.simple_hit_logic = config['simple_hit_logic']  # 复杂的命中判定逻辑
                 self.index = config['BuffName']  # buff的英文名,也是buff的索引
                 self.is_weapon = config['is_weapon']  # buff是否是武器特效
                 self.refinement = config['refinement']  # 武器特效的精炼等级
                 self.bufffrom = config['from']  # buff的来源,可以是角色名,也可以是其他,这个字段用来和配置文件比对,比对成功则证明这个buff是可以触发的;
-                self.name = config['name']  # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
+                self.description = config['description']  # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
                 self.exist = config['exist']  # buff是否参与了计算,即是否允许被激活
                 self.durationtype = config['durationtype']  # buff的持续时间类型,如果是True,就是有持续时间的,如果是False,就没有持续时间类型,属于瞬时buff.
                 self.maxduration = config['maxduration']  # buff最大持续时间
@@ -146,14 +143,13 @@ class Buff:
                 self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
                 self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
                 self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
-                # self.single_deal = config['single_deal']    #  记录了这个buff的叠层是否是独立结算。
+                self.individual_settled = config['individual_settled']    # 记录了这个buff的叠层是否是独立结算。
                 """
                 在20241116的更新中，更新了新的buff结算逻辑，针对“层数独立结算”的buff，
-                在BuffFeature下新增了一个参数：single_deal
+                在BuffFeature下新增了一个参数：individual_settled
                 buff在更新或者新建实例时，应该检测该参数是否为True，
                 如果是True，则应该检索当前DYNAMIC_BUFF_DICT中的buff是否存在，
-                如果存在，则应该直接更新self.dy.init_buff_box，
-                
+                如果存在，则应该直接更新self.dy.built_in_buff_box。
                 """
 
 
@@ -167,7 +163,12 @@ class Buff:
             self.endticks = 0  # buff计划课中,buff的结束时间
             self.settle_times = 0  # buff目前已经被结算过的次数
             self.buff_from = None   # debuff的专用属性，用于记录debuff的来源。
-            self.init_buff_box = []    #  如果self.ft.single_deal是True，则需要创建这个list。
+            self.built_in_buff_box = []    # 如果self.ft.single_deal是True，则需要创建这个list。
+            """
+            在20241117的更新中，我们新增了built_in_buff_box属性，该属性需要和self.ft.individual_settled进行配合。
+            如果该参数为True，则在单独结算Buff时，将buff的startticks和endticks以[start，end]的格式存入列表，然后写入这个box。
+            """
+            self.is_changed = False
             """
             在20241115的更新中，新增了buff.dy.is_change属性。
             该字段记录了当前buff是否已经成功被变更属性。通过该字段就可以区分进入update函数的buff是否真实地改变了数据，
@@ -176,7 +177,6 @@ class Buff:
             该buff虽然没有改变属性，但是无条件执行了update_to_buff_0，
             从而污染了源头数据。导致部分叠层、以及其他属性变更出现问题。
             """
-            self.is_changed = False
 
     class BuffLogic:
         """
@@ -248,6 +248,16 @@ class Buff:
             self.end_times = 0  # buff结束过的次数
             self.real_count = 0  # 莱特组队被动专用的字段，用于记录实层。
 
+    def get_my_count(self):
+        """
+        获取层数现在要用这个层数了，不能直接获取self.dy.count了
+        """
+        if self.ft.individual_settled:
+            count = len(self.dy.built_in_buff_box)
+        else:
+            count = self.dy.count
+        return count
+
     def __lookup_buff_effect(self, index: str) -> dict:
         """
         根据索引获取buff效果字典。
@@ -313,12 +323,14 @@ class Buff:
         # 在修改buff的状态时，对buff_0进行相同的修改。以保证状态同步。
         self.dy.active = False
         self.dy.count = 0
+        self.dy.built_in_buff_box = []
         buff_0.dy.active = False
         buff_0.dy.count = 0
         # 同时，更新buff_0的触发历史记录。
         buff_0.history.last_end = timenow
         buff_0.history.end_times += 1
         buff_0.history.last_duration = max(timenow - self.dy.startticks, 0)
+        buff_0.dy.built_in_buff_box = []
         # 再把当前buff的实例化的history和buff源对齐
         self.history.last_end = buff_0.history.last_end
         self.history.end_times = buff_0.history.end_times
@@ -340,6 +352,27 @@ class Buff:
         self.dy.endticks = timenow + self.ft.maxduration
         self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxduration)
         self.update_to_buff_0(buff_0)
+        if self.ft.individual_settled:
+            self.dy.built_in_buff_box.append((self.dy.startticks, self.dy.endticks))
+
+    def individual_setteled_update(self, duration, timenow):
+        """
+        各层数单独结算类的buff的更新函数
+        会首先检查内置的box的容量情况，如果box满了会先进行pop(0)，然后append
+        最后，更新自身的count
+        """
+        start = timenow
+        end = timenow + duration
+        if len(self.dy.built_in_buff_box) == self.ft.maxcount:
+            if len(self.dy.built_in_buff_box) > self.ft.maxcount:
+                # 溢出报错
+                raise ValueError(f'box的当前大小是{len(self.dy.built_in_buff_box)}，超过了最大容量{self.ft.index}')
+            # 说明此时box的含量已经满了，所以把最老的pop出来。
+            self.dy.built_in_buff_box.pop(0)
+        # 不管是否pop，都需要append
+        self.dy.built_in_buff_box.append((start, end))
+        self.dy.count = len(self.dy.built_in_buff_box)
+        self.dy.endticks = end
 
     def update(self, char_name: str, timenow, timecost, sub_exist_buff_dict: dict, sub_mission: str):
         """
@@ -362,11 +395,12 @@ class Buff:
             self.dy.endticks = buff_0.dy.endticks
             self.dy.count = buff_0.dy.count
             self.dy.active = buff_0.dy.active
+            self.dy.built_in_buff_box = buff_0.dy.built_in_buff_box
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
         buff_0.ready_judge(timenow)
         if not buff_0.dy.ready:
-            report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.name}内置CD没就绪，并未成功触发", level=3)
+            report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.description}内置CD没就绪，并未成功触发", level=3)
             return
         """
         在执行所有分支之前，自然要判断buff的就绪情况。如果Buff没有就绪，那么一切都是白扯。
@@ -380,7 +414,7 @@ class Buff:
             if self.ft.endjudge:
                 self.update_cause_end(timenow, sub_exist_buff_dict)
         elif sub_mission == 'hit':
-            self.update_cause_hit(timenow, sub_exist_buff_dict)
+            self.update_cause_hit(timenow, sub_exist_buff_dict, timecost)
 
     def update_to_buff_0(self, buff_0):
         """
@@ -395,6 +429,7 @@ class Buff:
         buff_0.dy.count = self.dy.count
         buff_0.dy.startticks = self.dy.startticks
         buff_0.dy.endticks = self.dy.endticks
+        buff_0.dy.built_in_buff_box = self.dy.built_in_buff_box
         buff_0.history.active_times += 1
         # report_to_log(f'[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发')
 
@@ -403,8 +438,8 @@ class Buff:
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
         if self.ft.simple_start_logic:
-            if self.ft.maxduration == 0:
-                if not self.ft.hitincrease:
+            if self.ft.maxduration == 0:    # 瞬时buff
+                if not self.ft.hitincrease:     # 命中不叠层
                     """
                     所有瞬时buff（maxduration=0）中，非命中触发的那部分，
                     本质上是把瞬时buff看做是一个持续时间为招式持续时间的buff。
@@ -414,11 +449,19 @@ class Buff:
                     就以这个Buff例子为例，这个Buff是Hit事件才会触发的，在Start函数中应该毫无作为，所以必须绕开。
                     """
                     self.dy.active = True
-                    self.dy.startticks = timenow
-                    self.dy.endticks = timenow + timecost
-                    self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
-                    self.dy.ready = False
-                    self.dy.is_changed = True
+                    if self.ft.individual_settled:
+                        """
+                        单独结算的Buff处理逻辑。
+                        """
+                        # EXAMPLE：发动普攻时，使当前招式伤害增加X%，每层效果独立结算。
+                        self.individual_setteled_update(timecost, timenow)
+                    else:
+                        # EXAMPLE：发动普攻时，使当前招式伤害增加X%，重复触发刷新持续时间。
+                        self.dy.startticks = timenow
+                        self.dy.endticks = timenow + timecost
+                        self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                        self.dy.ready = False
+                        self.dy.is_changed = True
             else:
                 if self.ft.prejudge:
                     """
@@ -427,20 +470,27 @@ class Buff:
                     并且，本质上prejudge和hit_increase两个参数在数据库中就是互斥的，
                     除非，某个Buff在技能抬手就触发，同时还会因为命中而叠层（那也太傻逼了，虽然我觉得这不远了。到时候出问题了记得踢我。）
                     """
-                    self.dy.active = True
-                    self.dy.startticks = timenow
-                    self.dy.endticks = timenow + self.ft.maxduration
-                    if not self.ft.hitincrease:
-                        self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
-                    self.dy.ready = False
-                    self.dy.is_changed = True
-                    """ 
-                    所有因start标签而更新的buff，它们的底层逻辑往往和Hit更新互斥，
-                    它们的层数计算往往非常直接，就是当前层数 + 步长；
-                    而想要做到所谓的“层数叠加了”，那么当前层数应该从buff_0处获取（这是通用步骤，其他类型的层数更新也是这个流程）
-                    总体层数又被min函数掐死，不用担心移除。
-                    """
+                    # FIXME：某个Buff在技能抬手就触发，同时还会因为命中而叠层 的逻辑等待拓展
+                    if self.ft.individual_settled:
+                        # EXAMPLE：发动普攻时，使攻击力提升，每次触发独立结算持续时间。
+                        self.individual_setteled_update(self.ft.maxduration, timenow)
+                    else:
+                        # EXAMPLE：发动普攻时，使攻击力提升，重复触发刷新持续时间
+                        self.dy.active = True
+                        self.dy.startticks = timenow
+                        self.dy.endticks = timenow + self.ft.maxduration
+                        if not self.ft.hitincrease:
+                            self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                        self.dy.ready = False
+                        self.dy.is_changed = True
+                        """ 
+                        所有因start标签而更新的buff，它们的底层逻辑往往和Hit更新互斥，
+                        它们的层数计算往往非常直接，就是当前层数 + 步长；
+                        而想要做到所谓的“层数叠加了”，那么当前层数应该从buff_0处获取（这是通用步骤，其他类型的层数更新也是这个流程）
+                        总体层数又被min函数掐死，不用担心移除。
+                        """
         else:
+            # EXAMPLE：Buff触发时，随机获得层数。
             self.logic.xstart()
             self.dy.is_changed = True
         if self.dy.is_changed:
@@ -458,23 +508,27 @@ class Buff:
         if self.ft.simple_end_logic:
             if not isinstance(buff_0, Buff):
                 raise TypeError(f'{buff_0}不是Buff类！')
-            # 指那些“强化E动作结束后，伤害增加X%”的buff,
             # 至于buff.end()并非在这个环节做出修改，而是应该在主循环开头，遍历DynamicBuffList的时候进行修改。
             if self.ft.endjudge:
-                self.dy.active = True
-                self.dy.startticks = timenow
-                self.dy.endticks = timenow + self.ft.maxduration
-                self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
-                self.dy.ready = False
-                self.dy.is_changed = True
+                if self.ft.individual_settled:
+                    self.individual_setteled_update(self.ft.maxduration, timenow)
+                else:
+                    # EXAMPLE：普攻结束后，伤害增加X%，重复触发刷新持续时间。
+                    self.dy.active = True
+                    self.dy.startticks = timenow
+                    self.dy.endticks = timenow + self.ft.maxduration
+                    self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                    self.dy.ready = False
+                    self.dy.is_changed = True
             # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
         else:
+            # EXAMPLE：普攻结束后，随机获得1~10层的攻击力Buff。
             self.logic.xend()
             self.dy.is_changed = True
         if self.dy.is_changed:
             self.update_to_buff_0(buff_0)
 
-    def update_cause_hit(self, timenow, exist_buff_dict: dict):
+    def update_cause_hit(self, timenow, exist_buff_dict: dict, timecost):
         """
         这里是最常用的代码，大部分的buff都是hit标签更新。
         当然，第一层就要过hitincrease筛选，但凡不满足的，我hit一万次你也触发不了。
@@ -482,42 +536,61 @@ class Buff:
         在处理这些Buff的时候必须忍住不要更新startticks，要不然就全丸辣！
         """
         buff_0 = exist_buff_dict[self.ft.index]
-        if self.ft.simple_hit_logic:
-            if not isinstance(buff_0, Buff):
-                raise TypeError(f'{buff_0}不是Buff类！')
-
-            if self.ft.hitincrease:
-                """
-                处理命中可叠层的buff。
-                """
-                if self.ft.fresh:
-                    """
-                    处理可更新的buff（fresh = True）
-                    """
-                    self.dy.startticks = timenow
-
-                    """
-                    这里还没完呢，startticks虽然更新了，但是endticks要不要更新还得看buff是否是瞬时buff。
-                    瞬时buff到点结束，那就不能改变，只能照抄buff_0，
-                    只有非瞬时buff，才会因hit刷新了持续时间而更新endticks。
-                    之前举的那个强化E期间命中一次伤害增加的buff就是在这个分支处理的。
-                    """
-                    self.dy.endticks = timenow + self.ft.maxduration if self.ft.maxduration != 0 else buff_0.dy.endticks
-                """
-                处理剩下的其他buff逻辑（fresh = False 或瞬时 buff）
-                这些buff都是startticks不允许更新的，endticks也是如此。
-                """
-                self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
-                self.dy.ready = False
-                self.dy.active = True
-                self.dy.is_changed = True
-            # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        if not buff_0.dy.active:
+            # 新触发的buff
+            if buff_0.ft.maxduration == 0:
+                endticks = timenow + timecost
+            else:
+                endticks = timenow + buff_0.ft.maxduration
         else:
+            # 已经触发了buff
+            endticks = self.dy.endticks
+        if not self.ft.simple_hit_logic:
             self.logic.xhit()
             self.dy.is_changed = True
+            self.update_to_buff_0(buff_0)
+            return
+        if not self.ft.hitincrease:
+            # EXPLAIN：如果hitincrease是False，则意味着在本函数内完全没有更新的可能，直接return就行。
+            return
+        if self.ft.fresh:       # 处理可更新的buff（fresh = True）
+            # EXPLAIN：fresh参数和individual_settled是否等价？不，前者是命中时间完全不修改endticks，而后者则是独立结算机制。
+            # EXPLAIN：在判定逻辑的优先级上，fresh和individual_settled包含关系，如果fresh为FALSE，那么无论层数是否独立结算，都会表现为相同的结果。
+            # EXPLAIN：所以，只有fresh为True的buff，才有被区分是否独立结算的意义。
+            if self.ft.individual_settled:
+                # EXAMPLE：普攻命中时，攻击力提高3%，层数之间独立结算。
+                self.individual_setteled_update(self.ft.maxduration, timenow)
+                if self.ft.maxduration == 0:
+                    # EXAMPLE：普攻期间命中时，攻击力提高3%，层数之间独立结算。
+                    # 如果maxduration是0，那么endticks是不能变的。要还原回来。
+                    self.dy.endticks = endticks
+            else:
+                # EXAMPLE: 命中可叠层，且持续时间刷新。
+                self.dy.startticks = timenow
+                """
+                这里还没完呢，startticks虽然更新了，但是endticks要不要更新还得看buff是否是瞬时buff。
+                瞬时buff到点结束，那就不能改变，只能照抄buff_0，
+                只有非瞬时buff，才会因hit刷新了持续时间而更新endticks。
+                之前举的那个强化E期间命中一次伤害增加的buff就是在这个分支处理的。
+                """
+                self.dy.endticks = timenow + self.ft.maxduration if self.ft.maxduration != 0 else endticks
+        else:
+            """
+            处理剩下的其他buff逻辑（fresh = False 或瞬时 buff）
+            这些buff都是startticks不允许更新的，endticks也是如此。
+            """
+            if not self.ft.individual_settled:
+                # EXAMPLE：强化E持续期间，命中一次叠层一次。
+                self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+        self.dy.ready = False
+        self.dy.active = True
+        self.dy.is_changed = True
+    # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
         if self.dy.is_changed:
             self.update_to_buff_0(buff_0)
 
     # TODO: 燃狱齿轮、硫磺石之类的Buff的判断逻辑和数据结构设计
     def __str__(self) -> str:
-        return f'Buff: {self.ft.name}'
+        return f'Buff: {self.ft.description}'
