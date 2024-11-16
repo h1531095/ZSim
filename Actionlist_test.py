@@ -1,1 +1,0 @@
-testlist = ['RA_FC','SNA_1', 'SNA_2','SNA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC', 'NA_1', 'NA_2', 'NA_3_FC' ] 

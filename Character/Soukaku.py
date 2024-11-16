@@ -2,6 +2,7 @@ from Preload import SkillNode
 from Report import report_to_log
 from . import _skill_node_filter
 from .character import Character
+from Buff.BuffAddStrategy import BuffAddStrategy
 
 class Soukaku(Character):
     def __init__(self,
@@ -41,7 +42,8 @@ class Soukaku(Character):
             if self.vortex >= 3:
                 if node.skill_tag in ['1131_E_EX_A', '1131_QTE', '1131_Q']:
                     self.vortex = 0
-                    from main import init_data, load_data
+                    from main import init_data
                     char = init_data.name_box[1]
                     # load_data.LOADING_BUFF_DICT[char].append('Buff-角色-苍角-核心被动-2')
+                    # BuffAddStrategy('Buff-角色-苍角-核心被动-2')
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")

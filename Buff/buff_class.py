@@ -11,6 +11,7 @@ with open('./config.json', 'r', encoding='utf-8') as file:
     config = json.load(file)
 debug = config.get('debug')
 use_cache = False
+# 如果禁用缓存，每次都创建新的实例
 
 # 这个index列表里面装的是乘区类型中所有的项目,也是buff效果作用的范围.
 # 这个列表中的内容:在Buff效果.csv 中作为索引存在;而在 Event父类中,它们又包含了 info子类的部分内容 和 multiplication子类的全部内容,
@@ -20,8 +21,8 @@ use_cache = False
 buff_logic_map = {
     'Buff-角色-莱特-额外能力-冰火增伤': '.BuffXLogic.LighterAdditionalAbility_IceFireBonus'
 }
-
 # 该字典用于复杂逻辑的buff的映射。key是Buff命（新版），value是模块文件名。
+
 
 class Buff:
     """
@@ -32,10 +33,7 @@ class Buff:
     _max_cache_size = 256
 
 
-    # 如果禁用缓存，每次都创建新的实例
-
-
-    def __new__(cls, config: dict, judge_config: dict):
+    def __new__(cls, config: dict=None, judge_config: dict=None):
         if not use_cache:
             return super(Buff, cls).__new__(cls)
         # 如果是深拷贝操作，直接返回已有实例
@@ -58,6 +56,16 @@ class Buff:
         instance = super(Buff, cls).__new__(cls)
         cls._instance_cache[cache_key] = instance
         return instance
+
+    @staticmethod
+    def create_new_from_existing(existing_instance):
+        """
+        通过复制已有实例的状态来创建新实例
+        该方法主要用于BuffAddStrategy函数。
+        """
+        new_instance = Buff.__new__(Buff)  # 不调用构造函数
+        new_instance.__dict__ = existing_instance.__dict__.copy()  # 复制原实例的属性
+        return new_instance
 
     def __init__(self, config: pd.Series, judge_config: pd.Series):
         if not hasattr(self, 'ft'):
@@ -91,7 +99,6 @@ class Buff:
         except ModuleNotFoundError:
             # 处理模块找不到的情况
             print(f"Module for {self.ft.index} not found. Falling back to default logic.")
-
 
     class BuffFeature:
         def __init__(self, config):
@@ -282,7 +289,6 @@ class Buff:
         并且更新好Buff的内置CD，最后将所有的信息改动回传给buff0
         """
         buff_0 = sub_exist_buff_dict[self.ft.index]
-        self.dy.ready = False
         self.dy.active = True
         self.dy.startticks = timenow
         self.dy.endticks = timenow + self.ft.maxduration

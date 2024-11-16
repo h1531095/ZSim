@@ -2,8 +2,9 @@ from AnomalyBar import AnomalyBar
 from AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
 import numpy as np
 import Enemy
-import Buff
 import importlib
+import Buff
+from Buff.BuffAddStrategy import BuffAddStrategy
 from Dot.BaseDot import Dot
 
 
@@ -43,12 +44,13 @@ def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, sub_exist_bu
     然后，回传给exist_buff_dict中的Buff0。
     """
     if bar.accompany_debuff:
-        all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, sub_exist_buff_dict)
-        anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
-        #   修改一些必要的属性。
-        anomaly_debuff_new.simple_start(timenow, sub_exist_buff_dict)
-        DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
-        enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
+        BuffAddStrategy(bar.accompany_debuff)
+        # all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, sub_exist_buff_dict)
+        # anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
+        # #   修改一些必要的属性。
+        # anomaly_debuff_new.simple_start(timenow, sub_exist_buff_dict)
+        # DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
+        # enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
     if bar.accompany_dot:
         new_dot = spawn_anomaly_dot(element_type, timenow, new_anomaly)
         if new_dot:
@@ -154,8 +156,8 @@ def create_dot_instance(class_name, bar=None):
     except (ModuleNotFoundError, AttributeError) as e:
         raise ValueError(f"Error loading class {class_name}: {e}")
 
-            # TODO: 实现属性异常触发后，同步向DYNAMIC_BUFF_DICT添加buff，或是添加Dot，
-            # TODO：当前问题：新的buff的实例化需要读取CSV，频繁读取可能会影响性能。需要重新定位实例化Buff的位置。
+
+
 
 
 
