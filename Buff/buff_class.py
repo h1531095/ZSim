@@ -1,5 +1,7 @@
 import json
 import importlib
+
+import numpy as np
 import pandas as pd
 from Report import report_to_log
 from define import EFFECT_FILE_PATH
@@ -223,6 +225,7 @@ class Buff:
     @staticmethod
     def __convert_buff_js(csv_file):
         df = pd.read_csv(csv_file)
+        width = int(np.ceil(df.shape[1] / 2))
         # 初始化结果字典
         result = {}
         # 遍历 DataFrame 的每一行
@@ -230,7 +233,7 @@ class Buff:
             name = row['名称']
             value = {}
             # 处理 key-value 对
-            for i in range(1, 21, 2):
+            for i in range(1, width):
                 try:
                     key = row[f'key{i}']
                     val = row[f'value{i}']
