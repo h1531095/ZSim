@@ -15,7 +15,7 @@ def convert_csv_to_json(csv_file, json_file):
         value = {}
 
         # 处理 key-value 对
-        for i in range(1, 21, 2):
+        for i in range(1, 21):
             try:
                 key = row[f'key{i}']
                 val = row[f'value{i}']

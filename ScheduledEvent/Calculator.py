@@ -14,6 +14,22 @@ with open("ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as
     buff_effect_trans: dict = json.load(f)
 
 class MultiplierData:
+    mul_data_cache = {}
+    max_size = 128
+
+    def __new__(cls, enemy_obj: Enemy, dynamic_buff: dict = None, character_obj: Character = None):
+
+        hashable_dynamic_buff = tuple((key, tuple(value)) for key, value in dynamic_buff.items())
+        cache_key = tuple((enemy_obj, hashable_dynamic_buff, character_obj))
+        if cache_key in cls.mul_data_cache:
+            return cls.mul_data_cache[cache_key]
+        else:
+            instance = super().__new__(cls)
+            if len(cls.mul_data_cache) >= cls.max_size:
+                cls.mul_data_cache.popitem()
+            cls.mul_data_cache[cache_key] = instance
+            return instance
+
     def __init__(self, enemy_obj: Enemy, dynamic_buff: dict = None, character_obj: Character = None):
 
         self.skill_node: SkillNode | None = None # 此类内部不调用该属性
