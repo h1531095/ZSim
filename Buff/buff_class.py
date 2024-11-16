@@ -472,6 +472,6 @@ class Buff:
         if self.dy.is_changed:
             self.update_to_buff_0(buff_0)
 
-
+    # TODO: 燃狱齿轮、硫磺石之类的Buff的判断逻辑和数据结构设计
     def __str__(self) -> str:
         return f'Buff: {self.ft.name}'
