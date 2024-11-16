@@ -84,19 +84,22 @@ class Preload:
                 report_to_log(f"[PRELOAD]:In tick: {tick}, {this_node.skill_tag} has been preloaded")
                 self.preload_data.last_node = this_node
                 self.preload_data.current_node = None
-            if (isinstance(name_box, list)
-                    and all(isinstance(name, str) for name in name_box)
-                    and this_node.skill.on_field):
-                name_index = name_box.index(this_node.char_name)
+                if (isinstance(name_box, list)
+                        and all(isinstance(name, str) for name in name_box)
+                        and this_node.skill.on_field):
+                    name_index = name_box.index(this_node.char_name)
 
-                if name_index == 1:
-                    name_switch = name_box.pop(0)
-                    name_box.append(name_switch)
-                elif name_index == 2:
-                    name_switch = name_box.pop(0)
-                    name_box.append(name_switch)
-                    name_switch = name_box.pop(0)
-                    name_box.append(name_switch)
+                    if name_index == 1:
+                        name_switch = name_box.pop(0)
+                        name_box.append(name_switch)
+                    elif name_index == 2:
+                        name_switch = name_box.pop(0)
+                        name_box.append(name_switch)
+                        name_switch = name_box.pop(0)
+                        name_box.append(name_switch)
+
+
+
             if char_data is not None:
                 for char in char_data.char_obj_list:
                     char.special_resources(this_node)

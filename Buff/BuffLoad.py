@@ -139,7 +139,7 @@ def buff_go_to(buff_0, all_name_box):
     比如这个buff的add_buff_to字段的内容是110（加给自己和下一位），那么新的这个selected_characters就会输出[艾莲，莱卡恩]
     如果字段内容是101（加给自己和上一位），那么新的selected_characters就会输出[艾莲，苍角]
     """
-    adding_code = str(int(buff_0.ft.add_buff_to)).zfill(3)
+    adding_code = str(int(buff_0.ft.add_buff_to)).zfill(4)
     selected_characters = [all_name_box[i] for i in range(len(all_name_box)) if adding_code[i] == '1']
     return selected_characters
 

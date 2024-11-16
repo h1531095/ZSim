@@ -14,8 +14,6 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
     它会轮询charname_box,并且以其中的角色名为key,到DICT中去提取对应的dynamic_buff_list \n
     最后,将这些bufflist中的所有buff,挨个判断结束状态,如果该结束的,则执行buff.end(),并且把buff从list中移除.
     """
-    print(DYNAMIC_BUFF_DICT)
-    print(exist_buff_dict)
     update_anomaly_bar(timetick, enemy)
     for charname in exist_buff_dict:
         sub_exist_buff_dict = exist_buff_dict[charname]
@@ -29,7 +27,7 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
             report_buff_to_log(charname, timetick, _.ft.index, _.dy.count, True, level=4)
             if _.ft.simple_start_logic:
                 if timetick >= _.dy.endticks:
-                    # 不管是不是debuff，时间到点了就要结束。所以buff.end()以及对应的DYNAMIC_BUFF_DICT的修改都是必须进行的。
+                    # 不管是不是debuff，时间到点了就要结束。所以buff.end()以及对应的DYNAMIC_BUFF_DICT的修改都是必须进行的.
                     _.end(timetick, sub_exist_buff_dict)
                     DYNAMIC_BUFF_DICT[charname].remove(_)
                     report_to_log(f"[Buff END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)

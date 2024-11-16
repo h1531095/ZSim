@@ -92,7 +92,9 @@ load_data = LoadData(
 schedule_data = ScheduleData(enemy=Enemy(), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
 
+
 def main_loop(stop_tick: int | None = None):
+    global tick
     tick = 0
     while True:
         # Tick Update
@@ -111,7 +113,7 @@ def main_loop(stop_tick: int | None = None):
         # Load
         if preload_list:
             Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
-        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, load_data.name_box, load_data.LOADING_BUFF_DICT)
+        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT)
         Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
         Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, global_stats.DYNAMIC_BUFF_DICT, load_data.exist_buff_dict)
 

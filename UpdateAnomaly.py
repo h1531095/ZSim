@@ -4,6 +4,7 @@ import numpy as np
 import Enemy
 import importlib
 import Buff
+from Buff.BuffAddStrategy import BuffAddStrategy
 from Dot.BaseDot import Dot
 
 
@@ -43,12 +44,13 @@ def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, sub_exist_bu
     然后，回传给exist_buff_dict中的Buff0。
     """
     if bar.accompany_debuff:
-        all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, sub_exist_buff_dict)
-        anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
-        #   修改一些必要的属性。
-        anomaly_debuff_new.simple_start(timenow, sub_exist_buff_dict)
-        DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
-        enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
+        BuffAddStrategy(bar.accompany_debuff)
+        # all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, sub_exist_buff_dict)
+        # anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
+        # #   修改一些必要的属性。
+        # anomaly_debuff_new.simple_start(timenow, sub_exist_buff_dict)
+        # DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
+        # enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
     if bar.accompany_dot:
         new_dot = spawn_anomaly_dot(element_type, timenow, new_anomaly)
         if new_dot:
