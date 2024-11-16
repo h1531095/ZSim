@@ -49,7 +49,6 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         buff_i.dy.active = True
         buff_i.dy.startticks = main_module.tick
         buff_i.dy.endticks = main_module.tick + buff_i.ft.maxduration
-        print(main_module.tick)
 
         real_count = buff_0.history.real_count
         real_count = min(real_count + 5, 100)

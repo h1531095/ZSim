@@ -15,7 +15,6 @@ with open('./CharConfig.json', 'r', encoding='utf-8') as file:
 
 # 设置初始值和数据预处理
 config_keys_list = list(character_config_dict.keys())
-EXIST_FILE['active'] = EXIST_FILE['active'].map({'FALSE': False, 'TRUE': True})
 allbuff_list = EXIST_FILE.index.tolist()  # 将索引列转为列表
 exist_buff_dict = {'enemy': {}}  # 初始化敌方buff的字典
 
