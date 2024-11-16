@@ -2,8 +2,8 @@ from AnomalyBar import AnomalyBar
 from AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
 import numpy as np
 import Enemy
-import Buff
 import importlib
+import Buff
 from Dot.BaseDot import Dot
 
 
@@ -154,8 +154,8 @@ def create_dot_instance(class_name, bar=None):
     except (ModuleNotFoundError, AttributeError) as e:
         raise ValueError(f"Error loading class {class_name}: {e}")
 
-            # TODO: 实现属性异常触发后，同步向DYNAMIC_BUFF_DICT添加buff，或是添加Dot，
-            # TODO：当前问题：新的buff的实例化需要读取CSV，频繁读取可能会影响性能。需要重新定位实例化Buff的位置。
+
+
 
 
 

@@ -13,14 +13,14 @@ from Update_Buff import update_dynamic_bufflist
 
 @dataclass
 class InitData:
-    name_box = ['柳', '苍角', '莱特']
-    Judge_list_set = [['柳', '深海访客', '极地重金属'],
+    name_box = ['艾莲', '苍角', '莱特']
+    Judge_list_set = [['艾莲', '深海访客', '极地重金属'],
                       ['苍角', '含羞恶面', '自由蓝调'],
                       ['莱特', '拘缚者', '镇星迪斯科']]
     char_0 = {'name' : name_box[0],
               'weapon': '深海访客', 'weapon_level': 1,
               'equip_set4': '极地重金属', 'equip_set2_a': '啄木鸟电音',
-              'drive4' : '异常精通', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
+              'drive4' : '异常精通', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
               'scATK_percent': 10, 'scCRIT': 20}
     char_1 = {'name' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,

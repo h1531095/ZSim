@@ -82,5 +82,3 @@ class Dot:
 
 
 
-# TODO：完成属性异常的基类搭建，完成属性异常在触发后自动向dynamic buff dict中添加debuff的功能
-# TODO：在属性异常的基类中，完成添加dot事件的功能
