@@ -24,13 +24,7 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
         # 初始化特定逻辑
-        self.xstart = self.special_start_logic
         self.xhit = self.special_hit_logic
-        self.xend = self.special_end_logic
-
-    def special_start_logic(self):
-        # 实现特定的开始逻辑
-        pass
 
     def special_hit_logic(self):
         main_module = sys.modules['__main__']
@@ -65,7 +59,4 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         # print('buff_0：', buff_0.dy.active, buff_0.dy.startticks, buff_0.dy.endticks, buff_0.history.real_count)
 
 
-    def special_end_logic(self):
-        # 实现特定的结束逻辑
-        pass
 

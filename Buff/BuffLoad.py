@@ -30,6 +30,8 @@ class BuffInitCache:
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
+    # if buff_0.ft.index == 'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件':
+    #     print(f'{all_match, mission.mission_tag, selected_characters}')
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:
@@ -42,16 +44,28 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
         """
         在20241115的更新中，我将原本位于这一行的buff_new的实例化，挪到了通过判定的分支内。这样可以节省一部分性能。
         """
-        for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
-            if time_now - 1 < sub_mission_start_tick <= time_now:
-                """
-                筛选出正在发生的子任务，如果子任务正在发生就直接执行update，把子任务的str传进buff.update()函数
-                并且触发对应的分支（start、hit、end），完成符合buff属性的时间、层数更新。
-                """
-                buff_new = Buff(active_condition_dict, judge_condition_dict)
-                buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-                if buff_new.dy.is_changed:
-                    LOADING_BUFF_DICT[char].append(buff_new)
+        if buff_0.ft.simple_judge_logic:
+            for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
+                if time_now - 1 < sub_mission_start_tick <= time_now:
+                    """
+                    筛选出正在发生的子任务，如果子任务正在发生就直接执行update，把子任务的str传进buff.update()函数
+                    并且触发对应的分支（start、hit、end），完成符合buff属性的时间、层数更新。
+                    """
+                    buff_new = Buff(active_condition_dict, judge_condition_dict)
+                    buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                    if buff_new.dy.is_changed:
+                        LOADING_BUFF_DICT[char].append(buff_new)
+        else:
+            """
+            大部分拥有复杂判断逻辑的buff并没有明确的触发节点，往往是复杂判断过了，就激活了，不需要判断子任务的执行节点。
+            所以这里直接用simple_judge_logic进行分叉，复杂逻辑在通过判断后，直接用simple_start来激活即可。
+            """
+
+            buff_new = Buff(active_condition_dict, judge_condition_dict)
+            buff_new.simple_start(time_now, sub_exist_buff_dict)
+            # print(f'{buff_new.ft.index}激活了！激活状态：时间段：{buff_new.dy.startticks, buff_new.dy.endticks}，层数：{buff_new.dy.count}')
+            LOADING_BUFF_DICT[char].append(buff_new)
+
                 # report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
     # else:
     #     buff_new = Buff(active_condition_dict, judge_condition_dict)
@@ -172,6 +186,8 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
     """
     if (not any(value if value is None else True for value in judge_condition_dict.values)) and buff_now.ft.simple_judge_logic:
         return False
+    if buff_now.ft.alltime:
+        return True
 
     """
     正常buff的判断逻辑
@@ -200,8 +216,7 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
                 if getattr(skill_now, judge_condition) not in final_condition:
                     all_match = False
     else:
-        print(buff_now.ft.index)
-        buff_now.logic.xjudge()
+        all_match = buff_now.logic.xjudge()
     return all_match
 
 
@@ -221,25 +236,6 @@ def process_string(s):
             return [int(s) if s.isdigit() else s]
     return [s]
 
-
-if __name__ == "__main__":      # 测试
-    Charname_box = ['艾莲', '苍角', '莱卡恩']
-    Judge_list_set = [['艾莲', '深海访客', '极地重金属'], ['苍角', '含羞恶面', '自由蓝调'], ['莱卡恩', '拘缚者', '镇星迪斯科']]
-    weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
-    exist_buff_dict = buff_exist_judge(Charname_box, Judge_list_set, weapon_dict)
-    timelimit = 3600
-    load_mission_dict = {}
-    LOADING_BUFF_DICT = {}
-    import Preload
-    p = Preload.Preload(Skill(CID=1221), Skill(CID=1191))
-    name_dict = {}
-    import tqdm
-    for tick in tqdm.trange(timelimit):
-        p.do_preload(tick)
-        preload_action_list = p.preload_data.preloaded_action
-        if preload_action_list:
-            Load.SkillEventSplit(preload_action_list, load_mission_dict, name_dict, tick)
-        BuffLoadLoop(tick, load_mission_dict, exist_buff_dict, Charname_box, LOADING_BUFF_DICT)
 
 
 

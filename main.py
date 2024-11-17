@@ -115,29 +115,21 @@ def main_loop(stop_tick: int | None = None):
             Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
         Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT)
         Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
-        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, global_stats.DYNAMIC_BUFF_DICT, load_data.exist_buff_dict)
+        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
 
         # ScheduledEvent
         scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
         scheduled.event_start()
-
         tick += 1
         print(f"\r{tick}", end='')
 
 
-
-
 if __name__ == '__main__':
     # global data
-
-
     # Initialize Preload Data
     skills = (char.skill_object for char in char_data.char_obj_list)
     preload = Preload.Preload(*skills)
-
-
     main_loop()
     write_to_csv()
-
     Report.log_queue.join()
     Report.result_queue.join()

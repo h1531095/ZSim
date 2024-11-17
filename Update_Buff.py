@@ -24,6 +24,9 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
                 raise ValueError(f'{_.ft.index}是debuff但是却进入了{charname}的buff池！')
             if (not _.ft.is_debuff) and charname == 'enemy':
                 raise ValueError(f'{_.ft.index}是buff但是却在enemy的debuff池中！')
+            if _.ft.alltime:
+                report_buff_to_log(charname, timetick, _.ft.index, _.dy.count, True, level=4)
+                continue
             report_buff_to_log(charname, timetick, _.ft.index, _.dy.count, True, level=4)
             if _.ft.simple_start_logic:
                 if _.ft.individual_settled:
