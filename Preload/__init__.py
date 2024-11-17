@@ -90,11 +90,11 @@ class Preload:
                 for char in char_data.char_obj_list:
                     char.special_resources(this_node)
                     char.update_sp_and_decibel(this_node)
-            # 切人逻辑
-            if (isinstance(name_box, list)
-                    and all(isinstance(name, str) for name in name_box)
-                    and this_node.skill.on_field):
-                self.switch_char(name_box, this_node)
+                # 切人逻辑
+                if (isinstance(name_box, list)
+                        and all(isinstance(name, str) for name in name_box)
+                        and this_node.skill.on_field):
+                    self.switch_char(name_box, this_node)
 
 
 
