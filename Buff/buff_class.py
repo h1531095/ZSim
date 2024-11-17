@@ -135,7 +135,7 @@ class Buff:
                 self.simple_end_logic = config[
                     'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
                 self.simple_hit_logic = config['simple_hit_logic']  # 复杂的命中判定逻辑
-                self.simple_effect_logic = config['simple_effect_logic']    # 复杂的生效逻辑
+                self.simple_effect_logic = True             #  config['simple_effect_logic']    # 复杂的生效逻辑
                 self.index = config['BuffName']  # buff的英文名,也是buff的索引
                 self.is_weapon = config['is_weapon']  # buff是否是武器特效
                 self.refinement = config['refinement']  # 武器特效的精炼等级
@@ -157,7 +157,6 @@ class Buff:
                 self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
                 self.individual_settled = config['individual_settled']    # 记录了这个buff的叠层是否是独立结算。
 
-                # TODO: 补全simple_effect_logic
                 """
                 在20241116的更新中，更新了新的buff结算逻辑，针对“层数独立结算”的buff，
                 在BuffFeature下新增了一个参数：individual_settled

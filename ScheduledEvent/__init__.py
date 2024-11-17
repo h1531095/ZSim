@@ -56,6 +56,8 @@ class ScheduledEvent:
         # 更新角色面板
         for char in self.data.char_obj_list:
             char: Character
+            # EXPLAIN：mul是个类，包含了角色的所有信息，包括静态面板、动态面板。
+            # EXPLAIN：如果要知道实时的某个属性，
             mul = MultiplierData(character_obj=char, dynamic_buff=self.data.dynamic_buff, enemy_obj=self.data.enemy)
             char.update_sp_and_decibel(mul)
         # 判断循环
