@@ -22,6 +22,7 @@ class Dot:
         1：根据时间更新——完全依赖内置CD
         2：命中时更新——依赖内置CD，同时需要外部进行“hit”判断，外部函数或许需要联动LoadingMission和TimeTick
         3：缓存式更新——依赖内置CD，以及Dot.Dynamic中的动态记录模块，来记录伤害积累。
+        4：碎冰——只有含有重攻击的技能在end标签处才能触发。
         """
         update_cd: int = 0
         index: str = None

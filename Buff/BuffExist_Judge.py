@@ -74,21 +74,6 @@ def buff_exist_judge(charname_box, judge_list_set, weapon_dict):
     return exist_buff_dict
 
 
-# 测试代码
-if __name__ == "__main__":
-    Charname_box = ['艾莲', '苍角', '莱卡恩']
-    Judge_list_set = [['艾莲', '深海访客', '极地重金属'], ['苍角', '含羞恶面', '自由蓝调'],
-                      ['莱卡恩', '拘缚者', '镇星迪斯科']]
-    weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
+# TODO：组队被动检测
+# TODO：影画buff的录入与检测
 
-    exist_buff_dict = buff_exist_judge(Charname_box, Judge_list_set, weapon_dict)
-    for name, sub_dict in exist_buff_dict.items():
-        print(name)
-        for _ in sub_dict.values():
-            print(_.ft.index)
-
-    # for buffs in exist_buff_dict['enemy']:
-    #     buff_now = exist_buff_dict['enemy'][buffs]
-    #     if not isinstance(buff_now, Buff):
-    #         raise TypeError(f'{buff_now}不是Buff类！')
-    #     print(f'{buffs}, {buff_now.ft.endjudge}')

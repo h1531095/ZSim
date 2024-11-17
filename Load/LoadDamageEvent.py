@@ -56,7 +56,26 @@ def ProcessHitUpdateDots(timetick: int, dot_list: list, event_list: list):
                 dot.dy.effect_times += 1
 
 
-def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy, event_list: list, DYNAMIC_BUFF_DICT, exist_buff_dict):
+def ProcessFreezLikeDots(timetick: int, enemy: Enemy.Enemy, event_list: list):
+    """
+    所有碎冰类逻辑的dot都用此函数结算。
+    """
+    dot_list = enemy.dynamic.dynamic_dot_list
+    for dot in dot_list[:]:
+        if not isinstance(dot, Dot.Dot):
+            raise TypeError(f'{dot}不是Dot类！')
+        if dot.ft.effect_rules == 4:
+            dot.ready_judge(timetick)
+            if dot.dy.ready:
+                SpawnDamageEvent(dot, event_list)
+                dot.dy.ready = False
+                dot.dy.last_effect_ticks = timetick
+                dot.dy.effect_times += 1
+                dot_list.remove(dot)
+                enemy.dynamic.frozen = False
+
+
+def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy, event_list: list):
     """
     DamageEvent的Judge函数：轮询load_mission_dict以及enemy.dynamic_dot_list，判断是否应生成Hit事件。
     并且当Hit时间生成时，将对应的实例添加到event_list中。
@@ -80,8 +99,12 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy,
             # 当Mission触发时，检查 effect_rules == 2 的 Dot
                 ProcessHitUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)
             elif timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'end':
+                # and mission.mission_node.skill.anomaly_attack
                 # 在end处进行属性异常检查。
-                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, DYNAMIC_BUFF_DICT, exist_buff_dict, timetick)
+                # TODO：新增重攻击 判定的接口
+
+                ProcessFreezLikeDots(timetick, enemy, event_list)
+                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list)
 
     # 始终检查 effect_rules == 1 的 Dot
     ProcessTimeUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)

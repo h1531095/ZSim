@@ -3,13 +3,13 @@ from AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
 import numpy as np
 import Enemy
 import importlib
-import Buff
 from Buff.BuffAddStrategy import BuffAddStrategy
 from Dot.BaseDot import Dot
 
 
 anomlay_dot_dict = {
     1: 'Ignite',
+    2: 'Freez',
     3: 'Shock',
     4: 'Corruption'
 }
@@ -35,7 +35,7 @@ def spawn_output(anomaly_bar, mode_number):
     return output
 
 
-def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, sub_exist_buff_dict: dict, timenow: int, enemy: Enemy.Enemy, new_anomaly, element_type):
+def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy: Enemy.Enemy, new_anomaly, element_type):
     """
     该函数的作用是创建属性异常附带的debuff和dot，
     debuff与dot的index写在了Anomaly.accompany_debuff和Anomaly.accompany_dot里。
@@ -60,10 +60,9 @@ def anomaly_effect_active(bar: AnomalyBar, DYNAMIC_BUFF_DICT: dict, sub_exist_bu
                     enemy.dynamic.dynamic_dot_list.remove(dots)
             enemy.dynamic.dynamic_dot_list.append(new_dot)
             # event_list.append(new_dot)
-            print(f'触发dot：{new_dot.ft.index}')
 
 
-def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list, DYNAMIC_BUFF_DICT: dict, exist_buff_dict: dict, timenow: int):
+def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list):
     """
     该函数需要在Loading阶段，submission是End的时候运行。
     用于判断该次属性异常触发应该是新建、替换还是触发紊乱。
@@ -112,9 +111,18 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 """
                 mode_number = 0
                 new_anomaly = spawn_output(bar, mode_number)
-                anomaly_effect_active(bar, DYNAMIC_BUFF_DICT, exist_buff_dict['enemy'], timenow, enemy, new_anomaly, element_type)
-                event_list.append(new_anomaly)
-                print(f'触发{enemy.trans_element_number_to_str[element_type]}属性异常！')
+                anomaly_effect_active(bar, time_now, enemy, new_anomaly, element_type)
+                if not element_type == 2:
+                    """
+                    如果是新触发的冰异常，那么在触发当场不应该碎冰。碎冰应该由碎冰DOT抛出。
+                    """
+                    setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)
+                    event_list.append(new_anomaly)
+                else:
+                    setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)
+                    enemy.dynamic.frozen = True
+                    # return element_type, time_now
+
 
             elif element_type not in active_anomaly_list and len(active_anomaly_list) > 0:
                 '''
@@ -124,12 +132,34 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 last_anomaly_bar = enemy.anomaly_bars_dict[last_anomaly_element_type]
                 setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[last_anomaly_element_type], False)
                 setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)
+                if element_type == 2:
+                    enemy.dynamic.frozen = True
                 disorder = spawn_output(last_anomaly_bar, mode_number)
                 new_anomaly = spawn_output(bar, 1)
+                for dots in enemy.dynamic.dynamic_dot_list[:]:
+                    if not isinstance(dots, Dot):
+                        raise TypeError(f'{dots}不是DOT类！')
+                    if dots.ft.index == 'Freez':
+                        if dots.dy.effect_times > dots.ft.max_effect_times:
+                            raise ValueError('该Dot任务已经完成，应当被删除！')
+                        event_list.append(dots.anomaly_data)
+                        dots.dy.ready = False
+                        dots.dy.last_effect_ticks = time_now
+                        dots.dy.effect_times += 1
+                        enemy.dynamic.dynamic_dot_list.remove(dots)
+                        enemy.dynamic.frozen = False
+                        print('因紊乱而强行移除碎冰')
                 event_list.append(disorder)
-                event_list.append(new_anomaly)
+                if not element_type == 2:
+                    event_list.append(new_anomaly)
+                # else:
+                #     return element_type, time_now
                 print(f'触发紊乱！')
             setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)       # 同步更新enemy.dynamic下面的属性异常状态。
+    #     else:
+    #         return element_type, time_now
+    # else:
+    #     return element_type, time_now
 
 
 def spawn_anomaly_dot(element_type, timenow, bar=None):

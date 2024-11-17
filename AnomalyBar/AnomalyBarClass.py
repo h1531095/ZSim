@@ -49,7 +49,6 @@ class AnomalyBar:
         new_ndarray = new_snap_shot[2].reshape(1, -1)  # 将数据重塑为一行多列的形式
         build_up_value = new_snap_shot[1]  # 获取积蓄值
 
-
         if self.current_ndarray.shape[1] != new_ndarray.shape[1]:
             # 扩展 current_ndarray 列数，保持已有数据，新增的部分会填充为零
             if self.current_ndarray.shape[1] < new_ndarray.shape[1]:
@@ -74,4 +73,3 @@ class AnomalyBar:
     def check_myself(self, timenow: int):
         if self.active and (self.last_active + self.max_duration < timenow):
             self.active = False
-            print(f'属性{self.element_type}的异常状态结束了！')
