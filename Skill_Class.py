@@ -213,6 +213,7 @@ class Skill:
             self.sp_recovery: float = float(_raw_skill_data['sp_recovery'])
             # 喧响值
             self.fever_recovery: float = float(_raw_skill_data['fever_recovery'])
+            self.self_fever_re: float = float(_raw_skill_data['self_fever_re'])
             # 距离衰减，不知道有啥用
             self.distance_attenuation: int = int(_raw_skill_data['distance_attenuation'])
             # 属性异常蓄积值，直接转化为浮点
