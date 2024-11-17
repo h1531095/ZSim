@@ -10,7 +10,7 @@ from AnomalyBar import Disorder
 from Buff.BuffExist_Judge import buff_exist_judge
 from Character import Character
 from .CalAnomaly import CalAnomaly, CalDisorder
-from .Calculator import Calculator
+from .Calculator import Calculator, MultiplierData
 
 
 class ScConditionData:
@@ -56,6 +56,11 @@ class ScheduledEvent:
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
+            # 更新角色面板
+            for char in self.data.char_obj_list:
+                char: Character
+                mul = MultiplierData(character_obj=char, dynamic_buff=self.data.dynamic_buff, enemy_obj=self.data.enemy)
+                char.update_sp_and_decibel(mul)
             # 其余事件挨个处理
             for _ in range(len(self.data.event_list)):
                 event = self.data.event_list.pop(0)
