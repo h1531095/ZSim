@@ -78,23 +78,25 @@ class Preload:
         else:
             this_node = self.preload_data.current_node
         if this_node is not None:
-            # Preload 技能逻辑
+            # 随技能Preload技能而起的逻辑
             if this_node.preload_tick <= tick:
+                # Preload技能逻辑
                 watchdog.watch_reverse_order(this_node, self.preload_data.last_node)
                 self.preload_data.preloaded_action.add(this_node)
                 report_to_log(f"[PRELOAD]:In tick: {tick}, {this_node.skill_tag} has been preloaded")
                 self.preload_data.last_node = this_node
                 self.preload_data.current_node = None
+                # Preload 结算特殊资源、能量、喧响
+                for char in char_data.char_obj_list:
+                    char.special_resources(this_node)
+                    char.update_sp_and_decibel(this_node)
             # 切人逻辑
             if (isinstance(name_box, list)
                     and all(isinstance(name, str) for name in name_box)
                     and this_node.skill.on_field):
                 self.switch_char(name_box, this_node)
-            # Preload 结算特殊资源、能量、喧响
-            if char_data is not None:
-                for char in char_data.char_obj_list:
-                    char.special_resources(this_node)
-                    char.update_sp_and_decibel(this_node)
+
+
 
     @staticmethod
     def switch_char(name_box, this_node):

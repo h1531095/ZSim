@@ -7,7 +7,7 @@ import Report
 import ScheduledEvent as ScE
 from Character import Character, character_factory
 from Enemy import Enemy
-from Report import write_to_csv
+from Report import write_to_csv, report_to_log
 from Update_Buff import update_dynamic_bufflist
 
 
@@ -92,10 +92,12 @@ load_data = LoadData(
 schedule_data = ScheduleData(enemy=Enemy(), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
 
+
 def main_loop(stop_tick: int | None = None):
     tick = 0
     while True:
         # Tick Update
+        report_to_log(f"[Update] Tick step to {tick}")
         update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
 
         # Preload
@@ -135,6 +137,7 @@ if __name__ == '__main__':
 
 
     main_loop()
+    print('\n正在等待IO结束···')
     write_to_csv()
 
     Report.log_queue.join()

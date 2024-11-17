@@ -572,9 +572,10 @@ class Character:
         mul_data = _multiplier_filter(*args, **kwargs)
         for mul in mul_data:
             if mul.char_name == self.NAME:
-                self.sp += (mul.static.sp_regen + mul.dynamic.field_sp_regen) / 60
+                sp_change_2 = mul.static.sp_regen + mul.dynamic.field_sp_regen
+                self.sp += sp_change_2 / 60
 
-        report_to_log(f"[Character] {self.NAME}: 能量{self.sp:.2f}，喧响{self.decibel:.2f}")
+        # report_to_log(f"[Character] {self.NAME}: 能量{self.sp:.2f}，喧响{self.decibel:.2f}")
 
     def special_resources(self, *args, **kwargs) -> None:
         """父类中不包含默认特殊资源"""
