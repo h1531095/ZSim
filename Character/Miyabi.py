@@ -1,7 +1,7 @@
 from AnomalyBar import Disorder
 from Preload import SkillNode
 from Report import report_to_log
-from . import _skill_node_filter
+from .filters import _skill_node_filter
 from .character import Character
 
 
