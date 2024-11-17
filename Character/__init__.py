@@ -1,4 +1,3 @@
-from Preload import SkillNode
 from .character import Character
 from Skill_Class import lookup_name_or_cid
 
@@ -51,13 +50,3 @@ def character_factory(
         return Character(**char_init_args)
 
 
-def _skill_node_filter(*args, **kwargs) -> list[SkillNode]:
-    """过滤出输入的 SKillNode，并作为列表返回"""
-    skill_nodes: list[SkillNode] = []
-    for arg in args:
-        if isinstance(arg, SkillNode):
-            skill_nodes.append(arg)
-    for value in kwargs.values():
-        if isinstance(value, SkillNode):
-            skill_nodes.append(value)
-    return skill_nodes
