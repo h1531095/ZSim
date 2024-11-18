@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from random import random
 
 import Buff
 import Load
@@ -14,12 +15,12 @@ from Update_Buff import update_dynamic_bufflist
 @dataclass
 class InitData:
     name_box = ['艾莲', '苍角', '莱特']
-    Judge_list_set = [['艾莲', '深海访客', '极地重金属'],
+    Judge_list_set = [['艾莲', '深海访客', '啄木鸟电音'],
                       ['苍角', '含羞恶面', '自由蓝调'],
                       ['莱特', '拘缚者', '镇星迪斯科']]
     char_0 = {'name' : name_box[0],
               'weapon': '深海访客', 'weapon_level': 1,
-              'equip_set4': '极地重金属', 'equip_set2_a': '啄木鸟电音',
+              'equip_set4': '啄木鸟电音', 'equip_set2_a': '极地重金属',
               'drive4' : '异常精通', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
               'scATK_percent': 10, 'scCRIT': 20}
     char_1 = {'name' : name_box[1],
@@ -67,6 +68,9 @@ class LoadData:
 @dataclass
 class ScheduleData:
     event_list = []
+    judge_required_info_dict = {
+        'skill_node': None
+    }
     loading_buff = {}
     dynamic_buff = {}
     enemy: Enemy
@@ -83,6 +87,7 @@ class GlobalStats:
 
 
 tick = 0
+crit_seed = 0
 init_data = InitData()
 char_data = CharacterData(init_data)
 load_data = LoadData(
@@ -117,9 +122,8 @@ def main_loop(stop_tick: int | None = None):
         Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT)
         Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
         Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
-
         # ScheduledEvent
-        scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
+        scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick, load_data.exist_buff_dict)
         scheduled.event_start()
         tick += 1
         print(f"\r{tick}", end='')
