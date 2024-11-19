@@ -88,8 +88,8 @@ class Preload:
                 self.preload_data.current_node = None
                 # Preload 结算特殊资源、能量、喧响
                 for char in char_data.char_obj_list:
-                    char.special_resources(this_node)
                     char.update_sp_and_decibel(this_node)
+                    char.special_resources(this_node)
                 # 切人逻辑
                 if (isinstance(name_box, list)
                         and all(isinstance(name, str) for name in name_box)
