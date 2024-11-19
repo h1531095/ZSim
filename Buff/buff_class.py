@@ -24,18 +24,18 @@ use_cache = False
 buff_logic_map = {
     'Buff-角色-莱特-额外能力-冰火增伤': '.BuffXLogic.LighterAdditionalAbility_IceFireBonus',
     'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件': '.BuffXLogic.PolarMetalFreezeBonus',
-    'Buff-驱动盘-啄木鸟电音-普攻': '.BuffXLogic.WoodpeckerElectroSet4',
-    'Buff-驱动盘-啄木鸟电音-闪避反击': '.BuffXLogic.WoodpeckerElectroSet4',
-    'Buff-驱动盘-啄木鸟电音-强化特殊技': '.BuffXLogic.WoodpeckerElectroSet4'
+    'Buff-驱动盘-啄木鸟电音-普攻': '.BuffXLogic.WoodpeckerElectroSet4_NA',
+    'Buff-驱动盘-啄木鸟电音-闪避反击': '.BuffXLogic.WoodpeckerElectroSet4_CA',
+    'Buff-驱动盘-啄木鸟电音-强化特殊技': '.BuffXLogic.WoodpeckerElectroSet4_E_EX'
 }
 
 # EXPLAIN：buff名  ：类名
 class_name_map = {
     'Buff-角色-莱特-额外能力-冰火增伤': 'LighterExtraSkill_IceFireBonus',
     'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件': 'PolarMetalFreezeBonus',
-    'Buff-驱动盘-啄木鸟电音-普攻': 'WoodpeckerElectroSet4',
-    'Buff-驱动盘-啄木鸟电音-闪避反击': 'WoodpeckerElectroSet4',
-    'Buff-驱动盘-啄木鸟电音-强化特殊技': 'WoodpeckerElectroSet4'
+    'Buff-驱动盘-啄木鸟电音-普攻': 'WoodpeckerElectroSet4_NA',
+    'Buff-驱动盘-啄木鸟电音-闪避反击': 'WoodpeckerElectroSet4_CA',
+    'Buff-驱动盘-啄木鸟电音-强化特殊技': 'WoodpeckerElectroSet4_E_EX'
 
 }
 # 该字典用于复杂逻辑的buff的映射。key是Buff命（新版），value是模块文件名。
