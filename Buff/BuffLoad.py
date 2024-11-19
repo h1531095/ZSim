@@ -30,8 +30,6 @@ class BuffInitCache:
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
-    # if buff_0.ft.index == 'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件':
-    #     print(f'{all_match, mission.mission_tag, selected_characters}')
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:

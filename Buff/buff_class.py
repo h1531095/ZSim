@@ -23,13 +23,19 @@ use_cache = False
 # EXPLAIN：buff名  ：文件路径
 buff_logic_map = {
     'Buff-角色-莱特-额外能力-冰火增伤': '.BuffXLogic.LighterAdditionalAbility_IceFireBonus',
-    'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件': '.BuffXLogic.PolarMetalFreezeBonus'
+    'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件': '.BuffXLogic.PolarMetalFreezeBonus',
+    'Buff-驱动盘-啄木鸟电音-普攻': '.BuffXLogic.WoodpeckerElectroSet4_NA',
+    'Buff-驱动盘-啄木鸟电音-闪避反击': '.BuffXLogic.WoodpeckerElectroSet4_CA',
+    'Buff-驱动盘-啄木鸟电音-强化特殊技': '.BuffXLogic.WoodpeckerElectroSet4_E_EX'
 }
 
 # EXPLAIN：buff名  ：类名
 class_name_map = {
     'Buff-角色-莱特-额外能力-冰火增伤': 'LighterExtraSkill_IceFireBonus',
-    'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件': 'PolarMetalFreezeBonus'
+    'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件': 'PolarMetalFreezeBonus',
+    'Buff-驱动盘-啄木鸟电音-普攻': 'WoodpeckerElectroSet4_NA',
+    'Buff-驱动盘-啄木鸟电音-闪避反击': 'WoodpeckerElectroSet4_CA',
+    'Buff-驱动盘-啄木鸟电音-强化特殊技': 'WoodpeckerElectroSet4_E_EX'
 
 }
 # 该字典用于复杂逻辑的buff的映射。key是Buff命（新版），value是模块文件名。
@@ -135,7 +141,7 @@ class Buff:
                 self.simple_end_logic = config[
                     'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
                 self.simple_hit_logic = config['simple_hit_logic']  # 复杂的命中判定逻辑
-                self.simple_effect_logic = config['simple_effect_logic']    # 复杂的生效逻辑
+                self.simple_effect_logic = config['simple_effect_logic']     # 复杂的生效逻辑
                 self.index = config['BuffName']  # buff的英文名,也是buff的索引
                 self.is_weapon = config['is_weapon']  # buff是否是武器特效
                 self.refinement = config['refinement']  # 武器特效的精炼等级
@@ -157,7 +163,6 @@ class Buff:
                 self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
                 self.individual_settled = config['individual_settled']    # 记录了这个buff的叠层是否是独立结算。
 
-                # TODO: 补全simple_effect_logic
                 """
                 在20241116的更新中，更新了新的buff结算逻辑，针对“层数独立结算”的buff，
                 在BuffFeature下新增了一个参数：individual_settled

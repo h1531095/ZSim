@@ -7,7 +7,7 @@ MAX_SIGNED_INT64 = 2 ** 63 - 1
 
 class RNG:
     def __init__(self, seed: int = None):
-        seed = seed or int(time.time())
+        seed = seed or random.randint(0, 10000)
         self.seed, self.r = self.generate_random_number(seed)
 
     @staticmethod
