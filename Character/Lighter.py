@@ -46,6 +46,7 @@ class Lighter(Character):
                 sp_consume = node.skill.sp_consume
                 if sp_consume > 0:
                     self.morale += sp_consume * 26
+
             if '1161' not in node.skill_tag:
                 continue
             # 递减逻辑
@@ -54,6 +55,7 @@ class Lighter(Character):
                 report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}")
             elif node.skill_tag == '1161_NA_5_CoH_EX':
                 self.morale -= 9000
+                # print(f'检测到士气消耗动作，当前士气（处理前）：{self.morale}（处理后）：{self.morale / 100:.2f}')
                 # TODO：这里需要一个函数来控制“夹断”技能的数据。思路：\n
                 #       1、根据当前SkillNode类复制一个出来（__dict__），\n
                 #       2、根据资源消耗量算出缩放比例，\n
