@@ -1,4 +1,4 @@
-import Skill_Class
+import Character.Skill_Class as Skill_Class
 from Preload import SkillsQueue
 from Report import report_to_log
 from define import ENABLE_WATCHDOG, WATCHDOG_LEVEL

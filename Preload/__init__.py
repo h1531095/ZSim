@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pandas as pd
 from tqdm import trange
 
-import Skill_Class
+from Character import Skill
 from Enemy import Enemy
 from LinkedList import LinkedList
 from Report import report_to_log
@@ -15,7 +15,7 @@ from .SkillsQueue import SkillNode
 
 @dataclass
 class PreloadData:
-    def __init__(self, *args: Skill_Class.Skill):
+    def __init__(self, *args: Skill):
         self.preloaded_action = LinkedList()
 
         '''data = pd.DataFrame(    # only for test
@@ -56,13 +56,13 @@ class Preload:
     """
     实现程序的 Preload 阶段
 
-    须传入此次计算所用角色的技能对象，形式为一个元组：tuple[Skill_Class.Skill,...]
+    须传入此次计算所用角色的技能对象，形式为一个元组：tuple[Skill,...]
 
     包含 do_preload 方法，执行 Preload 的核心逻辑
     实例化后 执行 do_preload(tick) 即可对本 tick 所需执行的动作进行预加载，建议从0开始循环，这样它会更聪明
     """
 
-    def __init__(self, *args: Skill_Class.Skill):
+    def __init__(self, *args: Skill):
         self.preload_data = PreloadData(*args)
         self.skills_queue = self.preload_data.skills_queue
 
@@ -112,9 +112,3 @@ class Preload:
             name_box.append(name_switch)
 
 
-if __name__ == '__main__':
-    skills = (Skill_Class.Skill(CID=1221), Skill_Class.Skill(CID=1191))
-    p = Preload(*skills)
-    for tick in trange(100000):
-        p.do_preload(tick)
-    print(p.preload_data.preloaded_action)
