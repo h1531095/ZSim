@@ -63,6 +63,7 @@ class Lighter(Character):
                 #       4、传给下一个环节。
                 report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}")
 
+
             if self.morale < 0:
                 report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}, 请检查")
                 self.morale = 0
