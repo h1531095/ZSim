@@ -1,4 +1,5 @@
 from Buff import Buff
+from Character.Lighter import Lighter
 import sys
 
 
@@ -12,11 +13,49 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
         self.xeffect = self.special_effect_logic
-        self.last_morale = None
+        self.last_morale = 40
+        self.last_morale_delta = 0
+        self.buff_count = 0
+        self.char_lighter = None
 
     def special_judge_logic(self):
-        pass
+        """
+        调用这个方法的位置，应该是buff_0的xjudge，所以，有效的self.buff_count也是存在buff_0里面的。
+        """
+        module_main = sys.modules['__main__']
+        char_list = module_main.char_data.char_obj_list
+        for _ in char_list:
+            if isinstance(_, Lighter):
+                self.char_lighter = _
+                break
+        else:
+            raise ValueError(f'char_obj_list中并未找到莱特！')
+        if self.last_morale > self.char_lighter.morale:
+            self.last_morale_delta = self.last_morale - self.char_lighter.morale
+            self.buff_count = self.last_morale_delta
+            self.last_morale = self.char_lighter.morale
+            #   暂时假设不向下取整。
+            return True
+        else:
+            return False
 
     def special_effect_logic(self):
-        pass
+        """
+        这个方法需要在xjudge通过之后调用，此时调用的是buff_new的xeffect。
+        所以这里需要向buff_0获取它的的层数。
+        也就是buff_0.logic.buff_count
+
+        """
+        module_main = sys.modules['__main__']
+        buff_0 = module_main.load_data.exist_buff_dict['莱特'][self.buff_instance.ft.index]
+        buff_i = self.buff_instance
+        tick = module_main.tick
+        self.buff_count = buff_0.logic.buff_count
+        buff_i.dy.count = min(buff_i.dy.count + self.buff_count, buff_i.ft.maxcount)
+        buff_i.dy.startticks = tick
+        buff_i.dy.endticks = tick + buff_i.dy.maxduration
+
+
+
+
 
