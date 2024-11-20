@@ -1,7 +1,10 @@
+import sys
+
 from Preload import SkillNode
 from Report import report_to_log
-from .filters import _skill_node_filter
 from .character import Character
+from .filters import _skill_node_filter
+
 
 class Lighter(Character):
     def __init__(self,
@@ -20,7 +23,7 @@ class Lighter(Character):
                 drive4, drive5, drive6,
                 scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT,
                 sp_limit)
-        self.morale: int = 4000 # 士气初始40 整形为4000
+        self.morale: int = 4000  # 士气初始40 整形为4000
         self.last_tick: int = 0
 
     def special_resources(self, *args, **kwargs) -> None:
@@ -39,7 +42,8 @@ class Lighter(Character):
         for node in skill_nodes:
             # 累加逻辑
             if self.morale < 10000:
-                from main import tick
+                main_module = sys.modules['__main__']
+                tick: int = main_module.tick
                 # 每 6 ticks 更新
                 if (minus := tick - self.last_tick) >= 6:
                     self.morale += minus * 29
@@ -58,10 +62,11 @@ class Lighter(Character):
             # 递减逻辑
             if node.skill_tag == '1161_NA_5_SH_EX':
                 self.morale -= 1000
-                report_to_log(f"[Character] 莱特的士气消耗至 {self.morale/100:.2f}")
+                report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}")
             elif node.skill_tag == '1161_NA_5_CoH_EX':
                 self.morale -= 9000
                 report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}")
 
-            if self.morale <= 0:
-                print(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}, 请检查")
+            if self.morale < 0:
+                report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}, 请检查")
+                self.morale = 0
