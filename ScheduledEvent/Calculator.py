@@ -1,7 +1,6 @@
 import json
 from functools import lru_cache
 import numpy as np
-import pandas as pd
 
 import Buff
 from Character import Character

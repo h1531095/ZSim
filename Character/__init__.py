@@ -46,7 +46,8 @@ def character_factory(
     elif name == '雅':
         from .Miyabi import Miyabi
         return Miyabi(**char_init_args)
+    elif name == '11号':
+        from .Soldier11 import Soldier11
+        return Soldier11(**char_init_args)
     else:
         return Character(**char_init_args)
-
-
