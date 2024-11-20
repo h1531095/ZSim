@@ -34,7 +34,7 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
             raise ValueError(f'snow又写错了')
         if self.last_morale > self.char_lighter.morale:
             # print(f'上一次士气{self.last_morale}；这一次士气{self.char_lighter.morale}')
-            self.last_morale_delta = self.last_morale - self.char_lighter.morale
+            self.last_morale_delta = (self.last_morale - self.char_lighter.morale)/100
             self.buff_count = self.last_morale_delta
             self.last_morale = self.char_lighter.morale
             #   暂时假设不向下取整。
