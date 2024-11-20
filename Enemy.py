@@ -112,6 +112,7 @@ class Enemy:
         self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
 
     def increase_stun_recovery_time(self, increase_tick: int):
+        self.restore_stun_recovery_time()
         self.stun_recovery_time += increase_tick
 
     @staticmethod

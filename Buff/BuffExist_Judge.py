@@ -71,7 +71,7 @@ def buff_exist_judge(charname_box, judge_list_set, weapon_dict):
         exist_buff_dict[charname] = sub_exist_buff_dict
 
     exist_buff_dict['enemy'] = exist_debuff_dict
-    # print([buffs.ft.index for buffs in exist_buff_dict['enemy'].values()])
+    # print([buff.ft.index for buff in exist_buff_dict['莱特'].values()])
     return exist_buff_dict
 
 

@@ -25,33 +25,38 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
                 raise ValueError(f'{_.ft.index}是debuff但是却进入了{charname}的buff池！')
             if (not _.ft.is_debuff) and charname == 'enemy':
                 raise ValueError(f'{_.ft.index}是buff但是却在enemy的debuff池中！')
+            if _.ft.simple_exit_logic:
+                shoud_exit = True
+            else:
+                shoud_exit = _.logic.xexit()
+            if not shoud_exit:
+                report_buff_to_log(charname, timetick, _.ft.index, _.dy.count, True, level=4)
+                continue
             if _.ft.alltime:
                 report_buff_to_log(charname, timetick, _.ft.index, _.dy.count, True, level=4)
                 continue
             report_buff_to_log(charname, timetick, _.ft.index, _.dy.count, True, level=4)
-            if _.ft.simple_start_logic:
-                if _.ft.individual_settled:
-                    if len(_.dy.built_in_buff_box) <= 0:
-                        _.end(timetick, sub_exist_buff_dict)
-                        if _.ft.is_debuff:
-                            # debuff比正常的buff需要多执行一步，那就是将DYNAMIC_BUFF_DICT的修改同步到enemy.dynamic.dynamic_debuff_list中。
-                            enemy.dynamic.dynamic_debuff_list.remove(_)
-                    else:
-                        for tuples in _.dy.built_in_buff_box:
-                            if tuples[1] <= timetick:
-                                _.dy.built_in_buff_box.remove(tuples)
-                                _.dy.count = len(_.dy.built_in_buff_box)
+            if _.ft.individual_settled:
+                if len(_.dy.built_in_buff_box) <= 0:
+                    _.end(timetick, sub_exist_buff_dict)
+                    if _.ft.is_debuff:
+                        # debuff比正常的buff需要多执行一步，那就是将DYNAMIC_BUFF_DICT的修改同步到enemy.dynamic.dynamic_debuff_list中。
+                        enemy.dynamic.dynamic_debuff_list.remove(_)
                 else:
-                    if timetick >= _.dy.endticks:
-                        # 不管是不是debuff，时间到点了就要结束。所以buff.end()以及对应的DYNAMIC_BUFF_DICT的修改都是必须进行的.
-                        _.end(timetick, sub_exist_buff_dict)
-                        DYNAMIC_BUFF_DICT[charname].remove(_)
-                        report_to_log(f"[Buff END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)
-                        if _.ft.is_debuff:
-                            # debuff比正常的buff需要多执行一步，那就是将DYNAMIC_BUFF_DICT的修改同步到enemy.dynamic.dynamic_debuff_list中。
-                            enemy.dynamic.dynamic_debuff_list.remove(_)
+                    for tuples in _.dy.built_in_buff_box:
+                        if tuples[1] <= timetick:
+                            _.dy.built_in_buff_box.remove(tuples)
+                            _.dy.count = len(_.dy.built_in_buff_box)
             else:
-                _.logic.xend
+                if timetick >= _.dy.endticks or ((not _.ft.simple_exit_logic) and shoud_exit):
+                    # 不管是不是debuff，时间到点了就要结束。所以buff.end()以及对应的DYNAMIC_BUFF_DICT的修改都是必须进行的.
+                    _.end(timetick, sub_exist_buff_dict)
+                    DYNAMIC_BUFF_DICT[charname].remove(_)
+                    report_to_log(f"[Buff END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)
+                    if _.ft.is_debuff:
+                        # debuff比正常的buff需要多执行一步，那就是将DYNAMIC_BUFF_DICT的修改同步到enemy.dynamic.dynamic_debuff_list中。
+                        enemy.dynamic.dynamic_debuff_list.remove(_)
+
         update_dot(enemy, timetick)
     return DYNAMIC_BUFF_DICT
 
