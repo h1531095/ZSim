@@ -46,11 +46,11 @@ class Lighter(Character):
                 tick: int = main_module.tick
                 # 每 6 ticks 更新
                 if (minus := tick - self.last_tick) >= 6:
-                    self.morale += minus * 29
-                    self.last_tick += 6
+                    self.morale += minus // 6 * 29     # 地板除保证整形对齐
+                    self.last_tick = tick - minus % 6   # 求余以保证余数不计入本次计算
                 # 消耗能量及时更新
                 sp_consume = node.skill.sp_consume
-                if sp_consume == 0:
+                if sp_consume <= 0:
                     continue
                 else:
                     self.morale += sp_consume * 26
