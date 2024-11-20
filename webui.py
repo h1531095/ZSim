@@ -1,119 +1,14 @@
 import os
-from dataclasses import dataclass, field
 
 import pandas as pd
 import streamlit as st
 
-import Buff
-import Load
 import Preload
 import Report
-import ScheduledEvent as ScE
-from CharSet_new import Character
-from Enemy import Enemy
+from main import init_data, char_data, schedule_data, load_data, global_stats, main_loop
+import main
 from Report import write_to_csv
-from Update_Buff import update_dynamic_bufflist
 from define import CHARACTER_DATA_PATH
-
-
-# 定义数据类
-@dataclass
-class InitData:
-    name_box = ['艾莲', '苍角', '莱特']
-    Judge_list_set = [['艾莲', '深海访客', '极地重金属'],
-                      ['苍角', '含羞恶面', '自由蓝调'],
-                      ['莱卡恩', '拘缚者', '镇星迪斯科']]
-    char_0 = {'name' : name_box[0],
-              'weapon': '深海访客', 'weapon_level': 1,
-              'equip_set4': '极地重金属', 'equip_set2_a': '啄木鸟电音',
-              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
-              'scATK_percent': 10, 'scCRIT': 20}
-    char_1 = {'name' : name_box[1],
-              'weapon': '含羞恶面', 'weapon_level': 5,
-              'equip_set4': '摇摆爵士', 'equip_set2_a': '自由蓝调',
-              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '能量自动回复%',
-              'scATK_percent': 10, 'scCRIT': 20}
-    char_2 = {'name' : name_box[2],
-              'weapon': '拘缚者', 'weapon_level': 1,
-              'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '冲击力%',
-              'scATK_percent': 10, 'scCRIT': 20}
-    weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
-                   name_box[1]: [char_1['weapon'], char_1['weapon_level']],
-                   name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
-
-@dataclass
-class CharacterData:
-    char_obj_list: list[Character] = field(init=False)
-    InitData: InitData
-
-    def __post_init__(self):
-        self.char_obj_list = []
-        if self.InitData.name_box:
-            i = 0
-            for _ in self.InitData.name_box:
-                char_dict = getattr(InitData, f'char_{i}')
-                char_obj = Character(**char_dict)
-                self.char_obj_list.append(char_obj)
-                i += 1
-
-@dataclass
-class LoadData:
-    name_box: list
-    Judge_list_set: list
-    weapon_dict: dict
-    exist_buff_dict: dict = field(init=False)
-    load_mission_dict = {}
-    LOADING_BUFF_DICT = {}
-    name_dict = {}
-
-    def __post_init__(self):
-        self.exist_buff_dict = Buff.buff_exist_judge(self.name_box, self.Judge_list_set, self.weapon_dict)
-
-@dataclass
-class ScheduleData:
-    event_list = []
-    loading_buff = {}
-    dynamic_buff = {}
-    enemy: Enemy
-    char_obj_list: list[Character]
-
-@dataclass
-class GlobalStats:
-    DYNAMIC_BUFF_DICT = {}
-    name_box: list
-    def __post_init__(self):
-        for name in self.name_box + ['enemy']:
-            self.DYNAMIC_BUFF_DICT[name] = []
-
-def main_loop(stop_tick: int | None = None):
-    tick = 0
-    while True:
-        # Tick Update
-        update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
-
-        # Preload
-        preload.do_preload(tick, schedule_data.enemy, init_data.name_box)
-        preload_list = preload.preload_data.preloaded_action
-
-        if stop_tick is None:
-            if len(preload.preload_data.skills_queue) == 0:
-                stop_tick = tick + 120
-        elif tick >= stop_tick:
-            break
-
-        # Load
-        if preload_list:
-            Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick)
-        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, load_data.name_box, load_data.LOADING_BUFF_DICT)
-        Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
-        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, global_stats.DYNAMIC_BUFF_DICT, load_data.exist_buff_dict)
-
-        # ScheduledEvent
-        scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick)
-        scheduled.event_start()
-        tick += 1
-        print(f"\r{tick}", end='')
 
 # Streamlit UI
 st.title("角色配置与运行")
@@ -123,11 +18,11 @@ col1, col2, col3 = st.columns(3)
 all_name_df = pd.read_csv(CHARACTER_DATA_PATH)
 name_list = all_name_df['name'].tolist()
 with col1:
-    selected_char_0 = st.selectbox('选择角色1', name_list, index=name_list.index(InitData.name_box[0]))
+    selected_char_0 = st.selectbox('选择角色1', name_list, index=name_list.index(main.InitData.name_box[0]))
 with col2:
-    selected_char_1 = st.selectbox('选择角色2', name_list, index=name_list.index(InitData.name_box[1]))
+    selected_char_1 = st.selectbox('选择角色2', name_list, index=name_list.index(main.InitData.name_box[1]))
 with col3:
-    selected_char_2 = st.selectbox('选择角色3', name_list, index=name_list.index(InitData.name_box[2]))
+    selected_char_2 = st.selectbox('选择角色3', name_list, index=name_list.index(main.InitData.name_box[2]))
 
 # 输入框
 char_0_inputs = {}
@@ -157,11 +52,11 @@ char_attr_to_zh_cn = {
 for key, trans in char_attr_to_zh_cn.items():
     if key != 'name':
         with col1:
-            char_0_inputs[key] = st.text_input(f'{trans}（角色1）', value=str(InitData.char_0.get(key, 0)))
+            char_0_inputs[key] = st.text_input(f'{trans}（角色1）', value=str(main.InitData.char_0.get(key, 0)))
         with col2:
-            char_1_inputs[key] = st.text_input(f'{trans}（角色2）', value=str(InitData.char_1.get(key, 0)))
+            char_1_inputs[key] = st.text_input(f'{trans}（角色2）', value=str(main.InitData.char_1.get(key, 0)))
         with col3:
-            char_2_inputs[key] = st.text_input(f'{trans}（角色3）', value=str(InitData.char_2.get(key, 0)))
+            char_2_inputs[key] = st.text_input(f'{trans}（角色3）', value=str(main.InitData.char_2.get(key, 0)))
 
 # 初始化 session_state 变量
 if 'submit_role_info' not in st.session_state:
@@ -177,21 +72,10 @@ if st.button('提交角色信息'):
 
 if st.session_state.submit_role_info:
     # 更新角色数据
-    init_data = InitData()
     init_data.name_box = [selected_char_0, selected_char_1, selected_char_2]
     init_data.char_0.update(char_0_inputs)
     init_data.char_1.update(char_1_inputs)
     init_data.char_2.update(char_2_inputs)
-
-    # 初始化其他数据
-    char_data = CharacterData(init_data)
-    load_data = LoadData(
-        name_box=init_data.name_box,
-        Judge_list_set=init_data.Judge_list_set,
-        weapon_dict=init_data.weapon_dict
-    )
-    schedule_data = ScheduleData(enemy=Enemy(), char_obj_list=char_data.char_obj_list)
-    global_stats = GlobalStats(name_box=init_data.name_box)
 
     # 初始化预加载数据
     skills = (char.skill_object for char in char_data.char_obj_list)
