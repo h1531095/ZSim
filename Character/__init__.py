@@ -1,5 +1,6 @@
 from .character import Character
-from Skill_Class import lookup_name_or_cid
+from .Skill_Class import Skill
+from Character.Skill_Class import lookup_name_or_cid
 
 def character_factory(
                  name: str = '', CID: int = None,  # 角色名字和CID-必填至少一个
@@ -46,7 +47,8 @@ def character_factory(
     elif name == '雅':
         from .Miyabi import Miyabi
         return Miyabi(**char_init_args)
+    elif name == '11号':
+        from .Soldier11 import Soldier11
+        return Soldier11(**char_init_args)
     else:
         return Character(**char_init_args)
-
-

@@ -1,6 +1,6 @@
 import pandas as pd
 
-from Skill_Class import Skill, lookup_name_or_cid
+from .Skill_Class import Skill, lookup_name_or_cid
 from Report import report_to_log
 from .filters import _skill_node_filter, _multiplier_filter
 import logging

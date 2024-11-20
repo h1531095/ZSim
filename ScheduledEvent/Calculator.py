@@ -1,7 +1,7 @@
 import json
+import sys
 from functools import lru_cache
 import numpy as np
-import pandas as pd
 
 import Buff
 from Character import Character
@@ -809,12 +809,17 @@ class Calculator:
             dmg_bonus = 1 + element_dmg_bonus + data.dynamic.all_dmg_bonus + data.dynamic.anomaly_dmg_bonus
             return dmg_bonus
 
-        @staticmethod
-        def cal_ap_mul(data: MultiplierData) -> float:
+        def cal_ap_mul(self, data: MultiplierData) -> float:
             """异常精通区 = 异常精通 / 100"""
-            ap = data.static.ap * (1 + data.dynamic.field_anomaly_proficiency) + data.dynamic.anomaly_proficiency
+            ap = self.cal_ap(data)
             ap_mul = ap / 100
             return ap_mul
+
+        @staticmethod
+        @lru_cache(maxsize=16)
+        def cal_ap(data: MultiplierData):
+            ap = data.static.ap * (1 + data.dynamic.field_anomaly_proficiency) + data.dynamic.anomaly_proficiency
+            return ap
 
         @staticmethod
         def cal_ano_dmg_mul(data: MultiplierData) -> float:
@@ -834,12 +839,14 @@ class Calculator:
                 assert False, INVALID_ELEMENT_ERROR
             return ano_dmg_mul
 
-        @staticmethod
-        def cal_anomaly_crit(data: MultiplierData) -> float:
-            """"""
-            if data.char_name == '简':
-                #TODO 简的暴击被动还没写
-                raise NotImplementedError('简的暴击被动还没写')
+        def cal_anomaly_crit(self, data: MultiplierData) -> float:
+            """目前只有简有这个被动"""
+            main_module = sys.modules['__main__']
+            if '简' in main_module.init_data.name_box and data.skill_node.skill.element_type == 0:
+                ap = self.cal_ap(data)
+                crit_dmg = 1 + 0.5 # Magic 技能介绍 Number
+                crit_rate = min((0.4 + ap * 0.0016), 1)
+                return 1 + crit_dmg * crit_rate
             else:
                 return 1
 
@@ -938,7 +945,7 @@ class Calculator:
     @staticmethod
     def update_stun_tick(enemy_obj: Enemy, data):
         """专门更新延长失衡时间的 buff"""
-        if data.dynamic.stun_tick_increase > 0:
+        if data.dynamic.stun_tick_increase >= 1:
             enemy_obj.increase_stun_recovery_time(data.dynamic.stun_tick_increase)
 
 

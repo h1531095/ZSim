@@ -1,8 +1,10 @@
+from functools import lru_cache
 import pandas as pd
 import Report
 from define import *
 
 
+@lru_cache(maxsize=64)
 def lookup_name_or_cid(name: str = None, cid: int = None) -> tuple[str, int]:
     """
     初始化角色名称和CID（角色ID）。

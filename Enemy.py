@@ -29,6 +29,7 @@ class Enemy:
         !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会查找ID最靠前的那一个
         """
         # 读取敌人数据文件，初始化敌人信息
+        self.__last_stun_increase_tick = None
         _raw_enemy_dataframe = pd.read_csv(ENEMY_DATA_PATH)
         # !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会返回ID更靠前的
         enemy_info = self.__lookup_enemy(_raw_enemy_dataframe, enemy_name, enemy_index_ID, enemy_sub_ID)
@@ -106,14 +107,19 @@ class Enemy:
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
     def restore_stun_recovery_time(self):
-        """
-        根据敌人数据表中的恢复时间，计算恢复时间对应的tick数。
-        """
+        """还原 Enemy 本身的失衡恢复时间"""
         self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
 
     def increase_stun_recovery_time(self, increase_tick: int):
-        self.restore_stun_recovery_time()
-        self.stun_recovery_time += increase_tick
+        """更新失衡延长的时间，负责接收 Calculator 的 buff"""
+        if self.__last_stun_increase_tick is None:
+            self.__last_stun_increase_tick = increase_tick
+        else:
+            if increase_tick >= self.__last_stun_increase_tick:
+                self.__last_stun_increase_tick = increase_tick
+                self.restore_stun_recovery_time()
+                self.stun_recovery_time += increase_tick
+
 
     @staticmethod
     def __lookup_enemy(enemy_data: pd.DataFrame,
@@ -142,10 +148,10 @@ class Enemy:
         else:
             row = enemy_data[enemy_data["IndexID"] == 11531].to_dict('records')  # 默认打尼尼微（因为全部0抗）
 
-        row = row[0]
-        name = row['CN_enemy_ID']
-        index_ID = row['IndexID']
-        sub_ID = row['SubID']
+        row: dict = row[0]
+        name: str = row['CN_enemy_ID']
+        index_ID: int = int(row['IndexID'])
+        sub_ID: int = int(row['SubID'])
 
         # 检查输入的变量与查到的变量是否一致
         if enemy_name is not None:
