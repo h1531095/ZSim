@@ -42,20 +42,11 @@ class Lighter(Character):
         for node in skill_nodes:
             # 累加逻辑
             if self.morale < 10000:
-                main_module = sys.modules['__main__']
-                tick: int = main_module.tick
-                # 每 6 ticks 更新
-                if (minus := tick - self.last_tick) >= 6:
-                    self.morale += minus // 6 * 29     # 地板除保证整形对齐
-                    self.last_tick = tick - minus % 6   # 求余以保证余数不计入本次计算
-
                 # 消耗能量及时更新
                 sp_consume = node.skill.sp_consume
-                if sp_consume <= 0:
-                    continue
-                else:
+                if sp_consume > 0:
                     self.morale += sp_consume * 26
-                self.morale = min(self.morale, 10000)
+
             if '1161' not in node.skill_tag:
                 continue
             # 递减逻辑
@@ -75,4 +66,12 @@ class Lighter(Character):
             if self.morale < 0:
                 report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}, 请检查")
                 self.morale = 0
+
+        # 时间每 6 ticks 更新
+        main_module = sys.modules['__main__']
+        tick: int = main_module.tick
+        if (minus := tick - self.last_tick) >= 6:
+            self.morale += minus // 6 * 29     # 地板除保证整形对齐
+            self.last_tick = tick - minus % 6   # 求余以保证余数不计入本次计算
+        self.morale = min(self.morale, 10000)
 
