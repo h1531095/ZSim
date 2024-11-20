@@ -16,6 +16,7 @@ class RNG:
             seed = int(seed) + tick
         (self.seed, self.r) = self.generate_random_number(seed)
 
+
     @staticmethod
     @lru_cache(maxsize=4)
     def generate_random_number(seed: int) -> tuple[int, int]:

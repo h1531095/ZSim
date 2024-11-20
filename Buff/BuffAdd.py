@@ -48,11 +48,16 @@ def buff_add(timenow: float,
                 DYNAMIC_BUFF_DICT[char].remove(buff_existing_check)
                 # report_to_log(f'[Buff ADD]:{timenow}:{buff_existing_check.ft.name}刷新了')
             DYNAMIC_BUFF_DICT[char].append(buff)
-            if char == 'enemy':
-                debuff_existing_check = next((existing_buff for existing_buff in enemy.dynamic.dynamic_debuff_list if existing_buff.ft.index == buff.ft.index), None)
-                if debuff_existing_check:
-                    enemy.dynamic.dynamic_debuff_list.remove(debuff_existing_check)
-                enemy.dynamic.dynamic_debuff_list.append(buff)
-                # 只有在处理enemy的buff时，需要将改动同时同步到buff中。
-                # report_to_log(f'[Buff ADD]:{timenow}:{buff.ft.name}第{buff.history.active_times}次触发:endticks:{buff.dy.endticks}')
+            add_debuff_to_enemy(buff, char, enemy)
     return DYNAMIC_BUFF_DICT
+
+
+def add_debuff_to_enemy(buff, char, enemy):
+    if char == 'enemy':
+        debuff_existing_check = next((existing_buff for existing_buff in enemy.dynamic.dynamic_debuff_list if
+                                      existing_buff.ft.index == buff.ft.index), None)
+        if debuff_existing_check:
+            enemy.dynamic.dynamic_debuff_list.remove(debuff_existing_check)
+        enemy.dynamic.dynamic_debuff_list.append(buff)
+        # 只有在处理enemy的buff时，需要将改动同时同步到buff中。
+        # report_to_log(f'[Buff ADD]:{timenow}:{buff.ft.name}第{buff.history.active_times}次触发:endticks:{buff.dy.endticks}')

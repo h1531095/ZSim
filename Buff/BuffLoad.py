@@ -30,8 +30,6 @@ class BuffInitCache:
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
-    # if buff_0.ft.index == 'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件':
-    #     print(f'{all_match, mission.mission_tag, selected_characters}')
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:
@@ -60,11 +58,13 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
             大部分拥有复杂判断逻辑的buff并没有明确的触发节点，往往是复杂判断过了，就激活了，不需要判断子任务的执行节点。
             所以这里直接用simple_judge_logic进行分叉，复杂逻辑在通过判断后，直接用simple_start来激活即可。
             """
-
             buff_new = Buff(active_condition_dict, judge_condition_dict)
             buff_new.simple_start(time_now, sub_exist_buff_dict)
-            # print(f'{buff_new.ft.index}激活了！激活状态：时间段：{buff_new.dy.startticks, buff_new.dy.endticks}，层数：{buff_new.dy.count}')
-            LOADING_BUFF_DICT[char].append(buff_new)
+            if buff_0.ft.simple_effect_logic:
+                # print(f'{buff_new.ft.index}激活了！激活状态：时间段：{buff_new.dy.startticks, buff_new.dy.endticks}，层数：{buff_new.dy.count}')
+                LOADING_BUFF_DICT[char].append(buff_new)
+            else:
+                buff_new.logic.xeffect()
 
                 # report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
     # else:
@@ -127,6 +127,9 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
         for buff_key, buff_0 in sub_exist_buff_dict.items():
             if not isinstance(buff_0, Buff):
                 raise TypeError(f"当前{buff_key}不是Buff类！")
+            if buff_0.ft.schedule_judge:
+                #   跳过schedule阶段处理的buff
+                continue
             # 提前计算添加Buff的角色列表
             selected_characters = buff_go_to(buff_0, all_name_box)
             # 处理每个buff的逻辑，但是要区分是buff还是debuff

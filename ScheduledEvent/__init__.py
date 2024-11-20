@@ -1,5 +1,6 @@
 import Buff.BuffAdd
 import Buff.BuffLoad
+from Buff import ScheduleBuffSettle
 import Enemy
 import Preload
 import Report
@@ -31,10 +32,11 @@ class ScheduledEvent:
     2、遍历事件列表，从开始到结束，将每一个事件派发到分支逻辑链内进行处理
     """
 
-    def __init__(self, dynamic_buff: dict, data, tick: int, *, loading_buff: dict = None, judging_buff: dict = None):
+    def __init__(self, dynamic_buff: dict, data, tick: int, exist_buff_dict: dict, *, loading_buff: dict = None, judging_buff: dict = None):
 
         self.data = data
         self.data.dynamic_buff = dynamic_buff
+        self.judge_required_info_dict = data.judge_required_info_dict
 
         if isinstance(judging_buff, dict):
             judge_condition = ScConditionData()
@@ -50,12 +52,15 @@ class ScheduledEvent:
         # 更新Data
         self.tick = tick
         self.data.loading_buff = loading_buff
+        self.exist_buff_dict = exist_buff_dict
+        self.enemy = self.data.enemy
 
     def event_start(self):
         """Schedule主逻辑"""
         # 更新角色面板
         for char in self.data.char_obj_list:
             char: Character
+            # EXPLAIN：mul是个类，包含了角色的所有信息，包括静态面板、动态面板。
             mul = MultiplierData(character_obj=char, dynamic_buff=self.data.dynamic_buff, enemy_obj=self.data.enemy)
             char.update_sp_and_decibel(mul)
         # 判断循环
@@ -71,15 +76,22 @@ class ScheduledEvent:
                 elif isinstance(event, Preload.SkillNode):
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
+                        self.judge_required_info_dict['skill_node'] = event
                 elif isinstance(event, AnB):
                     self.anomaly_event(event)
+                    self.judge_required_info_dict['anb'] = event
                 elif isinstance(event, Disorder):
                     self.disorder_event(event)
+                    self.judge_required_info_dict['disorder'] = event
                 else:
                     raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
+                ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff)
+
             # 计算过程中如果又有新的事件生成，则继续循环
             if self.data.event_list:
                 self.event_start()
+
+
 
     def solve_buff(self) -> None:
         """提前处理Buff实例"""
