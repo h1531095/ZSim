@@ -499,7 +499,7 @@ class Calculator:
                 element_dmg_bonus = data.static.fire_dmg_bonus + data.dynamic.fire_dmg_bonus
             elif element_type == 3:
                 element_dmg_bonus = data.static.electric_dmg_bonus + data.dynamic.electric_dmg_bonus
-            elif element_type == 2:
+            elif element_type == 2 or element_type == 5:
                 element_dmg_bonus = data.static.ice_dmg_bonus + data.dynamic.ice_dmg_bonus
             elif element_type == 4:
                 element_dmg_bonus = data.static.ether_dmg_bonus + data.dynamic.ether_dmg_bonus
@@ -617,7 +617,7 @@ class Calculator:
                 element_res = data.enemy_obj.PHY_damage_resistance - data.dynamic.physical_dmg_res_decrease + data.dynamic.physical_res_pen_increase
             elif element_type == 1:
                 element_res = data.enemy_obj.FIRE_damage_resistance - data.dynamic.fire_dmg_res_decrease + data.dynamic.fire_res_pen_increase
-            elif element_type == 2:
+            elif element_type == 2 or element_type == 5:
                 element_res = data.enemy_obj.ICE_damage_resistance - data.dynamic.ice_dmg_res_decrease + data.dynamic.ice_res_pen_increase
             elif element_type == 3:
                 element_res = data.enemy_obj.ELECTRIC_damage_resistance - data.dynamic.electric_dmg_res_decrease + data.dynamic.electric_res_pen_increase
@@ -640,7 +640,7 @@ class Calculator:
                 element_vulnerability = data.dynamic.physical_vulnerability
             elif element_type == 1:
                 element_vulnerability = data.dynamic.fire_vulnerability
-            elif element_type == 2:
+            elif element_type == 2 or element_type == 5:
                 element_vulnerability = data.dynamic.ice_vulnerability
             elif element_type == 3:
                 element_vulnerability = data.dynamic.electric_vulnerability
@@ -726,7 +726,7 @@ class Calculator:
             elif element_type == 1:
                 element_buildup_bonus = data.dynamic.fire_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.FIRE_damage_resistance - data.dynamic.fire_anomaly_res_decrease
-            elif element_type == 2:
+            elif element_type == 2 or element_type == 5:
                 element_buildup_bonus = data.dynamic.ice_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.ICE_damage_resistance - data.dynamic.ice_anomaly_res_decrease
             elif element_type == 3:
@@ -779,7 +779,7 @@ class Calculator:
                 base_damage = 7.13 * atk
             elif element_type == 1:
                 base_damage = 0.5 * atk
-            elif element_type == 2:
+            elif element_type == 2 or element_type == 5:
                 base_damage = 5 * atk
             elif element_type == 3:
                 base_damage = 1.25 * atk
@@ -797,7 +797,7 @@ class Calculator:
                 element_dmg_bonus = data.static.phy_dmg_bonus + data.dynamic.phy_dmg_bonus
             elif element_type == 1:
                 element_dmg_bonus = data.static.fire_dmg_bonus + data.dynamic.fire_dmg_bonus
-            elif element_type == 2:
+            elif element_type == 2 or element_type == 5:
                 element_dmg_bonus = data.static.ice_dmg_bonus + data.dynamic.ice_dmg_bonus
             elif element_type == 3:
                 element_dmg_bonus = data.static.electric_dmg_bonus + data.dynamic.electric_dmg_bonus
@@ -829,7 +829,7 @@ class Calculator:
                 ano_dmg_mul = 1 + data.dynamic.assault_dmg_mul
             elif element_type == 1:
                 ano_dmg_mul = 1 + data.dynamic.burn_dmg_mul
-            elif element_type == 2:
+            elif element_type == 2 or element_type == 5:
                 ano_dmg_mul = 1 + data.dynamic.freeze_dmg_mul
             elif element_type == 3:
                 ano_dmg_mul = 1 + data.dynamic.shock_dmg_mul
@@ -855,7 +855,7 @@ class Calculator:
                 element_res_pen = data.dynamic.physical_res_pen_increase
             elif self.element_type == 1:
                 element_res_pen = data.dynamic.fire_res_pen_increase
-            elif self.element_type == 2:
+            elif self.element_type == 2 or self.element_type == 5:
                 element_res_pen = data.dynamic.ice_res_pen_increase
             elif self.element_type == 3:
                 element_res_pen = data.dynamic.electric_res_pen_increase
