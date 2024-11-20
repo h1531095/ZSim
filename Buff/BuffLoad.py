@@ -66,13 +66,6 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
             else:
                 buff_new.logic.xeffect()
 
-                # report_to_log(f'[Buff LOAD]:{time_now}:{char}的{buff_0.ft.index}已加载', level=4)
-    # else:
-    #     buff_new = Buff(active_condition_dict, judge_condition_dict)
-    #     for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
-    #         if time_now - 1 < sub_mission_start_tick <= time_now:
-    #             buff_new.update('enemy', time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-    #             LOADING_BUFF_DICT['enemy'].append(buff_new)
 
 
 
@@ -124,6 +117,7 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
             raise ValueError(f'当前角色的Buff源并未创建！')
         # 提取当前角色的 Buff 列表
         sub_exist_buff_dict = existbuff_dict[character_name]
+        sub_exist_debuff_dict = existbuff_dict['enemy']
         for buff_key, buff_0 in sub_exist_buff_dict.items():
             if not isinstance(buff_0, Buff):
                 raise TypeError(f"当前{buff_key}不是Buff类！")
@@ -135,10 +129,15 @@ def BuffLoadLoop(time_now: float, load_mission_dict: dict, existbuff_dict: dict,
             # 处理每个buff的逻辑，但是要区分是buff还是debuff
             process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT)
             """
-            注意，这部分的分支，指的是以角色为第一视角来给自己或是其他人添加Buff。这里面的其他人也包括“enemy”。
-            由于这里是Load阶段，所以，动作的第一人称永远是角色，只有角色给enemy上debuff的可能性，
-            而所有环境或者其他外部因素造成enemy被上了debuff，那应该在schedule阶段执行。
+            注意，这部分的分支，指的是以角色为第一视角来给自己或是其他人添加Buff。这里面的其他人不包括“enemy”。
+            由于这个循环的前置参数——character_name是从mission里面拿来的，所以这个参数不可能是enemy。
             """
+        for debuff_key, debuff_0 in sub_exist_debuff_dict.items():
+            if not isinstance(debuff_0, Buff):
+                raise TypeError(f"当前{debuff_key}不是Buff类！")
+            if debuff_0.ft.schedule_judge:
+                continue
+            process_buff(debuff_0, sub_exist_debuff_dict, mission, time_now, ['enemy'], LOADING_BUFF_DICT)
     return LOADING_BUFF_DICT
 
 

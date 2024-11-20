@@ -120,6 +120,7 @@ class Enemy:
                 self.restore_stun_recovery_time()
                 self.stun_recovery_time += increase_tick
 
+
     @staticmethod
     def __lookup_enemy(enemy_data: pd.DataFrame,
                        enemy_name: str = None,

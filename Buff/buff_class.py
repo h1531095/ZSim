@@ -27,7 +27,9 @@ buff_logic_map = {
     'Buff-驱动盘-啄木鸟电音-普攻': '.BuffXLogic.WoodpeckerElectroSet4_NA',
     'Buff-驱动盘-啄木鸟电音-闪避反击': '.BuffXLogic.WoodpeckerElectroSet4_CA',
     'Buff-驱动盘-啄木鸟电音-强化特殊技': '.BuffXLogic.WoodpeckerElectroSet4_E_EX',
-    'Buff-角色-莱特-核心被动-冲击力提升': '.BuffXLogic.LighterUniqueSkillStunBonus'
+    'Buff-角色-莱特-核心被动-冲击力提升': '.BuffXLogic.LighterUniqueSkillStunBonus',
+    'Buff-角色-莱特-核心被动-失衡时间延长': '.BuffXLogic.LighterUniqueSkillStunTimeLimitBonus',
+    'Buff-角色-莱卡恩-额外能力-失衡易伤倍率': '.BuffXLogic.LyconAdditionalAbilityStunVulnerability'
 }
 
 # EXPLAIN：buff名  ：类名
@@ -37,7 +39,9 @@ class_name_map = {
     'Buff-驱动盘-啄木鸟电音-普攻': 'WoodpeckerElectroSet4_NA',
     'Buff-驱动盘-啄木鸟电音-闪避反击': 'WoodpeckerElectroSet4_CA',
     'Buff-驱动盘-啄木鸟电音-强化特殊技': 'WoodpeckerElectroSet4_E_EX',
-    'Buff-角色-莱特-核心被动-冲击力提升': 'LighterUniqueSkillStunBonus'
+    'Buff-角色-莱特-核心被动-冲击力提升': 'LighterUniqueSkillStunBonus',
+    'Buff-角色-莱特-核心被动-失衡时间延长': 'LighterUniqueSkillStunTimeLimitBonus',
+    'Buff-角色-莱卡恩-额外能力-失衡易伤倍率': 'LyconAdditionalAbilityStunVulnerability'
 
 }
 # 该字典用于复杂逻辑的buff的映射。key是Buff命（新版），value是模块文件名。
@@ -144,6 +148,7 @@ class Buff:
                     'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
                 self.simple_hit_logic = config['simple_hit_logic']  # 复杂的命中判定逻辑
                 self.simple_effect_logic = config['simple_effect_logic']     # 复杂的生效逻辑
+                self.simple_exit_logic = config['simple_exit_logic']    # 复杂退出逻辑
                 self.index = config['BuffName']  # buff的英文名,也是buff的索引
                 self.is_weapon = config['is_weapon']  # buff是否是武器特效
                 self.refinement = config['refinement']  # 武器特效的精炼等级
@@ -214,6 +219,7 @@ class Buff:
             self.xhit = None  # 复杂的命中更新逻辑
             self.xend = None  # 结束逻辑
             self.xeffect = None     # 生效逻辑
+            self.xexit = None  # 退出逻辑
 
         def special_judge_logic(self):
             pass
@@ -231,6 +237,9 @@ class Buff:
             pass
 
         def special_effect_logic(self):
+            pass
+
+        def special_exit_logic(self):
             pass
 
     class BuffSimpleJudgeCondition:
