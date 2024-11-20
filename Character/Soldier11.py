@@ -2,9 +2,9 @@ from Preload import SkillNode
 from Report import report_to_log
 from .filters import _skill_node_filter
 from .character import Character
-from Buff.BuffAddStrategy import BuffAddStrategy
+import sys
 
-class Soukaku(Character):
+class Soldier11(Character):
     def __init__(self,
                  name: str = '', CID: int = None,  # 角色名字和CID-必填至少一个
                  weapon=None, weapon_level=1,  # 武器名字-选填项
@@ -21,26 +21,28 @@ class Soukaku(Character):
                 drive4, drive5, drive6,
                 scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT,
                 sp_limit)
-        self.vortex: int = 0  # 涡流初始0点
+        self.fire_suppression: int = 0 # 强制的火力镇压
+        self.settle_tick: int | None = None
 
     def special_resources(self, *args, **kwargs) -> None:
-        """模拟苍角的涡流机制"""
+        """模拟11号的火力镇压机制"""
         # 输入类型检查
         skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
-        # 对输入的skill_node进行遍历
+        main_module = sys.modules['__main__']
+        tick = main_module.tick
         for node in skill_nodes:
-            if '1131' not in node.skill_tag:
+            if self.settle_tick is not None:
+                # 超时重置
+                if tick - self.settle_tick >= 480:
+                    self.fire_suppression = 0
+                    self.settle_tick = None
+            # 过滤非11号技能
+            if '1041' not in node.skill_tag:
                 continue
-            if self.vortex <= 3:
-                if node.skill_tag in ['1131_E_EX_1', '1131_E_EX_2', '1131_E_EX_3', '1131_QTE']:
-                    self.vortex += 1
-                    report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
-                elif node.skill_tag == '1131_Q':
-                    self.vortex = 3
-                    report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
-            # 这里不能 elif
-            if self.vortex >= 3:
-                if node.skill_tag in ['1131_E_EX_A', '1131_QTE', '1131_Q']:
-                    self.vortex = 0
-                    BuffAddStrategy('Buff-角色-苍角-核心被动-2')
-                    report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
+            # 获取层数逻辑
+            if node.skill_tag in ['1041_E_EX', '1041_QTE', '1041_Q']:
+                self.fire_suppression = 8
+                self.settle_tick = tick
+            # 消耗层数逻辑
+            if 'SNA' in node.skill_tag and self.fire_suppression > 0:
+                self.fire_suppression -= 1
