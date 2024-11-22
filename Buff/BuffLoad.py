@@ -186,11 +186,13 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
         如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
         说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
     """
-    if (not any(value if value is None else True for value in judge_condition_dict.values)) and buff_now.ft.simple_judge_logic:
-        return False
     if buff_now.ft.alltime:
         return True
-
+    if (not any(value if value is None else True for value in judge_condition_dict.values)) and buff_now.ft.simple_judge_logic:
+        # EXPLAIN：全部数据都是None并且是简单判断逻辑
+        #   这通常意味着Buff的判断不在Load阶段，而是通过某种方式在其他阶段暴力添加。
+        #   但是部分alltime的buff也会进入这一分支，所以需要在判断alltime之后再进行全空判断。
+        return False
     """
     正常buff的判断逻辑
     """

@@ -1,6 +1,4 @@
 from dataclasses import dataclass, field
-from random import random
-
 import Buff
 import Load
 import Preload
