@@ -30,13 +30,17 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
                 break
         else:
             raise ValueError(f'char_obj_list中并未找到莱特！')
+        if self.char_lighter.morale > 10000:
+            raise ValueError(f'snow又写错了')
         if self.last_morale > self.char_lighter.morale:
-            self.last_morale_delta = self.last_morale - self.char_lighter.morale
+            # print(f'上一次士气{self.last_morale}；这一次士气{self.char_lighter.morale}')
+            self.last_morale_delta = (self.last_morale - self.char_lighter.morale)/100
             self.buff_count = self.last_morale_delta
             self.last_morale = self.char_lighter.morale
             #   暂时假设不向下取整。
             return True
         else:
+            self.last_morale = self.char_lighter.morale
             return False
 
     def special_effect_logic(self):
@@ -53,7 +57,7 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
         self.buff_count = buff_0.logic.buff_count
         buff_i.dy.count = min(buff_i.dy.count + self.buff_count, buff_i.ft.maxcount)
         buff_i.dy.startticks = tick
-        buff_i.dy.endticks = tick + buff_i.dy.maxduration
+        buff_i.dy.endticks = tick + buff_i.ft.maxduration
 
 
 
