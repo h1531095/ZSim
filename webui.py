@@ -5,10 +5,17 @@ import streamlit as st
 
 import Preload
 import Report
-from main import init_data, char_data, schedule_data, load_data, global_stats, main_loop
+# from main import init_data, char_data, schedule_data, load_data, global_stats, main_loop
 import main
 from Report import write_to_csv
 from define import CHARACTER_DATA_PATH
+
+init_data = main.init_data
+char_data = main.char_data
+schedule_data = main.schedule_data
+load_data = main.load_data
+main_loop = main.main_loop
+
 
 # Streamlit UI
 st.title("角色配置与运行")
@@ -77,9 +84,6 @@ if st.session_state.submit_role_info:
     init_data.char_1.update(char_1_inputs)
     init_data.char_2.update(char_2_inputs)
 
-    # 初始化预加载数据
-    skills = (char.skill_object for char in char_data.char_obj_list)
-
     st.title("输入计算序列")
     # 读取 INPUT_ACTION_LIST
     INPUT_ACTION_LIST = pd.read_csv('./data/计算序列.csv')
@@ -96,9 +100,8 @@ if st.session_state.submit_role_info:
         with st.spinner('正在计算技能序列···'):
             # 将修改后的数据保存回 CSV 文件
             edited_data.to_csv('./data/计算序列.csv', index=False)
-            # Preload准备
-            preload = Preload.Preload(*skills)
             # 运行主程序
+            tick = 0
             main_loop()
             write_to_csv()
             print('\n')

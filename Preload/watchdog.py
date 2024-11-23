@@ -1,5 +1,5 @@
-import Character.Skill_Class as Skill_Class
-from Preload import SkillsQueue
+from Character import Skill
+from Preload import SkillNode
 from Report import report_to_log
 from define import ENABLE_WATCHDOG, WATCHDOG_LEVEL
 
@@ -8,8 +8,8 @@ if ENABLE_WATCHDOG:
     report_to_log("[INFO] Watchdog is enabled.", level=4)
 
 
-def watch_reverse_order(current_node: SkillsQueue.SkillNode | Skill_Class.Skill.InitSkill,
-                        last_node: SkillsQueue.SkillNode | Skill_Class.Skill.InitSkill):
+def watch_reverse_order(current_node: SkillNode | Skill.InitSkill,
+                        last_node: SkillNode | Skill.InitSkill):
     """
     监控技能队列中的技能加载顺序，如果发现逆序加载则发出警告。
 
@@ -27,9 +27,9 @@ def watch_reverse_order(current_node: SkillsQueue.SkillNode | Skill_Class.Skill.
         return
     if WATCHDOG_LEVEL <= 0:
         return
-    if not (isinstance(current_node, SkillsQueue.SkillNode) or isinstance(current_node, Skill_Class.Skill.InitSkill)):
+    if not (isinstance(current_node, SkillNode) or isinstance(current_node, Skill.InitSkill)):
         return
-    if not (isinstance(last_node, SkillsQueue.SkillNode) or isinstance(last_node, Skill_Class.Skill.InitSkill)):
+    if not (isinstance(last_node, SkillNode) or isinstance(last_node, Skill.InitSkill)):
         return
     current_tag = current_node.skill_tag
     last_tag = last_node.skill_tag
