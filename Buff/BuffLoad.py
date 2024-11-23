@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 import Load
-from Character.Skill_Class import Skill
+from Character.skill_class import Skill
 from Buff.BuffExist_Judge import buff_exist_judge
 from Buff.buff_class import Buff
 from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH

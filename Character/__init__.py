@@ -1,6 +1,5 @@
 from .character import Character
-from .Skill_Class import Skill
-from Character.Skill_Class import lookup_name_or_cid
+from .skill_class import Skill, lookup_name_or_cid
 
 def character_factory(
                  name: str = '', CID: int = None,  # 角色名字和CID-必填至少一个
