@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from random import random
 
 import Buff
 import Load
@@ -14,10 +13,10 @@ from Update_Buff import update_dynamic_bufflist
 
 @dataclass
 class InitData:
-    name_box = ['艾莲', '苍角', '莱特']
+    name_box = ['艾莲', '苍角', '莱卡恩']
     Judge_list_set = [['艾莲', '深海访客', '啄木鸟电音'],
                       ['苍角', '含羞恶面', '自由蓝调'],
-                      ['莱特', '拘缚者', '镇星迪斯科']]
+                      ['莱卡恩', '拘缚者', '镇星迪斯科']]
     char_0 = {'name' : name_box[0],
               'weapon': '深海访客', 'weapon_level': 1,
               'equip_set4': '啄木鸟电音', 'equip_set2_a': '极地重金属',
@@ -94,7 +93,7 @@ load_data = LoadData(
         name_box=init_data.name_box,
         Judge_list_set=init_data.Judge_list_set,
         weapon_dict=init_data.weapon_dict)
-schedule_data = ScheduleData(enemy=Enemy(), char_obj_list=char_data.char_obj_list)
+schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11752), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
 
 skills = (char.skill_object for char in char_data.char_obj_list)

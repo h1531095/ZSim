@@ -1,5 +1,5 @@
 from Character import Skill
-from Preload import SkillNode
+from Preload.SkillsQueue import SkillNode
 from Report import report_to_log
 from define import ENABLE_WATCHDOG, WATCHDOG_LEVEL
 
