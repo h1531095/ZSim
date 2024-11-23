@@ -29,7 +29,17 @@ buff_logic_map = {
     'Buff-驱动盘-啄木鸟电音-强化特殊技': '.BuffXLogic.WoodpeckerElectroSet4_E_EX',
     'Buff-角色-莱特-核心被动-冲击力提升': '.BuffXLogic.LighterUniqueSkillStunBonus',
     'Buff-角色-莱特-核心被动-失衡时间延长': '.BuffXLogic.LighterUniqueSkillStunTimeLimitBonus',
-    'Buff-角色-莱卡恩-额外能力-失衡易伤倍率': '.BuffXLogic.LyconAdditionalAbilityStunVulnerability'
+    'Buff-角色-莱卡恩-额外能力-失衡易伤倍率': '.BuffXLogic.LyconAdditionalAbilityStunVulnerability',
+    'Buff-武器-精1燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
+    'Buff-武器-精2燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
+    'Buff-武器-精3燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
+    'Buff-武器-精4燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
+    'Buff-武器-精5燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
+    'Buff-武器-精1玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus',
+    'Buff-武器-精2玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus',
+    'Buff-武器-精3玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus',
+    'Buff-武器-精4玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus',
+    'Buff-武器-精5玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus'
 }
 
 # EXPLAIN：buff名  ：类名
@@ -41,8 +51,17 @@ class_name_map = {
     'Buff-驱动盘-啄木鸟电音-强化特殊技': 'WoodpeckerElectroSet4_E_EX',
     'Buff-角色-莱特-核心被动-冲击力提升': 'LighterUniqueSkillStunBonus',
     'Buff-角色-莱特-核心被动-失衡时间延长': 'LighterUniqueSkillStunTimeLimitBonus',
-    'Buff-角色-莱卡恩-额外能力-失衡易伤倍率': 'LyconAdditionalAbilityStunVulnerability'
-
+    'Buff-角色-莱卡恩-额外能力-失衡易伤倍率': 'LyconAdditionalAbilityStunVulnerability',
+    'Buff-武器-精1燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
+    'Buff-武器-精2燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
+    'Buff-武器-精3燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
+    'Buff-武器-精4燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
+    'Buff-武器-精5燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
+    'Buff-武器-精1玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
+    'Buff-武器-精2玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
+    'Buff-武器-精3玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
+    'Buff-武器-精4玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
+    'Buff-武器-精5玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
 }
 # 该字典用于复杂逻辑的buff的映射。key是Buff命（新版），value是模块文件名。
 
@@ -108,6 +127,7 @@ class Buff:
         动态加载适应于当前Buff实例的复杂逻辑模块。
         """
         try:
+            index = self.ft.index
             module_name = buff_logic_map.get(self.ft.index)
 
             if module_name:
@@ -121,7 +141,9 @@ class Buff:
                 pass
         except ModuleNotFoundError:
             # 处理模块找不到的情况
+
             print(f"Module for {self.ft.index} not found. Falling back to default logic.")
+            pass
 
     class BuffFeature:
         bf_instance_cache = {}
@@ -600,8 +622,8 @@ class Buff:
             return
         if self.ft.fresh:       # 处理可更新的buff（fresh = True）
             # EXPLAIN：fresh参数和individual_settled是否等价？不，前者是命中时间完全不修改endticks，而后者则是独立结算机制。
-            # EXPLAIN：在判定逻辑的优先级上，fresh和individual_settled包含关系，如果fresh为FALSE，那么无论层数是否独立结算，都会表现为相同的结果。
-            # EXPLAIN：所以，只有fresh为True的buff，才有被区分是否独立结算的意义。
+            #  在判定逻辑的优先级上，fresh和individual_settled包含关系，如果fresh为FALSE，那么无论层数是否独立结算，都会表现为相同的结果。
+            #  所以，只有fresh为True的buff，才有被区分是否独立结算的意义。
             if self.ft.individual_settled:
                 # EXAMPLE：普攻命中时，攻击力提高3%，层数之间独立结算。
                 self.individual_setteled_update(self.ft.maxduration, timenow)
