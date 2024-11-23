@@ -132,7 +132,7 @@ class ScheduledEvent:
                                  skill_tag=event.skill_tag,
                                  dmg_expect=cal_obj.cal_dmg_expect(),
                                  dmg_crit=cal_obj.cal_dmg_crit(),
-                                 muls=cal_obj.RegularMul.get_array_expect(cal_obj.regular_multipliers),
+                                 stun=stun,
                                  stun_status=self.data.enemy.dynamic.stun,
                                  buildup=snapshot[1],
                                  enemy_dynamic=self.data.enemy.dynamic.__str__()
