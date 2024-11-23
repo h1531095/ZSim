@@ -31,7 +31,7 @@ class InitData:
     char_2 = {'name' : name_box[2],
               'weapon': '拘缚者', 'weapon_level': 1,
               'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '异常精通', 'drive5' : '攻击力%', 'drive6' : '冲击力%',
+              'drive4' : '暴击率', 'drive5' : '火属性伤害', 'drive6' : '冲击力%',
               'scATK_percent': 10, 'scCRIT': 20}
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
@@ -97,6 +97,8 @@ load_data = LoadData(
 schedule_data = ScheduleData(enemy=Enemy(), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
 
+skills = (char.skill_object for char in char_data.char_obj_list)
+preload = Preload.Preload(*skills)
 
 def main_loop(stop_tick: int | None = None):
     global tick
@@ -126,14 +128,10 @@ def main_loop(stop_tick: int | None = None):
         scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick, load_data.exist_buff_dict)
         scheduled.event_start()
         tick += 1
-        print(f"\r{tick}", end='')
+        print(f"\r{tick} ", end='')
 
 
 if __name__ == '__main__':
-    # global data
-    # Initialize Preload Data
-    skills = (char.skill_object for char in char_data.char_obj_list)
-    preload = Preload.Preload(*skills)
     main_loop()
     print('\n正在等待IO结束···')
     write_to_csv()

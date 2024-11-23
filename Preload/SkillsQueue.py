@@ -2,7 +2,7 @@ import pandas as pd
 
 from LinkedList import LinkedList
 from Report import report_to_log
-from Character.Skill_Class import Skill
+from Character.skill_class import Skill
 
 preload_skills = []  # 留一个全局接口，可能没用其实
 

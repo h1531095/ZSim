@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .Skill_Class import Skill, lookup_name_or_cid
+from .skill_class import Skill, lookup_name_or_cid
 from Report import report_to_log
 from .filters import _skill_node_filter, _multiplier_filter
 import logging
@@ -539,9 +539,7 @@ class Character:
         self.baseCRIT_score += (scCRIT * 4.8)
 
     def update_sp_and_decibel(self, *args, **kwargs):
-        """
-        更新能量和喧响
-        """
+        """更新能量和喧响"""
         # Preload Skill
         skill_nodes = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
@@ -556,7 +554,11 @@ class Character:
                 self.sp += sp_change
                 self.sp = max(0.0, min(self.sp + sp_change, self.sp_limit))
             # Decibel
-            if f"{self.CID}-Q" not in node.skill_tag:
+            if f"{self.CID}-Q" in node.skill_tag:
+                if self.decibel <= 3000:
+                    print(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
+                self.decibel = 0
+            else:
                 all_decibel_change = node.skill.fever_recovery
                 self_decibel_change = 0
                 if node.char_name == self.NAME:
@@ -564,18 +566,12 @@ class Character:
                 decibel_change = all_decibel_change + self_decibel_change
                 self.decibel += decibel_change
                 self.decibel = max(0.0, min(self.decibel + decibel_change, 3000))
-            else:
-                if self.decibel <= 3000:
-                    print(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
-                self.decibel = 0
-        # Recovery over time
+        # SP recovery over time
         mul_data = _multiplier_filter(*args, **kwargs)
         for mul in mul_data:
             if mul.char_name == self.NAME:
                 sp_change_2 = mul.static.sp_regen + mul.dynamic.field_sp_regen
                 self.sp += sp_change_2 / 60
-
-        # report_to_log(f"[Character] {self.NAME}: 能量{self.sp:.2f}，喧响{self.decibel:.2f}")
 
     def special_resources(self, *args, **kwargs) -> None:
         """父类中不包含默认特殊资源"""
