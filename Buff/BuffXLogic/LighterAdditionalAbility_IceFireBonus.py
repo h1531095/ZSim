@@ -51,7 +51,7 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         先处理real_count的逻辑，最多100层（叠加20次）
         """
         stun_value = Calculator.StunMul.cal_imp(mul_data)
-        fake_count_delta = (stun_value - 170)/10
+        fake_count_delta = max((stun_value - 170)/10, 0)
         sum_fake_count = real_count / 5 * fake_count_delta
         buff_i.dy.count = real_count + sum_fake_count
         buff_i.update_to_buff_0(buff_0)

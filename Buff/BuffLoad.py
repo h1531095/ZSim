@@ -30,6 +30,8 @@ class BuffInitCache:
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
+    # if all_match and buff_0.ft.index == 'Buff-武器-精1燃狱齿轮-叠层冲击力':
+    #     print(11111111111111)
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:
@@ -188,6 +190,9 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
     """
     if buff_now.ft.alltime:
         return True
+    # if buff_now.ft.passively_updating:
+    #     print(buff_now.ft.index)
+    #     return False
     if (not any(value if value is None else True for value in judge_condition_dict.values)) and buff_now.ft.simple_judge_logic:
         # EXPLAIN：全部数据都是None并且是简单判断逻辑
         #   这通常意味着Buff的判断不在Load阶段，而是通过某种方式在其他阶段暴力添加。

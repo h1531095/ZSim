@@ -1,7 +1,6 @@
 import json
 import importlib
 from functools import lru_cache
-
 import numpy as np
 from Report import report_to_log
 from define import EFFECT_FILE_PATH
@@ -19,52 +18,6 @@ use_cache = False
 # 在文件中,这个list被用在最后的buffchagne()函数中,作为中转字典的keylist存在
 # 在重构本程序的过程中,我思考过是否要把这个巨大的indexlist按照乘区划分拆成若干,这意味着Event中的Multi子类或许可以独立出来成为一个单独的父类存在.
 # 这样做的好处是:庞大复杂的Multi可以不用蜗居在Event下,结构更加清晰.但是坏处就是,Event和Multi必须1对1实例化,否则容易出现多个动作共用同一份乘区实例的情况,就很容易发生错误NTR(bushi
-
-# EXPLAIN：buff名  ：文件路径
-buff_logic_map = {
-    'Buff-角色-莱特-额外能力-冰火增伤': '.BuffXLogic.LighterAdditionalAbility_IceFireBonus',
-    'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件': '.BuffXLogic.PolarMetalFreezeBonus',
-    'Buff-驱动盘-啄木鸟电音-普攻': '.BuffXLogic.WoodpeckerElectroSet4_NA',
-    'Buff-驱动盘-啄木鸟电音-闪避反击': '.BuffXLogic.WoodpeckerElectroSet4_CA',
-    'Buff-驱动盘-啄木鸟电音-强化特殊技': '.BuffXLogic.WoodpeckerElectroSet4_E_EX',
-    'Buff-角色-莱特-核心被动-冲击力提升': '.BuffXLogic.LighterUniqueSkillStunBonus',
-    'Buff-角色-莱特-核心被动-失衡时间延长': '.BuffXLogic.LighterUniqueSkillStunTimeLimitBonus',
-    'Buff-角色-莱卡恩-额外能力-失衡易伤倍率': '.BuffXLogic.LyconAdditionalAbilityStunVulnerability',
-    'Buff-武器-精1燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
-    'Buff-武器-精2燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
-    'Buff-武器-精3燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
-    'Buff-武器-精4燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
-    'Buff-武器-精5燃狱齿轮-后台能量自动回复': '.BuffXLogic.HellfireGearsSpRBonus',
-    'Buff-武器-精1玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus',
-    'Buff-武器-精2玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus',
-    'Buff-武器-精3玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus',
-    'Buff-武器-精4玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus',
-    'Buff-武器-精5玉壶青冰-15层后增伤': '.BuffXLogic.IceJadeTeaPotExtraDMGBonus'
-}
-
-# EXPLAIN：buff名  ：类名
-class_name_map = {
-    'Buff-角色-莱特-额外能力-冰火增伤': 'LighterExtraSkill_IceFireBonus',
-    'Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件': 'PolarMetalFreezeBonus',
-    'Buff-驱动盘-啄木鸟电音-普攻': 'WoodpeckerElectroSet4_NA',
-    'Buff-驱动盘-啄木鸟电音-闪避反击': 'WoodpeckerElectroSet4_CA',
-    'Buff-驱动盘-啄木鸟电音-强化特殊技': 'WoodpeckerElectroSet4_E_EX',
-    'Buff-角色-莱特-核心被动-冲击力提升': 'LighterUniqueSkillStunBonus',
-    'Buff-角色-莱特-核心被动-失衡时间延长': 'LighterUniqueSkillStunTimeLimitBonus',
-    'Buff-角色-莱卡恩-额外能力-失衡易伤倍率': 'LyconAdditionalAbilityStunVulnerability',
-    'Buff-武器-精1燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
-    'Buff-武器-精2燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
-    'Buff-武器-精3燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
-    'Buff-武器-精4燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
-    'Buff-武器-精5燃狱齿轮-后台能量自动回复': 'HellfireGearsSpRBonus',
-    'Buff-武器-精1玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
-    'Buff-武器-精2玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
-    'Buff-武器-精3玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
-    'Buff-武器-精4玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
-    'Buff-武器-精5玉壶青冰-15层后增伤': 'IceJadeTeaPotExtraDMGBonus',
-}
-# 该字典用于复杂逻辑的buff的映射。key是Buff命（新版），value是模块文件名。
-
 
 class Buff:
     """
@@ -119,7 +72,15 @@ class Buff:
         else:
             self.history.active_times += 1
     # 调用特殊的逻辑加载函数
+        self.buff_config = self.load_config()
         self.load_special_judge_config()
+
+    def load_config(self):
+        """
+        加载 Buff 配置文件
+        """
+        with open('./Buff/buff_config.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
 
     def load_special_judge_config(self):
         """
@@ -128,10 +89,10 @@ class Buff:
         """
         try:
             index = self.ft.index
-            module_name = buff_logic_map.get(self.ft.index)
-
-            if module_name:
-                class_name = class_name_map.get(self.ft.index)
+            config = self.buff_config.get(index)
+            if config:
+                module_name = config["module"]
+                class_name = config["class"]
                 # 动态加载模块
                 module = importlib.import_module(module_name, package='Buff')
                 logic_class = getattr(module, class_name)
@@ -141,7 +102,6 @@ class Buff:
                 pass
         except ModuleNotFoundError:
             # 处理模块找不到的情况
-
             print(f"Module for {self.ft.index} not found. Falling back to default logic.")
             pass
 
@@ -190,8 +150,8 @@ class Buff:
                 self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
                 self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
                 self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
-                self.individual_settled = config['individual_settled']    # 记录了这个buff的叠层是否是独立结算。
 
+                self.individual_settled = config['individual_settled']    # 记录了这个buff的叠层是否是独立结算
                 """
                 在20241116的更新中，更新了新的buff结算逻辑，针对“层数独立结算”的buff，
                 在BuffFeature下新增了一个参数：individual_settled
@@ -200,6 +160,12 @@ class Buff:
                 如果存在，则应该直接更新self.dy.built_in_buff_box。
                 """
 
+                self.passively_updating = True      # 记录了buff是否被动更新。
+                """
+                在20241130的更新中，新增了这一参数。在初始化阶段、生成exist_buff_dict以及一众buff_0时，
+                会根据对应的添加逻辑，修改这一参数。这一参数可以标志出该buff是否应该由当前角色的行为触发。
+                这样就可以避免“艾莲的强化E会意外触发苍角核心被动的攻击力buff”
+                """
 
     class BuffDynamic:
         def __init__(self):
@@ -431,6 +397,9 @@ class Buff:
         self.dy.built_in_buff_box.append((start, end))
         self.dy.count = len(self.dy.built_in_buff_box)
         self.dy.endticks = end
+        self.dy.active = True
+        self.dy.ready = False
+        self.dy.is_changed = True
 
     def update(self, char_name: str, timenow, timecost, sub_exist_buff_dict: dict, sub_mission: str):
         """
