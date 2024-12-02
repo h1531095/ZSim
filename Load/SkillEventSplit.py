@@ -3,9 +3,10 @@ import Preload
 import tqdm
 from Report import report_to_log
 import Load
+from Load import ActionStack
 
 
-def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, name_dict: dict, timenow):
+def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, name_dict: dict, timenow, action_stack: ActionStack):
     to_remove = []
     for mission in Load_mission_dict.values():
         if not isinstance(mission, Load.LoadingMission):
@@ -17,6 +18,7 @@ def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, 
             raise ValueError(f"本次拆分的{skill}不是SkillNode类！")
         this_mission = Load.LoadingMission(skill)
         this_mission.mission_start(timenow)
+        action_stack.push(this_mission)
         if skill.skill_tag in name_dict:
             name_dict[skill.skill_tag] += 1
         else:

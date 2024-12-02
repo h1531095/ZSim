@@ -12,6 +12,7 @@ class WoodpeckerElectroSet4_NA(Buff.BuffLogic):
         # 初始化特定逻辑
         self.xjudge = self.special_judge_logic
 
+
     def special_judge_logic(self):
         main_module = sys.modules['__main__']
         name_box = main_module.init_data.name_box

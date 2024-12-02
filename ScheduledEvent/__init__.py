@@ -4,6 +4,7 @@ from Buff import ScheduleBuffSettle
 import Enemy
 import Preload
 import Report
+import Load
 
 from AnomalyBar import AnomalyBar as AnB
 
@@ -32,12 +33,12 @@ class ScheduledEvent:
     2、遍历事件列表，从开始到结束，将每一个事件派发到分支逻辑链内进行处理
     """
 
-    def __init__(self, dynamic_buff: dict, data, tick: int, exist_buff_dict: dict, *, loading_buff: dict = None, judging_buff: dict = None):
+    def __init__(self, dynamic_buff: dict, data, tick: int, exist_buff_dict: dict, action_stack: Load.ActionStack, *, loading_buff: dict = None, judging_buff: dict = None):
 
         self.data = data
         self.data.dynamic_buff = dynamic_buff
         self.judge_required_info_dict = data.judge_required_info_dict
-
+        self.action_stack = action_stack
         if isinstance(judging_buff, dict):
             judge_condition = ScConditionData()
 
@@ -85,7 +86,7 @@ class ScheduledEvent:
                     self.judge_required_info_dict['disorder'] = event
                 else:
                     raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
-                ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff)
+                ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff, self.action_stack)
 
             # 计算过程中如果又有新的事件生成，则继续循环
             if self.data.event_list:

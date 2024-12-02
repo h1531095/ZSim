@@ -1,6 +1,6 @@
 import itertools
 import json
-
+import copy
 import pandas as pd
 
 from Buff.buff_class import Buff
@@ -18,7 +18,7 @@ with open('./CharConfig.json', 'r', encoding='utf-8') as file:
 config_keys_list = list(character_config_dict.keys())
 allbuff_list = EXIST_FILE.index.tolist()  # 将索引列转为列表
 exist_buff_dict = {'enemy': {}}  # 初始化敌方buff的字典
-
+buff_name_box = {}
 
 # 主函数：判断Buff存在性并更新存在Buff字典
 def buff_exist_judge(charname_box, judge_list_set, weapon_dict):
@@ -64,50 +64,67 @@ def buff_exist_judge(charname_box, judge_list_set, weapon_dict):
     for buff_name, buff_info_tuple in select_buff_dict.items():
         buff_from = buff_info_tuple[0]['from']
         adding_code = str(int(buff_info_tuple[0]['add_buff_to'])).zfill(4)
-
         if buff_from in charname_box:
-            # 如果buff来自于角色
+            # 如果buff来自于角色，那么buff_from就一定指向这个buff的真正来源，也就是buff的拥有者（并非buff的受益者）
             current_name_box = name_order_dict[buff_from]
             selected_characters = [current_name_box[i] for i in range(len(current_name_box)) if adding_code[i] == '1']
             if buff_from not in selected_characters:
                 selected_characters.append(buff_from)
             for name in selected_characters:
                 initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, name, buff_from)
-
         elif buff_from == 'enemy':
-            # 如果buff来自于enemy
+            """ 
+            进入这一分支的所有buff实际上都是环境或是其他原因而强加给enemy的，
+            由于buffload函数并不会以“enemy”为主视角来判定buff，
+            所有添加给enemy的buff都是在buffload遍历其他角色时产生、或是其他阶段强行添加的，
+            所以，此处的buff_orner参数传入并不严格，因为用不到。
+            """
             initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, 'enemy', 'enemy')
-
         elif buff_from in total_judge_condition_list:
-            # 如果buff不属于角色和enemy，那么buff肯定来自装备。
+            """
+            如果buff不属于角色和enemy，那么buff肯定来自装备。
+            不管是武器还是驱动盘，都可以通过倒查的方式找到真正的装备者，
+            也就是下面的equipment_carrier 变量。
+            这个str会被作为buff_orner传入函数。
+            """
             for sub_list in judge_list_set:
                 if buff_from in [sub_list[1], sub_list[2]]:
                     equipment_carrier = sub_list[0]
-                    current_name_box = name_order_dict[equipment_carrier]
-                    selected_characters = [current_name_box[i] for i in range(len(current_name_box)) if adding_code[i] == '1']
-                    for name in selected_characters:
-                        initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, name, equipment_carrier)
-    #
-    for name, buff_dict in exist_buff_dict.items():
-        print(name)
-        print([buff.ft.index for buff in buff_dict.values()])
-    #     # for buff_name, buff in buff_dict.items():
-    #     #     print([buff_name, buff.ft.passively_updating])
+            current_name_box = name_order_dict[equipment_carrier]
+            selected_characters = [current_name_box[i] for i in range(len(current_name_box)) if adding_code[i] == '1']
+            for name0 in selected_characters:
+                initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, name0, equipment_carrier)
+
+    for char_name, sub_buff_dict in exist_buff_dict.items():
+        for f_buff in sub_buff_dict.values():
+            if not isinstance(f_buff, Buff):
+                raise TypeError
+            if f_buff.ft.operator != char_name:
+                f_buff.ft.passively_updating = True
+            else:
+                f_buff.ft.passively_updating = False
+    # for names, buff_dict in exist_buff_dict.items():
+    #     print(names)
+    #     for buff_name, buff in buff_dict.items():
+    #         print(buff_name, buff.ft.passively_updating, buff.ft.operator)
     return exist_buff_dict
 
 
-def initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, name, buff_orner):
+def initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, benifiter, buff_orner):
     """
-    参数中的name和orner不是一个名字。name是buff的受益者，但并不一定是触发buff的角色。
+    参数中的benifiter和orner不是一个名字。benifiter是buff的受益者，但并不一定是触发buff的角色。
     而buff_orner是触发buff者，哪怕这个buff是加给别人的，作为触发者，它的exist_buff_dict中也应该保留这个buff，
     这样，在BuffLoad函数对buff_0进行判断时，就可以通过buff.ft.passively_updating参数来避开不必要的判断了。
     """
-    if not buff_name in exist_buff_dict[name]:
-        buff_new = Buff(buff_info_tuple[0], buff_info_tuple[1])
-        if name == buff_orner:
-            buff_new.ft.passively_updating = False
-        exist_buff_dict[name][buff_name] = buff_new
-
+    dict_1 = copy.deepcopy(buff_info_tuple[0])  # 创建 dict_1 的副本
+    dict_2 = copy.deepcopy(buff_info_tuple[1])  # 创建 dict_2 的副本
+    dict_1['operator'] = buff_orner
+    if benifiter == buff_orner:
+        dict_1['passively_updating'] = False
+    else:
+        dict_1['passively_updating'] = True
+    buff_new = Buff(dict_1, dict_2)
+    exist_buff_dict[benifiter][buff_name] = buff_new
 
 
 
@@ -220,17 +237,17 @@ if __name__ == '__main__':
     Judge_list_set = [['艾莲', '深海访客', '啄木鸟电音'],
                       ['苍角', '含羞恶面', '自由蓝调'],
                       ['莱特', '拘缚者', '镇星迪斯科']]
-    char_0 = {'name' : name_box[0],
+    char_0 = {'benifiter' : name_box[0],
               'weapon': '深海访客', 'weapon_level': 1,
               'equip_set4': '啄木鸟电音', 'equip_set2_a': '极地重金属',
               'drive4' : '异常精通', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
               'scATK_percent': 10, 'scCRIT': 20}
-    char_1 = {'name' : name_box[1],
+    char_1 = {'benifiter' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,
               'equip_set4': '摇摆爵士', 'equip_set2_a': '自由蓝调',
               'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '能量自动回复%',
               'scATK_percent': 10, 'scCRIT': 20}
-    char_2 = {'name' : name_box[2],
+    char_2 = {'benifiter' : name_box[2],
               'weapon': '拘缚者', 'weapon_level': 1,
               'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
               'drive4' : '暴击率', 'drive5' : '火属性伤害', 'drive6' : '冲击力%',
@@ -238,4 +255,8 @@ if __name__ == '__main__':
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
                    name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
-    buff_exist_judge(name_box, Judge_list_set, weapon_dict)
+    exist_buff_dict = buff_exist_judge(name_box, Judge_list_set, weapon_dict)
+    for names, buff_dict in exist_buff_dict.items():
+        print(names)
+        for buff_name, buff in buff_dict.items():
+            print(buff_name, buff.ft.passively_updating, buff.ft.operator)

@@ -159,10 +159,11 @@ class Buff:
                 如果是True，则应该检索当前DYNAMIC_BUFF_DICT中的buff是否存在，
                 如果存在，则应该直接更新self.dy.built_in_buff_box。
                 """
-
-                self.passively_updating = True      # 记录了buff是否被动更新。
+                self.operator = config.get('operator', None)
+                self.passively_updating = config.get('passively_updating', None)
                 """
-                在20241130的更新中，新增了这一参数。在初始化阶段、生成exist_buff_dict以及一众buff_0时，
+                在20241130的更新中，新增了passively_updating这一参数。
+                在初始化阶段、生成exist_buff_dict以及一众buff_0时，
                 会根据对应的添加逻辑，修改这一参数。这一参数可以标志出该buff是否应该由当前角色的行为触发。
                 这样就可以避免“艾莲的强化E会意外触发苍角核心被动的攻击力buff”
                 """
