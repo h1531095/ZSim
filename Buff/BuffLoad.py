@@ -29,7 +29,9 @@ class BuffInitCache:
 
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
-    all_match = BuffJudge(buff_0, judge_condition_dict, all_match, mission)
+    all_match = BuffJudge(buff_0, judge_condition_dict, mission)
+    # if all_match and buff_0.ft.index == 'Buff-武器-精5含羞恶面-叠层攻击力':
+    #     print(mission.mission_tag)
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:
@@ -181,7 +183,7 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache
     return results
 
 
-def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Load.LoadingMission):
+def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission):
     """
         如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
         说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
@@ -193,6 +195,15 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, all_match: bool, mission: Lo
         #   这通常意味着Buff的判断不在Load阶段，而是通过某种方式在其他阶段暴力添加。
         #   但是部分alltime的buff也会进入这一分支，所以需要在判断alltime之后再进行全空判断。
         return False
+    if buff_now.ft.passively_updating:
+        """
+        这一步主要检查的是：buff的拥有者是否就是当前的任务角色。
+        这可以避免莱特在前台的平A暴击触发了后台艾莲身上的啄木鸟4
+        """
+        return False
+    else:
+        if buff_now.ft.operator != mission.mission_character:
+            return False
     """
     正常buff的判断逻辑
     """

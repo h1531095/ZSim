@@ -37,9 +37,10 @@ def buff_add(timenow: float,
             if not isinstance(buff, Buff):
                 raise ValueError(f'loading_buff_dict中的{buff}元素不是Buff类')
             if not buff.dy.active or (buff.dy.startticks == 0 and buff.dy.endticks == 0) or buff.dy.count == 0:
-                # if buff.ft.index == 'Buff-武器-精1深海访客-暴击率-1':
+                # if buff.ft.index == 'Buff-武器-精1燃狱齿轮-叠层冲击力':
                 #     print(f'{buff.dy.active, buff.dy.startticks, buff.dy.endticks, buff.dy.count}')
                 continue
+
             buff_existing_check = next((existing_buff for existing_buff in DYNAMIC_BUFF_DICT[char] if existing_buff.ft.index == buff.ft.index), None)
             # 这个语句的作用是，检查buff是否已经存在。检查的索引是buff.ft.index。
             if buff_existing_check:
@@ -47,6 +48,7 @@ def buff_add(timenow: float,
                     continue
                 DYNAMIC_BUFF_DICT[char].remove(buff_existing_check)
                 # report_to_log(f'[Buff ADD]:{timenow}:{buff_existing_check.ft.name}刷新了')
+
             DYNAMIC_BUFF_DICT[char].append(buff)
             add_debuff_to_enemy(buff, char, enemy)
     return DYNAMIC_BUFF_DICT

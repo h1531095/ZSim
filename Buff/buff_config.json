@@ -1,0 +1,74 @@
+{
+    "Buff-角色-莱特-额外能力-冰火增伤": {
+        "module": ".BuffXLogic.LighterAdditionalAbility_IceFireBonus",
+        "class": "LighterExtraSkill_IceFireBonus"
+    },
+    "Buff-驱动盘-极地重金属-冲刺与普攻增伤-有条件": {
+        "module": ".BuffXLogic.PolarMetalFreezeBonus",
+        "class": "PolarMetalFreezeBonus"
+    },
+    "Buff-驱动盘-啄木鸟电音-普攻": {
+        "module": ".BuffXLogic.WoodpeckerElectroSet4_NA",
+        "class": "WoodpeckerElectroSet4_NA"
+    },
+    "Buff-驱动盘-啄木鸟电音-闪避反击": {
+        "module": ".BuffXLogic.WoodpeckerElectroSet4_CA",
+        "class": "WoodpeckerElectroSet4_CA"
+    },
+    "Buff-驱动盘-啄木鸟电音-强化特殊技": {
+        "module": ".BuffXLogic.WoodpeckerElectroSet4_E_EX",
+        "class": "WoodpeckerElectroSet4_E_EX"
+    },
+    "Buff-角色-莱特-核心被动-冲击力提升": {
+        "module": ".BuffXLogic.LighterUniqueSkillStunBonus",
+        "class": "LighterUniqueSkillStunBonus"
+    },
+    "Buff-角色-莱特-核心被动-失衡时间延长": {
+        "module": ".BuffXLogic.LighterUniqueSkillStunTimeLimitBonus",
+        "class": "LighterUniqueSkillStunTimeLimitBonus"
+    },
+    "Buff-角色-莱卡恩-额外能力-失衡易伤倍率": {
+        "module": ".BuffXLogic.LyconAdditionalAbilityStunVulnerability",
+        "class": "LyconAdditionalAbilityStunVulnerability"
+    },
+    "Buff-武器-精1燃狱齿轮-后台能量自动回复": {
+        "module": ".BuffXLogic.HellfireGearsSpRBonus",
+        "class": "HellfireGearsSpRBonus"
+    },
+    "Buff-武器-精2燃狱齿轮-后台能量自动回复": {
+        "module": ".BuffXLogic.HellfireGearsSpRBonus",
+        "class": "HellfireGearsSpRBonus"
+    },
+    "Buff-武器-精3燃狱齿轮-后台能量自动回复": {
+        "module": ".BuffXLogic.HellfireGearsSpRBonus",
+        "class": "HellfireGearsSpRBonus"
+    },
+    "Buff-武器-精4燃狱齿轮-后台能量自动回复": {
+        "module": ".BuffXLogic.HellfireGearsSpRBonus",
+        "class": "HellfireGearsSpRBonus"
+    },
+    "Buff-武器-精5燃狱齿轮-后台能量自动回复": {
+        "module": ".BuffXLogic.HellfireGearsSpRBonus",
+        "class": "HellfireGearsSpRBonus"
+    },
+    "Buff-武器-精1玉壶青冰-15层后增伤": {
+        "module": ".BuffXLogic.IceJadeTeaPotExtraDMGBonus",
+        "class": "IceJadeTeaPotExtraDMGBonus"
+    },
+    "Buff-武器-精2玉壶青冰-15层后增伤": {
+        "module": ".BuffXLogic.IceJadeTeaPotExtraDMGBonus",
+        "class": "IceJadeTeaPotExtraDMGBonus"
+    },
+    "Buff-武器-精3玉壶青冰-15层后增伤": {
+        "module": ".BuffXLogic.IceJadeTeaPotExtraDMGBonus",
+        "class": "IceJadeTeaPotExtraDMGBonus"
+    },
+    "Buff-武器-精4玉壶青冰-15层后增伤": {
+        "module": ".BuffXLogic.IceJadeTeaPotExtraDMGBonus",
+        "class": "IceJadeTeaPotExtraDMGBonus"
+    },
+    "Buff-武器-精5玉壶青冰-15层后增伤": {
+        "module": ".BuffXLogic.IceJadeTeaPotExtraDMGBonus",
+        "class": "IceJadeTeaPotExtraDMGBonus"
+    }
+}
