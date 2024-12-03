@@ -56,6 +56,7 @@ class LoadData:
     name_box: list
     Judge_list_set: list
     weapon_dict: dict
+    action_stack: Load.ActionStack
     exist_buff_dict: dict = field(init=False)
     load_mission_dict = {}
     LOADING_BUFF_DICT = {}
