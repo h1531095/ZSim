@@ -93,7 +93,8 @@ char_data = CharacterData(init_data)
 load_data = LoadData(
         name_box=init_data.name_box,
         Judge_list_set=init_data.Judge_list_set,
-        weapon_dict=init_data.weapon_dict)
+        weapon_dict=init_data.weapon_dict,
+        action_stack=Load.ActionStack()))
 schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11752), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
 
