@@ -36,7 +36,6 @@ class InitData:
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
                    name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
 
-
 @dataclass
 class CharacterData:
     char_obj_list: list[Character] = field(init=False)
@@ -52,7 +51,6 @@ class CharacterData:
                 self.char_obj_list.append(char_obj)
                 i += 1
 
-
 @dataclass
 class LoadData:
     name_box: list
@@ -66,7 +64,6 @@ class LoadData:
 
     def __post_init__(self):
         self.exist_buff_dict = Buff.buff_exist_judge(self.name_box, self.Judge_list_set, self.weapon_dict)
-        self.action_stack = Load.ActionStack()
 
 @dataclass
 class ScheduleData:
@@ -84,7 +81,6 @@ class ScheduleData:
 class GlobalStats:
     DYNAMIC_BUFF_DICT = {}
     name_box: list
-
     def __post_init__(self):
         for name in self.name_box + ['enemy']:
             self.DYNAMIC_BUFF_DICT[name] = []
@@ -104,7 +100,6 @@ global_stats = GlobalStats(name_box=init_data.name_box)
 
 skills = (char.skill_object for char in char_data.char_obj_list)
 preload = Preload.Preload(*skills)
-
 
 def main_loop(stop_tick: int | None = None):
     global tick
