@@ -1,5 +1,3 @@
-from decimal import Decimal, ROUND_DOWN
-
 import numpy as np
 
 from .Calculator import Calculator as Cal
@@ -139,6 +137,8 @@ class CalDisorder(CalAnomaly):
                 disorder_base_dmg: np.float64 = (base_mul / 1.25) * (np.floor(t_s) * 1.25 + 4.5)
             case 4: # 侵蚀紊乱
                 disorder_base_dmg: np.float64 = (base_mul / 0.625) * (np.floor(t_s/0.5) * 0.625 + 4.5)
+            case 5: # 烈霜紊乱
+                disorder_base_dmg: np.float64 = (base_mul / 0.5) * (np.floor(t_s) * 0.75 + 6)
             case _:
                 assert False, f"Invalid Element Type {self.element_type}"
         return np.float64(disorder_base_dmg)

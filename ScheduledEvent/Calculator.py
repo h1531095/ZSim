@@ -292,6 +292,7 @@ class MultiplierData:
             self.ice_anomaly_buildup_bonus: float = 0.0
             self.electric_anomaly_buildup_bonus: float = 0.0
             self.ether_anomaly_buildup_bonus: float = 0.0
+            self.frost_anomaly_buildup_bonus: float = 0.0
             self.all_anomaly_buildup_bonus: float = 0.0
 
             self.normal_attack_anomaly_buildup_bonus: float = 0.0
@@ -726,7 +727,7 @@ class Calculator:
             elif element_type == 1:
                 element_buildup_bonus = data.dynamic.fire_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.FIRE_damage_resistance - data.dynamic.fire_anomaly_res_decrease
-            elif element_type == 2 or element_type == 5:
+            elif element_type == 2:
                 element_buildup_bonus = data.dynamic.ice_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.ICE_damage_resistance - data.dynamic.ice_anomaly_res_decrease
             elif element_type == 3:
@@ -735,6 +736,9 @@ class Calculator:
             elif element_type == 4:
                 element_buildup_bonus = data.dynamic.ether_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.ETHER_damage_resistance - data.dynamic.ether_anomaly_res_decrease
+            elif element_type == 5:
+                element_buildup_bonus = data.dynamic.frost_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
+                buildup_res = 1 - data.enemy_obj.ICE_damage_resistance - data.dynamic.ice_anomaly_res_decrease
             else:
                 assert False, INVALID_ELEMENT_ERROR
 

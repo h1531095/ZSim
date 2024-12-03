@@ -101,6 +101,7 @@
   "冰积蓄效率增加": "ice_anomaly_buildup_bonus",
   "电积蓄效率增加": "electric_anomaly_buildup_bonus",
   "以太积蓄效率增加": "ether_anomaly_buildup_bonus",
+  "烈霜积蓄效率增加": "frost_anomaly_buildup_bonus",
   "全积蓄效率增加": "all_anomaly_buildup_bonus",
 
   "普攻积蓄效率增加": "normal_attack_anomaly_buildup_bonus",
