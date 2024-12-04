@@ -17,7 +17,7 @@ class AnomalyBar:
     last_active: int = None  # 上一次属性异常的时间
     max_anomaly: int = None  # 最大积蓄值
     ready: bool = None  # 内置CD状态
-    accompany_debuff: str = None   # 是否在激活时伴生debuff的index
+    accompany_debuff: list = None   # 是否在激活时伴生debuff的index
     accompany_dot: str = None  # 是否在激活时伴生dot的index
     active: bool = None    # 当前异常条是否激活，这一属性和enemy下面的异常开关同步。
     max_duration = None

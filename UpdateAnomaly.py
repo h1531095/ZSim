@@ -44,7 +44,8 @@ def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy: Enemy.Enemy, new
     然后，回传给exist_buff_dict中的Buff0。
     """
     if bar.accompany_debuff:
-        BuffAddStrategy(bar.accompany_debuff)
+        for debuff in bar.accompany_debuff:
+            BuffAddStrategy(debuff)
         # all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, sub_exist_buff_dict)
         # anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
         # #   修改一些必要的属性。

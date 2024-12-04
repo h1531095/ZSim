@@ -8,7 +8,7 @@ class PhysicalAnomaly(AnomalyBar):
     def __post_init__(self):
         super().__post_init__()
         self.element_type = 0
-        self.accompany_debuff = 'Buff-异常-畏缩'
+        self.accompany_debuff = ['Buff-异常-畏缩']
         self.max_duration = 600
 
 @dataclass
@@ -29,7 +29,7 @@ class IceAnomaly(AnomalyBar):
     def __post_init__(self):
         super().__post_init__()  # 调用父类的初始化方法
         self.element_type = 2  # 冰属性
-        self.accompany_debuff = 'Buff-异常-霜寒'
+        self.accompany_debuff = ['Buff-异常-霜寒']
         self.accompany_dot = '冻结'
         self.max_duration = 600
 
@@ -59,10 +59,13 @@ class EtherAnomaly(AnomalyBar):
 
 
 @dataclass
-class FireIceAnomaly(AnomalyBar):
+class FrostAnomaly(AnomalyBar):
     def __post_init__(self):
         super().__post_init__()  # 调用父类的初始化方法
         self.element_type = 5  # 烈霜属性（星见雅专属）
         self.accompany_dot = '冻结'
-        self.accompany_debuff = 'Buff-异常-霜寒'
+        self.accompany_debuff = ['Buff-异常-霜寒', 'Buff-角色-雅-核心被动-霜灼']
         self.max_duration = 600
+
+
+# TODO：霜寒、霜灼作为一场绑定的debuff，有自己的退出机制，即新的异常发生了，那么老的buff要去掉。

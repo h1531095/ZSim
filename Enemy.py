@@ -75,7 +75,7 @@ class Enemy:
         enemy实例化的时候，6种异常积蓄条也随着一起实例化。
         """
 
-        self.fireice_anomaly_bar = AnomalyBar.FireIceAnomaly()
+        self.fireice_anomaly_bar = AnomalyBar.FrostAnomaly()
         self.ice_anomaly_bar = AnomalyBar.IceAnomaly()
         self.fire_anomaly_bar = AnomalyBar.FireAnomaly()
         self.physical_anomaly_bar = AnomalyBar.PhysicalAnomaly()

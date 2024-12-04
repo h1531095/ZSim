@@ -13,14 +13,14 @@ from Update_Buff import update_dynamic_bufflist
 
 @dataclass
 class InitData:
-    name_box = ['莱特', '苍角', '艾莲']
+    name_box = ['莱特', '柏妮思', '艾莲']
     Judge_list_set = [['艾莲', '深海访客', '啄木鸟电音'],
-                      ['苍角', '含羞恶面', '自由蓝调'],
+                      ['柏妮思', '含羞恶面', '自由蓝调'],
                       ['莱特', '燃狱齿轮', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
               'weapon': '深海访客', 'weapon_level': 1,
               'equip_set4': '啄木鸟电音', 'equip_set2_a': '极地重金属',
-              'drive4' : '异常精通', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
+              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
               'scATK_percent': 10, 'scCRIT': 20}
     char_1 = {'name' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,
@@ -61,10 +61,12 @@ class LoadData:
     load_mission_dict = {}
     LOADING_BUFF_DICT = {}
     name_dict = {}
+    all_name_order_box = {}
+
 
     def __post_init__(self):
         self.exist_buff_dict = Buff.buff_exist_judge(self.name_box, self.Judge_list_set, self.weapon_dict)
-
+        self.all_name_order_box = Buff.change_name_box(self.name_box)
 @dataclass
 class ScheduleData:
     event_list = []
@@ -122,7 +124,7 @@ def main_loop(stop_tick: int | None = None):
         # Load
         if preload_list:
             Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick, load_data.action_stack)
-        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT)
+        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT, load_data.all_name_order_box)
         Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
         Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
         # ScheduledEvent

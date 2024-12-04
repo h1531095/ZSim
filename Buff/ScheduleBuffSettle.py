@@ -22,8 +22,6 @@ def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy: Enemy.Enemy
             else:
                 if buff.ft.operator != action_now.mission_node.char_name:
                     continue
-            # if (not buff.ft.passively_updating) and (action_now.mission_node.char_name != buff.ft.operator):
-            #     continue
             # EXPLAIN：在schedule阶段处理的buff一般都是复杂buff，所以不管判定条件多简单，都直接通过xjudge来完成判断。
             # Buff判定
             all_match = buff.logic.xjudge()
@@ -46,4 +44,3 @@ def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy: Enemy.Enemy
                 DYNAMIC_BUFF_DICT[characters].append(buff_new)
                 if characters == 'enemy':
                     add_debuff_to_enemy(buff_new, characters, enemy)
-

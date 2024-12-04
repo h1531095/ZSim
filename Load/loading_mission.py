@@ -30,7 +30,6 @@ class LoadingMission:
         self.mission_active_state = False
         self.hitted_count = 0
         self.mission_dict = {}
-
     def check_myself(self, timenow):
         if self.mission_end_tick < timenow:
             self.mission_end()
