@@ -70,5 +70,17 @@
     "Buff-武器-精5玉壶青冰-15层后增伤": {
         "module": ".BuffXLogic.IceJadeTeaPotExtraDMGBonus",
         "class": "IceJadeTeaPotExtraDMGBonus"
+    },
+    "Buff-异常-霜寒": {
+        "module": ".BuffXLogic.AnomalyDebuffExitJudge",
+        "class": "AnomalyDebuffExitJudge"
+    },
+    "Buff-异常-畏缩": {
+        "module": ".BuffXLogic.AnomalyDebuffExitJudge",
+        "class": "AnomalyDebuffExitJudge"
+    },
+    "Buff-角色-雅-核心被动-冰焰": {
+        "module": ".BuffXLogic.MiyabiCoreSkill_IceFire",
+        "class": "MiyabiCoreSkill_IceFire"
     }
 }

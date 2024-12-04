@@ -129,7 +129,7 @@ class Buff:
                 self.simple_end_logic = config[
                     'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
                 self.simple_hit_logic = config['simple_hit_logic']  # 复杂的命中判定逻辑
-                self.simple_effect_logic = config['simple_effect_logic']     # 复杂的生效逻辑
+                self.simple_effect_logic = config['simple_effect_logic']     # 复杂的生效逻辑，和simple_start对应
                 self.simple_exit_logic = config['simple_exit_logic']    # 复杂退出逻辑
                 self.index = config['BuffName']  # buff的英文名,也是buff的索引
                 self.is_weapon = config['is_weapon']  # buff是否是武器特效
@@ -150,6 +150,7 @@ class Buff:
                 self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
                 self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
                 self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
+                self.backend_acitve = config['backend_acitve']  # 记录了这个buff是否需要在后台才能触发
 
                 self.individual_settled = config['individual_settled']    # 记录了这个buff的叠层是否是独立结算
                 """

@@ -1,0 +1,1 @@
+from .DetectEdges import detect_edge
