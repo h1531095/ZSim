@@ -130,6 +130,11 @@ class Buff:
                     'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
                 self.simple_hit_logic = config['simple_hit_logic']  # 复杂的命中判定逻辑
                 self.simple_effect_logic = config['simple_effect_logic']     # 复杂的生效逻辑，和simple_start对应
+                """
+                注意，此处的xeffect往往与xjudge进行配合。因为xjudge会导致buff在BuffLoad函数中进入else分支，
+                如果某buff既有复杂的judge_logic，又有复杂的start/hit/end_logic，
+                那么后者就应该使用xeffect来写，要不然就会进入simple_start分支而导致代码块无法执行。
+                """
                 self.simple_exit_logic = config['simple_exit_logic']    # 复杂退出逻辑
                 self.index = config['BuffName']  # buff的英文名,也是buff的索引
                 self.is_weapon = config['is_weapon']  # buff是否是武器特效

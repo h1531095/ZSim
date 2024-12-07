@@ -31,8 +31,6 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
     """
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, mission)
-    # if all_match and buff_0.ft.index == 'Buff-武器-精1燃狱齿轮-后台能量自动回复':
-    #     print(mission.mission_tag)
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:
@@ -42,32 +40,32 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
     这样，它就一定会在buff_go_to函数中导致'enemy'字段进入selected_characters列表，这样一来，enemy会被当成正常角色来执行正常的buff添加和update。
     """
     for char in selected_characters:
-        """
-        在20241115的更新中，我将原本位于这一行的buff_new的实例化，挪到了通过判定的分支内。这样可以节省一部分性能。
-        """
-        if buff_0.ft.simple_judge_logic:
-            for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
-                if time_now - 1 < sub_mission_start_tick <= time_now:
-                    """
-                    筛选出正在发生的子任务，如果子任务正在发生就直接执行update，把子任务的str传进buff.update()函数
-                    并且触发对应的分支（start、hit、end），完成符合buff属性的时间、层数更新。
-                    """
-                    buff_new = Buff(active_condition_dict, judge_condition_dict)
-                    buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-                    if buff_new.dy.is_changed:
-                        LOADING_BUFF_DICT[char].append(buff_new)
-        else:
-            """
-            大部分拥有复杂判断逻辑的buff并没有明确的触发节点，往往是复杂判断过了，就激活了，不需要判断子任务的执行节点。
-            所以这里直接用simple_judge_logic进行分叉，复杂逻辑在通过判断后，直接用simple_start来激活即可。
-            """
-            buff_new = Buff(active_condition_dict, judge_condition_dict)
-            buff_new.simple_start(time_now, sub_exist_buff_dict)
-            if buff_0.ft.simple_effect_logic:
-                # print(f'{buff_new.ft.index}激活了！激活状态：时间段：{buff_new.dy.startticks, buff_new.dy.endticks}，层数：{buff_new.dy.count}')
-                LOADING_BUFF_DICT[char].append(buff_new)
-            else:
-                buff_new.logic.xeffect()
+        # if buff_0.ft.simple_judge_logic:
+        for sub_mission_start_tick, sub_mission in mission.mission_dict.items():
+            if time_now - 1 < sub_mission_start_tick <= time_now:
+                """
+                筛选出正在发生的子任务，如果子任务正在发生就直接执行update，把子任务的str传进buff.update()函数
+                并且触发对应的分支（start、hit、end），完成符合buff属性的时间、层数更新。
+                """
+                buff_new = Buff(active_condition_dict, judge_condition_dict)
+                buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                # if buff_new.ft.index =='Buff-角色-雅-核心被动-冰焰':
+                #     print(11111111111, buff_new.dy.is_changed)
+                if buff_new.dy.is_changed:
+                    LOADING_BUFF_DICT[char].append(buff_new)
+        # else:
+        #     print(1111111111111)
+        #     """
+        #     大部分拥有复杂判断逻辑的buff并没有明确的触发节点，往往是复杂判断过了，就激活了，不需要判断子任务的执行节点。
+        #     所以这里直接用simple_judge_logic进行分叉，复杂逻辑在通过判断后，直接用simple_start来激活即可。
+        #     """
+        #     buff_new = Buff(active_condition_dict, judge_condition_dict)
+        #     buff_new.simple_start(time_now, sub_exist_buff_dict)
+        #     if buff_0.ft.simple_effect_logic:
+        #         # print(f'{buff_new.ft.index}激活了！激活状态：时间段：{buff_new.dy.startticks, buff_new.dy.endticks}，层数：{buff_new.dy.count}')
+        #         LOADING_BUFF_DICT[char].append(buff_new)
+        #     else:
+        #         buff_new.logic.xeffect()
 
 
 def BuffLoadLoop(

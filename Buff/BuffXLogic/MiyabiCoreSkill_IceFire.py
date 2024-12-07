@@ -41,6 +41,7 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
             else:
                 return True
 
+
     def special_exit_logic(self):
         """
         冰焰buff的退出机制是检测到霜寒的上升沿就退出
@@ -48,11 +49,18 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         main_module = sys.modules['__main__']
         enemy = main_module.schedule_data.enemy
         frostbite_now = enemy.dynamic.frostbite
+        if frostbite_now is None:
+            frostbite_now = False
         frostbite_statement = [self.last_frostbite, frostbite_now]
+        print(frostbite_statement)
         mode_func = lambda a, b: a is False and b is True
         result = JudgeTools.detect_edge(frostbite_statement, mode_func)
         self.last_frostbite = frostbite_now
+        # print(f'当前tick，冰焰退出情况：{result}')
+        if result:
+            print('ffffffff')
         return result
+
 
     def special_hit_logic(self):
         """
@@ -69,7 +77,6 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         buff_i.dy.active = True
         buff_i.dy.startticks = main_module.tick
         buff_i.dy.endticks = main_module.tick + buff_i.ft.maxduration
-
         for _ in char_list:
             if _.CID == 1091:
                 character = _
@@ -79,7 +86,8 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
             raise ValueError(f'char_list中并未找到角色雅')
         cric_rate = Calculator.RegularMul.cal_crit_rate(mul_data)
         count = min(cric_rate, 0.8)*100
-        print(cric_rate, count)
-        buff_i.dy.count = count
+        # print(cric_rate, count)
+        buff_i.dy.count = min(count, buff_0.ft.maxcount)
+        buff_i.dy.is_changed = True
         buff_i.update_to_buff_0(buff_0)
 

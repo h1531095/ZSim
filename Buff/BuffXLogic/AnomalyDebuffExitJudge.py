@@ -32,6 +32,6 @@ class AnomalyDebuffExitJudge(Buff.BuffLogic):
         anomaly_statement = [getattr(self.buff_instance.logic, f'last_{anomaly_name}'), anomaly_now]
         mode_func = lambda a, b: a is True and b is False
         result = JudgeTools.detect_edge(anomaly_statement, mode_func)
-        setattr(self.buff_instance, f'last_{anomaly_name}', anomaly_now)
+        setattr(self.buff_instance.logic, f'last_{anomaly_name}', anomaly_now)
         return result
 

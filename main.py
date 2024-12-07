@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-
 import Buff
 import Load
 import Preload
@@ -36,11 +35,11 @@ class InitData:
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
                    name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
 
+
 @dataclass
 class CharacterData:
     char_obj_list: list[Character] = field(init=False)
     InitData: InitData
-
     def __post_init__(self):
         self.char_obj_list = []
         if self.InitData.name_box:
@@ -50,6 +49,7 @@ class CharacterData:
                 char_obj: Character = character_factory(**char_dict)
                 self.char_obj_list.append(char_obj)
                 i += 1
+
 
 @dataclass
 class LoadData:
@@ -67,6 +67,8 @@ class LoadData:
     def __post_init__(self):
         self.exist_buff_dict = Buff.buff_exist_judge(self.name_box, self.Judge_list_set, self.weapon_dict)
         self.all_name_order_box = Buff.change_name_box(self.name_box)
+
+
 @dataclass
 class ScheduleData:
     event_list = []
