@@ -5,10 +5,11 @@ from ScheduledEvent.Calculator import MultiplierData
 import sys
 
 
-class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
+class MiyabiCoreSkill_FrostBurn(Buff.BuffLogic):
     """
-    该buff是雅的核心被动中的【冰焰】，冰焰在判断TrigerBuffLevel的同时，
-    还需要检索当前enemy_debuff_list中是否含有【霜灼】，如果有就返回False
+    该buff是雅的核心被动中的【霜灼】，【霜灼】的进入机制是，随着烈霜属性异常触发，同步触发。
+    执行这一步的是：update_anomaly函数，该函数会在烈霜属性积蓄条满的时候，
+    根据bar.accompany_debuff中记录的str，去添加同名debuff。
     """
 
     def __init__(self, buff_instance):

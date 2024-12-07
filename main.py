@@ -13,8 +13,8 @@ from Update_Buff import update_dynamic_bufflist
 
 @dataclass
 class InitData:
-    name_box = ['莱特', '柏妮思', '艾莲']
-    Judge_list_set = [['艾莲', '深海访客', '啄木鸟电音'],
+    name_box = ['莱特', '柏妮思', '雅']
+    Judge_list_set = [['雅', '深海访客', '啄木鸟电音'],
                       ['柏妮思', '含羞恶面', '自由蓝调'],
                       ['莱特', '燃狱齿轮', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
@@ -99,9 +99,9 @@ load_data = LoadData(
         action_stack=Load.ActionStack())
 schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11752), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
-
 skills = (char.skill_object for char in char_data.char_obj_list)
 preload = Preload.Preload(*skills)
+
 
 def main_loop(stop_tick: int | None = None):
     global tick

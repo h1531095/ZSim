@@ -11,7 +11,8 @@ anomlay_dot_dict = {
     1: 'Ignite',
     2: 'Freez',
     3: 'Shock',
-    4: 'Corruption'
+    4: 'Corruption',
+    5: 'Freez'
 }
 
 
@@ -46,12 +47,6 @@ def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy: Enemy.Enemy, new
     if bar.accompany_debuff:
         for debuff in bar.accompany_debuff:
             BuffAddStrategy(debuff)
-        # all_match, config_dict, judge_dict = Buff.BuffInitialize(bar.accompany_debuff, sub_exist_buff_dict)
-        # anomaly_debuff_new = Buff.Buff(judge_dict, config_dict)
-        # #   修改一些必要的属性。
-        # anomaly_debuff_new.simple_start(timenow, sub_exist_buff_dict)
-        # DYNAMIC_BUFF_DICT['enemy'].append(anomaly_debuff_new)
-        # enemy.dynamic.dynamic_debuff_list.append(anomaly_debuff_new)
     if bar.accompany_dot:
         new_dot = spawn_anomaly_dot(element_type, timenow, new_anomaly)
         if new_dot:
@@ -78,9 +73,12 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
     '''
     active_anomaly_check = 0
     active_anomaly_list = []
-    for element_number, element in enemy.trans_anomaly_effect_to_str.items():
-        if getattr(enemy.dynamic, element):
-            active_anomaly_check += 1
+    anomaly_name_list = []
+    for element_number, element_anomaly_effect in enemy.trans_anomaly_effect_to_str.items():
+        if getattr(enemy.dynamic, element_anomaly_effect):
+            anomaly_name_list.append(element_anomaly_effect)
+            anomaly_name_list_unique = list(set(anomaly_name_list))
+            active_anomaly_check = len(anomaly_name_list_unique)
             active_anomaly_list.append(element_number)
         if active_anomaly_check >= 2:
             raise ValueError(f'当前同时存在两种以上的异常状态！！！')
@@ -113,18 +111,20 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 mode_number = 0
                 new_anomaly = spawn_output(bar, mode_number)
                 anomaly_effect_active(bar, time_now, enemy, new_anomaly, element_type)
-                if not element_type == 2:
+                if not element_type in [2,5]:
                     """
                     如果是新触发的冰异常，那么在触发当场不应该碎冰。碎冰应该由碎冰DOT抛出。
+                    当前分支是非冰异常分支，所以修改完anomaly状态之后直接向eventlist里面添加事件。
                     """
                     setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)
                     event_list.append(new_anomaly)
                 else:
+                    """
+                    当前分支是冰异常和烈霜异常分支，所以触发异常后，不向eventlist里面添加事件。
+                    同时，frozen的状态参数被打开。
+                    """
                     setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)
                     enemy.dynamic.frozen = True
-                    # return element_type, time_now
-
-
             elif element_type not in active_anomaly_list and len(active_anomaly_list) > 0:
                 '''
                 这个分支意味着：要结算紊乱。那么需要复制的就不应该是新的这个属性异常，而应该是老的属性异常的bar实例。
@@ -133,7 +133,7 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 last_anomaly_bar = enemy.anomaly_bars_dict[last_anomaly_element_type]
                 setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[last_anomaly_element_type], False)
                 setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)
-                if element_type == 2:
+                if element_type in [2, 5]:
                     enemy.dynamic.frozen = True
                 disorder = spawn_output(last_anomaly_bar, mode_number)
                 new_anomaly = spawn_output(bar, 1)
@@ -151,7 +151,7 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                         enemy.dynamic.frozen = False
                         print('因紊乱而强行移除碎冰')
                 event_list.append(disorder)
-                if not element_type == 2:
+                if not element_type in [2,5]:
                     event_list.append(new_anomaly)
                 # else:
                 #     return element_type, time_now

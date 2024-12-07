@@ -82,5 +82,9 @@
     "Buff-角色-雅-核心被动-冰焰": {
         "module": ".BuffXLogic.MiyabiCoreSkill_IceFire",
         "class": "MiyabiCoreSkill_IceFire"
+    },
+    "Buff-角色-雅-核心被动-霜灼": {
+        "module": ".BuffXLogic.MiyabiCoreSkill_FrostBurn",
+        "class": "MiyabiCoreSkill_FrostBurn"
     }
 }
