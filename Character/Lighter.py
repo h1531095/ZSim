@@ -61,6 +61,9 @@ class Lighter(Character):
                 #       2、根据资源消耗量算出缩放比例，\n
                 #       3、根据缩放比例修改新的复制SkillNode的所有数据。\n
                 #       4、传给下一个环节。
+
+                # FIXME: 20241208：
+                #  观察到莱特的士气貌似只有首轮具有阈值，次轮开始就失效了
                 report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}")
 
 

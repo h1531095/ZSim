@@ -16,8 +16,11 @@ class LoadingMission:
     def mission_start(self, timenow):
         self.mission_active_state = True
         timecost = self.mission_node.skill.ticks
-        time_step = (timecost - 1)/self.mission_node.hit_times
-        self.mission_dict[float(self.mission_node.preload_tick + 1)] = "start"
+        time_step = (timecost - 1)/(self.mission_node.hit_times + 1)
+        self.mission_dict[float(self.mission_node.preload_tick)] = "start"
+        # if self.mission_node.hit_times == 1:
+        #     self.mission_dict[float(self.mission_node.preload_tick+timecost - 1)/2] = "hit"
+        # else:
         for i in range(self.mission_node.hit_times):
             tick_key = self.mission_node.preload_tick + time_step * (i + 1)
             # 由于timetick在循环中的自增量是整数，所以为了保证能和键值准确匹配，

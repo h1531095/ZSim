@@ -117,6 +117,8 @@ def report_dmg_result(
                 skill_tag = '感电'
             case 4:
                 skill_tag = '侵蚀'
+            case 5:
+                skill_tag = '烈霜碎冰'
     if is_disorder:
         skill_tag += '紊乱'
     if dmg_crit is None:

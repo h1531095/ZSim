@@ -41,6 +41,7 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
             else:
                 return True
 
+
     def special_exit_logic(self):
         """
         冰焰buff的退出机制是检测到霜寒的上升沿就退出
@@ -48,18 +49,24 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         main_module = sys.modules['__main__']
         enemy = main_module.schedule_data.enemy
         frostbite_now = enemy.dynamic.frostbite
+        if frostbite_now is None:
+            frostbite_now = False
         frostbite_statement = [self.last_frostbite, frostbite_now]
+        print(frostbite_statement)
         mode_func = lambda a, b: a is False and b is True
         result = JudgeTools.detect_edge(frostbite_statement, mode_func)
         self.last_frostbite = frostbite_now
+        # print(f'当前tick，冰焰退出情况：{result}')
+        if result:
+            print('ffffffff')
         return result
+
 
     def special_hit_logic(self):
         """
         冰焰的生效机制是：根据当前的暴击率，得出当前的Buff层数。
         这个效果本应该是随动的，不需要buff判定通过才改变层数，
         但是如果buff判定不通过，那么烈霜伤害，该buff层数的变动就没有实际意义，
-        所以，可以等效为
         """
         main_module = sys.modules['__main__']
         char_list = main_module.char_data.char_obj_list
@@ -70,7 +77,6 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         buff_i.dy.active = True
         buff_i.dy.startticks = main_module.tick
         buff_i.dy.endticks = main_module.tick + buff_i.ft.maxduration
-
         for _ in char_list:
             if _.CID == 1091:
                 character = _
@@ -80,7 +86,8 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
             raise ValueError(f'char_list中并未找到角色雅')
         cric_rate = Calculator.RegularMul.cal_crit_rate(mul_data)
         count = min(cric_rate, 0.8)*100
-        print(cric_rate, count)
-        buff_i.dy.count = count
+        # print(cric_rate, count)
+        buff_i.dy.count = min(count, buff_0.ft.maxcount)
+        buff_i.dy.is_changed = True
         buff_i.update_to_buff_0(buff_0)
 
