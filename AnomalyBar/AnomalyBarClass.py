@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
-
+import sys
 
 @dataclass
 class AnomalyBar:
@@ -31,6 +31,12 @@ class AnomalyBar:
         self.is_disorder = False
         self.last_active = 0
         self.ready = True
+
+    def remaining_tick(self):
+        main_module = sys.modules["__main__"]
+        timetick = main_module.tick
+        remaining_tick = max(self.max_duration - self.duration(timetick), 0)
+        return remaining_tick
 
 
     def duration(self, timetick: int):
@@ -73,3 +79,4 @@ class AnomalyBar:
     def check_myself(self, timenow: int):
         if self.active and (self.last_active + self.max_duration < timenow):
             self.active = False
+            return True

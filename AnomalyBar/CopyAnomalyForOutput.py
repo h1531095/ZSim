@@ -14,6 +14,7 @@ class Disorder(AnomalyBar):
         # 复制父类的所有属性，主要是快照、积蓄总值、属性类型。
 
 
+
 class NewAnomaly(AnomalyBar):
     """
     普通的异常类，仅用于非紊乱的属性异常更新。

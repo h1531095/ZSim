@@ -78,12 +78,12 @@ class ScheduledEvent:
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
                         self.judge_required_info_dict['skill_node'] = event
-                elif isinstance(event, AnB):
-                    self.anomaly_event(event)
-                    self.judge_required_info_dict['anb'] = event
                 elif isinstance(event, Disorder):
                     self.disorder_event(event)
                     self.judge_required_info_dict['disorder'] = event
+                elif isinstance(event, AnB):
+                    self.anomaly_event(event)
+                    self.judge_required_info_dict['anb'] = event
                 else:
                     raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
                 ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff, self.action_stack)

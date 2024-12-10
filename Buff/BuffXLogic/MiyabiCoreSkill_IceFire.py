@@ -52,13 +52,10 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         if frostbite_now is None:
             frostbite_now = False
         frostbite_statement = [self.last_frostbite, frostbite_now]
-        print(frostbite_statement)
         mode_func = lambda a, b: a is False and b is True
         result = JudgeTools.detect_edge(frostbite_statement, mode_func)
         self.last_frostbite = frostbite_now
         # print(f'当前tick，冰焰退出情况：{result}')
-        if result:
-            print('ffffffff')
         return result
 
 
