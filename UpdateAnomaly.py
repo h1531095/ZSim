@@ -31,6 +31,7 @@ def spawn_output(anomaly_bar, mode_number):
     elif mode_number == 1:
         output = Disorder(anomaly_bar)
     # return之前将两个current重置。
+    anomaly_bar.is_full = False
     anomaly_bar.current_anomaly = np.float64(0)
     anomaly_bar.current_ndarray = np.zeros((1, anomaly_bar.current_ndarray.shape[0]), dtype=np.float64)  # 保持 1 列
     return output
@@ -82,11 +83,11 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
             active_anomaly_list.append(element_number)
         if active_anomaly_check >= 2:
             raise ValueError(f'当前同时存在两种以上的异常状态！！！')
-    bar.max_anomaly = getattr(enemy, f'max_anomaly_{enemy.trans_element_number_to_str[element_type]}')
     if len(active_anomaly_list) != 0:
         last_anomaly_element_type = active_anomaly_list[0]
     else:
         last_anomaly_element_type = None
+    bar.max_anomaly = getattr(enemy, f'max_anomaly_{enemy.trans_element_number_to_str[element_type]}')
     if bar.current_anomaly >= bar.max_anomaly:
         bar.is_full = True
         # 积蓄值蓄满了，但是属性异常不一定触发，还需要验证一下内置CD
@@ -98,7 +99,6 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
             bar.anomaly_times += 1
             bar.last_active = time_now
             bar.active = True
-
             '''
             更新完毕，现在正式进入分支判断
             无论是哪个分支，都需要涉及enemy下的两大容器：enemy_debuff_list以及enemy_dot_list的修改，同时，也可能需要修改exist_buff_dict以及DYNAMIC_BUFF_DICT
@@ -123,6 +123,9 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                     当前分支是冰异常和烈霜异常分支，所以触发异常后，不向eventlist里面添加事件。
                     同时，frozen的状态参数被打开。
                     """
+                    if enemy.dynamic.frozen:
+                        event_list.append(new_anomaly)
+                        print(f'新的冰异常触发导致老碎冰直接结算')
                     setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)
                     enemy.dynamic.frozen = True
             elif element_type not in active_anomaly_list and len(active_anomaly_list) > 0:
@@ -147,20 +150,20 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                         dots.dy.ready = False
                         dots.dy.last_effect_ticks = time_now
                         dots.dy.effect_times += 1
+                        dots.end(time_now)
                         enemy.dynamic.dynamic_dot_list.remove(dots)
                         enemy.dynamic.frozen = False
+                        enemy.dynamic.frostbite = False
                         print('因紊乱而强行移除碎冰')
+                    else:
+                        if dots.ft.index == anomlay_dot_dict[disorder.element_type]:
+                            print(f'检测到{disorder.element_type}的过期dot：{dots.ft.index}，应该移除')
+                            dots.end(time_now)
+                            enemy.dynamic.dynamic_dot_list.remove(dots)
                 event_list.append(disorder)
                 if not element_type in [2,5]:
                     event_list.append(new_anomaly)
-                # else:
-                #     return element_type, time_now
                 print(f'触发紊乱！')
-            setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)       # 同步更新enemy.dynamic下面的属性异常状态。
-    #     else:
-    #         return element_type, time_now
-    # else:
-    #     return element_type, time_now
 
 
 def spawn_anomaly_dot(element_type, timenow, bar=None):

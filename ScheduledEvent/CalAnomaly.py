@@ -125,7 +125,7 @@ class CalDisorder(CalAnomaly):
         self.final_multipliers[0] = self.cal_disorder_base_dmg(np.float64(self.final_multipliers[0]))
 
     def cal_disorder_base_dmg(self, base_mul: np.float64) -> np.float64:
-        t_s = np.float64(self.anomaly_obj.remaining_tick / 60)
+        t_s = np.float64(self.anomaly_obj.remaining_tick() / 60)
         match self.element_type:
             case 0: # 强击紊乱
                 disorder_base_dmg: np.float64 = (base_mul / 7.13) * (np.floor(t_s) * 0.075 + 4.5)
@@ -144,9 +144,9 @@ class CalDisorder(CalAnomaly):
         return np.float64(disorder_base_dmg)
 
     def cal_disorder_stun(self) -> np.float64:
-        imp = self.final_multipliers[0,9]
+        imp = self.final_multipliers[9]
         stun_ratio = 3
         stun_res = Cal.StunMul.cal_stun_res(self.data)
-        stun_bonus = self.final_multipliers[0,10]
+        stun_bonus = self.final_multipliers[10]
         stun_received = Cal.StunMul.cal_stun_received(self.data)
         return np.float64(np.prod([imp, stun_ratio, stun_res, stun_bonus, stun_received]))

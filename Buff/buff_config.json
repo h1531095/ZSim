@@ -86,5 +86,29 @@
     "Buff-角色-雅-核心被动-霜灼": {
         "module": ".BuffXLogic.MiyabiCoreSkill_FrostBurn",
         "class": "MiyabiCoreSkill_FrostBurn"
+    },
+    "Buff-角色-雅-组队被动-无视冰抗": {
+        "module": ".BuffXLogic.MiyabiAdditionalAbility_IgnoreIceRes",
+        "class": "MiyabiAdditionalAbility_IgnoreIceRes"
+    },
+    "Buff-音擎-精1霰落星殿-叠层冰伤": {
+        "module": "",
+        "class": ""
+    },
+    "Buff-音擎-精2霰落星殿-叠层冰伤": {
+        "module": "",
+        "class": ""
+    },
+    "Buff-音擎-精3霰落星殿-叠层冰伤": {
+        "module": "",
+        "class": ""
+    },
+    "Buff-音擎-精4霰落星殿-叠层冰伤": {
+        "module": "",
+        "class": ""
+    },
+    "Buff-音擎-精5霰落星殿-叠层冰伤": {
+        "module": "",
+        "class": ""
     }
 }

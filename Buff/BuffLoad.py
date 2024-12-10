@@ -109,7 +109,7 @@ def BuffLoadLoop(
             """
         else:
             """
-            这个分支是为了执行被动buff的。
+            这个分支是为了执行后台buff判定的。
             """
             for other_character in all_name_box:
                 if other_character == character_name:
