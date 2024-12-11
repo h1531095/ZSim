@@ -265,6 +265,7 @@ class Enemy:
 
             self.dynamic_debuff_list = []   # 用来装debuff的list
             self.dynamic_dot_list = []      # 用来装dot的list
+            self.active_anomaly_bar_dict = {number: None for number in range(6)}    # 用来装激活属性异常的字典。
 
             self.stun_bar = 0
             self.stun_tick = 0
