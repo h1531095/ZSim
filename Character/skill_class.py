@@ -236,6 +236,7 @@ class Skill:
                                     for attr in dir(self)
                                     if not attr.startswith('__') and not callable(getattr(self, attr))
                                     }
+            # TODO: 重攻击标签。
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
 
         @staticmethod

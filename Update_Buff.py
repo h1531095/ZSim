@@ -76,5 +76,7 @@ def update_anomaly_bar(time_now: int ,enemy: Enemy.Enemy):
         result = bar.check_myself(time_now)
         if result:
             setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], bar.active)
+            enemy.dynamic.active_anomaly_bar_dict[element_type] = None
+
 
 

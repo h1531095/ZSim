@@ -80,3 +80,21 @@ class AnomalyBar:
         if self.active and (self.last_active + self.max_duration < timenow):
             self.active = False
             return True
+
+    def change_info_cause_active(self, timenow: int):
+        """
+        属性异常激活时，必要的信息更新
+        """
+        self.ready = False
+        self.anomaly_times += 1
+        self.last_active = timenow
+        self.active = True
+
+    def reset_current_info_cause_output(self):
+        """
+        重置和属性积蓄条以及快照相关的信息。
+        该函数通常位于抛出异常实例之前调用，
+        """
+        self.is_full = False
+        self.current_anomaly = np.float64(0)
+        self.current_ndarray = np.zeros((1, self.current_ndarray.shape[0]), dtype=np.float64)
