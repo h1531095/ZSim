@@ -713,12 +713,17 @@ class Calculator:
                                                dtype=np.float64)
 
         @staticmethod
+        def cal_am(data: MultiplierData) -> np.float64:
+            am = np.float64(data.static.am * (1 + data.dynamic.field_anomaly_mastery) + data.dynamic.anomaly_mastery)
+            return am
+
+        @staticmethod
         def cal_anomaly_buildup(data: MultiplierData) -> np.float64:
             """异常积蓄值 = 基础积蓄值 * 异常掌控/100 * (1 + 属性异常积蓄效率提升) * (1 - 属性异常积蓄抗性)"""
             # 基础蓄积值
             accumulation = data.skill_node.skill.anomaly_accumulation
             # 异常掌控
-            am = data.static.am * (1 + data.dynamic.field_anomaly_mastery) + data.dynamic.anomaly_mastery
+            am = Calculator.AnomalyMul.cal_am(data)
             # 属性异常积蓄效率提升、属性异常积蓄抗性
             element_type = data.skill_node.skill.element_type
             if element_type == 0:
