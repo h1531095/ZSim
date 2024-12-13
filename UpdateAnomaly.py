@@ -103,7 +103,7 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                     """
                     if enemy.dynamic.frozen:
                         event_list.append(new_anomaly)
-                        print(f'新的冰异常触发导致老碎冰直接结算')
+                        # print(f'新的冰异常触发导致老碎冰直接结算')
                     enemy.dynamic.frozen = True
                 else:
                     """
@@ -140,7 +140,7 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 if element_type not in [2, 5]:
                     event_list.append(new_anomaly)
                 event_list.append(disorder)
-                print(f'触发紊乱！')
+                # print(f'触发紊乱！')
 
 
             # 在异常与紊乱两个分支的最后，清空bar的异常积蓄和快照。
@@ -165,7 +165,7 @@ def remove_dots_cause_disorder(disorder, enemy, event_list, time_now):
             enemy.dynamic.dynamic_dot_list.remove(dots)
             enemy.dynamic.frozen = False
             enemy.dynamic.frostbite = False
-            print('因紊乱而强行移除碎冰')
+            # print('因紊乱而强行移除碎冰')
         else:
             if dots.ft.index == anomlay_dot_dict[disorder.element_type]:
                 dots.end(time_now)

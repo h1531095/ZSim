@@ -30,12 +30,8 @@ class MiyabiAdditionalAbility_IgnoreIceRes(Buff.BuffLogic):
         self.anomaly_state = {name: False for name in anomaly_name_list}
         self.disorder = False
         self.effect_count = 0
-        self.text_count = 0
 
     def special_judge_logic(self):
-        print(f'雅的组队被动被运行{self.text_count}次了')
-        self.text_count += 1
-
         main_module = sys.modules["__main__"]
         action_stack = main_module.load_data.action_stack
         enemy = main_module.schedule_data.enemy

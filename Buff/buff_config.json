@@ -92,23 +92,31 @@
         "class": "MiyabiAdditionalAbility_IgnoreIceRes"
     },
     "Buff-音擎-精1霰落星殿-叠层冰伤": {
-        "module": "",
-        "class": ""
+        "module": ".BuffXLogic.HailstormShrineIceBonus",
+        "class": "HailstormShrineIceBonus"
     },
     "Buff-音擎-精2霰落星殿-叠层冰伤": {
-        "module": "",
-        "class": ""
+        "module": ".BuffXLogic.HailstormShrineIceBonus",
+        "class": "HailstormShrineIceBonus"
     },
     "Buff-音擎-精3霰落星殿-叠层冰伤": {
-        "module": "",
-        "class": ""
+        "module": ".BuffXLogic.HailstormShrineIceBonus",
+        "class": "HailstormShrineIceBonus"
     },
     "Buff-音擎-精4霰落星殿-叠层冰伤": {
-        "module": "",
-        "class": ""
+        "module": ".BuffXLogic.HailstormShrineIceBonus",
+        "class": "HailstormShrineIceBonus"
     },
     "Buff-音擎-精5霰落星殿-叠层冰伤": {
-        "module": "",
-        "class": ""
-    }
+        "module": ".BuffXLogic.HailstormShrineIceBonus",
+        "class": "HailstormShrineIceBonus"
+    },
+    "Buff-驱动盘-折枝剑歌-暴伤": {
+    "module": ".BuffXLogic.BranchBladeSongCritDamageBonus",
+    "class": "BranchBladeSongCritDamageBonus"
+},
+    "Buff-驱动盘-折枝剑歌-暴击率": {
+    "module": ".BuffXLogic.BranchBladeSongCritRateBonus",
+    "class": "BranchBladeSongCritRateBonus"
+}
 }

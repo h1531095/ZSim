@@ -104,8 +104,6 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy,
                 # 在end处进行属性异常检查。
                 # TODO：新增重攻击 判定的接口
                 freez_deal = ProcessFreezLikeDots(timetick, enemy, event_list)
-                if freez_deal:
-                    print(f'碎冰因攻击结算了！')
                 UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list)
 
     # 始终检查 effect_rules == 1 的 Dot
