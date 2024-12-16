@@ -3,6 +3,7 @@ from Report import report_to_log
 from .filters import _skill_node_filter
 from .character import Character
 
+
 class Ellen(Character):
     def __init__(self,
                  name: str = '', CID: int = None,  # 角色名字和CID-必填至少一个
@@ -42,3 +43,6 @@ class Ellen(Character):
                     report_to_log(f"[Character] {self.NAME}的急冻充能被更新为：{self.flash_freeze}")
             self.flash_freeze = max(self.flash_freeze, 0)
             self.flash_freeze = min(self.flash_freeze, 3)
+
+    def get_resources(self):
+        return self.flash_freeze

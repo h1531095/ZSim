@@ -10,6 +10,9 @@
   "character":{
     "crit_balancing": true
   },
+  "apl_mode":{
+    "enabled": false
+  },
   "database":{
     "CHARACTER_DATA_PATH" : "./data/character.csv",
     "WEAPON_DATA_PATH" : "./data/weapon.csv",
