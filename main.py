@@ -103,6 +103,14 @@ schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11752), char_obj_list=ch
 global_stats = GlobalStats(name_box=init_data.name_box)
 skills = (char.skill_object for char in char_data.char_obj_list)
 preload = Preload.Preload(*skills)
+game_state = {
+    "tick": tick,
+    "init_data": init_data,
+    "char_data": char_data,
+    "load_data": load_data,
+    "schedule_data": schedule_data,
+    "global_stats": global_stats
+}
 
 
 def main_loop(stop_tick: int | None = None):

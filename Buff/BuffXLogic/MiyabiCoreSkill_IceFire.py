@@ -41,7 +41,6 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
             else:
                 return True
 
-
     def special_exit_logic(self):
         """
         冰焰buff的退出机制是检测到霜寒的上升沿就退出
@@ -56,8 +55,11 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         result = JudgeTools.detect_edge(frostbite_statement, mode_func)
         self.last_frostbite = frostbite_now
         # print(f'当前tick，冰焰退出情况：{result}')
-        return result
+        if result:
+            # TODO：霜灼破的添加！
+            pass
 
+        return result
 
     def special_hit_logic(self):
         """
@@ -87,4 +89,6 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         buff_i.dy.count = min(count, buff_0.ft.maxcount)
         buff_i.dy.is_changed = True
         buff_i.update_to_buff_0(buff_0)
+
+        
 

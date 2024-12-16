@@ -79,3 +79,6 @@ class Lighter(Character):
             self.last_tick = tick - minus % 6   # 求余以保证余数不计入本次计算
         self.morale = min(self.morale, 10000)
 
+    def get_resources(self):
+        return self.morale
+
