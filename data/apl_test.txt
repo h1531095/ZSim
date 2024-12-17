@@ -1,0 +1,3 @@
+1091|actions+=|1091_SNA_3|resource==6
+1091|actions+=|1091_E_EX_A_1|energy>=40|resource<6
+1091|actions+=|auto_NA

@@ -36,9 +36,6 @@ def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, 
     return Load_mission_dict
 
 
-
-
-
 if __name__ == "__main__":      # 测试
     timelimit = 3600
     load_mission_dict = {}

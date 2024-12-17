@@ -1,16 +1,14 @@
 from dataclasses import dataclass
-
 import pandas as pd
-from tqdm import trange
-
 from Character import Skill
 from Enemy import Enemy
 from LinkedList import LinkedList
 from Report import report_to_log
-from define import INPUT_ACTION_LIST
+from define import INPUT_ACTION_LIST, APL_MODE, APL_PATH
 from . import SkillsQueue
 from . import watchdog
 from .SkillsQueue import SkillNode
+from .APLModule import APLParser, APLExecutor
 
 
 @dataclass
@@ -65,6 +63,10 @@ class Preload:
     def __init__(self, *args: Skill):
         self.preload_data = PreloadData(*args)
         self.skills_queue = self.preload_data.skills_queue
+        if APL_MODE:
+            self.apl_action_list = APLParser(file_path=APL_PATH).parse()
+            self.apl_executor = APLExecutor(self.apl_action_list)
+            self.apl_preload_tick = 0
 
     def __str__(self):
         return f"Preload Data: \n{self.preload_data.preloaded_action}"
@@ -73,6 +75,13 @@ class Preload:
         if isinstance(enemy, Enemy):
             stun_status: bool = stun_judge(enemy)
         if self.preload_data.current_node is None:
+
+            if APL_MODE:
+                output = self.apl_executor.execute()
+                # skill_ticks = SkillsQueue.spawn_node(output, self.apl_preload_tick, self.skills_queue)
+                # self.apl_preload_tick += skill_ticks
+
+
             this_node = self.skills_queue.pop_head()
             self.preload_data.current_node = this_node
         else:

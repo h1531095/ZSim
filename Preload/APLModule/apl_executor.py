@@ -1,4 +1,9 @@
-import apl_condition
+from .apl_condition import APLCondition
+import json
+import os
+import sys
+from define import APL_NA_ORDER_PATH
+
 
 
 class APLExecutor:
@@ -6,17 +11,50 @@ class APLExecutor:
     APL代码的执行部分。它会调用apl_condition并且轮询所有的APL代码，
     找出第一个符合条件的动作并且执行。
     """
-    def __init__(self, actions: list, game_state: dict):
+    def __init__(self, actions: list):
+        self.game_state = None
         self.actions_list = actions
-        self.game_state = game_state
+        try:
+            json_path = APL_NA_ORDER_PATH
+            with open(json_path, "r", encoding="utf-8") as file:
+                self.NA_action_dict = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"初始化时发生错误: {e}")
+            self.NA_action_dict = {}
 
     def execute(self):
+        # 找到第一个符合条件的动作并执行
         for action in self.actions_list:
-            if all(apl_condition.APLCondition(self.game_state).evaluate(cond) for cond in action["conditions"]):
-                self.perform_action(action["action"])
-                break  # 找到第一个符合条件的动作并执行
+            if action['conditions']:
+                if all(APLCondition().evaluate(action, cond) for cond in action['conditions']):
+                    return self.perform_action(action['CID'], action["action"])
+            else:
+                return self.perform_action(action['CID'], action["action"])
 
+    def get_game_state(self):
+        if self.game_state is None:
+            try:
+                # 延迟从 sys.modules 获取字典A，假设 main 模块中已定义字典 A
+                main_module = sys.modules['__main__']
+                if main_module is None:
+                    raise ImportError("Main module not found.")
+                self.game_state = main_module.game_state  # 获取 main 中的 A
+            except Exception as e:
+                print(f"Error loading dictionary A: {e}")
+        return self.game_state
 
-    def perform_action(self, action: str):
-        print(f"Executing action: {action}")
-        # 在这里调用实际的技能或效果逻辑
+    def perform_action(self, CID, action: str):
+        self.game_state = self.get_game_state()
+        if action == 'auto_NA':
+            last_action = self.game_state['load_data'].action_stack.peek_bottom().mission_tag
+            if last_action in self.NA_action_dict:
+                output = self.NA_action_dict[last_action]
+            elif last_action is None:
+                output = f'{CID}_NA_1'
+            else:
+                output = f'{CID}_NA_1'
+        else:
+            output = action
+
+        return output
+

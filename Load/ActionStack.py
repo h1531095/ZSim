@@ -38,3 +38,11 @@ class ActionStack:
         """返回栈中元素的个数"""
         return len(self.stack)
 
+    def peek_bottom(self):
+        """查看栈底元素"""
+        if not self.is_empty():
+            return self.stack[0]
+        else:
+            print("栈为空！")
+            return None
+

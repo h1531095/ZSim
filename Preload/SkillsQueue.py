@@ -25,6 +25,75 @@ class SkillNode:
     def __str__(self) -> str:
         return f"SkillNode: {self.skill_tag}"
 
+# def get_skills_queue(preload_table: pd.DataFrame,
+#                      *skills: Skill,
+#                      ) -> tuple[int, LinkedList]:
+#     """
+#     提取dataframe中，‘skill_tag’列的信息
+#     并将其与输入的 Skill 类比对
+#     可输入任意数量的 Skill 类比对。
+#
+#     示例：
+#     get_skills_queue(dataframe,
+#                      skills = Skill( name='艾莲'),
+#                      skills_2 = Skill(name = '苍角'),
+#                      skills_3 = Skill(name = '莱卡恩'))
+#
+#     返回：一个链表，包含全部可被预加载的 SkillNode
+#     """
+#     # 输入类型检查
+#     if not isinstance(preload_table, pd.DataFrame):
+#         raise TypeError("预加载序列表必须是 pandas.DataFrame 类型")
+#     if not all(isinstance(x, Skill) for x in skills):
+#         raise TypeError("输入的技能必须是 Skill 类")
+#
+#     skills_queue = LinkedList()  # 用于储存技能节点
+#     global preload_skills
+#     try:
+#         preload_skills = preload_table['skill_tag']  # 传入的数据必须包含 skill_tag 列
+#     except KeyError:
+#         print(f"提供错误的预加载序列表，请检查输入")
+#
+#     # 确保技能列表不为空
+#     if not preload_skills.empty:
+#         preload_skills = preload_skills.tolist()
+#     else:
+#         raise ValueError("预加载序技能列表为空")
+#
+#     # 底下套了三层但没办法，看注释吧
+#     preload_tick_stamp: int = 0  # 初始化预加载的tick
+#     # 首先遍历所提供的技能列表的所有tag
+#     for tag in preload_skills:
+#         # 对这些tag进行判断：是否存在与_skills_objects所记录的某一个对象中
+#         for obj in skills:  # 遍历包含输入的全部 Skill 对象的字典
+#             # 核对 Skill.skills_dict 字典中的键值，即这名角色的全部技能 Tag
+#             if tag in obj.skills_dict.keys():
+#                 # 生成链表
+#                 node = SkillNode(obj.skills_dict[tag], preload_tick_stamp)
+#                 # 获取到这个技能的tick，并累加到 preload_tick_stamp
+#                 skill_ticks = obj.skills_dict[tag].ticks
+#                 preload_tick_stamp += skill_ticks
+#                 report_to_log(f"[PRELOAD]:预加载节点 {node.skill_tag} 已创建，将在 {node.preload_tick} 执行", level=2)
+#                 skills_queue.add(node)
+#                 break
+#         else:
+#             raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")
+#     return preload_tick_stamp, skills_queue
+
+
+def spawn_node(tag: str, preload_tick: int, skill_queue: LinkedList, *skills: Skill) -> tuple[int]:
+    """
+    通过输入的tag和preload_tick，直接创建skill_node。
+    并且直接添加到skill_queue中，这个函数是为了APL代码模块服务的。
+    """
+    for obj in skills:
+        if tag in obj.skills_dict.keys():
+            node = SkillNode(obj.skills_dict[tag], preload_tick)
+            skill_ticks = obj.skills_dict[tag].ticks
+            skill_queue.add(node)
+            return skill_ticks
+    else:
+        raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")
 
 
 def get_skills_queue(preload_table: pd.DataFrame,
@@ -62,30 +131,17 @@ def get_skills_queue(preload_table: pd.DataFrame,
     else:
         raise ValueError("预加载序技能列表为空")
 
-    # 底下套了三层但没办法，看注释吧
     preload_tick_stamp: int = 0  # 初始化预加载的tick
-    # 首先遍历所提供的技能列表的所有tag
+    # 遍历所提供的技能列表的所有tag
     for tag in preload_skills:
-        # 对这些tag进行判断：是否存在与_skills_objects所记录的某一个对象中
-        found = False
-        for obj in skills:  # 遍历包含输入的全部 Skill 对象的字典
-            # 核对 Skill.skills_dict 字典中的键值，即这名角色的全部技能 Tag
-            if tag in obj.skills_dict.keys():
-                found = True
-                # 生成链表
-                node = SkillNode(obj.skills_dict[tag], preload_tick_stamp)
-                # 获取到这个技能的tick，并累加到 preload_tick_stamp
-                skill_ticks = obj.skills_dict[tag].ticks
-                preload_tick_stamp += skill_ticks
-                report_to_log(f"[PRELOAD]:预加载节点 {node.skill_tag} 已创建，将在 {node.preload_tick} 执行", level=2)
-                skills_queue.add(node)
-                break
-        if not found:
-            raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")
+        try:
+            skill_ticks = spawn_node(tag, preload_tick_stamp, skills_queue, *skills)
+            preload_tick_stamp += skill_ticks
+            report_to_log(f"[PRELOAD]:预加载节点 {tag} 已创建，将在 {preload_tick_stamp} 执行", level=2)
+        except ValueError as e:
+            raise ValueError(str(e))
+
     return preload_tick_stamp, skills_queue
-
-#   TODO：写一个根据skill_tag，直接创建或者是获取Skill_Node的函数。在其他环节要调用。
-
 
 if __name__ == '__main__':
     test = {

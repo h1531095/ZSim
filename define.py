@@ -4,8 +4,12 @@ ElementType = NewType("ElementType", int)
 INVALID_ELEMENT_ERROR = "Invalid element type"
 ID_CACHE_JSON = 'results/id_cache.json'
 
+
 _config = json.load(open('config.json',encoding="utf-8-sig"))
 
+APL_MODE: bool = _config['apl_mode']['enabled']
+APL_PATH: str = _config['database']['APL_FILE_PATH']
+APL_NA_ORDER_PATH: str = _config['apl_mode']['na_order']
 CHARACTER_DATA_PATH: str = _config["database"]["CHARACTER_DATA_PATH"]
 WEAPON_DATA_PATH: str = _config["database"]["WEAPON_DATA_PATH"]
 EQUIP_2PC_DATA_PATH: str = _config["database"]["EQUIP_2PC_DATA_PATH"]
