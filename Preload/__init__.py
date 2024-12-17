@@ -19,8 +19,8 @@ class PreloadData:
         '''data = pd.DataFrame(    # only for test
             {'skill_tag': ['1221_NA_1', '1221_NA_2', '1221_NA_3', '1221_NA_4', '1221_NA_5']}
         )'''
-
-        max_tick, skills_queue = SkillsQueue.get_skills_queue(pd.read_csv(INPUT_ACTION_LIST), *args)
+        self.skills = args
+        max_tick, skills_queue = SkillsQueue.get_skills_queue(pd.read_csv(INPUT_ACTION_LIST), *self.skills)
         self.max_tick: int = max_tick
         self.skills_queue: LinkedList = skills_queue
         self.current_node: SkillNode | None = None
@@ -77,10 +77,14 @@ class Preload:
         if self.preload_data.current_node is None:
 
             if APL_MODE:
-                output = self.apl_executor.execute()
-                # skill_ticks = SkillsQueue.spawn_node(output, self.apl_preload_tick, self.skills_queue)
-                # self.apl_preload_tick += skill_ticks
-
+                # When APL is Enabled, we will use APL to preload skills.
+                apl_output_skill: str = self.apl_executor.execute() # Try to get the next skill to preload.
+                node: SkillNode = SkillsQueue.spawn_node(
+                        apl_output_skill,
+                        self.apl_preload_tick,
+                        *self.preload_data.skills)  # generate a SkillNode through the tag and preload tick.
+                self.skills_queue.insert(node)  # Insert the node into the queue.
+                self.apl_preload_tick += node.skill.ticks   # Update the preload tick.
 
             this_node = self.skills_queue.pop_head()
             self.preload_data.current_node = this_node

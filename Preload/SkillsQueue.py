@@ -81,17 +81,14 @@ class SkillNode:
 #     return preload_tick_stamp, skills_queue
 
 
-def spawn_node(tag: str, preload_tick: int, skill_queue: LinkedList, *skills: Skill) -> tuple[int]:
+def spawn_node(tag: str, preload_tick: int, *skills: Skill) -> SkillNode:
     """
-    通过输入的tag和preload_tick，直接创建skill_node。
-    并且直接添加到skill_queue中，这个函数是为了APL代码模块服务的。
+    通过输入的tag和preload_tick，直接创建SkillNode。
     """
     for obj in skills:
         if tag in obj.skills_dict.keys():
             node = SkillNode(obj.skills_dict[tag], preload_tick)
-            skill_ticks = obj.skills_dict[tag].ticks
-            skill_queue.add(node)
-            return skill_ticks
+            return node
     else:
         raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")
 
@@ -135,8 +132,9 @@ def get_skills_queue(preload_table: pd.DataFrame,
     # 遍历所提供的技能列表的所有tag
     for tag in preload_skills:
         try:
-            skill_ticks = spawn_node(tag, preload_tick_stamp, skills_queue, *skills)
-            preload_tick_stamp += skill_ticks
+            node = spawn_node(tag, preload_tick_stamp, *skills)
+            skills_queue.add(node)
+            preload_tick_stamp += node.skill.ticks
             report_to_log(f"[PRELOAD]:预加载节点 {tag} 已创建，将在 {preload_tick_stamp} 执行", level=2)
         except ValueError as e:
             raise ValueError(str(e))

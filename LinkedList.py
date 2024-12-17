@@ -26,6 +26,7 @@ class LinkedList:
         self.head = None
 
     def add(self, data):
+        """在链表尾部添加"""
         new_node = Node(data)
         if self.head is None:
             self.head = new_node
@@ -34,6 +35,12 @@ class LinkedList:
             while current.next:
                 current = current.next
             current.next = new_node
+
+    def insert(self, data):
+        """在链表头部插入"""
+        new_node = Node(data)
+        new_node.next = self.head
+        self.head = new_node
 
     def __iter__(self):
         return NodeIterator(self.head)
