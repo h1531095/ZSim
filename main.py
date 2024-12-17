@@ -12,19 +12,19 @@ from Update_Buff import update_dynamic_bufflist
 
 @dataclass
 class InitData:
-    name_box = ['莱特', '柏妮思', '雅']
-    Judge_list_set = [['雅', '深海访客', '啄木鸟电音'],
+    name_box = ['苍角', '柏妮思', '雅']
+    Judge_list_set = [['雅', '霰落星殿', '折枝剑歌'],
                       ['柏妮思', '含羞恶面', '自由蓝调'],
-                      ['莱特', '燃狱齿轮', '镇星迪斯科']]
+                      ['苍角', '燃狱齿轮', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
-              'weapon': '深海访客', 'weapon_level': 1,
-              'equip_set4': '啄木鸟电音', 'equip_set2_a': '极地重金属',
+              'weapon': '霰落星殿', 'weapon_level': 1,
+              'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
               'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
               'scATK_percent': 10, 'scCRIT': 20}
     char_1 = {'name' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,
               'equip_set4': '摇摆爵士', 'equip_set2_a': '自由蓝调',
-              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '能量自动回复%',
+              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
               'scATK_percent': 10, 'scCRIT': 20}
     char_0 = {'name' : name_box[0],
               'weapon': '燃狱齿轮', 'weapon_level': 1,
@@ -103,6 +103,14 @@ schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11752), char_obj_list=ch
 global_stats = GlobalStats(name_box=init_data.name_box)
 skills = (char.skill_object for char in char_data.char_obj_list)
 preload = Preload.Preload(*skills)
+game_state = {
+    "tick": tick,
+    "init_data": init_data,
+    "char_data": char_data,
+    "load_data": load_data,
+    "schedule_data": schedule_data,
+    "global_stats": global_stats
+}
 
 
 def main_loop(stop_tick: int | None = None):

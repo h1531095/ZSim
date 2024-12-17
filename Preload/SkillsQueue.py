@@ -84,6 +84,8 @@ def get_skills_queue(preload_table: pd.DataFrame,
             raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")
     return preload_tick_stamp, skills_queue
 
+#   TODO：写一个根据skill_tag，直接创建或者是获取Skill_Node的函数。在其他环节要调用。
+
 
 if __name__ == '__main__':
     test = {

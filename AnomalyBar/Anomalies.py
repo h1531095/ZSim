@@ -66,6 +66,3 @@ class FrostAnomaly(AnomalyBar):
         self.accompany_dot = '冻结'
         self.accompany_debuff = ['Buff-异常-霜寒', 'Buff-角色-雅-核心被动-霜灼']
         self.max_duration = 600
-
-
-# TODO：霜寒、霜灼作为一场绑定的debuff，有自己的退出机制，即新的异常发生了，那么老的buff要去掉。

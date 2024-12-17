@@ -73,6 +73,7 @@ def ProcessFreezLikeDots(timetick: int, enemy: Enemy.Enemy, event_list: list):
                 dot.dy.effect_times += 1
                 dot_list.remove(dot)
                 enemy.dynamic.frozen = False
+                return True
 
 
 def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy, event_list: list):
@@ -102,8 +103,7 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy,
                 # and mission.mission_node.skill.anomaly_attack
                 # 在end处进行属性异常检查。
                 # TODO：新增重攻击 判定的接口
-
-                ProcessFreezLikeDots(timetick, enemy, event_list)
+                freez_deal = ProcessFreezLikeDots(timetick, enemy, event_list)
                 UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list)
 
     # 始终检查 effect_rules == 1 的 Dot
