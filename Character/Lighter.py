@@ -79,3 +79,5 @@ class Lighter(Character):
             self.last_tick = tick - minus % 6   # 求余以保证余数不计入本次计算
         self.morale = min(self.morale, 10000)
 
+    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
+        return '士气', self.morale / 100

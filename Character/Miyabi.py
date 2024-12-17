@@ -63,3 +63,6 @@ class Miyabi(Character):
             disorder_times = _disorder_counter(*args, **kwargs)
             self.frosty += disorder_times * 3
             self.frosty = min(self.frosty, 6)
+
+    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
+        return '落霜', self.frosty

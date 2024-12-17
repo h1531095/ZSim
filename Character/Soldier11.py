@@ -46,3 +46,6 @@ class Soldier11(Character):
             # 消耗层数逻辑
             if 'SNA' in node.skill_tag and self.fire_suppression > 0:
                 self.fire_suppression -= 1
+
+    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
+        return '火力镇压', self.fire_suppression

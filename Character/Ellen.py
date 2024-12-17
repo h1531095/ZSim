@@ -42,3 +42,6 @@ class Ellen(Character):
                     report_to_log(f"[Character] {self.NAME}的急冻充能被更新为：{self.flash_freeze}")
             self.flash_freeze = max(self.flash_freeze, 0)
             self.flash_freeze = min(self.flash_freeze, 3)
+
+    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
+        return '急冻充能', self.flash_freeze
