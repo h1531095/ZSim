@@ -152,4 +152,5 @@ if __name__ == '__main__':
     skill_queue = get_skills_queue(test_skill_dataframe, test_object)
     for _ in skill_queue:
         print(_.skill_tag, _.preload_tick)
+        
 
