@@ -45,5 +45,5 @@ class Soukaku(Character):
                     BuffAddStrategy('Buff-角色-苍角-核心被动-2')
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
 
-    def get_resources(self):
-        return self.vortex
+    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
+        return '涡流', self.vortex

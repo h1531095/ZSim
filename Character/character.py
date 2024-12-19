@@ -577,11 +577,9 @@ class Character:
         """父类中不包含默认特殊资源"""
         return None
 
-    def get_resources(self) -> None:
-        """
-        用于获取特殊资源，在各自的子类中重写。
-        """
-        return None
+    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
+        """获取特殊资源的属性名称与数量"""
+        return None, None
 
     def __str__(self) -> str:
         return f"{self.NAME} {self.level}级，能量{self.sp:.2f}，喧响{self.decibel:.2f}"

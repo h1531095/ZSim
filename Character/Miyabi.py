@@ -47,12 +47,7 @@ class Miyabi(Character):
                 if node.skill_tag in ['1091_E_EX_A_1', '1091_E_EX_B_1']:
                     self.frosty += 2
                 elif node.skill_tag == '1091_Shatter':
-                    # TODO：霜灼破的内置CD
                     self.frosty += 1
-                elif node.skill_tag == '1091_Q':
-                    self.frosty += 3
-            else:
-                self.frosty = 6
             if node.skill_tag == '1091_SNA_1':
                 self.frosty -= 2
             elif node.skill_tag == '1091_SNA_2':
@@ -69,5 +64,5 @@ class Miyabi(Character):
             self.frosty += disorder_times * 3
             self.frosty = min(self.frosty, 6)
 
-    def get_resources(self):
-        return self.frosty
+    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
+        return '落霜', self.frosty
