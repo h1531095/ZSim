@@ -1,3 +1,5 @@
+import sys
+
 from AnomalyBar import Disorder
 from Preload import SkillNode
 from Report import report_to_log
@@ -34,6 +36,7 @@ class Miyabi(Character):
                 drive4, drive5, drive6,
                 scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT,
                 sp_limit)
+        self.last_tick: int | None = None
         self.frosty: int = 3
 
     def special_resources(self, *args, **kwargs) -> None:
@@ -46,8 +49,12 @@ class Miyabi(Character):
             if self.frosty <= 6:
                 if node.skill_tag in ['1091_E_EX_A_1', '1091_E_EX_B_1']:
                     self.frosty += 2
-                elif node.skill_tag == '1091_Shatter':
+                elif node.skill_tag == '1091_Shatter' and not self._shatter_internal_cd():
                     self.frosty += 1
+                elif node.skill_tag == '1091_Q':
+                    self.frosty += 3
+            else:
+                self.frosty = 6
             if node.skill_tag == '1091_SNA_1':
                 self.frosty -= 2
             elif node.skill_tag == '1091_SNA_2':
@@ -56,13 +63,28 @@ class Miyabi(Character):
                 self.frosty -= 6
 
             if self.frosty < 0:
+                log = f"[Character] {self.NAME}的落霜不足，被消耗至{self.frosty}点，已重置，请检查技能树"
+                print(log)
+                report_to_log(log)
                 self.frosty = 0
-                report_to_log(f"[Character] 雅的落霜不足，请检查技能树")
 
         if self.frosty <= 6:
             disorder_times = _disorder_counter(*args, **kwargs)
-            self.frosty += disorder_times * 3
+            self.frosty += disorder_times * 2
             self.frosty = min(self.frosty, 6)
 
-    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
-        return '落霜', self.frosty
+    def _shatter_internal_cd(self) -> bool:
+        """判断落霜叠层是否处于CD"""
+        main_module = sys.modules['__main__']
+        tick: int = main_module.tick
+        if self.last_tick is None:
+            self.last_tick = tick
+            return False
+        if tick - self.last_tick < 60:
+            return True
+        else:
+            self.last_tick = tick
+            return False
+
+    def get_resources(self):
+        return self.frosty
