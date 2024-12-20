@@ -115,13 +115,10 @@ game_state = {
 }
 
 
-def main_loop(stop_tick: int | None = None):
+def main_loop(stop_tick: int | None = 6000):
     global tick
     tick = 0
-    tick_limit = 6000
     while True:
-        if tick > tick_limit and APL_MODE:
-            break
         # Tick Update
         report_to_log(f"[Update] Tick step to {tick}")
         update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
@@ -131,9 +128,8 @@ def main_loop(stop_tick: int | None = None):
         preload_list = preload.preload_data.preloaded_action
 
         if stop_tick is None:
-            if not APL_MODE and (preload.preload_data.skills_queue) == 0:
+            if not APL_MODE and preload.preload_data.skills_queue.head is None:
                 stop_tick = tick + 120
-                # FIXME：snow你要写什么？？？？？
         elif tick >= stop_tick:
             break
 
@@ -151,7 +147,9 @@ def main_loop(stop_tick: int | None = None):
 
 
 if __name__ == '__main__':
-    main_loop()
+    import timeit
+    print(f'\n主循环耗时: {timeit.timeit(main_loop, globals=globals(), number=1):.2f} s')
+    # main_loop(6000)
     print('\n正在等待IO结束···')
     write_to_csv()
     Report.log_queue.join()

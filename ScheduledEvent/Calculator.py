@@ -326,9 +326,9 @@ class MultiplierData:
             # 打开buff_effect_trans.json
 
             # 确保所有的属性都有默认值
-            for value in buff_effect_trans.values():
-                if not hasattr(self, value):
-                    setattr(self, value, 0.0)
+            # for value in buff_effect_trans.values():
+            #     if not hasattr(self, value):
+            #         setattr(self, value, 0.0)
             # 遍历dynamic_statement，根据json翻译，设置对应的属性值
             for key, value in dynamic_statement.items():
                 if key in buff_effect_trans:

@@ -13,6 +13,7 @@ from Buff.BuffExist_Judge import buff_exist_judge
 from Character import Character
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator, MultiplierData
+from single_hit import SingleHit
 
 
 class ScConditionData:
@@ -61,7 +62,7 @@ class ScheduledEvent:
         # 更新角色面板
         for char in self.data.char_obj_list:
             char: Character
-            # EXPLAIN：mul是个类，包含了角色的所有信息，包括静态面板、动态面板。
+            # EXPLAIN：MultiplierData是个类，包含了角色的所有信息，包括静态面板、动态面板。
             mul = MultiplierData(character_obj=char, dynamic_buff=self.data.dynamic_buff, enemy_obj=self.data.enemy)
             char.update_sp_and_decibel(mul)
         # 判断循环
@@ -121,18 +122,16 @@ class ScheduledEvent:
                              dynamic_buff=self.data.dynamic_buff)
         snapshot = cal_obj.cal_snapshot()
         stun = cal_obj.cal_stun()
-        self.data.enemy.update_stun(stun)
-        if snapshot[1] >= 0.0001:
-            element_type_code = snapshot[0]
-            updated_bar = self.data.enemy.anomaly_bars_dict[element_type_code]
-            if isinstance(updated_bar, AnB):
-                updated_bar.update_snap_shot(snapshot)
+        dmg_expect = cal_obj.cal_dmg_expect()
+        dmg_crit = cal_obj.cal_dmg_crit()
+        hit_result = SingleHit(event.skill_tag, snapshot, stun, dmg_expect, dmg_crit)
+        self.enemy.hit_received(hit_result)
 
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,
                                  skill_tag=event.skill_tag,
-                                 dmg_expect=cal_obj.cal_dmg_expect(),
-                                 dmg_crit=cal_obj.cal_dmg_crit(),
+                                 dmg_expect=dmg_expect,
+                                 dmg_crit=dmg_crit,
                                  stun=stun,
                                  stun_status=self.data.enemy.dynamic.stun,
                                  buildup=snapshot[1],

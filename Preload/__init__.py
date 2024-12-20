@@ -40,7 +40,7 @@ def stun_judge(enemy) -> bool:
             enemy.dynamic.stun = False
             enemy.dynamic.stun_bar = 0
             enemy.dynamic.stun_tick = 0
-            enemy.restore_stun_recovery_time()
+            enemy.restore_stun()
         else:
             enemy.dynamic.stun_tick += 1
     else:
@@ -62,7 +62,7 @@ class Preload:
 
     def __init__(self, *args: Skill):
         self.preload_data = PreloadData(*args)
-        self.skills_queue = self.preload_data.skills_queue
+        self.skills_queue: LinkedList = self.preload_data.skills_queue
         if APL_MODE:
             self.apl_action_list = APLParser(file_path=APL_PATH).parse()
             self.apl_executor = APLExecutor(self.apl_action_list)

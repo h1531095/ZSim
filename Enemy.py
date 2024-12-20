@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import AnomalyBar
 from Report import report_to_log
+from single_hit import SingleHit
 from define import ENEMY_DATA_PATH
 
 # 把属性异常标号从数字翻译成str的中转字典，用于和getattr方法联动。
@@ -16,6 +17,7 @@ class EnemySettings:
         self.forced_anomaly: int = 0
 
 
+
 class Enemy:
     def __init__(self, *, enemy_name: str = None, enemy_index_ID: int = None, enemy_sub_ID: int = None):
         """
@@ -27,6 +29,13 @@ class Enemy:
         - enemy_sub_ID (int): 敌人的子ID，格式为9000+索引ID
 
         !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会查找ID最靠前的那一个
+
+        更新参数接口：
+            hit_received(single_hit)
+            update_stun(float)
+        获取临时参数接口：
+            get_hp_percentage()
+            get_stun_percentage()
         """
         # 读取敌人数据文件，初始化敌人信息
         self.__last_stun_increase_tick = None
@@ -34,6 +43,8 @@ class Enemy:
         # !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会返回ID更靠前的
         enemy_info = self.__lookup_enemy(_raw_enemy_dataframe, enemy_name, enemy_index_ID, enemy_sub_ID)
         self.name, self.index_ID, self.sub_ID, self.data_dict = enemy_info
+        # 初始化动态属性
+        self.dynamic = self.EnemyDynamic()
         # 初始化敌人基础属性
         self.max_HP: float = float(self.data_dict['剧变节点7理论生命值'])
         self.max_ATK: float = float(self.data_dict['剧变节点7攻击力'])
@@ -44,7 +55,7 @@ class Enemy:
         self.able_to_get_anomaly: bool = bool(self.data_dict['能否异常'])
         self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度']) / 60
         self.stun_recovery_time: float = 0.0
-        self.restore_stun_recovery_time()
+        self.restore_stun()
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
 
@@ -63,10 +74,9 @@ class Enemy:
         self.ETHER_damage_resistance: float = float(self.data_dict['以太抗'])
         self.PHY_damage_resistance: float = float(self.data_dict['物抗'])
 
-        # 初始化敌人设置和动态属性
+        # 初始化敌人设置
         self.settings = EnemySettings()
         self.__apply_settings(self.settings)
-        self.dynamic = self.EnemyDynamic()
 
         # 下面的两个dict本来写在外面的，但是别的程序也要用这两个dict，所以索性写进来了。我是天才。
         self.trans_element_number_to_str = {0: 'PHY', 1: 'FIRE', 2: 'ICE', 3: 'ELECTRIC', 4: 'ETHER', 5: 'FIREICE'}
@@ -106,9 +116,11 @@ class Enemy:
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
-    def restore_stun_recovery_time(self):
-        """还原 Enemy 本身的失衡恢复时间"""
+    def restore_stun(self):
+        """还原 Enemy 本身的失衡恢复时间，与QTE计数"""
         self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
+        self.dynamic.QTE_triggered_times = 0
+        self.dynamic.QTE_received_tag = []
 
     def increase_stun_recovery_time(self, increase_tick: int):
         """更新失衡延长的时间，负责接收 Calculator 的 buff"""
@@ -117,7 +129,7 @@ class Enemy:
         else:
             if increase_tick >= self.__last_stun_increase_tick:
                 self.__last_stun_increase_tick = increase_tick
-                self.restore_stun_recovery_time()
+                self.restore_stun()
                 self.stun_recovery_time += increase_tick
 
 
@@ -167,7 +179,7 @@ class Enemy:
         return name, index_ID, sub_ID, row
 
     @staticmethod
-    def __init_enemy_anomaly(able_to_get_anomaly: bool, QTE_triggerable_times: int) -> tuple:
+    def __init_enemy_anomaly(able_to_get_anomaly: bool, QTE_triggerable_times: int) -> tuple[int, int]:
         """
         根据敌人的异常能力和QTE触发次数(怪物等阶)初始化敌人的异常值。
 
@@ -207,6 +219,29 @@ class Enemy:
             self.stun_DMG_take_ratio = settings.forced_stun_DMG_take_ratio
         else:
             pass
+
+    def __qte_tag_filter(self, *args, **kwargs) -> list[str]:
+        qte_tags: list[str] = []
+        for arg in args:
+            if (tag := self.__try_qte(arg)) is not None:
+                qte_tags += tag
+        for arg in kwargs.values():
+            if (tag := self.__try_qte(arg)) is not None:
+                qte_tags += tag
+        return qte_tags
+
+    def __try_qte(self, arg) -> str | None:
+        result: str | None = None
+        if isinstance(arg, str):
+            if 'QTE' in arg:
+                result = arg
+        else:
+            try:
+                if 'QTE' in arg.skill_tag:
+                    result = arg.skill_tag
+            except AttributeError:
+                pass
+        return result
 
     def update_anomaly(self, element: str | int = "ALL", *, times: int = 1) -> None:
         """更新怪物异常值，触发一次异常后调用。"""
@@ -252,6 +287,48 @@ class Enemy:
     def update_stun(self, stun: np.float64) -> None:
         self.dynamic.stun_bar += stun
 
+    def hit_received(self, single_hit: SingleHit) -> None:
+        """实现怪物的QTE次数计算、扣血计算等受击时的对象结算，与伤害计算器对接"""
+        # 怪物连携次数逻辑
+        self.__qte_counter(single_hit.skill_tag)
+        # 更新失衡，为减少函数调用
+        self.dynamic.stun_bar += single_hit.stun
+        # 怪物的扣血逻辑。
+        self.__HP_update(single_hit.dmg_expect)
+        # 更新异常值
+        self.__anomaly_prod(single_hit.snapshot)
+        # TODO：露西的数据库录入
+        # 遥远的需求：
+        # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
+
+    def get_hp_percentage(self) -> float:
+        """获取当前生命值百分比的方法"""
+        return 1 - self.dynamic.lost_hp / self.max_HP
+
+    def get_stun_percentage(self) -> float:
+        """获取当前失衡值百分比的方法"""
+        return self.dynamic.stun_bar / self.max_stun
+
+    def __qte_counter(self, *args, **kwargs) -> None:
+        qte_tags: list[str] = self.__qte_tag_filter(*args, **kwargs)
+        diff_tags = set(qte_tags) - set(self.dynamic.QTE_received_tag)
+        self.dynamic.QTE_received_tag += qte_tags
+        self.dynamic.QTE_triggered_times += len(diff_tags)
+        if self.dynamic.QTE_triggered_times > self.QTE_triggerable_times:
+            raise ValueError("QTE触发次数超过上限")
+
+    def __HP_update(self, dmg_expect: np.float64) -> None:
+        self.dynamic.lost_hp += dmg_expect
+        if (minus := self.max_HP - self.dynamic.lost_hp) <= 0:
+            self.dynamic.lost_hp = -1 * minus
+            report_to_log(f'怪物{self.name}死亡！')
+
+    def __anomaly_prod(self, snapshot: tuple[int, np.float64, np.ndarray]) -> None:
+        if snapshot[1] >= 1e-6: # 确保非零异常值才更新
+            element_type_code = snapshot[0]
+            updated_bar = self.anomaly_bars_dict[element_type_code]
+            updated_bar.update_snap_shot(snapshot)
+
     class EnemyDynamic:
         def __init__(self):
             self.stun = False  # 失衡状态
@@ -267,8 +344,11 @@ class Enemy:
             self.dynamic_dot_list = []      # 用来装dot的list
             self.active_anomaly_bar_dict = {number: None for number in range(6)}    # 用来装激活属性异常的字典。
 
-            self.stun_bar = 0
-            self.stun_tick = 0
+            self.stun_bar = 0   # 累计失衡条
+            self.lost_hp = 0    # 已损生命值
+            self.QTE_triggered_times: int = 0   # 已连携次数
+            self.QTE_received_tag: list[str] = []
+            self.stun_tick = 0  # 失衡已进行时间
 
             self.frozen_tick = 0
             self.frostbite_tick = 0
@@ -283,14 +363,6 @@ class Enemy:
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"
 
-
-# TODO：剩余可连携次数
-# TODO：怪物的扣血逻辑。
-# TODO：获取当前生命之百分比的函数
-# TODO：获取当前失衡值百分比的函数
-# TODO：露西的数据库录入
-# 遥远的需求：
-# TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
 
 
 if __name__ == '__main__':
