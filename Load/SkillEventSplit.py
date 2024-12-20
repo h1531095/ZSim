@@ -1,4 +1,4 @@
-from LinkedList import LinkedList
+from data_struct.LinkedList import LinkedList
 import Preload
 import tqdm
 from Report import report_to_log

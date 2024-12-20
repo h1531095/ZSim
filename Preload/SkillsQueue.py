@@ -1,6 +1,6 @@
 import pandas as pd
 from define import APL_MODE
-from LinkedList import LinkedList
+from data_struct.LinkedList import LinkedList
 from Report import report_to_log
 from Character.skill_class import Skill
 

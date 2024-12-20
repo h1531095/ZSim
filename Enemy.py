@@ -2,10 +2,8 @@ import numpy as np
 import pandas as pd
 import AnomalyBar
 from Report import report_to_log
-from single_hit import SingleHit
+from data_struct import SingleHit
 from define import ENEMY_DATA_PATH
-
-# 把属性异常标号从数字翻译成str的中转字典，用于和getattr方法联动。
 
 
 class EnemySettings:
@@ -15,7 +13,6 @@ class EnemySettings:
         self.forced_no_anomaly = False
         self.forced_stun_DMG_take_ratio: float = 1.5
         self.forced_anomaly: int = 0
-
 
 
 class Enemy:
@@ -179,7 +176,7 @@ class Enemy:
         return name, index_ID, sub_ID, row
 
     @staticmethod
-    def __init_enemy_anomaly(able_to_get_anomaly: bool, QTE_triggerable_times: int) -> tuple[int, int]:
+    def __init_enemy_anomaly(able_to_get_anomaly: bool, QTE_triggerable_times: int) -> tuple[int | float, int | float]:
         """
         根据敌人的异常能力和QTE触发次数(怪物等阶)初始化敌人的异常值。
 
@@ -220,27 +217,10 @@ class Enemy:
         else:
             pass
 
-    def __qte_tag_filter(self, *args, **kwargs) -> list[str]:
-        qte_tags: list[str] = []
-        for arg in args:
-            if (tag := self.__try_qte(arg)) is not None:
-                qte_tags += tag
-        for arg in kwargs.values():
-            if (tag := self.__try_qte(arg)) is not None:
-                qte_tags += tag
-        return qte_tags
-
-    def __try_qte(self, arg) -> str | None:
-        result: str | None = None
-        if isinstance(arg, str):
-            if 'QTE' in arg:
-                result = arg
-        else:
-            try:
-                if 'QTE' in arg.skill_tag:
-                    result = arg.skill_tag
-            except AttributeError:
-                pass
+    def __qte_tag_filter(self, tag: str) -> list[str]:
+        result = []
+        if 'QTE' in tag:
+            result.append(tag)
         return result
 
     def update_anomaly(self, element: str | int = "ALL", *, times: int = 1) -> None:
@@ -309,11 +289,18 @@ class Enemy:
         """获取当前失衡值百分比的方法"""
         return self.dynamic.stun_bar / self.max_stun
 
-    def __qte_counter(self, *args, **kwargs) -> None:
-        qte_tags: list[str] = self.__qte_tag_filter(*args, **kwargs)
-        diff_tags = set(qte_tags) - set(self.dynamic.QTE_received_tag)
+    def __qte_counter(self, tag: str) -> None:
+        qte_tags: list[str] = self.__qte_tag_filter(tag)
+        diff_tags: set[str] = set(qte_tags) - set(self.dynamic.QTE_received_tag)
         self.dynamic.QTE_received_tag += qte_tags
-        self.dynamic.QTE_triggered_times += len(diff_tags)
+        for tag in diff_tags:
+            if tag.split('_')[0] == self.dynamic.QTE_received_tag[-1].split('_')[0] and tag != \
+                    self.dynamic.QTE_received_tag[-1]:
+                # 若本次输入的tag与上一次输入的源角色一致，且不是相同技能，则不增加触发次数（反逻辑）
+                pass
+            else:
+                # 其余情况默认+1
+                self.dynamic.QTE_triggered_times += 1
         if self.dynamic.QTE_triggered_times > self.QTE_triggerable_times:
             raise ValueError("QTE触发次数超过上限")
 

@@ -1,6 +1,8 @@
 import json
 import sys
 from functools import lru_cache
+from typing import Generator
+
 import numpy as np
 
 import Buff
@@ -72,7 +74,7 @@ class MultiplierData:
                 report_to_log(f"[WARNING] dynamic_buff 中依然找不到动态buff列表", level=4)
                 enemy_buff: list = []
         enabled_buff: tuple = tuple(char_buff + enemy_buff)
-        dynamic_statement: dict = self.__cal_buff_total_bonus(enabled_buff)
+        dynamic_statement: dict = self.cal_buff_total_bonus(enabled_buff)
         return dynamic_statement
 
     class StaticStatement:
@@ -143,7 +145,7 @@ class MultiplierData:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def __cal_buff_total_bonus(enabled_buff: tuple) -> dict:
+    def cal_buff_total_bonus(enabled_buff: tuple[Buff] | Generator) -> dict:
         """
         计算角色buff的总加成。
 

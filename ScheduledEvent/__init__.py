@@ -13,7 +13,7 @@ from Buff.BuffExist_Judge import buff_exist_judge
 from Character import Character
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator, MultiplierData
-from single_hit import SingleHit
+from data_struct import SingleHit, SPUpdateData
 
 
 class ScConditionData:
@@ -63,8 +63,8 @@ class ScheduledEvent:
         for char in self.data.char_obj_list:
             char: Character
             # EXPLAIN：MultiplierData是个类，包含了角色的所有信息，包括静态面板、动态面板。
-            mul = MultiplierData(character_obj=char, dynamic_buff=self.data.dynamic_buff, enemy_obj=self.data.enemy)
-            char.update_sp_and_decibel(mul)
+            sp_update_date = SPUpdateData(char_obj=char, dynamic_buff=self.data.dynamic_buff)
+            char.update_sp_and_decibel(sp_update_date)
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff

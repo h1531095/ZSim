@@ -2,7 +2,7 @@ import pandas as pd
 
 from .skill_class import Skill, lookup_name_or_cid
 from Report import report_to_log
-from .filters import _skill_node_filter, _multiplier_filter
+from .filters import _skill_node_filter, _sp_update_data_filter
 import logging
 from define import *
 
@@ -553,8 +553,8 @@ class Character:
                 if self.sp <= sp_threshold:
                     print(f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树")
                 sp_change = sp_recovery - sp_consume
-                # self.sp += sp_change
-                self.sp = max(0.0, min(self.sp + sp_change, self.sp_limit))
+                self.sp += sp_change
+                self.sp = max(0.0, min(self.sp, self.sp_limit))
             # Decibel
             if f"{self.CID}_Q" in node.skill_tag:
                 if self.decibel < 3000:
@@ -567,13 +567,13 @@ class Character:
                 if node.char_name == self.NAME:
                     self_decibel_change = node.skill.self_fever_re
                 decibel_change = all_decibel_change + self_decibel_change
-                # self.decibel += decibel_change
-                self.decibel = max(0.0, min(self.decibel + decibel_change, 3000))
+                self.decibel += decibel_change
+                self.decibel = max(0.0, min(self.decibel, 3000))
         # SP recovery over time
-        mul_data = _multiplier_filter(*args, **kwargs)
+        mul_data = _sp_update_data_filter(*args, **kwargs)
         for mul in mul_data:
             if mul.char_name == self.NAME:
-                sp_change_2 = mul.static.sp_regen + mul.dynamic.field_sp_regen
+                sp_change_2 = mul.get_sp_regen()
                 self.sp += sp_change_2 / 60
 
     def special_resources(self, *args, **kwargs) -> None:

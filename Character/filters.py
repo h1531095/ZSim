@@ -17,7 +17,19 @@ def _multiplier_filter(*args, **kwargs) -> list:
     for arg in args:
         if isinstance(arg, MultiplierData):
             multiplier_data.append(arg)
-    for value in kwargs.items():
+    for value in kwargs.values():
         if isinstance(value, MultiplierData):
             multiplier_data.append(value)
     return multiplier_data
+
+def _sp_update_data_filter(*args, **kwargs) -> list:
+    """过滤出输入的 SPUpdateData，并作为列表返回"""
+    from data_struct import SPUpdateData
+    sp_update_data: list[SPUpdateData] = []
+    for arg in args:
+        if isinstance(arg, SPUpdateData):
+            sp_update_data.append(arg)
+    for value in kwargs.values():
+        if isinstance(value, SPUpdateData):
+            sp_update_data.append(value)
+    return sp_update_data
