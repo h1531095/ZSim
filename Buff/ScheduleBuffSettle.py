@@ -1,11 +1,10 @@
-import Enemy
 import Load
 import sys
 from Buff.buff_class import Buff
 from Buff.BuffAdd import add_debuff_to_enemy
 
 
-def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy: Enemy.Enemy, DYNAMIC_BUFF_DICT: dict, action_stack: Load.ActionStack):
+def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy, DYNAMIC_BUFF_DICT: dict, action_stack):
     for char_name, sub_exist_buff_dict in exist_buff_dict.items():
         main_module = sys.modules['__main__']
         name_box_now = main_module.load_data.name_box + ['enemy']

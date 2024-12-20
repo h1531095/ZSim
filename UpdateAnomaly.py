@@ -1,7 +1,6 @@
 from AnomalyBar import AnomalyBar
 from AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
 from copy import deepcopy
-import Enemy
 import importlib
 from Buff.BuffAddStrategy import BuffAddStrategy
 from Dot.BaseDot import Dot
@@ -33,7 +32,7 @@ def spawn_output(anomaly_bar, mode_number):
     return output
 
 
-def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy: Enemy.Enemy, new_anomaly, element_type):
+def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy, new_anomaly, element_type):
     """
     该函数的作用是创建属性异常附带的debuff和dot，
     debuff与dot的index写在了Anomaly.accompany_debuff和Anomaly.accompany_dot里。
@@ -55,7 +54,7 @@ def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy: Enemy.Enemy, new
             # event_list.append(new_dot)
 
 
-def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list, char_obj_list: list):
+def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, char_obj_list: list):
     """
     该函数需要在Loading阶段，submission是End的时候运行。
     用于判断该次属性异常触发应该是新建、替换还是触发紊乱。
