@@ -208,7 +208,7 @@ class Character:
         self.baseCRIT_score: float = 60
         self.sp_get_ratio: float = 1  # 能量获得效率
         self.sp_limit: int = sp_limit
-        # self.sp: float = 42.0
+        # self.sp: float = 40.0
         self.sp: float = 0
         # self.decibel: float = 1000.0
         self.decibel: float = 0
@@ -550,13 +550,13 @@ class Character:
                 sp_consume = node.skill.sp_consume
                 sp_threshold = node.skill.sp_threshold
                 sp_recovery = node.skill.sp_recovery
-                if self.sp <= sp_threshold:
+                if self.sp < sp_threshold:
                     print(f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树")
                 sp_change = sp_recovery - sp_consume
                 self.sp += sp_change
                 self.sp = max(0.0, min(self.sp, self.sp_limit))
             # Decibel
-            if f"{self.CID}_Q" in node.skill_tag:
+            if f"{self.CID}_Q" in node.skill_tag and 'QTE' not in node.skill_tag:
                 if self.decibel < 3000:
                     print(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
                     # TODO：snow说这里要改成>的逻辑，还说什么1e-5反正听不懂，交给他了。

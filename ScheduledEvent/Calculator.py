@@ -145,7 +145,7 @@ class MultiplierData:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def cal_buff_total_bonus(enabled_buff: tuple[Buff] | Generator) -> dict:
+    def cal_buff_total_bonus(enabled_buff: tuple | Generator) -> dict:
         """
         计算角色buff的总加成。
 

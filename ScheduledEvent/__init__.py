@@ -13,7 +13,7 @@ from Buff.BuffExist_Judge import buff_exist_judge
 from Character import Character
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator, MultiplierData
-from data_struct import SingleHit, SPUpdateData
+from data_struct import SingleHit, SPUpdateData, ActionStack
 
 
 class ScConditionData:
@@ -34,7 +34,7 @@ class ScheduledEvent:
     2、遍历事件列表，从开始到结束，将每一个事件派发到分支逻辑链内进行处理
     """
 
-    def __init__(self, dynamic_buff: dict, data, tick: int, exist_buff_dict: dict, action_stack: Load.ActionStack, *, loading_buff: dict = None, judging_buff: dict = None):
+    def __init__(self, dynamic_buff: dict, data, tick: int, exist_buff_dict: dict, action_stack: ActionStack, *, loading_buff: dict = None, judging_buff: dict = None):
 
         self.data = data
         self.data.dynamic_buff = dynamic_buff
