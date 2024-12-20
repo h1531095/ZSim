@@ -23,7 +23,7 @@ class APLCondition:
         elif "buff" in condition:
             judge_code = condition.split(":")[-2].strip(), condition.split(":")[-1].strip()
             # EXPLAIN：judge_code = (buff.ft.index, condition)
-
+            return self.evaluate_buff_conditions(char_CID, judge_code)
         elif "energy" in condition:
             compared_value = char.sp
             return compare_method(compared_value, condition)
@@ -77,13 +77,29 @@ class APLCondition:
             hole_string = first_half + judge_code
             return eval(hole_string, {}, {"self": self})
 
-    def get_buff_status(self, char_CID, judge_code: tuple):
+    def evaluate_buff_conditions(self, char_CID, judge_code: tuple) -> bool:
+        """
+        该函数用于处理Buff类的判定条件，并最终输出布尔值。
+        """
         buff_index = judge_code[0]
         char = self.find_char(char_CID)
         condition_code = judge_code[1]
+        buff = self.find_buff(char, buff_index)
+        if buff is None:
+            return False
         if "count" in condition_code:
-            compared_value = self.game_state[""]
-            # TODO：未完待续
+            compared_value = buff.dy.count
+            return compare_method(compared_value, condition_code)
+
+    def find_buff(self, char, buff_index):
+        for buffs in self.game_state["global_stats"].DYNAMIC_BUFF_DICT[char.NAME]:
+            if buffs.ft.index == buff_index:
+                return buffs
+        else:
+            return None
+
+
+
 
 
 def compare_method(compared_value, condition: str):

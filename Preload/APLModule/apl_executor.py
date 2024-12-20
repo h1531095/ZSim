@@ -46,11 +46,11 @@ class APLExecutor:
     def perform_action(self, CID, action: str):
         self.game_state = self.get_game_state()
         if action == 'auto_NA':
-            last_action = self.game_state['preload'].preload_data.last_node.skill_tag
-            if last_action in self.NA_action_dict[CID]:
-                output = self.NA_action_dict[CID][last_action]
-            elif last_action is None:
+            last_action = self.game_state['preload'].preload_data.last_node
+            if last_action is None:
                 output = f'{CID}_NA_1'
+            elif last_action.skill_tag in self.NA_action_dict[CID]:
+                output = self.NA_action_dict[CID][last_action.skill_tag]
             else:
                 output = f'{CID}_NA_1'
         else:

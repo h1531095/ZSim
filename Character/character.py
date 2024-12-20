@@ -208,8 +208,10 @@ class Character:
         self.baseCRIT_score: float = 60
         self.sp_get_ratio: float = 1  # 能量获得效率
         self.sp_limit: int = sp_limit
-        self.sp: float = 42.0
-        self.decibel: float = 1000.0
+        # self.sp: float = 42.0
+        self.sp: float = 0
+        # self.decibel: float = 1000.0
+        self.decibel: float = 0
 
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
@@ -565,7 +567,7 @@ class Character:
                 if node.char_name == self.NAME:
                     self_decibel_change = node.skill.self_fever_re
                 decibel_change = all_decibel_change + self_decibel_change
-                self.decibel += decibel_change
+                # self.decibel += decibel_change
                 self.decibel = max(0.0, min(self.decibel + decibel_change, 3000))
         # SP recovery over time
         mul_data = _multiplier_filter(*args, **kwargs)
