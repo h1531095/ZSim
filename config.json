@@ -11,7 +11,7 @@
     "crit_balancing": true
   },
   "apl_mode":{
-    "enabled": false,
+    "enabled": true,
     "na_order": "./Preload/APLModule/DefaultConfig/NAOrder.json"
   },
   "database":{

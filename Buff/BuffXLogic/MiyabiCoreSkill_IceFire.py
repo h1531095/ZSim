@@ -2,6 +2,9 @@ from Buff import Buff
 from Buff import JudgeTools
 from ScheduledEvent import Calculator
 from ScheduledEvent.Calculator import MultiplierData
+from Character.skill_class import Skill
+from Character import Character
+import Preload
 import sys
 
 
@@ -18,16 +21,18 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         self.xexit = self.special_exit_logic
         self.xhit = self.special_hit_logic
         self.last_frostbite = False
-
+        self.char = None
+        self.main_module = None
     def special_judge_logic(self):
         """
         这个复杂判断逻辑需要同时检索当前技能的element_type，
         以及enemy的debuff_list有没有霜灼，
         两者都通过，才会return True
         """
-        main_module = sys.modules['__main__']
-        enemy = main_module.schedule_data.enemy
-        action_stack = main_module.load_data.action_stack
+        if self.main_module is None:
+            self.main_module = sys.modules['__main__']
+        enemy = self.main_module.schedule_data.enemy
+        action_stack = self.main_module.load_data.action_stack
         mission_now = action_stack.peek()
         debuff_list = enemy.dynamic.dynamic_debuff_list
         if mission_now.mission_node.skill.element_type != 5:
@@ -45,8 +50,10 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         """
         冰焰buff的退出机制是检测到霜寒的上升沿就退出
         """
-        main_module = sys.modules['__main__']
-        enemy = main_module.schedule_data.enemy
+        if self.main_module is None:
+            self.main_module = sys.modules['__main__']
+        enemy = self.main_module.schedule_data.enemy
+        event_list = self.main_module.schedule_data.event_list
         frostbite_now = enemy.dynamic.frostbite
         if frostbite_now is None:
             frostbite_now = False
@@ -56,9 +63,10 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         self.last_frostbite = frostbite_now
         # print(f'当前tick，冰焰退出情况：{result}')
         if result:
-            # TODO：霜灼破的添加！
-            pass
-
+            skill_obj = self.char.skills_dict["1091_Core_Passive"]
+            skill_node = Preload.SkillNode(skill_obj, 0)
+            event_list.append(skill_node)
+            self.char.special_resources(skill_node)
         return result
 
     def special_hit_logic(self):
@@ -67,28 +75,23 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         这个效果本应该是随动的，不需要buff判定通过才改变层数，
         但是如果buff判定不通过，那么烈霜伤害，该buff层数的变动就没有实际意义，
         """
-        main_module = sys.modules['__main__']
-        char_list = main_module.char_data.char_obj_list
-        enemy = main_module.schedule_data.enemy
-        dynamic_buff = main_module.global_stats.DYNAMIC_BUFF_DICT
-        buff_0 = main_module.load_data.exist_buff_dict['雅'][self.buff_instance.ft.index]
+        if self.main_module is None:
+            self.main_module = sys.modules['__main__']
+        char_list = self.main_module.char_data.char_obj_list
+        enemy = self.main_module.schedule_data.enemy
+        dynamic_buff = self.main_module.global_stats.DYNAMIC_BUFF_DICT
+        buff_0 = self.main_module.load_data.exist_buff_dict['雅'][self.buff_instance.ft.index]
         buff_i = self.buff_instance
         buff_i.dy.active = True
-        buff_i.dy.startticks = main_module.tick
-        buff_i.dy.endticks = main_module.tick + buff_i.ft.maxduration
-        for _ in char_list:
-            if _.CID == 1091:
-                character = _
-                mul_data = MultiplierData(enemy, dynamic_buff, character)
-                break
-        else:
-            raise ValueError(f'char_list中并未找到角色雅')
+        buff_i.dy.startticks = self.main_module.tick
+        buff_i.dy.endticks = self.main_module.tick + buff_i.ft.maxduration
+        if self.char is None:
+            self.char = JudgeTools.find_char(1091, char_list)
+        mul_data = MultiplierData(enemy, dynamic_buff, self.char)
         cric_rate = Calculator.RegularMul.cal_crit_rate(mul_data)
         count = min(cric_rate, 0.8)*100
         # print(cric_rate, count)
         buff_i.dy.count = min(count, buff_0.ft.maxcount)
         buff_i.dy.is_changed = True
         buff_i.update_to_buff_0(buff_0)
-
-        
 

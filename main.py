@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import Buff
+from define import APL_MODE
 import Load
 import Preload
 import Report
@@ -12,10 +13,10 @@ from Update_Buff import update_dynamic_bufflist
 
 @dataclass
 class InitData:
-    name_box = ['苍角', '柏妮思', '雅']
+    name_box = ['莱特', '苍角', '雅']
     Judge_list_set = [['雅', '霰落星殿', '折枝剑歌'],
-                      ['柏妮思', '含羞恶面', '自由蓝调'],
-                      ['苍角', '燃狱齿轮', '镇星迪斯科']]
+                      ['苍角', '含羞恶面', '自由蓝调'],
+                      ['莱特', '拘缚者', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
               'weapon': '霰落星殿', 'weapon_level': 1,
               'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
@@ -27,7 +28,7 @@ class InitData:
               'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
               'scATK_percent': 10, 'scCRIT': 20}
     char_0 = {'name' : name_box[0],
-              'weapon': '燃狱齿轮', 'weapon_level': 1,
+              'weapon': '拘缚者', 'weapon_level': 1,
               'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
               'drive4' : '暴击率', 'drive5' : '火属性伤害', 'drive6' : '冲击力%',
               'scATK_percent': 10, 'scCRIT': 20}
@@ -109,14 +110,18 @@ game_state = {
     "char_data": char_data,
     "load_data": load_data,
     "schedule_data": schedule_data,
-    "global_stats": global_stats
+    "global_stats": global_stats,
+    "preload": preload
 }
 
 
 def main_loop(stop_tick: int | None = None):
     global tick
     tick = 0
+    tick_limit = 6000
     while True:
+        if tick > tick_limit and APL_MODE:
+            break
         # Tick Update
         report_to_log(f"[Update] Tick step to {tick}")
         update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
@@ -126,8 +131,9 @@ def main_loop(stop_tick: int | None = None):
         preload_list = preload.preload_data.preloaded_action
 
         if stop_tick is None:
-            if len(preload.preload_data.skills_queue) == 0:
+            if not APL_MODE and (preload.preload_data.skills_queue) == 0:
                 stop_tick = tick + 120
+                # FIXME：snow你要写什么？？？？？
         elif tick >= stop_tick:
             break
 
@@ -136,7 +142,7 @@ def main_loop(stop_tick: int | None = None):
             Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick, load_data.action_stack)
         Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT, load_data.all_name_order_box)
         Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
-        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
+        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, char_data.char_obj_list)
         # ScheduledEvent
         scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick, load_data.exist_buff_dict, load_data.action_stack)
         scheduled.event_start()

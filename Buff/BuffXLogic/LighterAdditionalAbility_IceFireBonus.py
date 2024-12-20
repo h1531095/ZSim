@@ -1,6 +1,7 @@
 from Buff import Buff
 from ScheduledEvent import Calculator
 from ScheduledEvent.Calculator import MultiplierData
+from Buff.JudgeTools import find_char
 import sys
 
 
@@ -25,19 +26,16 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         self.buff_instance = buff_instance
         # 初始化特定逻辑
         self.xhit = self.special_hit_logic
+        self.char = None
 
     def special_hit_logic(self):
         main_module = sys.modules['__main__']
         enemy = main_module.schedule_data.enemy
         dynamic_buff = main_module.global_stats.DYNAMIC_BUFF_DICT
         char_list = main_module.char_data.char_obj_list
-        for _ in char_list:
-            if _.CID == 1161:
-                character = _
-                mul_data = MultiplierData(enemy, dynamic_buff, character)
-                break
-        else:
-            raise ValueError(f'char_list中并未找到角色莱特')
+        if self.char is None:
+            self.char = find_char(1161, char_list)
+        mul_data = MultiplierData(enemy, dynamic_buff, self.char)
         buff_0 = main_module.load_data.exist_buff_dict['莱特'][self.buff_instance.ft.index]
         buff_i = self.buff_instance
         buff_i.dy.active = True

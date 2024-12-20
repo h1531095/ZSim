@@ -283,6 +283,16 @@ class Enemy:
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"
 
+
+# TODO：剩余可连携次数
+# TODO：怪物的扣血逻辑。
+# TODO：获取当前生命之百分比的函数
+# TODO：获取当前失衡值百分比的函数
+# TODO：露西的数据库录入
+# 遥远的需求：
+# TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
+
+
 if __name__ == '__main__':
     test = Enemy(enemy_index_ID=11432, enemy_sub_ID=900011432)
     print(test.ice_anomaly_bar.max_anomaly)

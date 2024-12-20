@@ -53,12 +53,17 @@ CID|actions+=|action_name|condition1|condition2|...
 
 ### 条件关键字
 
+#### 比较符：
+
+-  `>` `<` `==` `<=` `>=` `!=` ：常规比较
+- 
+
 #### 与资源相关：
 - `energy>=N`：检查角色的能量值是否大于或等于 `N`。
-- `special_resource<N`：检查角色的特殊资源是否小于 `N`。
+- `esource<N`：检查角色的特殊资源是否小于 `N`。
 
 #### 与Buff持续时间相关***（格式应该还要改）***：
-- `buff_index.active=True`：检查`dynamic_buff_dict`中是否存在对应的Buff(可能涉及到循环，性能问题待优化)
+- `buff_index.active=True`：检查`dynamic_buff_dict`中是否存在对应的Buff(可能涉及到循环，性能问题待优化)  
 - `buff_index.dy.count<N`：检查Buff的当前层数是否小于 `N` 。
 
 #### 与敌人状态相关：
@@ -72,7 +77,8 @@ CID|actions+=|action_name|condition1|condition2|...
 
 #### 与上一个技能相关：
 
-- **`last_action=skill_tag`**：检查上一个技能的情况。
+- **`after:last_skill_tag`**：检查上一个技能的标签。
+- 
 
 ---
 

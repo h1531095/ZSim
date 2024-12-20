@@ -1,5 +1,5 @@
 import pandas as pd
-
+from define import APL_MODE
 from LinkedList import LinkedList
 from Report import report_to_log
 from Character.skill_class import Skill
@@ -130,14 +130,15 @@ def get_skills_queue(preload_table: pd.DataFrame,
 
     preload_tick_stamp: int = 0  # 初始化预加载的tick
     # 遍历所提供的技能列表的所有tag
-    for tag in preload_skills:
-        try:
-            node = spawn_node(tag, preload_tick_stamp, *skills)
-            skills_queue.add(node)
-            preload_tick_stamp += node.skill.ticks
-            report_to_log(f"[PRELOAD]:预加载节点 {tag} 已创建，将在 {preload_tick_stamp} 执行", level=2)
-        except ValueError as e:
-            raise ValueError(str(e))
+    if not APL_MODE:
+        for tag in preload_skills:
+            try:
+                node = spawn_node(tag, preload_tick_stamp, *skills)
+                skills_queue.add(node)
+                preload_tick_stamp += node.skill.ticks
+                report_to_log(f"[PRELOAD]:预加载节点 {tag} 已创建，将在 {preload_tick_stamp} 执行", level=2)
+            except ValueError as e:
+                raise ValueError(str(e))
 
     return preload_tick_stamp, skills_queue
 

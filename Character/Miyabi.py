@@ -49,7 +49,11 @@ class Miyabi(Character):
             if self.frosty <= 6:
                 if node.skill_tag in ['1091_E_EX_A_1', '1091_E_EX_B_1']:
                     self.frosty += 2
-                elif node.skill_tag == '1091_Shatter' and not self._shatter_internal_cd():
+                elif node.skill_tag == '1091_Core_Passive' and not self._shatter_internal_cd():
+                    """
+                    霜灼·破的产生，在冰焰buff的exist逻辑里。
+                    在exist逻辑返回True之前，会把霜灼破扔给special_resources以及eventlist
+                    """
                     self.frosty += 1
                 elif node.skill_tag == '1091_Q':
                     self.frosty += 3
@@ -87,4 +91,4 @@ class Miyabi(Character):
             return False
 
     def get_resources(self):
-        return self.frosty
+        return '落霜', self.frosty

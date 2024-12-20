@@ -1,9 +1,7 @@
 from .apl_condition import APLCondition
 import json
-import os
 import sys
 from define import APL_NA_ORDER_PATH
-
 
 
 class APLExecutor:
@@ -23,10 +21,12 @@ class APLExecutor:
             self.NA_action_dict = {}
 
     def execute(self):
+        if self.game_state is None:
+            self.get_game_state()
         # 找到第一个符合条件的动作并执行
         for action in self.actions_list:
             if action['conditions']:
-                if all(APLCondition().evaluate(action, cond) for cond in action['conditions']):
+                if all(APLCondition(self.game_state).evaluate(action, cond) for cond in action['conditions']):
                     return self.perform_action(action['CID'], action["action"])
             else:
                 return self.perform_action(action['CID'], action["action"])
@@ -46,9 +46,9 @@ class APLExecutor:
     def perform_action(self, CID, action: str):
         self.game_state = self.get_game_state()
         if action == 'auto_NA':
-            last_action = self.game_state['load_data'].action_stack.peek_bottom().mission_tag
-            if last_action in self.NA_action_dict:
-                output = self.NA_action_dict[last_action]
+            last_action = self.game_state['preload'].preload_data.last_node.skill_tag
+            if last_action in self.NA_action_dict[CID]:
+                output = self.NA_action_dict[CID][last_action]
             elif last_action is None:
                 output = f'{CID}_NA_1'
             else:

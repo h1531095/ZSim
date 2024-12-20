@@ -1,4 +1,5 @@
 from Buff import Buff
+from Buff.JudgeTools import find_char
 from Character.Lighter import Lighter
 import sys
 
@@ -23,12 +24,8 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
         """
         module_main = sys.modules['__main__']
         char_list = module_main.char_data.char_obj_list
-        for _ in char_list:
-            if isinstance(_, Lighter):
-                self.char_lighter = _
-                break
-        else:
-            raise ValueError(f'char_obj_list中并未找到莱特！')
+        if self.char_lighter is None:
+            self.char_lighter = find_char(1161, char_list)
         if self.char_lighter.morale > 10000:
             raise ValueError(f'snow又写错了')
         if self.last_morale > self.char_lighter.morale:

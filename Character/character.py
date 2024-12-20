@@ -551,12 +551,13 @@ class Character:
                 if self.sp <= sp_threshold:
                     print(f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树")
                 sp_change = sp_recovery - sp_consume
-                self.sp += sp_change
+                # self.sp += sp_change
                 self.sp = max(0.0, min(self.sp + sp_change, self.sp_limit))
             # Decibel
-            if f"{self.CID}-Q" in node.skill_tag:
-                if self.decibel <= 3000:
+            if f"{self.CID}_Q" in node.skill_tag:
+                if self.decibel < 3000:
                     print(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
+                    # TODO：snow说这里要改成>的逻辑，还说什么1e-5反正听不懂，交给他了。
                 self.decibel = 0
             else:
                 all_decibel_change = node.skill.fever_recovery
