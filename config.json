@@ -4,7 +4,7 @@
     "level": 4
   },
   "watchdog": {
-    "enabled": true,
+    "enabled": false,
     "level": 4
   },
   "character":{

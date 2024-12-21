@@ -9,6 +9,7 @@ from Character import Character, character_factory
 from Enemy import Enemy
 from Report import write_to_csv, report_to_log
 from Update_Buff import update_dynamic_bufflist
+from data_struct import ActionStack
 
 
 @dataclass
@@ -57,7 +58,7 @@ class LoadData:
     name_box: list
     Judge_list_set: list
     weapon_dict: dict
-    action_stack: Load.ActionStack
+    action_stack: ActionStack
     exist_buff_dict: dict = field(init=False)
     load_mission_dict = {}
     LOADING_BUFF_DICT = {}
@@ -99,7 +100,7 @@ load_data = LoadData(
         name_box=init_data.name_box,
         Judge_list_set=init_data.Judge_list_set,
         weapon_dict=init_data.weapon_dict,
-        action_stack=Load.ActionStack())
+        action_stack=ActionStack())
 schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11752), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
 skills = (char.skill_object for char in char_data.char_obj_list)
