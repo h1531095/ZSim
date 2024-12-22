@@ -113,9 +113,15 @@ class Enemy:
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
+    def __restore_stun_recovery_time(self):
+        self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
+
     def restore_stun(self):
         """还原 Enemy 本身的失衡恢复时间，与QTE计数"""
-        self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
+        self.dynamic.stun = False
+        self.dynamic.stun_bar = 0
+        self.dynamic.stun_tick = 0
+        self.__restore_stun_recovery_time()
         self.dynamic.QTE_triggered_times = 0
         self.dynamic.QTE_received_tag = []
 
@@ -126,7 +132,7 @@ class Enemy:
         else:
             if increase_tick >= self.__last_stun_increase_tick:
                 self.__last_stun_increase_tick = increase_tick
-                self.restore_stun()
+                self.__restore_stun_recovery_time()
                 self.stun_recovery_time += increase_tick
 
 
@@ -303,6 +309,8 @@ class Enemy:
                 self.dynamic.QTE_triggered_times += 1
         if self.dynamic.QTE_triggered_times > self.QTE_triggerable_times:
             raise ValueError("QTE触发次数超过上限")
+        print(self.dynamic.QTE_triggered_times)
+        print(self.dynamic.QTE_received_tag)
 
     def __HP_update(self, dmg_expect: np.float64) -> None:
         self.dynamic.lost_hp += dmg_expect

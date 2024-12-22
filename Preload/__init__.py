@@ -27,7 +27,7 @@ class PreloadData:
         self.last_node: SkillNode | None = None
 
 
-def stun_judge(enemy) -> bool:
+def stun_judge(enemy: Enemy) -> bool:
     """
     判断敌人是否处于 失衡 状态，并更新 失衡 状态
     """
@@ -37,9 +37,6 @@ def stun_judge(enemy) -> bool:
     if enemy.dynamic.stun:
         # Stunned, count the time and reset when stun time is out.
         if enemy.stun_recovery_time <= enemy.dynamic.stun_tick:
-            enemy.dynamic.stun = False
-            enemy.dynamic.stun_bar = 0
-            enemy.dynamic.stun_tick = 0
             enemy.restore_stun()
         else:
             enemy.dynamic.stun_tick += 1
