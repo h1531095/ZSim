@@ -4,7 +4,7 @@ class ActionStack:
     功能类似于wow的插件TrufigGCD。但是长度只有2，因为只需要记录“上一个动作”和“当前动作”
     """
     def __init__(self):
-        # 初始化一个空的栈
+        # 初始化一个空的栈，用列表作为基础
         self.stack = []
 
     def push(self, item):
@@ -17,7 +17,6 @@ class ActionStack:
     def pop(self):
         """从栈顶弹出一个元素"""
         if self.is_empty():
-            print("栈为空，无法弹出元素！")
             return None
         else:
             return self.stack.pop()
@@ -27,22 +26,34 @@ class ActionStack:
         if not self.is_empty():
             return self.stack[-1]
         else:
-            print("栈为空！")
             return None
 
     def is_empty(self):
         """判断栈是否为空"""
         return len(self.stack) == 0
 
-    def size(self):
-        """返回栈中元素的个数"""
-        return len(self.stack)
-
     def peek_bottom(self):
         """查看栈底元素"""
         if not self.is_empty():
             return self.stack[0]
         else:
-            print("栈为空！")
             return None
 
+    def __len__(self): 
+        return len(self.stack)
+    
+    def __str__(self):
+        return str(self.stack)
+    
+    def __iter__(self): 
+        return iter(self.stack)
+    
+    def __getitem__(self, index):
+        return self.stack[index]
+    
+    def __eq__(self, value: object) -> bool:
+        return self.stack == value or self.stack == getattr(value, 'stack', None)
+    
+    def __ne__(self, value: object) -> bool:
+        return not self.__eq__(value)
+    
