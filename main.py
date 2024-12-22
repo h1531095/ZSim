@@ -22,17 +22,20 @@ class InitData:
               'weapon': '霰落星殿', 'weapon_level': 1,
               'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
               'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
-              'scATK_percent': 10, 'scCRIT': 20}
+              'scATK_percent': 10, 'scCRIT': 20,
+              'cinema': 0}
     char_1 = {'name' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,
               'equip_set4': '摇摆爵士', 'equip_set2_a': '自由蓝调',
               'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
-              'scATK_percent': 10, 'scCRIT': 20}
+              'scATK_percent': 10, 'scCRIT': 20,
+              'cinema': 0}
     char_0 = {'name' : name_box[0],
               'weapon': '拘缚者', 'weapon_level': 1,
               'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
               'drive4' : '暴击率', 'drive5' : '火属性伤害', 'drive6' : '冲击力%',
-              'scATK_percent': 10, 'scCRIT': 20}
+              'scATK_percent': 10, 'scCRIT': 20,
+              'cinema': 0}
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
                    name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
@@ -116,7 +119,7 @@ game_state = {
 }
 
 
-def main_loop(stop_tick: int | None = 60000):
+def main_loop(stop_tick: int | None = 600000):
     global tick
     tick = 0
     while True:

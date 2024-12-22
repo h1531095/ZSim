@@ -15,7 +15,8 @@ class Character:
                  drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
                  scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
                  scPEN=0, scCRIT=0,  # 副词条数量-选填项
-                 sp_limit=120  # 能量上限-默认120
+                 sp_limit=120,  # 能量上限-默认120
+                 cinema=0
                  ):
         """
         调用时，会生成包含全部角色基础信息的对象，自动从数据库中查找全部信息
@@ -202,9 +203,10 @@ class Character:
         self.PEN_numeric = 0
 
         # 单独初始化的各组件
-        self.level = 60
-        self.weapon_ID = weapon
-        self.weapon_level = weapon_level
+        self.level: int = 60
+        self.weapon_ID: str = weapon
+        self.weapon_level: int = weapon_level
+        self.cinema: int = cinema
         self.baseCRIT_score: float = 60
         self.sp_get_ratio: float = 1  # 能量获得效率
         self.sp_limit: int = sp_limit

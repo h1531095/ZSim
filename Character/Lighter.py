@@ -7,22 +7,8 @@ from .filters import _skill_node_filter
 
 
 class Lighter(Character):
-    def __init__(self,
-                 name: str = '', CID: int = None,  # 角色名字和CID-必填至少一个
-                 weapon=None, weapon_level=1,  # 武器名字-选填项
-                 equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
-                 drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
-                 scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
-                 scPEN=0, scCRIT=0,  # 副词条数量-选填项
-                 sp_limit=120  # 能量上限-默认120
-                 ):
-        super().__init__(
-                name, CID,
-                weapon, weapon_level,
-                equip_set4, equip_set2_a, equip_set2_b, equip_set2_c,
-                drive4, drive5, drive6,
-                scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT,
-                sp_limit)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.morale: int = 4000  # 士气初始40 整形为4000
         self.last_tick: int = 0
 
