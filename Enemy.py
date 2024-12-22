@@ -296,21 +296,22 @@ class Enemy:
         return self.dynamic.stun_bar / self.max_stun
 
     def __qte_counter(self, tag: str) -> None:
-        qte_tags: list[str] = self.__qte_tag_filter(tag)
-        diff_tags: set[str] = set(qte_tags) - set(self.dynamic.QTE_received_tag)
-        self.dynamic.QTE_received_tag += qte_tags
-        for tag in diff_tags:
-            if tag.split('_')[0] == self.dynamic.QTE_received_tag[-1].split('_')[0] and tag != \
-                    self.dynamic.QTE_received_tag[-1]:
-                # 若本次输入的tag与上一次输入的源角色一致，且不是相同技能，则不增加触发次数（反逻辑）
-                pass
-            else:
-                # 其余情况默认+1
-                self.dynamic.QTE_triggered_times += 1
-        if self.dynamic.QTE_triggered_times > self.QTE_triggerable_times:
-            raise ValueError("QTE触发次数超过上限")
-        print(self.dynamic.QTE_triggered_times)
-        print(self.dynamic.QTE_received_tag)
+        if self.dynamic.stun:
+            qte_tags: list[str] = self.__qte_tag_filter(tag)
+            diff_tags: set[str] = set(qte_tags) - set(self.dynamic.QTE_received_tag)
+            self.dynamic.QTE_received_tag += qte_tags
+            for tag in diff_tags:
+                if tag.split('_')[0] == self.dynamic.QTE_received_tag[-1].split('_')[0] and tag != \
+                        self.dynamic.QTE_received_tag[-1]:
+                    # 若本次输入的tag与上一次输入的源角色一致，且不是相同技能，则不增加触发次数（反逻辑）
+                    pass
+                else:
+                    # 其余情况默认+1
+                    self.dynamic.QTE_triggered_times += 1
+            if self.dynamic.QTE_triggered_times > self.QTE_triggerable_times:
+                raise ValueError("QTE触发次数超过上限")
+            print(self.dynamic.QTE_triggered_times)
+            print(self.dynamic.QTE_received_tag)
 
     def __HP_update(self, dmg_expect: np.float64) -> None:
         self.dynamic.lost_hp += dmg_expect
