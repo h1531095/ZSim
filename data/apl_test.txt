@@ -2,6 +2,9 @@
 1091|actions+=|1091_E_EX_A_2|after:1091_E_EX_A_1|energy>=20
 #默认释放：第二段强化E的第二段伤害
 1091|actions+=|1091_E_EX_B_2|after:1091_E_EX_B_1|energy>=20
+#雅的连携技B、C段的衔接释放
+1091|actions+=|1091_QTE_C|after:1091_QTE_B|status:enemy.dynamic.stun==True
+1091|actions+=|1091_QTE_B|after:1091_QTE_A|status:enemy.dynamic.stun==True
 
 
 #莱特快速支援后的强化普攻连击，莱特的强化普攻，实战中，快速支援后狂点攻击键即可。
@@ -15,7 +18,7 @@
 #-------------------以上为默认逻辑，大部分操作不需要执行，忽视即可。-------------------
 #连携技释放
 1161|actions+=|1161_QTE|status:enemy.dynamic.stun==True|status:enemy.QTE_triggerable_times==3|status:enemy.dynamic.QTE_triggered_times==0
-1091|actions+=|1091_QTE_A|status:enemy.dynamic.stun==True|status:enemy.dynamic.QTE_triggered_times<=1
+1091|actions+=|1091_QTE_A|status:enemy.dynamic.stun==True|status:enemy.dynamic.QTE_triggered_times<1
 
 #满豆自动放满蓄力普攻
 1091|actions+=|1091_SNA_3|resource==6

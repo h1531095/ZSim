@@ -76,8 +76,6 @@ class APLCondition:
         if "enemy" in judge_code:
             first_half = 'self.game_state["schedule_data"].'
             hole_string = first_half + judge_code
-            # if 'QTE' in judge_code:
-            #     print(self.game_state["schedule_data"].enemy.dynamic.QTE_triggered_times)
             return eval(hole_string, {}, {"self": self})
 
     def evaluate_buff_conditions(self, char_CID, judge_code: tuple) -> bool:
