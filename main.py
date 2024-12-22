@@ -119,12 +119,12 @@ game_state = {
 }
 
 
-def main_loop(stop_tick: int | None = 600000):
+def main_loop(stop_tick: int | None = 60000):
     global tick
     tick = 0
     while True:
         # Tick Update
-        report_to_log(f"[Update] Tick step to {tick}")
+        # report_to_log(f"[Update] Tick step to {tick}")
         update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
 
         # Preload
