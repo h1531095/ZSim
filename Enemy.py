@@ -113,9 +113,15 @@ class Enemy:
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
+    def __restore_stun_recovery_time(self):
+        self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
+
     def restore_stun(self):
         """还原 Enemy 本身的失衡恢复时间，与QTE计数"""
-        self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
+        self.dynamic.stun = False
+        self.dynamic.stun_bar = 0
+        self.dynamic.stun_tick = 0
+        self.__restore_stun_recovery_time()
         self.dynamic.QTE_triggered_times = 0
         self.dynamic.QTE_received_tag = []
 
@@ -126,7 +132,7 @@ class Enemy:
         else:
             if increase_tick >= self.__last_stun_increase_tick:
                 self.__last_stun_increase_tick = increase_tick
-                self.restore_stun()
+                self.__restore_stun_recovery_time()
                 self.stun_recovery_time += increase_tick
 
 
@@ -218,6 +224,7 @@ class Enemy:
             pass
 
     def __qte_tag_filter(self, tag: str) -> list[str]:
+        """判断输入的标签是否为QTE，并作为列表返回"""
         result = []
         if 'QTE' in tag:
             result.append(tag)
@@ -277,9 +284,8 @@ class Enemy:
         self.__HP_update(single_hit.dmg_expect)
         # 更新异常值
         self.__anomaly_prod(single_hit.snapshot)
-        # TODO：露西的数据库录入
         # 遥远的需求：
-        # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
+    # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
 
     def get_hp_percentage(self) -> float:
         """获取当前生命值百分比的方法"""
@@ -290,19 +296,32 @@ class Enemy:
         return self.dynamic.stun_bar / self.max_stun
 
     def __qte_counter(self, tag: str) -> None:
-        qte_tags: list[str] = self.__qte_tag_filter(tag)
-        diff_tags: set[str] = set(qte_tags) - set(self.dynamic.QTE_received_tag)
-        self.dynamic.QTE_received_tag += qte_tags
-        for tag in diff_tags:
-            if tag.split('_')[0] == self.dynamic.QTE_received_tag[-1].split('_')[0] and tag != \
-                    self.dynamic.QTE_received_tag[-1]:
-                # 若本次输入的tag与上一次输入的源角色一致，且不是相同技能，则不增加触发次数（反逻辑）
-                pass
-            else:
-                # 其余情况默认+1
-                self.dynamic.QTE_triggered_times += 1
-        if self.dynamic.QTE_triggered_times > self.QTE_triggerable_times:
-            raise ValueError("QTE触发次数超过上限")
+        """
+        判断该技能是否会影响角色的QTE触发次数。
+
+        @param tag: 接受技能字符串
+        """
+        if self.dynamic.stun:
+            # 仅在失衡期才执行以下逻辑
+            qte_tags: list[str] = self.__qte_tag_filter(tag)
+            diff_tags: set[str] = set(qte_tags) - set(self.dynamic.QTE_received_tag)    # 获取新收到的QTE标签
+            self.dynamic.QTE_received_tag += list(diff_tags)    # 添加新收到的标签
+            for _tag in diff_tags:
+                # 对每一个新标进行判断，是否需要更新QTE触发次数
+                CID_tag = _tag.split('_')[0]
+                try:
+                    last_tag = self.dynamic.QTE_received_tag[-2]    # 获取上一次收到的标签
+                    CID_last = last_tag.split('_')[0]
+                except IndexError:  # 索引错误，说明是第一次收到QTE标签
+                    last_tag = None
+                    CID_last = None
+                if CID_tag == CID_last and _tag != last_tag:
+                    # 若本次输入的tag与上一次输入的源角色一致，且不是相同tag，则不增加触发次数
+                    pass
+                else:
+                    # 其余情况默认+1
+                    self.dynamic.QTE_triggered_times += 1
+            assert self.dynamic.QTE_triggered_times <= self.QTE_triggerable_times, "QTE触发次数超过上限"
 
     def __HP_update(self, dmg_expect: np.float64) -> None:
         self.dynamic.lost_hp += dmg_expect

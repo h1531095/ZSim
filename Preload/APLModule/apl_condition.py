@@ -10,7 +10,8 @@ class APLCondition:
         char_CID = sub_action_dict['CID']
         char = self.find_char(char_CID)
         action_name = sub_action_dict['action']
-        if char_CID != action_name[:4]:
+        if "auto_NA" not in action_name and char_CID != action_name[:4]:
+            print(action_name)
             raise ValueError(f'动作名称和角色的CID不同！')
 
         # 示例条件解析逻辑
