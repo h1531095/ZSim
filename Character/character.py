@@ -210,10 +210,10 @@ class Character:
         self.baseCRIT_score: float = 60
         self.sp_get_ratio: float = 1  # 能量获得效率
         self.sp_limit: int = sp_limit
-        # self.sp: float = 40.0
-        self.sp: float = 0
-        # self.decibel: float = 1000.0
-        self.decibel: float = 0
+        self.sp: float = 40.0
+        # self.sp: float = 0
+        self.decibel: float = 1000.0
+        # self.decibel: float = 0
 
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
