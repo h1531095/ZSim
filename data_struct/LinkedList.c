@@ -1901,6 +1901,15 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObjec
 #define __Pyx_PyUnicode_ConcatInPlaceSafe(left, right) ((unlikely((left) == Py_None) || unlikely((right) == Py_None)) ?\
     PyNumber_InPlaceAdd(left, right) : __Pyx_PyUnicode_ConcatInPlace(left, right))
 
+/* Import.proto */
+static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
+
+/* ImportDottedModule.proto */
+static PyObject *__Pyx_ImportDottedModule(PyObject *name, PyObject *parts_tuple);
+#if PY_MAJOR_VERSION >= 3
+static PyObject *__Pyx_ImportDottedModule_WalkParts(PyObject *module, PyObject *name, PyObject *parts_tuple);
+#endif
+
 /* IncludeStructmemberH.proto */
 #include <structmember.h>
 
@@ -2179,8 +2188,9 @@ static PyObject *__pyx_builtin_print;
 /* #### Code section: string_decls ### */
 static const char __pyx_k__2[] = " -> ";
 static const char __pyx_k__3[] = "";
-static const char __pyx_k__23[] = "_";
-static const char __pyx_k__32[] = "?";
+static const char __pyx_k__5[] = "*";
+static const char __pyx_k__24[] = "_";
+static const char __pyx_k__33[] = "?";
 static const char __pyx_k_add[] = "add";
 static const char __pyx_k_doc[] = "__doc__";
 static const char __pyx_k_end[] = "end";
@@ -2197,12 +2207,15 @@ static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_next[] = "next";
 static const char __pyx_k_self[] = "self";
+static const char __pyx_k_spec[] = "__spec__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_count[] = "count";
 static const char __pyx_k_index[] = "index";
 static const char __pyx_k_print[] = "print";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_super[] = "super";
+static const char __pyx_k_Cython[] = "Cython";
+static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_insert[] = "insert";
 static const char __pyx_k_module[] = "__module__";
 static const char __pyx_k_next_2[] = "__next__";
@@ -2222,6 +2235,7 @@ static const char __pyx_k_LinkedList[] = "LinkedList";
 static const char __pyx_k_print_list[] = "print_list";
 static const char __pyx_k_Node___init[] = "Node.__init__";
 static const char __pyx_k_NodeIterator[] = "NodeIterator";
+static const char __pyx_k_initializing[] = "_initializing";
 static const char __pyx_k_is_coroutine[] = "_is_coroutine";
 static const char __pyx_k_removed_data[] = "removed_data";
 static const char __pyx_k_LinkedList_py[] = "LinkedList.py";
@@ -2288,6 +2302,7 @@ typedef struct {
   #endif
   #if CYTHON_USE_MODULE_STATE
   #endif
+  PyObject *__pyx_n_s_Cython;
   PyObject *__pyx_n_s_IndexError;
   PyObject *__pyx_kp_s_Index_out_of_range;
   PyObject *__pyx_n_s_LinkedList;
@@ -2311,9 +2326,10 @@ typedef struct {
   PyObject *__pyx_n_s_None;
   PyObject *__pyx_n_s_StopIteration;
   PyObject *__pyx_kp_u__2;
-  PyObject *__pyx_n_s__23;
+  PyObject *__pyx_n_s__24;
   PyObject *__pyx_kp_s__3;
-  PyObject *__pyx_n_s__32;
+  PyObject *__pyx_n_s__33;
+  PyObject *__pyx_n_s__5;
   PyObject *__pyx_n_s_add;
   PyObject *__pyx_n_s_asyncio_coroutines;
   PyObject *__pyx_n_s_cline_in_traceback;
@@ -2327,9 +2343,11 @@ typedef struct {
   PyObject *__pyx_n_s_end;
   PyObject *__pyx_n_s_getitem;
   PyObject *__pyx_n_s_head;
+  PyObject *__pyx_n_s_import;
   PyObject *__pyx_n_s_index;
   PyObject *__pyx_n_s_init;
   PyObject *__pyx_n_s_init_subclass;
+  PyObject *__pyx_n_s_initializing;
   PyObject *__pyx_n_s_insert;
   PyObject *__pyx_n_s_is_coroutine;
   PyObject *__pyx_n_s_iter;
@@ -2352,6 +2370,7 @@ typedef struct {
   PyObject *__pyx_n_s_removed_data;
   PyObject *__pyx_n_s_self;
   PyObject *__pyx_n_s_set_name;
+  PyObject *__pyx_n_s_spec;
   PyObject *__pyx_n_s_str;
   PyObject *__pyx_n_s_super;
   PyObject *__pyx_n_s_test;
@@ -2359,32 +2378,32 @@ typedef struct {
   PyObject *__pyx_int_1;
   PyObject *__pyx_tuple_;
   PyObject *__pyx_tuple__4;
-  PyObject *__pyx_tuple__5;
-  PyObject *__pyx_tuple__7;
+  PyObject *__pyx_tuple__6;
   PyObject *__pyx_tuple__8;
-  PyObject *__pyx_tuple__11;
-  PyObject *__pyx_tuple__14;
-  PyObject *__pyx_tuple__16;
-  PyObject *__pyx_tuple__19;
-  PyObject *__pyx_tuple__21;
-  PyObject *__pyx_tuple__24;
-  PyObject *__pyx_tuple__26;
-  PyObject *__pyx_tuple__28;
-  PyObject *__pyx_tuple__30;
-  PyObject *__pyx_codeobj__6;
-  PyObject *__pyx_codeobj__9;
+  PyObject *__pyx_tuple__9;
+  PyObject *__pyx_tuple__12;
+  PyObject *__pyx_tuple__15;
+  PyObject *__pyx_tuple__17;
+  PyObject *__pyx_tuple__20;
+  PyObject *__pyx_tuple__22;
+  PyObject *__pyx_tuple__25;
+  PyObject *__pyx_tuple__27;
+  PyObject *__pyx_tuple__29;
+  PyObject *__pyx_tuple__31;
+  PyObject *__pyx_codeobj__7;
   PyObject *__pyx_codeobj__10;
-  PyObject *__pyx_codeobj__12;
+  PyObject *__pyx_codeobj__11;
   PyObject *__pyx_codeobj__13;
-  PyObject *__pyx_codeobj__15;
-  PyObject *__pyx_codeobj__17;
+  PyObject *__pyx_codeobj__14;
+  PyObject *__pyx_codeobj__16;
   PyObject *__pyx_codeobj__18;
-  PyObject *__pyx_codeobj__20;
-  PyObject *__pyx_codeobj__22;
-  PyObject *__pyx_codeobj__25;
-  PyObject *__pyx_codeobj__27;
-  PyObject *__pyx_codeobj__29;
-  PyObject *__pyx_codeobj__31;
+  PyObject *__pyx_codeobj__19;
+  PyObject *__pyx_codeobj__21;
+  PyObject *__pyx_codeobj__23;
+  PyObject *__pyx_codeobj__26;
+  PyObject *__pyx_codeobj__28;
+  PyObject *__pyx_codeobj__30;
+  PyObject *__pyx_codeobj__32;
 } __pyx_mstate;
 
 #if CYTHON_USE_MODULE_STATE
@@ -2427,6 +2446,7 @@ static int __pyx_m_clear(PyObject *m) {
   #ifdef __Pyx_FusedFunction_USED
   Py_CLEAR(clear_module_state->__pyx_FusedFunctionType);
   #endif
+  Py_CLEAR(clear_module_state->__pyx_n_s_Cython);
   Py_CLEAR(clear_module_state->__pyx_n_s_IndexError);
   Py_CLEAR(clear_module_state->__pyx_kp_s_Index_out_of_range);
   Py_CLEAR(clear_module_state->__pyx_n_s_LinkedList);
@@ -2450,9 +2470,10 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_None);
   Py_CLEAR(clear_module_state->__pyx_n_s_StopIteration);
   Py_CLEAR(clear_module_state->__pyx_kp_u__2);
-  Py_CLEAR(clear_module_state->__pyx_n_s__23);
+  Py_CLEAR(clear_module_state->__pyx_n_s__24);
   Py_CLEAR(clear_module_state->__pyx_kp_s__3);
-  Py_CLEAR(clear_module_state->__pyx_n_s__32);
+  Py_CLEAR(clear_module_state->__pyx_n_s__33);
+  Py_CLEAR(clear_module_state->__pyx_n_s__5);
   Py_CLEAR(clear_module_state->__pyx_n_s_add);
   Py_CLEAR(clear_module_state->__pyx_n_s_asyncio_coroutines);
   Py_CLEAR(clear_module_state->__pyx_n_s_cline_in_traceback);
@@ -2466,9 +2487,11 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_end);
   Py_CLEAR(clear_module_state->__pyx_n_s_getitem);
   Py_CLEAR(clear_module_state->__pyx_n_s_head);
+  Py_CLEAR(clear_module_state->__pyx_n_s_import);
   Py_CLEAR(clear_module_state->__pyx_n_s_index);
   Py_CLEAR(clear_module_state->__pyx_n_s_init);
   Py_CLEAR(clear_module_state->__pyx_n_s_init_subclass);
+  Py_CLEAR(clear_module_state->__pyx_n_s_initializing);
   Py_CLEAR(clear_module_state->__pyx_n_s_insert);
   Py_CLEAR(clear_module_state->__pyx_n_s_is_coroutine);
   Py_CLEAR(clear_module_state->__pyx_n_s_iter);
@@ -2491,6 +2514,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_removed_data);
   Py_CLEAR(clear_module_state->__pyx_n_s_self);
   Py_CLEAR(clear_module_state->__pyx_n_s_set_name);
+  Py_CLEAR(clear_module_state->__pyx_n_s_spec);
   Py_CLEAR(clear_module_state->__pyx_n_s_str);
   Py_CLEAR(clear_module_state->__pyx_n_s_super);
   Py_CLEAR(clear_module_state->__pyx_n_s_test);
@@ -2498,32 +2522,32 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_int_1);
   Py_CLEAR(clear_module_state->__pyx_tuple_);
   Py_CLEAR(clear_module_state->__pyx_tuple__4);
-  Py_CLEAR(clear_module_state->__pyx_tuple__5);
-  Py_CLEAR(clear_module_state->__pyx_tuple__7);
+  Py_CLEAR(clear_module_state->__pyx_tuple__6);
   Py_CLEAR(clear_module_state->__pyx_tuple__8);
-  Py_CLEAR(clear_module_state->__pyx_tuple__11);
-  Py_CLEAR(clear_module_state->__pyx_tuple__14);
-  Py_CLEAR(clear_module_state->__pyx_tuple__16);
-  Py_CLEAR(clear_module_state->__pyx_tuple__19);
-  Py_CLEAR(clear_module_state->__pyx_tuple__21);
-  Py_CLEAR(clear_module_state->__pyx_tuple__24);
-  Py_CLEAR(clear_module_state->__pyx_tuple__26);
-  Py_CLEAR(clear_module_state->__pyx_tuple__28);
-  Py_CLEAR(clear_module_state->__pyx_tuple__30);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__6);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__9);
+  Py_CLEAR(clear_module_state->__pyx_tuple__9);
+  Py_CLEAR(clear_module_state->__pyx_tuple__12);
+  Py_CLEAR(clear_module_state->__pyx_tuple__15);
+  Py_CLEAR(clear_module_state->__pyx_tuple__17);
+  Py_CLEAR(clear_module_state->__pyx_tuple__20);
+  Py_CLEAR(clear_module_state->__pyx_tuple__22);
+  Py_CLEAR(clear_module_state->__pyx_tuple__25);
+  Py_CLEAR(clear_module_state->__pyx_tuple__27);
+  Py_CLEAR(clear_module_state->__pyx_tuple__29);
+  Py_CLEAR(clear_module_state->__pyx_tuple__31);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__7);
   Py_CLEAR(clear_module_state->__pyx_codeobj__10);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__12);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__11);
   Py_CLEAR(clear_module_state->__pyx_codeobj__13);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__15);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__17);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__14);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__16);
   Py_CLEAR(clear_module_state->__pyx_codeobj__18);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__20);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__22);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__25);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__27);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__29);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__31);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__19);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__21);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__23);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__26);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__28);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__30);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__32);
   return 0;
 }
 #endif
@@ -2544,6 +2568,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   #ifdef __Pyx_FusedFunction_USED
   Py_VISIT(traverse_module_state->__pyx_FusedFunctionType);
   #endif
+  Py_VISIT(traverse_module_state->__pyx_n_s_Cython);
   Py_VISIT(traverse_module_state->__pyx_n_s_IndexError);
   Py_VISIT(traverse_module_state->__pyx_kp_s_Index_out_of_range);
   Py_VISIT(traverse_module_state->__pyx_n_s_LinkedList);
@@ -2567,9 +2592,10 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_None);
   Py_VISIT(traverse_module_state->__pyx_n_s_StopIteration);
   Py_VISIT(traverse_module_state->__pyx_kp_u__2);
-  Py_VISIT(traverse_module_state->__pyx_n_s__23);
+  Py_VISIT(traverse_module_state->__pyx_n_s__24);
   Py_VISIT(traverse_module_state->__pyx_kp_s__3);
-  Py_VISIT(traverse_module_state->__pyx_n_s__32);
+  Py_VISIT(traverse_module_state->__pyx_n_s__33);
+  Py_VISIT(traverse_module_state->__pyx_n_s__5);
   Py_VISIT(traverse_module_state->__pyx_n_s_add);
   Py_VISIT(traverse_module_state->__pyx_n_s_asyncio_coroutines);
   Py_VISIT(traverse_module_state->__pyx_n_s_cline_in_traceback);
@@ -2583,9 +2609,11 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_end);
   Py_VISIT(traverse_module_state->__pyx_n_s_getitem);
   Py_VISIT(traverse_module_state->__pyx_n_s_head);
+  Py_VISIT(traverse_module_state->__pyx_n_s_import);
   Py_VISIT(traverse_module_state->__pyx_n_s_index);
   Py_VISIT(traverse_module_state->__pyx_n_s_init);
   Py_VISIT(traverse_module_state->__pyx_n_s_init_subclass);
+  Py_VISIT(traverse_module_state->__pyx_n_s_initializing);
   Py_VISIT(traverse_module_state->__pyx_n_s_insert);
   Py_VISIT(traverse_module_state->__pyx_n_s_is_coroutine);
   Py_VISIT(traverse_module_state->__pyx_n_s_iter);
@@ -2608,6 +2636,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_removed_data);
   Py_VISIT(traverse_module_state->__pyx_n_s_self);
   Py_VISIT(traverse_module_state->__pyx_n_s_set_name);
+  Py_VISIT(traverse_module_state->__pyx_n_s_spec);
   Py_VISIT(traverse_module_state->__pyx_n_s_str);
   Py_VISIT(traverse_module_state->__pyx_n_s_super);
   Py_VISIT(traverse_module_state->__pyx_n_s_test);
@@ -2615,32 +2644,32 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_int_1);
   Py_VISIT(traverse_module_state->__pyx_tuple_);
   Py_VISIT(traverse_module_state->__pyx_tuple__4);
-  Py_VISIT(traverse_module_state->__pyx_tuple__5);
-  Py_VISIT(traverse_module_state->__pyx_tuple__7);
+  Py_VISIT(traverse_module_state->__pyx_tuple__6);
   Py_VISIT(traverse_module_state->__pyx_tuple__8);
-  Py_VISIT(traverse_module_state->__pyx_tuple__11);
-  Py_VISIT(traverse_module_state->__pyx_tuple__14);
-  Py_VISIT(traverse_module_state->__pyx_tuple__16);
-  Py_VISIT(traverse_module_state->__pyx_tuple__19);
-  Py_VISIT(traverse_module_state->__pyx_tuple__21);
-  Py_VISIT(traverse_module_state->__pyx_tuple__24);
-  Py_VISIT(traverse_module_state->__pyx_tuple__26);
-  Py_VISIT(traverse_module_state->__pyx_tuple__28);
-  Py_VISIT(traverse_module_state->__pyx_tuple__30);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__6);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__9);
+  Py_VISIT(traverse_module_state->__pyx_tuple__9);
+  Py_VISIT(traverse_module_state->__pyx_tuple__12);
+  Py_VISIT(traverse_module_state->__pyx_tuple__15);
+  Py_VISIT(traverse_module_state->__pyx_tuple__17);
+  Py_VISIT(traverse_module_state->__pyx_tuple__20);
+  Py_VISIT(traverse_module_state->__pyx_tuple__22);
+  Py_VISIT(traverse_module_state->__pyx_tuple__25);
+  Py_VISIT(traverse_module_state->__pyx_tuple__27);
+  Py_VISIT(traverse_module_state->__pyx_tuple__29);
+  Py_VISIT(traverse_module_state->__pyx_tuple__31);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__7);
   Py_VISIT(traverse_module_state->__pyx_codeobj__10);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__12);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__11);
   Py_VISIT(traverse_module_state->__pyx_codeobj__13);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__15);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__17);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__14);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__16);
   Py_VISIT(traverse_module_state->__pyx_codeobj__18);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__20);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__22);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__25);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__27);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__29);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__31);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__19);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__21);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__23);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__26);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__28);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__30);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__32);
   return 0;
 }
 #endif
@@ -2671,6 +2700,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #endif
 #if CYTHON_USE_MODULE_STATE
 #endif
+#define __pyx_n_s_Cython __pyx_mstate_global->__pyx_n_s_Cython
 #define __pyx_n_s_IndexError __pyx_mstate_global->__pyx_n_s_IndexError
 #define __pyx_kp_s_Index_out_of_range __pyx_mstate_global->__pyx_kp_s_Index_out_of_range
 #define __pyx_n_s_LinkedList __pyx_mstate_global->__pyx_n_s_LinkedList
@@ -2694,9 +2724,10 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_None __pyx_mstate_global->__pyx_n_s_None
 #define __pyx_n_s_StopIteration __pyx_mstate_global->__pyx_n_s_StopIteration
 #define __pyx_kp_u__2 __pyx_mstate_global->__pyx_kp_u__2
-#define __pyx_n_s__23 __pyx_mstate_global->__pyx_n_s__23
+#define __pyx_n_s__24 __pyx_mstate_global->__pyx_n_s__24
 #define __pyx_kp_s__3 __pyx_mstate_global->__pyx_kp_s__3
-#define __pyx_n_s__32 __pyx_mstate_global->__pyx_n_s__32
+#define __pyx_n_s__33 __pyx_mstate_global->__pyx_n_s__33
+#define __pyx_n_s__5 __pyx_mstate_global->__pyx_n_s__5
 #define __pyx_n_s_add __pyx_mstate_global->__pyx_n_s_add
 #define __pyx_n_s_asyncio_coroutines __pyx_mstate_global->__pyx_n_s_asyncio_coroutines
 #define __pyx_n_s_cline_in_traceback __pyx_mstate_global->__pyx_n_s_cline_in_traceback
@@ -2710,9 +2741,11 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_end __pyx_mstate_global->__pyx_n_s_end
 #define __pyx_n_s_getitem __pyx_mstate_global->__pyx_n_s_getitem
 #define __pyx_n_s_head __pyx_mstate_global->__pyx_n_s_head
+#define __pyx_n_s_import __pyx_mstate_global->__pyx_n_s_import
 #define __pyx_n_s_index __pyx_mstate_global->__pyx_n_s_index
 #define __pyx_n_s_init __pyx_mstate_global->__pyx_n_s_init
 #define __pyx_n_s_init_subclass __pyx_mstate_global->__pyx_n_s_init_subclass
+#define __pyx_n_s_initializing __pyx_mstate_global->__pyx_n_s_initializing
 #define __pyx_n_s_insert __pyx_mstate_global->__pyx_n_s_insert
 #define __pyx_n_s_is_coroutine __pyx_mstate_global->__pyx_n_s_is_coroutine
 #define __pyx_n_s_iter __pyx_mstate_global->__pyx_n_s_iter
@@ -2735,6 +2768,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_removed_data __pyx_mstate_global->__pyx_n_s_removed_data
 #define __pyx_n_s_self __pyx_mstate_global->__pyx_n_s_self
 #define __pyx_n_s_set_name __pyx_mstate_global->__pyx_n_s_set_name
+#define __pyx_n_s_spec __pyx_mstate_global->__pyx_n_s_spec
 #define __pyx_n_s_str __pyx_mstate_global->__pyx_n_s_str
 #define __pyx_n_s_super __pyx_mstate_global->__pyx_n_s_super
 #define __pyx_n_s_test __pyx_mstate_global->__pyx_n_s_test
@@ -2742,35 +2776,36 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_int_1 __pyx_mstate_global->__pyx_int_1
 #define __pyx_tuple_ __pyx_mstate_global->__pyx_tuple_
 #define __pyx_tuple__4 __pyx_mstate_global->__pyx_tuple__4
-#define __pyx_tuple__5 __pyx_mstate_global->__pyx_tuple__5
-#define __pyx_tuple__7 __pyx_mstate_global->__pyx_tuple__7
+#define __pyx_tuple__6 __pyx_mstate_global->__pyx_tuple__6
 #define __pyx_tuple__8 __pyx_mstate_global->__pyx_tuple__8
-#define __pyx_tuple__11 __pyx_mstate_global->__pyx_tuple__11
-#define __pyx_tuple__14 __pyx_mstate_global->__pyx_tuple__14
-#define __pyx_tuple__16 __pyx_mstate_global->__pyx_tuple__16
-#define __pyx_tuple__19 __pyx_mstate_global->__pyx_tuple__19
-#define __pyx_tuple__21 __pyx_mstate_global->__pyx_tuple__21
-#define __pyx_tuple__24 __pyx_mstate_global->__pyx_tuple__24
-#define __pyx_tuple__26 __pyx_mstate_global->__pyx_tuple__26
-#define __pyx_tuple__28 __pyx_mstate_global->__pyx_tuple__28
-#define __pyx_tuple__30 __pyx_mstate_global->__pyx_tuple__30
-#define __pyx_codeobj__6 __pyx_mstate_global->__pyx_codeobj__6
-#define __pyx_codeobj__9 __pyx_mstate_global->__pyx_codeobj__9
+#define __pyx_tuple__9 __pyx_mstate_global->__pyx_tuple__9
+#define __pyx_tuple__12 __pyx_mstate_global->__pyx_tuple__12
+#define __pyx_tuple__15 __pyx_mstate_global->__pyx_tuple__15
+#define __pyx_tuple__17 __pyx_mstate_global->__pyx_tuple__17
+#define __pyx_tuple__20 __pyx_mstate_global->__pyx_tuple__20
+#define __pyx_tuple__22 __pyx_mstate_global->__pyx_tuple__22
+#define __pyx_tuple__25 __pyx_mstate_global->__pyx_tuple__25
+#define __pyx_tuple__27 __pyx_mstate_global->__pyx_tuple__27
+#define __pyx_tuple__29 __pyx_mstate_global->__pyx_tuple__29
+#define __pyx_tuple__31 __pyx_mstate_global->__pyx_tuple__31
+#define __pyx_codeobj__7 __pyx_mstate_global->__pyx_codeobj__7
 #define __pyx_codeobj__10 __pyx_mstate_global->__pyx_codeobj__10
-#define __pyx_codeobj__12 __pyx_mstate_global->__pyx_codeobj__12
+#define __pyx_codeobj__11 __pyx_mstate_global->__pyx_codeobj__11
 #define __pyx_codeobj__13 __pyx_mstate_global->__pyx_codeobj__13
-#define __pyx_codeobj__15 __pyx_mstate_global->__pyx_codeobj__15
-#define __pyx_codeobj__17 __pyx_mstate_global->__pyx_codeobj__17
+#define __pyx_codeobj__14 __pyx_mstate_global->__pyx_codeobj__14
+#define __pyx_codeobj__16 __pyx_mstate_global->__pyx_codeobj__16
 #define __pyx_codeobj__18 __pyx_mstate_global->__pyx_codeobj__18
-#define __pyx_codeobj__20 __pyx_mstate_global->__pyx_codeobj__20
-#define __pyx_codeobj__22 __pyx_mstate_global->__pyx_codeobj__22
-#define __pyx_codeobj__25 __pyx_mstate_global->__pyx_codeobj__25
-#define __pyx_codeobj__27 __pyx_mstate_global->__pyx_codeobj__27
-#define __pyx_codeobj__29 __pyx_mstate_global->__pyx_codeobj__29
-#define __pyx_codeobj__31 __pyx_mstate_global->__pyx_codeobj__31
+#define __pyx_codeobj__19 __pyx_mstate_global->__pyx_codeobj__19
+#define __pyx_codeobj__21 __pyx_mstate_global->__pyx_codeobj__21
+#define __pyx_codeobj__23 __pyx_mstate_global->__pyx_codeobj__23
+#define __pyx_codeobj__26 __pyx_mstate_global->__pyx_codeobj__26
+#define __pyx_codeobj__28 __pyx_mstate_global->__pyx_codeobj__28
+#define __pyx_codeobj__30 __pyx_mstate_global->__pyx_codeobj__30
+#define __pyx_codeobj__32 __pyx_mstate_global->__pyx_codeobj__32
 /* #### Code section: module_code ### */
 
-/* "data_struct/LinkedList.py":2
+/* "data_struct/LinkedList.py":5
+ * 
  * class Node:
  *     def __init__(self, data=None):             # <<<<<<<<<<<<<<
  *         self.data = data
@@ -2834,19 +2869,19 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 2, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
         if (kw_args > 0) {
           PyObject* value = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_data);
           if (value) { values[1] = __Pyx_Arg_NewRef_FASTCALL(value); kw_args--; }
-          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 2, __pyx_L3_error)
+          else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 2, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 5, __pyx_L3_error)
       }
     } else {
       switch (__pyx_nargs) {
@@ -2862,7 +2897,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 2, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 2, __pyx_nargs); __PYX_ERR(0, 5, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -2897,25 +2932,26 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_4Node___init__(CYTHON_UNUSE
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 1);
 
-  /* "data_struct/LinkedList.py":3
+  /* "data_struct/LinkedList.py":6
  * class Node:
  *     def __init__(self, data=None):
  *         self.data = data             # <<<<<<<<<<<<<<
  *         self.next = None
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_data, __pyx_v_data) < 0) __PYX_ERR(0, 3, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_data, __pyx_v_data) < 0) __PYX_ERR(0, 6, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":4
+  /* "data_struct/LinkedList.py":7
  *     def __init__(self, data=None):
  *         self.data = data
  *         self.next = None             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_next, Py_None) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_next, Py_None) < 0) __PYX_ERR(0, 7, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":2
+  /* "data_struct/LinkedList.py":5
+ * 
  * class Node:
  *     def __init__(self, data=None):             # <<<<<<<<<<<<<<
  *         self.data = data
@@ -2934,7 +2970,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_4Node___init__(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":8
+/* "data_struct/LinkedList.py":11
  * 
  * class NodeIterator:
  *     def __init__(self, head):             # <<<<<<<<<<<<<<
@@ -2998,7 +3034,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 8, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -3006,14 +3042,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 8, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 8, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); __PYX_ERR(0, 11, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 8, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 11, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -3026,7 +3062,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 8, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 11, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3061,16 +3097,16 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator___init__(CYT
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 1);
 
-  /* "data_struct/LinkedList.py":9
+  /* "data_struct/LinkedList.py":12
  * class NodeIterator:
  *     def __init__(self, head):
  *         self.current = head             # <<<<<<<<<<<<<<
  * 
  *     def __next__(self):
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_current, __pyx_v_head) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_current, __pyx_v_head) < 0) __PYX_ERR(0, 12, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":8
+  /* "data_struct/LinkedList.py":11
  * 
  * class NodeIterator:
  *     def __init__(self, head):             # <<<<<<<<<<<<<<
@@ -3090,7 +3126,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator___init__(CYT
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":11
+/* "data_struct/LinkedList.py":14
  *         self.current = head
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
@@ -3151,12 +3187,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 11, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 14, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__next__") < 0)) __PYX_ERR(0, 11, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__next__") < 0)) __PYX_ERR(0, 14, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -3167,7 +3203,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__next__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 11, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__next__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 14, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3206,20 +3242,20 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator_2__next__(CY
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__next__", 1);
 
-  /* "data_struct/LinkedList.py":12
+  /* "data_struct/LinkedList.py":15
  * 
  *     def __next__(self):
  *         if self.current is None:             # <<<<<<<<<<<<<<
  *             raise StopIteration
  *         data = self.current.data
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_current); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_current); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = (__pyx_t_1 == Py_None);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_t_2)) {
 
-    /* "data_struct/LinkedList.py":13
+    /* "data_struct/LinkedList.py":16
  *     def __next__(self):
  *         if self.current is None:
  *             raise StopIteration             # <<<<<<<<<<<<<<
@@ -3227,9 +3263,9 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator_2__next__(CY
  *         self.current = self.current.next
  */
     __Pyx_Raise(__pyx_builtin_StopIteration, 0, 0, 0);
-    __PYX_ERR(0, 13, __pyx_L1_error)
+    __PYX_ERR(0, 16, __pyx_L1_error)
 
-    /* "data_struct/LinkedList.py":12
+    /* "data_struct/LinkedList.py":15
  * 
  *     def __next__(self):
  *         if self.current is None:             # <<<<<<<<<<<<<<
@@ -3238,37 +3274,37 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator_2__next__(CY
  */
   }
 
-  /* "data_struct/LinkedList.py":14
+  /* "data_struct/LinkedList.py":17
  *         if self.current is None:
  *             raise StopIteration
  *         data = self.current.data             # <<<<<<<<<<<<<<
  *         self.current = self.current.next
  *         return data
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_current); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_current); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_data); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_data); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_data = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":15
+  /* "data_struct/LinkedList.py":18
  *             raise StopIteration
  *         data = self.current.data
  *         self.current = self.current.next             # <<<<<<<<<<<<<<
  *         return data
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_current); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_current); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_current, __pyx_t_1) < 0) __PYX_ERR(0, 15, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_current, __pyx_t_1) < 0) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":16
+  /* "data_struct/LinkedList.py":19
  *         data = self.current.data
  *         self.current = self.current.next
  *         return data             # <<<<<<<<<<<<<<
@@ -3280,7 +3316,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator_2__next__(CY
   __pyx_r = __pyx_v_data;
   goto __pyx_L0;
 
-  /* "data_struct/LinkedList.py":11
+  /* "data_struct/LinkedList.py":14
  *         self.current = head
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
@@ -3301,7 +3337,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator_2__next__(CY
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":18
+/* "data_struct/LinkedList.py":21
  *         return data
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -3362,12 +3398,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 21, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__iter__") < 0)) __PYX_ERR(0, 18, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__iter__") < 0)) __PYX_ERR(0, 21, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -3378,7 +3414,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__iter__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 18, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__iter__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 21, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3410,7 +3446,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator_4__iter__(CY
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__iter__", 1);
 
-  /* "data_struct/LinkedList.py":19
+  /* "data_struct/LinkedList.py":22
  * 
  *     def __iter__(self):
  *         return self             # <<<<<<<<<<<<<<
@@ -3422,7 +3458,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator_4__iter__(CY
   __pyx_r = __pyx_v_self;
   goto __pyx_L0;
 
-  /* "data_struct/LinkedList.py":18
+  /* "data_struct/LinkedList.py":21
  *         return data
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -3437,7 +3473,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_12NodeIterator_4__iter__(CY
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":22
+/* "data_struct/LinkedList.py":25
  * 
  * class LinkedList:
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -3498,12 +3534,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 22, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 25, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -3514,7 +3550,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 22, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 25, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3549,16 +3585,16 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList___init__(CYTHO
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 1);
 
-  /* "data_struct/LinkedList.py":23
+  /* "data_struct/LinkedList.py":26
  * class LinkedList:
  *     def __init__(self):
  *         self.head = None             # <<<<<<<<<<<<<<
  * 
  *     def add(self, data):
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, Py_None) < 0) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, Py_None) < 0) __PYX_ERR(0, 26, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":22
+  /* "data_struct/LinkedList.py":25
  * 
  * class LinkedList:
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -3578,7 +3614,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList___init__(CYTHO
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":25
+/* "data_struct/LinkedList.py":28
  *         self.head = None
  * 
  *     def add(self, data):             # <<<<<<<<<<<<<<
@@ -3643,7 +3679,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -3651,14 +3687,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 25, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("add", 1, 2, 2, 1); __PYX_ERR(0, 25, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("add", 1, 2, 2, 1); __PYX_ERR(0, 28, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "add") < 0)) __PYX_ERR(0, 25, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "add") < 0)) __PYX_ERR(0, 28, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -3671,7 +3707,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("add", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 25, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("add", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 28, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3713,14 +3749,14 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_2add(CYTHON_UN
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("add", 1);
 
-  /* "data_struct/LinkedList.py":27
+  /* "data_struct/LinkedList.py":30
  *     def add(self, data):
  *         """"""
  *         new_node = Node(data)             # <<<<<<<<<<<<<<
  *         if self.head is None:
  *             self.head = new_node
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 27, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   __pyx_t_4 = 0;
@@ -3740,36 +3776,36 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_2add(CYTHON_UN
     PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_v_data};
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+1-__pyx_t_4, 1+__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
   __pyx_v_new_node = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":28
+  /* "data_struct/LinkedList.py":31
  *         """"""
  *         new_node = Node(data)
  *         if self.head is None:             # <<<<<<<<<<<<<<
  *             self.head = new_node
  *         else:
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 28, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 31, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_5 = (__pyx_t_1 == Py_None);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_5) {
 
-    /* "data_struct/LinkedList.py":29
+    /* "data_struct/LinkedList.py":32
  *         new_node = Node(data)
  *         if self.head is None:
  *             self.head = new_node             # <<<<<<<<<<<<<<
  *         else:
  *             current = self.head
  */
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, __pyx_v_new_node) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, __pyx_v_new_node) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
 
-    /* "data_struct/LinkedList.py":28
+    /* "data_struct/LinkedList.py":31
  *         """"""
  *         new_node = Node(data)
  *         if self.head is None:             # <<<<<<<<<<<<<<
@@ -3779,7 +3815,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_2add(CYTHON_UN
     goto __pyx_L3;
   }
 
-  /* "data_struct/LinkedList.py":31
+  /* "data_struct/LinkedList.py":34
  *             self.head = new_node
  *         else:
  *             current = self.head             # <<<<<<<<<<<<<<
@@ -3787,12 +3823,12 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_2add(CYTHON_UN
  *                 current = current.next
  */
   /*else*/ {
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 31, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_v_current = __pyx_t_1;
     __pyx_t_1 = 0;
 
-    /* "data_struct/LinkedList.py":32
+    /* "data_struct/LinkedList.py":35
  *         else:
  *             current = self.head
  *             while current.next:             # <<<<<<<<<<<<<<
@@ -3800,37 +3836,37 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_2add(CYTHON_UN
  *             current.next = new_node
  */
     while (1) {
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 32, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 32, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 35, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (!__pyx_t_5) break;
 
-      /* "data_struct/LinkedList.py":33
+      /* "data_struct/LinkedList.py":36
  *             current = self.head
  *             while current.next:
  *                 current = current.next             # <<<<<<<<<<<<<<
  *             current.next = new_node
  * 
  */
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 33, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 36, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF_SET(__pyx_v_current, __pyx_t_1);
       __pyx_t_1 = 0;
     }
 
-    /* "data_struct/LinkedList.py":34
+    /* "data_struct/LinkedList.py":37
  *             while current.next:
  *                 current = current.next
  *             current.next = new_node             # <<<<<<<<<<<<<<
  * 
  *     def insert(self, data):
  */
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_current, __pyx_n_s_next, __pyx_v_new_node) < 0) __PYX_ERR(0, 34, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_current, __pyx_n_s_next, __pyx_v_new_node) < 0) __PYX_ERR(0, 37, __pyx_L1_error)
   }
   __pyx_L3:;
 
-  /* "data_struct/LinkedList.py":25
+  /* "data_struct/LinkedList.py":28
  *         self.head = None
  * 
  *     def add(self, data):             # <<<<<<<<<<<<<<
@@ -3855,7 +3891,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_2add(CYTHON_UN
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":36
+/* "data_struct/LinkedList.py":39
  *             current.next = new_node
  * 
  *     def insert(self, data):             # <<<<<<<<<<<<<<
@@ -3920,7 +3956,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 39, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -3928,14 +3964,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 36, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 39, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("insert", 1, 2, 2, 1); __PYX_ERR(0, 36, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("insert", 1, 2, 2, 1); __PYX_ERR(0, 39, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "insert") < 0)) __PYX_ERR(0, 36, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "insert") < 0)) __PYX_ERR(0, 39, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -3948,7 +3984,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("insert", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 36, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("insert", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 39, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3988,14 +4024,14 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_4insert(CYTHON
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("insert", 1);
 
-  /* "data_struct/LinkedList.py":38
+  /* "data_struct/LinkedList.py":41
  *     def insert(self, data):
  *         """"""
  *         new_node = Node(data)             # <<<<<<<<<<<<<<
  *         new_node.next = self.head
  *         self.head = new_node
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 38, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   __pyx_t_4 = 0;
@@ -4015,35 +4051,35 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_4insert(CYTHON
     PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_v_data};
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+1-__pyx_t_4, 1+__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 38, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
   __pyx_v_new_node = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":39
+  /* "data_struct/LinkedList.py":42
  *         """"""
  *         new_node = Node(data)
  *         new_node.next = self.head             # <<<<<<<<<<<<<<
  *         self.head = new_node
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_new_node, __pyx_n_s_next, __pyx_t_1) < 0) __PYX_ERR(0, 39, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_new_node, __pyx_n_s_next, __pyx_t_1) < 0) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":40
+  /* "data_struct/LinkedList.py":43
  *         new_node = Node(data)
  *         new_node.next = self.head
  *         self.head = new_node             # <<<<<<<<<<<<<<
  * 
  *     def __iter__(self):
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, __pyx_v_new_node) < 0) __PYX_ERR(0, 40, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, __pyx_v_new_node) < 0) __PYX_ERR(0, 43, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":36
+  /* "data_struct/LinkedList.py":39
  *             current.next = new_node
  * 
  *     def insert(self, data):             # <<<<<<<<<<<<<<
@@ -4067,7 +4103,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_4insert(CYTHON
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":42
+/* "data_struct/LinkedList.py":45
  *         self.head = new_node
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -4128,12 +4164,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 42, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 45, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__iter__") < 0)) __PYX_ERR(0, 42, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__iter__") < 0)) __PYX_ERR(0, 45, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -4144,7 +4180,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__iter__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 42, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__iter__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 45, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4184,7 +4220,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_6__iter__(CYTH
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__iter__", 1);
 
-  /* "data_struct/LinkedList.py":43
+  /* "data_struct/LinkedList.py":46
  * 
  *     def __iter__(self):
  *         return NodeIterator(self.head)             # <<<<<<<<<<<<<<
@@ -4192,9 +4228,9 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_6__iter__(CYTH
  *     def __str__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_NodeIterator); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_NodeIterator); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -4215,7 +4251,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_6__iter__(CYTH
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+1-__pyx_t_5, 1+__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
@@ -4223,7 +4259,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_6__iter__(CYTH
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "data_struct/LinkedList.py":42
+  /* "data_struct/LinkedList.py":45
  *         self.head = new_node
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
@@ -4245,7 +4281,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_6__iter__(CYTH
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":45
+/* "data_struct/LinkedList.py":48
  *         return NodeIterator(self.head)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -4306,12 +4342,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 45, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__str__") < 0)) __PYX_ERR(0, 45, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__str__") < 0)) __PYX_ERR(0, 48, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -4322,7 +4358,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__str__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 45, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__str__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 48, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4362,31 +4398,31 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_8__str__(CYTHO
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__str__", 1);
 
-  /* "data_struct/LinkedList.py":46
+  /* "data_struct/LinkedList.py":49
  * 
  *     def __str__(self):
  *         elements = []             # <<<<<<<<<<<<<<
  *         current = self.head
  *         while current:
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_elements = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":47
+  /* "data_struct/LinkedList.py":50
  *     def __str__(self):
  *         elements = []
  *         current = self.head             # <<<<<<<<<<<<<<
  *         while current:
  *             elements.append(current.data)
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 47, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_current = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":48
+  /* "data_struct/LinkedList.py":51
  *         elements = []
  *         current = self.head
  *         while current:             # <<<<<<<<<<<<<<
@@ -4394,35 +4430,35 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_8__str__(CYTHO
  *             current = current.next
  */
   while (1) {
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_current); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_current); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 51, __pyx_L1_error)
     if (!__pyx_t_2) break;
 
-    /* "data_struct/LinkedList.py":49
+    /* "data_struct/LinkedList.py":52
  *         current = self.head
  *         while current:
  *             elements.append(current.data)             # <<<<<<<<<<<<<<
  *             current = current.next
  *         return str(elements)
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_data); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_data); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyList_Append(__pyx_v_elements, __pyx_t_1); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 49, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyList_Append(__pyx_v_elements, __pyx_t_1); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 52, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "data_struct/LinkedList.py":50
+    /* "data_struct/LinkedList.py":53
  *         while current:
  *             elements.append(current.data)
  *             current = current.next             # <<<<<<<<<<<<<<
  *         return str(elements)
  * 
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF_SET(__pyx_v_current, __pyx_t_1);
     __pyx_t_1 = 0;
   }
 
-  /* "data_struct/LinkedList.py":51
+  /* "data_struct/LinkedList.py":54
  *             elements.append(current.data)
  *             current = current.next
  *         return str(elements)             # <<<<<<<<<<<<<<
@@ -4430,13 +4466,13 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_8__str__(CYTHO
  *     def __len__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_Str(__pyx_v_elements); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Str(__pyx_v_elements); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "data_struct/LinkedList.py":45
+  /* "data_struct/LinkedList.py":48
  *         return NodeIterator(self.head)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -4457,7 +4493,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_8__str__(CYTHO
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":53
+/* "data_struct/LinkedList.py":56
  *         return str(elements)
  * 
  *     def __len__(self):             # <<<<<<<<<<<<<<
@@ -4518,12 +4554,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 53, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 56, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__len__") < 0)) __PYX_ERR(0, 53, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__len__") < 0)) __PYX_ERR(0, 56, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -4534,7 +4570,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__len__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 53, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__len__", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 56, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4573,7 +4609,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_10__len__(CYTH
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__len__", 1);
 
-  /* "data_struct/LinkedList.py":54
+  /* "data_struct/LinkedList.py":57
  * 
  *     def __len__(self):
  *         count = 0             # <<<<<<<<<<<<<<
@@ -4583,19 +4619,19 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_10__len__(CYTH
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_count = __pyx_int_0;
 
-  /* "data_struct/LinkedList.py":55
+  /* "data_struct/LinkedList.py":58
  *     def __len__(self):
  *         count = 0
  *         current = self.head             # <<<<<<<<<<<<<<
  *         while current:
  *             count += 1
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 55, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_current = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":56
+  /* "data_struct/LinkedList.py":59
  *         count = 0
  *         current = self.head
  *         while current:             # <<<<<<<<<<<<<<
@@ -4603,35 +4639,35 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_10__len__(CYTH
  *             current = current.next
  */
   while (1) {
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_current); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 56, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_current); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 59, __pyx_L1_error)
     if (!__pyx_t_2) break;
 
-    /* "data_struct/LinkedList.py":57
+    /* "data_struct/LinkedList.py":60
  *         current = self.head
  *         while current:
  *             count += 1             # <<<<<<<<<<<<<<
  *             current = current.next
  *         return count
  */
-    __pyx_t_1 = __Pyx_PyInt_AddObjC(__pyx_v_count, __pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyInt_AddObjC(__pyx_v_count, __pyx_int_1, 1, 1, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF_SET(__pyx_v_count, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "data_struct/LinkedList.py":58
+    /* "data_struct/LinkedList.py":61
  *         while current:
  *             count += 1
  *             current = current.next             # <<<<<<<<<<<<<<
  *         return count
  * 
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF_SET(__pyx_v_current, __pyx_t_1);
     __pyx_t_1 = 0;
   }
 
-  /* "data_struct/LinkedList.py":59
+  /* "data_struct/LinkedList.py":62
  *             count += 1
  *             current = current.next
  *         return count             # <<<<<<<<<<<<<<
@@ -4643,7 +4679,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_10__len__(CYTH
   __pyx_r = __pyx_v_count;
   goto __pyx_L0;
 
-  /* "data_struct/LinkedList.py":53
+  /* "data_struct/LinkedList.py":56
  *         return str(elements)
  * 
  *     def __len__(self):             # <<<<<<<<<<<<<<
@@ -4664,7 +4700,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_10__len__(CYTH
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":61
+/* "data_struct/LinkedList.py":64
  *         return count
  * 
  *     def __getitem__(self, index):             # <<<<<<<<<<<<<<
@@ -4728,7 +4764,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 61, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 64, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -4736,14 +4772,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 61, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 64, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("__getitem__", 1, 2, 2, 1); __PYX_ERR(0, 61, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__getitem__", 1, 2, 2, 1); __PYX_ERR(0, 64, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__getitem__") < 0)) __PYX_ERR(0, 61, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__getitem__") < 0)) __PYX_ERR(0, 64, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -4756,7 +4792,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__getitem__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 61, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__getitem__", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 64, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -4798,35 +4834,35 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__getitem__", 1);
 
-  /* "data_struct/LinkedList.py":62
+  /* "data_struct/LinkedList.py":65
  * 
  *     def __getitem__(self, index):
  *         current = self.head             # <<<<<<<<<<<<<<
  *         for _ in range(index):
  *             if current is None:
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_current = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":63
+  /* "data_struct/LinkedList.py":66
  *     def __getitem__(self, index):
  *         current = self.head
  *         for _ in range(index):             # <<<<<<<<<<<<<<
  *             if current is None:
  *                 raise IndexError("Index out of range")
  */
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_v_index); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_v_index); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2);
     __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -4835,28 +4871,28 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_2);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 63, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 66, __pyx_L1_error)
           #endif
           if (__pyx_t_3 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely((0 < 0))) __PYX_ERR(0, 63, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely((0 < 0))) __PYX_ERR(0, 66, __pyx_L1_error)
         #else
-        __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         {
           Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_2);
           #if !CYTHON_ASSUME_SAFE_MACROS
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 63, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 66, __pyx_L1_error)
           #endif
           if (__pyx_t_3 >= __pyx_temp) break;
         }
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely((0 < 0))) __PYX_ERR(0, 63, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely((0 < 0))) __PYX_ERR(0, 66, __pyx_L1_error)
         #else
-        __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -4866,7 +4902,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 63, __pyx_L1_error)
+          else __PYX_ERR(0, 66, __pyx_L1_error)
         }
         break;
       }
@@ -4875,7 +4911,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
     __Pyx_XDECREF_SET(__pyx_v__, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "data_struct/LinkedList.py":64
+    /* "data_struct/LinkedList.py":67
  *         current = self.head
  *         for _ in range(index):
  *             if current is None:             # <<<<<<<<<<<<<<
@@ -4885,20 +4921,20 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
     __pyx_t_5 = (__pyx_v_current == Py_None);
     if (unlikely(__pyx_t_5)) {
 
-      /* "data_struct/LinkedList.py":65
+      /* "data_struct/LinkedList.py":68
  *         for _ in range(index):
  *             if current is None:
  *                 raise IndexError("Index out of range")             # <<<<<<<<<<<<<<
  *             current = current.next
  *         return current.data
  */
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_IndexError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_IndexError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_Raise(__pyx_t_1, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __PYX_ERR(0, 65, __pyx_L1_error)
+      __PYX_ERR(0, 68, __pyx_L1_error)
 
-      /* "data_struct/LinkedList.py":64
+      /* "data_struct/LinkedList.py":67
  *         current = self.head
  *         for _ in range(index):
  *             if current is None:             # <<<<<<<<<<<<<<
@@ -4907,19 +4943,19 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
  */
     }
 
-    /* "data_struct/LinkedList.py":66
+    /* "data_struct/LinkedList.py":69
  *             if current is None:
  *                 raise IndexError("Index out of range")
  *             current = current.next             # <<<<<<<<<<<<<<
  *         return current.data
  * 
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF_SET(__pyx_v_current, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "data_struct/LinkedList.py":63
+    /* "data_struct/LinkedList.py":66
  *     def __getitem__(self, index):
  *         current = self.head
  *         for _ in range(index):             # <<<<<<<<<<<<<<
@@ -4929,7 +4965,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "data_struct/LinkedList.py":67
+  /* "data_struct/LinkedList.py":70
  *                 raise IndexError("Index out of range")
  *             current = current.next
  *         return current.data             # <<<<<<<<<<<<<<
@@ -4937,13 +4973,13 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_data); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_data); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "data_struct/LinkedList.py":61
+  /* "data_struct/LinkedList.py":64
  *         return count
  * 
  *     def __getitem__(self, index):             # <<<<<<<<<<<<<<
@@ -4965,7 +5001,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_12__getitem__(
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":70
+/* "data_struct/LinkedList.py":73
  * 
  * 
  *     def print_list(self):             # <<<<<<<<<<<<<<
@@ -5026,12 +5062,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 70, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "print_list") < 0)) __PYX_ERR(0, 70, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "print_list") < 0)) __PYX_ERR(0, 73, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5042,7 +5078,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("print_list", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 70, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("print_list", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 73, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5082,19 +5118,19 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_14print_list(C
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("print_list", 1);
 
-  /* "data_struct/LinkedList.py":71
+  /* "data_struct/LinkedList.py":74
  * 
  *     def print_list(self):
  *         current = self.head             # <<<<<<<<<<<<<<
  *         while current:
  *             print(f"{current.data} -> ", end="")
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_current = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":72
+  /* "data_struct/LinkedList.py":75
  *     def print_list(self):
  *         current = self.head
  *         while current:             # <<<<<<<<<<<<<<
@@ -5102,63 +5138,63 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_14print_list(C
  *             current = current.next
  */
   while (1) {
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_current); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 72, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_current); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 75, __pyx_L1_error)
     if (!__pyx_t_2) break;
 
-    /* "data_struct/LinkedList.py":73
+    /* "data_struct/LinkedList.py":76
  *         current = self.head
  *         while current:
  *             print(f"{current.data} -> ", end="")             # <<<<<<<<<<<<<<
  *             current = current.next
  *         print("None")
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_data); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_data); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_FormatSimple(__pyx_t_1, __pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyUnicode_ConcatInPlace(__pyx_t_3, __pyx_kp_u__2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyUnicode_ConcatInPlace(__pyx_t_3, __pyx_kp_u__2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_1);
-    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error);
+    if (__Pyx_PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error);
     __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_end, __pyx_kp_s__3) < 0) __PYX_ERR(0, 73, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 73, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_end, __pyx_kp_s__3) < 0) __PYX_ERR(0, 76, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "data_struct/LinkedList.py":74
+    /* "data_struct/LinkedList.py":77
  *         while current:
  *             print(f"{current.data} -> ", end="")
  *             current = current.next             # <<<<<<<<<<<<<<
  *         print("None")
  * 
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 74, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF_SET(__pyx_v_current, __pyx_t_4);
     __pyx_t_4 = 0;
   }
 
-  /* "data_struct/LinkedList.py":75
+  /* "data_struct/LinkedList.py":78
  *             print(f"{current.data} -> ", end="")
  *             current = current.next
  *         print("None")             # <<<<<<<<<<<<<<
  * 
  *     def pop_head(self):
  */
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "data_struct/LinkedList.py":70
+  /* "data_struct/LinkedList.py":73
  * 
  * 
  *     def print_list(self):             # <<<<<<<<<<<<<<
@@ -5182,7 +5218,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_14print_list(C
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":77
+/* "data_struct/LinkedList.py":80
  *         print("None")
  * 
  *     def pop_head(self):             # <<<<<<<<<<<<<<
@@ -5243,12 +5279,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 80, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pop_head") < 0)) __PYX_ERR(0, 77, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pop_head") < 0)) __PYX_ERR(0, 80, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5259,7 +5295,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("pop_head", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 77, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("pop_head", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 80, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5298,50 +5334,50 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_16pop_head(CYT
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("pop_head", 1);
 
-  /* "data_struct/LinkedList.py":78
+  /* "data_struct/LinkedList.py":81
  * 
  *     def pop_head(self):
  *         if self.head is not None:             # <<<<<<<<<<<<<<
  *             removed_data = self.head.data
  *             self.head = self.head.next
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = (__pyx_t_1 != Py_None);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_2) {
 
-    /* "data_struct/LinkedList.py":79
+    /* "data_struct/LinkedList.py":82
  *     def pop_head(self):
  *         if self.head is not None:
  *             removed_data = self.head.data             # <<<<<<<<<<<<<<
  *             self.head = self.head.next
  *             return removed_data
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_data); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 79, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_data); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_v_removed_data = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "data_struct/LinkedList.py":80
+    /* "data_struct/LinkedList.py":83
  *         if self.head is not None:
  *             removed_data = self.head.data
  *             self.head = self.head.next             # <<<<<<<<<<<<<<
  *             return removed_data
  *         else:
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 83, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, __pyx_t_1) < 0) __PYX_ERR(0, 80, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, __pyx_t_1) < 0) __PYX_ERR(0, 83, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "data_struct/LinkedList.py":81
+    /* "data_struct/LinkedList.py":84
  *             removed_data = self.head.data
  *             self.head = self.head.next
  *             return removed_data             # <<<<<<<<<<<<<<
@@ -5353,7 +5389,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_16pop_head(CYT
     __pyx_r = __pyx_v_removed_data;
     goto __pyx_L0;
 
-    /* "data_struct/LinkedList.py":78
+    /* "data_struct/LinkedList.py":81
  * 
  *     def pop_head(self):
  *         if self.head is not None:             # <<<<<<<<<<<<<<
@@ -5362,7 +5398,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_16pop_head(CYT
  */
   }
 
-  /* "data_struct/LinkedList.py":83
+  /* "data_struct/LinkedList.py":86
  *             return removed_data
  *         else:
  *             return None             # <<<<<<<<<<<<<<
@@ -5375,7 +5411,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_16pop_head(CYT
     goto __pyx_L0;
   }
 
-  /* "data_struct/LinkedList.py":77
+  /* "data_struct/LinkedList.py":80
  *         print("None")
  * 
  *     def pop_head(self):             # <<<<<<<<<<<<<<
@@ -5396,7 +5432,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_16pop_head(CYT
   return __pyx_r;
 }
 
-/* "data_struct/LinkedList.py":85
+/* "data_struct/LinkedList.py":88
  *             return None
  * 
  *     def remove(self, data):             # <<<<<<<<<<<<<<
@@ -5460,7 +5496,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 85, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 88, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -5468,14 +5504,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 85, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 88, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("remove", 1, 2, 2, 1); __PYX_ERR(0, 85, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("remove", 1, 2, 2, 1); __PYX_ERR(0, 88, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "remove") < 0)) __PYX_ERR(0, 85, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "remove") < 0)) __PYX_ERR(0, 88, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -5488,7 +5524,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("remove", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 85, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("remove", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 88, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5527,19 +5563,19 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("remove", 1);
 
-  /* "data_struct/LinkedList.py":86
+  /* "data_struct/LinkedList.py":89
  * 
  *     def remove(self, data):
  *         current = self.head             # <<<<<<<<<<<<<<
  *         previous = None
  *         while current:
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_head); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_current = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "data_struct/LinkedList.py":87
+  /* "data_struct/LinkedList.py":90
  *     def remove(self, data):
  *         current = self.head
  *         previous = None             # <<<<<<<<<<<<<<
@@ -5549,7 +5585,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
   __Pyx_INCREF(Py_None);
   __pyx_v_previous = Py_None;
 
-  /* "data_struct/LinkedList.py":88
+  /* "data_struct/LinkedList.py":91
  *         current = self.head
  *         previous = None
  *         while current:             # <<<<<<<<<<<<<<
@@ -5557,44 +5593,44 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
  *                 if previous:
  */
   while (1) {
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_current); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_current); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 91, __pyx_L1_error)
     if (!__pyx_t_2) break;
 
-    /* "data_struct/LinkedList.py":89
+    /* "data_struct/LinkedList.py":92
  *         previous = None
  *         while current:
  *             if current == data:             # <<<<<<<<<<<<<<
  *                 if previous:
  *                     previous.next = current.next
  */
-    __pyx_t_1 = PyObject_RichCompare(__pyx_v_current, __pyx_v_data, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 89, __pyx_L1_error)
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 89, __pyx_L1_error)
+    __pyx_t_1 = PyObject_RichCompare(__pyx_v_current, __pyx_v_data, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 92, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     if (__pyx_t_2) {
 
-      /* "data_struct/LinkedList.py":90
+      /* "data_struct/LinkedList.py":93
  *         while current:
  *             if current == data:
  *                 if previous:             # <<<<<<<<<<<<<<
  *                     previous.next = current.next
  *                 else:
  */
-      __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_previous); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 90, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_previous); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(0, 93, __pyx_L1_error)
       if (__pyx_t_2) {
 
-        /* "data_struct/LinkedList.py":91
+        /* "data_struct/LinkedList.py":94
  *             if current == data:
  *                 if previous:
  *                     previous.next = current.next             # <<<<<<<<<<<<<<
  *                 else:
  *                     self.head = current.next
  */
-        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 94, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        if (__Pyx_PyObject_SetAttrStr(__pyx_v_previous, __pyx_n_s_next, __pyx_t_1) < 0) __PYX_ERR(0, 91, __pyx_L1_error)
+        if (__Pyx_PyObject_SetAttrStr(__pyx_v_previous, __pyx_n_s_next, __pyx_t_1) < 0) __PYX_ERR(0, 94, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-        /* "data_struct/LinkedList.py":90
+        /* "data_struct/LinkedList.py":93
  *         while current:
  *             if current == data:
  *                 if previous:             # <<<<<<<<<<<<<<
@@ -5604,7 +5640,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
         goto __pyx_L6;
       }
 
-      /* "data_struct/LinkedList.py":93
+      /* "data_struct/LinkedList.py":96
  *                     previous.next = current.next
  *                 else:
  *                     self.head = current.next             # <<<<<<<<<<<<<<
@@ -5612,14 +5648,14 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
  *             previous = current
  */
       /*else*/ {
-        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L1_error)
+        __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 96, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, __pyx_t_1) < 0) __PYX_ERR(0, 93, __pyx_L1_error)
+        if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_head, __pyx_t_1) < 0) __PYX_ERR(0, 96, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       }
       __pyx_L6:;
 
-      /* "data_struct/LinkedList.py":94
+      /* "data_struct/LinkedList.py":97
  *                 else:
  *                     self.head = current.next
  *                 return True             # <<<<<<<<<<<<<<
@@ -5631,7 +5667,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
       __pyx_r = Py_True;
       goto __pyx_L0;
 
-      /* "data_struct/LinkedList.py":89
+      /* "data_struct/LinkedList.py":92
  *         previous = None
  *         while current:
  *             if current == data:             # <<<<<<<<<<<<<<
@@ -5640,7 +5676,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
  */
     }
 
-    /* "data_struct/LinkedList.py":95
+    /* "data_struct/LinkedList.py":98
  *                     self.head = current.next
  *                 return True
  *             previous = current             # <<<<<<<<<<<<<<
@@ -5650,19 +5686,19 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
     __Pyx_INCREF(__pyx_v_current);
     __Pyx_DECREF_SET(__pyx_v_previous, __pyx_v_current);
 
-    /* "data_struct/LinkedList.py":96
+    /* "data_struct/LinkedList.py":99
  *                 return True
  *             previous = current
  *             current = current.next             # <<<<<<<<<<<<<<
  *         return False
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 96, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_current, __pyx_n_s_next); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF_SET(__pyx_v_current, __pyx_t_1);
     __pyx_t_1 = 0;
   }
 
-  /* "data_struct/LinkedList.py":97
+  /* "data_struct/LinkedList.py":100
  *             previous = current
  *             current = current.next
  *         return False             # <<<<<<<<<<<<<<
@@ -5672,7 +5708,7 @@ static PyObject *__pyx_pf_11data_struct_10LinkedList_10LinkedList_18remove(CYTHO
   __pyx_r = Py_False;
   goto __pyx_L0;
 
-  /* "data_struct/LinkedList.py":85
+  /* "data_struct/LinkedList.py":88
  *             return None
  * 
  *     def remove(self, data):             # <<<<<<<<<<<<<<
@@ -5709,6 +5745,7 @@ static PyMethodDef __pyx_methods[] = {
 
 static int __Pyx_CreateStringTabAndInitStrings(void) {
   __Pyx_StringTabEntry __pyx_string_tab[] = {
+    {&__pyx_n_s_Cython, __pyx_k_Cython, sizeof(__pyx_k_Cython), 0, 0, 1, 1},
     {&__pyx_n_s_IndexError, __pyx_k_IndexError, sizeof(__pyx_k_IndexError), 0, 0, 1, 1},
     {&__pyx_kp_s_Index_out_of_range, __pyx_k_Index_out_of_range, sizeof(__pyx_k_Index_out_of_range), 0, 0, 1, 0},
     {&__pyx_n_s_LinkedList, __pyx_k_LinkedList, sizeof(__pyx_k_LinkedList), 0, 0, 1, 1},
@@ -5732,9 +5769,10 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_None, __pyx_k_None, sizeof(__pyx_k_None), 0, 0, 1, 1},
     {&__pyx_n_s_StopIteration, __pyx_k_StopIteration, sizeof(__pyx_k_StopIteration), 0, 0, 1, 1},
     {&__pyx_kp_u__2, __pyx_k__2, sizeof(__pyx_k__2), 0, 1, 0, 0},
-    {&__pyx_n_s__23, __pyx_k__23, sizeof(__pyx_k__23), 0, 0, 1, 1},
+    {&__pyx_n_s__24, __pyx_k__24, sizeof(__pyx_k__24), 0, 0, 1, 1},
     {&__pyx_kp_s__3, __pyx_k__3, sizeof(__pyx_k__3), 0, 0, 1, 0},
-    {&__pyx_n_s__32, __pyx_k__32, sizeof(__pyx_k__32), 0, 0, 1, 1},
+    {&__pyx_n_s__33, __pyx_k__33, sizeof(__pyx_k__33), 0, 0, 1, 1},
+    {&__pyx_n_s__5, __pyx_k__5, sizeof(__pyx_k__5), 0, 0, 1, 1},
     {&__pyx_n_s_add, __pyx_k_add, sizeof(__pyx_k_add), 0, 0, 1, 1},
     {&__pyx_n_s_asyncio_coroutines, __pyx_k_asyncio_coroutines, sizeof(__pyx_k_asyncio_coroutines), 0, 0, 1, 1},
     {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
@@ -5748,9 +5786,11 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_end, __pyx_k_end, sizeof(__pyx_k_end), 0, 0, 1, 1},
     {&__pyx_n_s_getitem, __pyx_k_getitem, sizeof(__pyx_k_getitem), 0, 0, 1, 1},
     {&__pyx_n_s_head, __pyx_k_head, sizeof(__pyx_k_head), 0, 0, 1, 1},
+    {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
     {&__pyx_n_s_index, __pyx_k_index, sizeof(__pyx_k_index), 0, 0, 1, 1},
     {&__pyx_n_s_init, __pyx_k_init, sizeof(__pyx_k_init), 0, 0, 1, 1},
     {&__pyx_n_s_init_subclass, __pyx_k_init_subclass, sizeof(__pyx_k_init_subclass), 0, 0, 1, 1},
+    {&__pyx_n_s_initializing, __pyx_k_initializing, sizeof(__pyx_k_initializing), 0, 0, 1, 1},
     {&__pyx_n_s_insert, __pyx_k_insert, sizeof(__pyx_k_insert), 0, 0, 1, 1},
     {&__pyx_n_s_is_coroutine, __pyx_k_is_coroutine, sizeof(__pyx_k_is_coroutine), 0, 0, 1, 1},
     {&__pyx_n_s_iter, __pyx_k_iter, sizeof(__pyx_k_iter), 0, 0, 1, 1},
@@ -5773,6 +5813,7 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_removed_data, __pyx_k_removed_data, sizeof(__pyx_k_removed_data), 0, 0, 1, 1},
     {&__pyx_n_s_self, __pyx_k_self, sizeof(__pyx_k_self), 0, 0, 1, 1},
     {&__pyx_n_s_set_name, __pyx_k_set_name, sizeof(__pyx_k_set_name), 0, 0, 1, 1},
+    {&__pyx_n_s_spec, __pyx_k_spec, sizeof(__pyx_k_spec), 0, 0, 1, 1},
     {&__pyx_n_s_str, __pyx_k_str, sizeof(__pyx_k_str), 0, 0, 1, 1},
     {&__pyx_n_s_super, __pyx_k_super, sizeof(__pyx_k_super), 0, 0, 1, 1},
     {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
@@ -5782,10 +5823,10 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
 }
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) __PYX_ERR(0, 13, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 63, __pyx_L1_error)
-  __pyx_builtin_IndexError = __Pyx_GetBuiltinName(__pyx_n_s_IndexError); if (!__pyx_builtin_IndexError) __PYX_ERR(0, 65, __pyx_L1_error)
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_builtin_StopIteration = __Pyx_GetBuiltinName(__pyx_n_s_StopIteration); if (!__pyx_builtin_StopIteration) __PYX_ERR(0, 16, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_builtin_IndexError = __Pyx_GetBuiltinName(__pyx_n_s_IndexError); if (!__pyx_builtin_IndexError) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 76, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -5796,188 +5837,189 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "data_struct/LinkedList.py":65
+  /* "data_struct/LinkedList.py":68
  *         for _ in range(index):
  *             if current is None:
  *                 raise IndexError("Index out of range")             # <<<<<<<<<<<<<<
  *             current = current.next
  *         return current.data
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Index_out_of_range); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Index_out_of_range); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "data_struct/LinkedList.py":75
+  /* "data_struct/LinkedList.py":78
  *             print(f"{current.data} -> ", end="")
  *             current = current.next
  *         print("None")             # <<<<<<<<<<<<<<
  * 
  *     def pop_head(self):
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_n_s_None); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 75, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_n_s_None); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
-  /* "data_struct/LinkedList.py":2
+  /* "data_struct/LinkedList.py":5
+ * 
  * class Node:
  *     def __init__(self, data=None):             # <<<<<<<<<<<<<<
  *         self.data = data
  *         self.next = None
  */
-  __pyx_tuple__5 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_data); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__5);
-  __Pyx_GIVEREF(__pyx_tuple__5);
-  __pyx_codeobj__6 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_init, 2, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__6)) __PYX_ERR(0, 2, __pyx_L1_error)
-  __pyx_tuple__7 = PyTuple_Pack(1, Py_None); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__7);
-  __Pyx_GIVEREF(__pyx_tuple__7);
+  __pyx_tuple__6 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_data); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__6);
+  __Pyx_GIVEREF(__pyx_tuple__6);
+  __pyx_codeobj__7 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__6, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_init, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__7)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __pyx_tuple__8 = PyTuple_Pack(1, Py_None); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__8);
+  __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "data_struct/LinkedList.py":8
+  /* "data_struct/LinkedList.py":11
  * 
  * class NodeIterator:
  *     def __init__(self, head):             # <<<<<<<<<<<<<<
  *         self.current = head
  * 
  */
-  __pyx_tuple__8 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_head); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 8, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__8);
-  __Pyx_GIVEREF(__pyx_tuple__8);
-  __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__8, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_init, 8, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_tuple__9 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_head); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 11, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__9);
+  __Pyx_GIVEREF(__pyx_tuple__9);
+  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_init, 11, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 11, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":11
+  /* "data_struct/LinkedList.py":14
  *         self.current = head
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
  *         if self.current is None:
  *             raise StopIteration
  */
-  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_next_2, 11, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 11, __pyx_L1_error)
+  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__6, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_next_2, 14, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 14, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":18
+  /* "data_struct/LinkedList.py":21
  *         return data
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
-  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 18, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__11);
-  __Pyx_GIVEREF(__pyx_tuple__11);
-  __pyx_codeobj__12 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__11, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_iter, 18, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__12)) __PYX_ERR(0, 18, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__12);
+  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_iter, 21, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 21, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":22
+  /* "data_struct/LinkedList.py":25
  * 
  * class LinkedList:
  *     def __init__(self):             # <<<<<<<<<<<<<<
  *         self.head = None
  * 
  */
-  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__11, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_init, 22, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_codeobj__14 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_init, 25, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__14)) __PYX_ERR(0, 25, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":25
+  /* "data_struct/LinkedList.py":28
  *         self.head = None
  * 
  *     def add(self, data):             # <<<<<<<<<<<<<<
  *         """"""
  *         new_node = Node(data)
  */
-  __pyx_tuple__14 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_data, __pyx_n_s_new_node, __pyx_n_s_current); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 25, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__14);
-  __Pyx_GIVEREF(__pyx_tuple__14);
-  __pyx_codeobj__15 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__14, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_add, 25, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__15)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_tuple__15 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_data, __pyx_n_s_new_node, __pyx_n_s_current); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 28, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__15);
+  __Pyx_GIVEREF(__pyx_tuple__15);
+  __pyx_codeobj__16 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_add, 28, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__16)) __PYX_ERR(0, 28, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":36
+  /* "data_struct/LinkedList.py":39
  *             current.next = new_node
  * 
  *     def insert(self, data):             # <<<<<<<<<<<<<<
  *         """"""
  *         new_node = Node(data)
  */
-  __pyx_tuple__16 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_data, __pyx_n_s_new_node); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 36, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__16);
-  __Pyx_GIVEREF(__pyx_tuple__16);
-  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_insert, 36, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_tuple__17 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_data, __pyx_n_s_new_node); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__17);
+  __Pyx_GIVEREF(__pyx_tuple__17);
+  __pyx_codeobj__18 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__17, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_insert, 39, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__18)) __PYX_ERR(0, 39, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":42
+  /* "data_struct/LinkedList.py":45
  *         self.head = new_node
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
  *         return NodeIterator(self.head)
  * 
  */
-  __pyx_codeobj__18 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__11, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_iter, 42, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__18)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_iter, 45, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 45, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":45
+  /* "data_struct/LinkedList.py":48
  *         return NodeIterator(self.head)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
  *         elements = []
  *         current = self.head
  */
-  __pyx_tuple__19 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_elements, __pyx_n_s_current); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(0, 45, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__19);
-  __Pyx_GIVEREF(__pyx_tuple__19);
-  __pyx_codeobj__20 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__19, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_str, 45, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __pyx_tuple__20 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_elements, __pyx_n_s_current); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 48, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__20);
+  __Pyx_GIVEREF(__pyx_tuple__20);
+  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_str, 48, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 48, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":53
+  /* "data_struct/LinkedList.py":56
  *         return str(elements)
  * 
  *     def __len__(self):             # <<<<<<<<<<<<<<
  *         count = 0
  *         current = self.head
  */
-  __pyx_tuple__21 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_count, __pyx_n_s_current); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(0, 53, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__21);
-  __Pyx_GIVEREF(__pyx_tuple__21);
-  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__21, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_len, 53, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_tuple__22 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_count, __pyx_n_s_current); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 56, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__22);
+  __Pyx_GIVEREF(__pyx_tuple__22);
+  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_len, 56, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 56, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":61
+  /* "data_struct/LinkedList.py":64
  *         return count
  * 
  *     def __getitem__(self, index):             # <<<<<<<<<<<<<<
  *         current = self.head
  *         for _ in range(index):
  */
-  __pyx_tuple__24 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_index, __pyx_n_s_current, __pyx_n_s__23); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 61, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__24);
-  __Pyx_GIVEREF(__pyx_tuple__24);
-  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_getitem, 61, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_tuple__25 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_index, __pyx_n_s_current, __pyx_n_s__24); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__25);
+  __Pyx_GIVEREF(__pyx_tuple__25);
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_getitem, 64, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 64, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":70
+  /* "data_struct/LinkedList.py":73
  * 
  * 
  *     def print_list(self):             # <<<<<<<<<<<<<<
  *         current = self.head
  *         while current:
  */
-  __pyx_tuple__26 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_current); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 70, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__26);
-  __Pyx_GIVEREF(__pyx_tuple__26);
-  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_print_list, 70, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_tuple__27 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_current); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__27);
+  __Pyx_GIVEREF(__pyx_tuple__27);
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_print_list, 73, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 73, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":77
+  /* "data_struct/LinkedList.py":80
  *         print("None")
  * 
  *     def pop_head(self):             # <<<<<<<<<<<<<<
  *         if self.head is not None:
  *             removed_data = self.head.data
  */
-  __pyx_tuple__28 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_removed_data); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 77, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__28);
-  __Pyx_GIVEREF(__pyx_tuple__28);
-  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_pop_head, 77, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_tuple__29 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_removed_data); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__29);
+  __Pyx_GIVEREF(__pyx_tuple__29);
+  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_pop_head, 80, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 80, __pyx_L1_error)
 
-  /* "data_struct/LinkedList.py":85
+  /* "data_struct/LinkedList.py":88
  *             return None
  * 
  *     def remove(self, data):             # <<<<<<<<<<<<<<
  *         current = self.head
  *         previous = None
  */
-  __pyx_tuple__30 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_data, __pyx_n_s_current, __pyx_n_s_previous); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 85, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__30);
-  __Pyx_GIVEREF(__pyx_tuple__30);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_remove, 85, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_tuple__31 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_data, __pyx_n_s_current, __pyx_n_s_previous); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 88, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__31);
+  __Pyx_GIVEREF(__pyx_tuple__31);
+  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_LinkedList_py, __pyx_n_s_remove, 88, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -6345,242 +6387,257 @@ if (!__Pyx_RefNanny) {
   #endif
 
   /* "data_struct/LinkedList.py":1
+ * import Cython             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_t_2 = __Pyx_ImportDottedModule(__pyx_n_s_Cython, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Cython, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "data_struct/LinkedList.py":4
+ * 
+ * 
  * class Node:             # <<<<<<<<<<<<<<
  *     def __init__(self, data=None):
  *         self.data = data
  */
-  __pyx_t_2 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_Node, __pyx_n_s_Node, (PyObject *) NULL, __pyx_n_s_data_struct_LinkedList, (PyObject *) NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_Node, __pyx_n_s_Node, (PyObject *) NULL, __pyx_n_s_data_struct_LinkedList, (PyObject *) NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "data_struct/LinkedList.py":2
+  /* "data_struct/LinkedList.py":5
+ * 
  * class Node:
  *     def __init__(self, data=None):             # <<<<<<<<<<<<<<
  *         self.data = data
  *         self.next = None
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_4Node_1__init__, 0, __pyx_n_s_Node___init, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__6)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 2, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_4Node_1__init__, 0, __pyx_n_s_Node___init, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__7)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_3, __pyx_tuple__7);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_3) < 0) __PYX_ERR(0, 2, __pyx_L1_error)
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_3, __pyx_tuple__8);
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_3) < 0) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":1
+  /* "data_struct/LinkedList.py":4
+ * 
+ * 
  * class Node:             # <<<<<<<<<<<<<<
  *     def __init__(self, data=None):
  *         self.data = data
  */
-  __pyx_t_3 = __Pyx_Py3ClassCreate(((PyObject*)&PyType_Type), __pyx_n_s_Node, __pyx_empty_tuple, __pyx_t_2, NULL, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_Py3ClassCreate(((PyObject*)&PyType_Type), __pyx_n_s_Node, __pyx_empty_tuple, __pyx_t_2, NULL, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Node, __pyx_t_3) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Node, __pyx_t_3) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "data_struct/LinkedList.py":7
+  /* "data_struct/LinkedList.py":10
  * 
  * 
  * class NodeIterator:             # <<<<<<<<<<<<<<
  *     def __init__(self, head):
  *         self.current = head
  */
-  __pyx_t_2 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_NodeIterator, __pyx_n_s_NodeIterator, (PyObject *) NULL, __pyx_n_s_data_struct_LinkedList, (PyObject *) NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_NodeIterator, __pyx_n_s_NodeIterator, (PyObject *) NULL, __pyx_n_s_data_struct_LinkedList, (PyObject *) NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "data_struct/LinkedList.py":8
+  /* "data_struct/LinkedList.py":11
  * 
  * class NodeIterator:
  *     def __init__(self, head):             # <<<<<<<<<<<<<<
  *         self.current = head
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_12NodeIterator_1__init__, 0, __pyx_n_s_NodeIterator___init, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__9)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_12NodeIterator_1__init__, 0, __pyx_n_s_NodeIterator___init, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__10)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_3) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_3) < 0) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":11
+  /* "data_struct/LinkedList.py":14
  *         self.current = head
  * 
  *     def __next__(self):             # <<<<<<<<<<<<<<
  *         if self.current is None:
  *             raise StopIteration
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_12NodeIterator_3__next__, 0, __pyx_n_s_NodeIterator___next, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__10)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 11, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_12NodeIterator_3__next__, 0, __pyx_n_s_NodeIterator___next, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_next_2, __pyx_t_3) < 0) __PYX_ERR(0, 11, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_next_2, __pyx_t_3) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":18
+  /* "data_struct/LinkedList.py":21
  *         return data
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_12NodeIterator_5__iter__, 0, __pyx_n_s_NodeIterator___iter, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__12)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 18, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_12NodeIterator_5__iter__, 0, __pyx_n_s_NodeIterator___iter, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_iter, __pyx_t_3) < 0) __PYX_ERR(0, 18, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_iter, __pyx_t_3) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":7
+  /* "data_struct/LinkedList.py":10
  * 
  * 
  * class NodeIterator:             # <<<<<<<<<<<<<<
  *     def __init__(self, head):
  *         self.current = head
  */
-  __pyx_t_3 = __Pyx_Py3ClassCreate(((PyObject*)&PyType_Type), __pyx_n_s_NodeIterator, __pyx_empty_tuple, __pyx_t_2, NULL, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 7, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_Py3ClassCreate(((PyObject*)&PyType_Type), __pyx_n_s_NodeIterator, __pyx_empty_tuple, __pyx_t_2, NULL, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_NodeIterator, __pyx_t_3) < 0) __PYX_ERR(0, 7, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_NodeIterator, __pyx_t_3) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "data_struct/LinkedList.py":21
+  /* "data_struct/LinkedList.py":24
  *         return self
  * 
  * class LinkedList:             # <<<<<<<<<<<<<<
  *     def __init__(self):
  *         self.head = None
  */
-  __pyx_t_2 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_LinkedList, __pyx_n_s_LinkedList, (PyObject *) NULL, __pyx_n_s_data_struct_LinkedList, (PyObject *) NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_LinkedList, __pyx_n_s_LinkedList, (PyObject *) NULL, __pyx_n_s_data_struct_LinkedList, (PyObject *) NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "data_struct/LinkedList.py":22
+  /* "data_struct/LinkedList.py":25
  * 
  * class LinkedList:
  *     def __init__(self):             # <<<<<<<<<<<<<<
  *         self.head = None
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_1__init__, 0, __pyx_n_s_LinkedList___init, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_1__init__, 0, __pyx_n_s_LinkedList___init, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__14)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_3) < 0) __PYX_ERR(0, 22, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_3) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":25
+  /* "data_struct/LinkedList.py":28
  *         self.head = None
  * 
  *     def add(self, data):             # <<<<<<<<<<<<<<
  *         """"""
  *         new_node = Node(data)
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_3add, 0, __pyx_n_s_LinkedList_add, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__15)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_3add, 0, __pyx_n_s_LinkedList_add, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__16)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_add, __pyx_t_3) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_add, __pyx_t_3) < 0) __PYX_ERR(0, 28, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":36
+  /* "data_struct/LinkedList.py":39
  *             current.next = new_node
  * 
  *     def insert(self, data):             # <<<<<<<<<<<<<<
  *         """"""
  *         new_node = Node(data)
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_5insert, 0, __pyx_n_s_LinkedList_insert, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__17)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 36, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_5insert, 0, __pyx_n_s_LinkedList_insert, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__18)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_insert, __pyx_t_3) < 0) __PYX_ERR(0, 36, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_insert, __pyx_t_3) < 0) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":42
+  /* "data_struct/LinkedList.py":45
  *         self.head = new_node
  * 
  *     def __iter__(self):             # <<<<<<<<<<<<<<
  *         return NodeIterator(self.head)
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_7__iter__, 0, __pyx_n_s_LinkedList___iter, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__18)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_7__iter__, 0, __pyx_n_s_LinkedList___iter, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_iter, __pyx_t_3) < 0) __PYX_ERR(0, 42, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_iter, __pyx_t_3) < 0) __PYX_ERR(0, 45, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":45
+  /* "data_struct/LinkedList.py":48
  *         return NodeIterator(self.head)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
  *         elements = []
  *         current = self.head
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_9__str__, 0, __pyx_n_s_LinkedList___str, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__20)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 45, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_9__str__, 0, __pyx_n_s_LinkedList___str, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_str, __pyx_t_3) < 0) __PYX_ERR(0, 45, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_str, __pyx_t_3) < 0) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":53
+  /* "data_struct/LinkedList.py":56
  *         return str(elements)
  * 
  *     def __len__(self):             # <<<<<<<<<<<<<<
  *         count = 0
  *         current = self.head
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_11__len__, 0, __pyx_n_s_LinkedList___len, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__22)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_11__len__, 0, __pyx_n_s_LinkedList___len, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__23)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_len, __pyx_t_3) < 0) __PYX_ERR(0, 53, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_len, __pyx_t_3) < 0) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":61
+  /* "data_struct/LinkedList.py":64
  *         return count
  * 
  *     def __getitem__(self, index):             # <<<<<<<<<<<<<<
  *         current = self.head
  *         for _ in range(index):
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_13__getitem__, 0, __pyx_n_s_LinkedList___getitem, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__25)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_13__getitem__, 0, __pyx_n_s_LinkedList___getitem, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__26)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getitem, __pyx_t_3) < 0) __PYX_ERR(0, 61, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getitem, __pyx_t_3) < 0) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":70
+  /* "data_struct/LinkedList.py":73
  * 
  * 
  *     def print_list(self):             # <<<<<<<<<<<<<<
  *         current = self.head
  *         while current:
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_15print_list, 0, __pyx_n_s_LinkedList_print_list, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__27)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_15print_list, 0, __pyx_n_s_LinkedList_print_list, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__28)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_print_list, __pyx_t_3) < 0) __PYX_ERR(0, 70, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_print_list, __pyx_t_3) < 0) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":77
+  /* "data_struct/LinkedList.py":80
  *         print("None")
  * 
  *     def pop_head(self):             # <<<<<<<<<<<<<<
  *         if self.head is not None:
  *             removed_data = self.head.data
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_17pop_head, 0, __pyx_n_s_LinkedList_pop_head, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_17pop_head, 0, __pyx_n_s_LinkedList_pop_head, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__30)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_pop_head, __pyx_t_3) < 0) __PYX_ERR(0, 77, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_pop_head, __pyx_t_3) < 0) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":85
+  /* "data_struct/LinkedList.py":88
  *             return None
  * 
  *     def remove(self, data):             # <<<<<<<<<<<<<<
  *         current = self.head
  *         previous = None
  */
-  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_19remove, 0, __pyx_n_s_LinkedList_remove, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_11data_struct_10LinkedList_10LinkedList_19remove, 0, __pyx_n_s_LinkedList_remove, NULL, __pyx_n_s_data_struct_LinkedList, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_remove, __pyx_t_3) < 0) __PYX_ERR(0, 85, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_remove, __pyx_t_3) < 0) __PYX_ERR(0, 88, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "data_struct/LinkedList.py":21
+  /* "data_struct/LinkedList.py":24
  *         return self
  * 
  * class LinkedList:             # <<<<<<<<<<<<<<
  *     def __init__(self):
  *         self.head = None
  */
-  __pyx_t_3 = __Pyx_Py3ClassCreate(((PyObject*)&PyType_Type), __pyx_n_s_LinkedList, __pyx_empty_tuple, __pyx_t_2, NULL, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_Py3ClassCreate(((PyObject*)&PyType_Type), __pyx_n_s_LinkedList, __pyx_empty_tuple, __pyx_t_2, NULL, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_LinkedList, __pyx_t_3) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_LinkedList, __pyx_t_3) < 0) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "data_struct/LinkedList.py":1
- * class Node:             # <<<<<<<<<<<<<<
- *     def __init__(self, data=None):
- *         self.data = data
+ * import Cython             # <<<<<<<<<<<<<<
+ * 
+ * 
  */
   __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -7933,6 +7990,192 @@ static CYTHON_INLINE PyObject *__Pyx_PyUnicode_ConcatInPlaceImpl(PyObject **p_le
     }
   }
 #endif
+
+/* Import */
+static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level) {
+    PyObject *module = 0;
+    PyObject *empty_dict = 0;
+    PyObject *empty_list = 0;
+    #if PY_MAJOR_VERSION < 3
+    PyObject *py_import;
+    py_import = __Pyx_PyObject_GetAttrStr(__pyx_b, __pyx_n_s_import);
+    if (unlikely(!py_import))
+        goto bad;
+    if (!from_list) {
+        empty_list = PyList_New(0);
+        if (unlikely(!empty_list))
+            goto bad;
+        from_list = empty_list;
+    }
+    #endif
+    empty_dict = PyDict_New();
+    if (unlikely(!empty_dict))
+        goto bad;
+    {
+        #if PY_MAJOR_VERSION >= 3
+        if (level == -1) {
+            if (strchr(__Pyx_MODULE_NAME, '.') != NULL) {
+                module = PyImport_ImportModuleLevelObject(
+                    name, __pyx_d, empty_dict, from_list, 1);
+                if (unlikely(!module)) {
+                    if (unlikely(!PyErr_ExceptionMatches(PyExc_ImportError)))
+                        goto bad;
+                    PyErr_Clear();
+                }
+            }
+            level = 0;
+        }
+        #endif
+        if (!module) {
+            #if PY_MAJOR_VERSION < 3
+            PyObject *py_level = PyInt_FromLong(level);
+            if (unlikely(!py_level))
+                goto bad;
+            module = PyObject_CallFunctionObjArgs(py_import,
+                name, __pyx_d, empty_dict, from_list, py_level, (PyObject *)NULL);
+            Py_DECREF(py_level);
+            #else
+            module = PyImport_ImportModuleLevelObject(
+                name, __pyx_d, empty_dict, from_list, level);
+            #endif
+        }
+    }
+bad:
+    Py_XDECREF(empty_dict);
+    Py_XDECREF(empty_list);
+    #if PY_MAJOR_VERSION < 3
+    Py_XDECREF(py_import);
+    #endif
+    return module;
+}
+
+/* ImportDottedModule */
+#if PY_MAJOR_VERSION >= 3
+static PyObject *__Pyx__ImportDottedModule_Error(PyObject *name, PyObject *parts_tuple, Py_ssize_t count) {
+    PyObject *partial_name = NULL, *slice = NULL, *sep = NULL;
+    if (unlikely(PyErr_Occurred())) {
+        PyErr_Clear();
+    }
+    if (likely(PyTuple_GET_SIZE(parts_tuple) == count)) {
+        partial_name = name;
+    } else {
+        slice = PySequence_GetSlice(parts_tuple, 0, count);
+        if (unlikely(!slice))
+            goto bad;
+        sep = PyUnicode_FromStringAndSize(".", 1);
+        if (unlikely(!sep))
+            goto bad;
+        partial_name = PyUnicode_Join(sep, slice);
+    }
+    PyErr_Format(
+#if PY_MAJOR_VERSION < 3
+        PyExc_ImportError,
+        "No module named '%s'", PyString_AS_STRING(partial_name));
+#else
+#if PY_VERSION_HEX >= 0x030600B1
+        PyExc_ModuleNotFoundError,
+#else
+        PyExc_ImportError,
+#endif
+        "No module named '%U'", partial_name);
+#endif
+bad:
+    Py_XDECREF(sep);
+    Py_XDECREF(slice);
+    Py_XDECREF(partial_name);
+    return NULL;
+}
+#endif
+#if PY_MAJOR_VERSION >= 3
+static PyObject *__Pyx__ImportDottedModule_Lookup(PyObject *name) {
+    PyObject *imported_module;
+#if PY_VERSION_HEX < 0x030700A1 || (CYTHON_COMPILING_IN_PYPY && PYPY_VERSION_NUM  < 0x07030400)
+    PyObject *modules = PyImport_GetModuleDict();
+    if (unlikely(!modules))
+        return NULL;
+    imported_module = __Pyx_PyDict_GetItemStr(modules, name);
+    Py_XINCREF(imported_module);
+#else
+    imported_module = PyImport_GetModule(name);
+#endif
+    return imported_module;
+}
+#endif
+#if PY_MAJOR_VERSION >= 3
+static PyObject *__Pyx_ImportDottedModule_WalkParts(PyObject *module, PyObject *name, PyObject *parts_tuple) {
+    Py_ssize_t i, nparts;
+    nparts = PyTuple_GET_SIZE(parts_tuple);
+    for (i=1; i < nparts && module; i++) {
+        PyObject *part, *submodule;
+#if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+        part = PyTuple_GET_ITEM(parts_tuple, i);
+#else
+        part = PySequence_ITEM(parts_tuple, i);
+#endif
+        submodule = __Pyx_PyObject_GetAttrStrNoError(module, part);
+#if !(CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS)
+        Py_DECREF(part);
+#endif
+        Py_DECREF(module);
+        module = submodule;
+    }
+    if (unlikely(!module)) {
+        return __Pyx__ImportDottedModule_Error(name, parts_tuple, i);
+    }
+    return module;
+}
+#endif
+static PyObject *__Pyx__ImportDottedModule(PyObject *name, PyObject *parts_tuple) {
+#if PY_MAJOR_VERSION < 3
+    PyObject *module, *from_list, *star = __pyx_n_s__5;
+    CYTHON_UNUSED_VAR(parts_tuple);
+    from_list = PyList_New(1);
+    if (unlikely(!from_list))
+        return NULL;
+    Py_INCREF(star);
+    PyList_SET_ITEM(from_list, 0, star);
+    module = __Pyx_Import(name, from_list, 0);
+    Py_DECREF(from_list);
+    return module;
+#else
+    PyObject *imported_module;
+    PyObject *module = __Pyx_Import(name, NULL, 0);
+    if (!parts_tuple || unlikely(!module))
+        return module;
+    imported_module = __Pyx__ImportDottedModule_Lookup(name);
+    if (likely(imported_module)) {
+        Py_DECREF(module);
+        return imported_module;
+    }
+    PyErr_Clear();
+    return __Pyx_ImportDottedModule_WalkParts(module, name, parts_tuple);
+#endif
+}
+static PyObject *__Pyx_ImportDottedModule(PyObject *name, PyObject *parts_tuple) {
+#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030400B1
+    PyObject *module = __Pyx__ImportDottedModule_Lookup(name);
+    if (likely(module)) {
+        PyObject *spec = __Pyx_PyObject_GetAttrStrNoError(module, __pyx_n_s_spec);
+        if (likely(spec)) {
+            PyObject *unsafe = __Pyx_PyObject_GetAttrStrNoError(spec, __pyx_n_s_initializing);
+            if (likely(!unsafe || !__Pyx_PyObject_IsTrue(unsafe))) {
+                Py_DECREF(spec);
+                spec = NULL;
+            }
+            Py_XDECREF(unsafe);
+        }
+        if (likely(!spec)) {
+            PyErr_Clear();
+            return module;
+        }
+        Py_DECREF(spec);
+        Py_DECREF(module);
+    } else if (PyErr_Occurred()) {
+        PyErr_Clear();
+    }
+#endif
+    return __Pyx__ImportDottedModule(name, parts_tuple);
+}
 
 /* FixUpExtensionType */
 #if CYTHON_USE_TYPE_SPECS
@@ -9801,7 +10044,7 @@ __Pyx_PyType_GetName(PyTypeObject* tp)
     if (unlikely(name == NULL) || unlikely(!PyUnicode_Check(name))) {
         PyErr_Clear();
         Py_XDECREF(name);
-        name = __Pyx_NewRef(__pyx_n_s__32);
+        name = __Pyx_NewRef(__pyx_n_s__33);
     }
     return name;
 }

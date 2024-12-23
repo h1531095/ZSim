@@ -1,4 +1,4 @@
 from setuptools import setup
 from Cython.Build import cythonize
 
-setup(ext_modules=cythonize(['LinkedList.py'], annotate = True))
+setup(ext_modules=cythonize(['LinkedList.py', 'data_analyzer.py'], annotate = True))
