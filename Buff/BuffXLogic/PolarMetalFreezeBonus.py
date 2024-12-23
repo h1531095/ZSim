@@ -3,6 +3,10 @@ import sys
 
 
 class PolarMetalFreezeBonus(Buff.BuffLogic):
+    """
+    这是极地重金属的复杂逻辑判定。
+    主要检测的是碎冰的变化状态，如果碎冰状态变了，就返回True
+    """
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance

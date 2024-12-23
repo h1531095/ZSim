@@ -118,5 +118,45 @@
     "Buff-驱动盘-折枝剑歌-暴击率": {
     "module": ".BuffXLogic.BranchBladeSongCritRateBonus",
     "class": "BranchBladeSongCritRateBonus"
-}
+},
+    "Buff-武器-精1贵重骨核-75%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver75Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver75Hp"
+    },
+    "Buff-武器-精2贵重骨核-75%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver75Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver75Hp"
+    },
+    "Buff-武器-精3贵重骨核-75%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver75Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver75Hp"
+    },
+    "Buff-武器-精4贵重骨核-75%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver75Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver75Hp"
+    },
+    "Buff-武器-精5贵重骨核-75%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver75Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver75Hp"
+    },
+    "Buff-武器-精1贵重骨核-50%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver50Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver50Hp"
+    },
+    "Buff-武器-精2贵重骨核-50%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver50Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver50Hp"
+    },
+    "Buff-武器-精3贵重骨核-50%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver50Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver50Hp"
+    },
+    "Buff-武器-精4贵重骨核-50%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver50Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver50Hp"
+    },
+    "Buff-武器-精5贵重骨核-50%以上": {
+    "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver50Hp",
+    "class": "PreciousFossilizedCoreStunBonusOver50Hp"
+    }
 }

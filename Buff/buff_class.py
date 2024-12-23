@@ -610,6 +610,7 @@ class Buff:
                 self.dy.is_changed = True
             else:
                 # EXAMPLE: 命中可叠层，且持续时间刷新。
+                # EXAMPLE：所有的具有复杂判断逻辑但是光环类的Debuff会在这里被处理。
                 self.dy.startticks = timenow
                 """
                 这里还没完呢，startticks虽然更新了，但是endticks要不要更新还得看buff是否是瞬时buff。

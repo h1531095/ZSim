@@ -77,7 +77,6 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         """
         if self.main_module is None:
             self.main_module = sys.modules['__main__']
-        char_list = self.main_module.char_data.char_obj_list
         enemy = self.main_module.schedule_data.enemy
         dynamic_buff = self.main_module.global_stats.DYNAMIC_BUFF_DICT
         buff_0 = self.main_module.load_data.exist_buff_dict['雅'][self.buff_instance.ft.index]
@@ -86,7 +85,7 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         buff_i.dy.startticks = self.main_module.tick
         buff_i.dy.endticks = self.main_module.tick + buff_i.ft.maxduration
         if self.char is None:
-            self.char = JudgeTools.find_char(1091, char_list)
+            self.char = JudgeTools.find_char_from_CID(1091)
         mul_data = MultiplierData(enemy, dynamic_buff, self.char)
         cric_rate = Calculator.RegularMul.cal_crit_rate(mul_data)
         count = min(cric_rate, 0.8)*100
