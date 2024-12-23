@@ -24,6 +24,9 @@ class BuffInitCache:
         while len(self.cache) > max_cache:
             self.cache.popitem()
 
+    def __getitem__(self, key):
+        return self.cache[key]
+
 class BuffJudgeCache(BuffInitCache):
     def __init__(self):
         super().__init__()
@@ -176,9 +179,9 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission
         说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
     """
     # 以下为缓存逻辑
-    cache_key = hash((buff_now.ft.index, tuple(judge_condition_dict.items()), mission.mission_tag))
+    cache_key = hash((id(buff_now), tuple(judge_condition_dict.items()), id(mission)))
     if cache_key in cache.cache:
-        return cache.get(cache_key)
+        return cache[cache_key]
     result: bool
     def save_cache_and_return(result: bool, *,cache = cache):
         """由于本函数有多个return中断，所以写了个这玩意，把直接return换成return这个函数就行"""
