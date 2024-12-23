@@ -43,7 +43,7 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
                         # debuff比正常的buff需要多执行一步，那就是将DYNAMIC_BUFF_DICT的修改同步到enemy.dynamic.dynamic_debuff_list中。
                         enemy.dynamic.dynamic_debuff_list.remove(_)
                 else:
-                    for tuples in _.dy.built_in_buff_box:
+                    for tuples in _.dy.built_in_buff_box[:]:
                         if tuples[1] <= timetick:
                             _.dy.built_in_buff_box.remove(tuples)
                             _.dy.count = len(_.dy.built_in_buff_box)

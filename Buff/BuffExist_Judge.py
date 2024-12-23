@@ -99,10 +99,13 @@ def buff_exist_judge(charname_box, judge_list_set, weapon_dict):
         for f_buff in sub_buff_dict.values():
             if not isinstance(f_buff, Buff):
                 raise TypeError
-            if f_buff.ft.operator != char_name:
-                f_buff.ft.passively_updating = True
-            else:
+            if char_name == 'enemy':
                 f_buff.ft.passively_updating = False
+            else:
+                if f_buff.ft.operator != char_name:
+                    f_buff.ft.passively_updating = True
+                else:
+                    f_buff.ft.passively_updating = False
     # for names, buff_dict in exist_buff_dict.items():
     #     print(names)
     #     for buff_name, buff in buff_dict.items():

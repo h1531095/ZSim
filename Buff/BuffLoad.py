@@ -35,6 +35,8 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
     """
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, mission)
+    # if not all_match and "焰心桂冠-受暴伤提升" in buff_0.ft.index:
+    #     print(111111111)
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:
@@ -52,12 +54,15 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
                 并且触发对应的分支（start、hit、end），完成符合buff属性的时间、层数更新。
                 """
                 buff_new = Buff(active_condition_dict, judge_condition_dict)
-                buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-                # if buff_new.ft.index =='Buff-角色-雅-核心被动-冰焰':
-                #     print(11111111111, buff_new.dy.is_changed)
+                if buff_0.ft.simple_effect_logic:
+                    buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                    # if buff_new.ft.index =='Buff-角色-雅-核心被动-冰焰':
+                    #     print(11111111111, buff_new.dy.is_changed)
+                else:
+                    buff_new.logic.xeffect()
                 if buff_new.dy.is_changed:
                     LOADING_BUFF_DICT[char].append(buff_new)
-        # else:
+            # else:
         #     print(1111111111111)
         #     """
         #     大部分拥有复杂判断逻辑的buff并没有明确的触发节点，往往是复杂判断过了，就激活了，不需要判断子任务的执行节点。
