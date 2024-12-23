@@ -558,17 +558,14 @@ class Character:
                 self.sp += sp_change
                 self.sp = max(0.0, min(self.sp, self.sp_limit))
             # Decibel
-            if f"{self.CID}_Q" in node.skill_tag and 'QTE' not in node.skill_tag:
-                if self.decibel < 3000:
+            if self.NAME == node.char_name and node.skill_tag.split('_')[1] == 'Q':
+                if self.decibel - 3000 <= -1e-5:
                     print(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
-                    # TODO：snow说这里要改成>的逻辑，还说什么1e-5反正听不懂，交给他了。
                 self.decibel = 0
             else:
-                all_decibel_change = node.skill.fever_recovery
-                self_decibel_change = 0
-                if node.char_name == self.NAME:
-                    self_decibel_change = node.skill.self_fever_re
-                decibel_change = all_decibel_change + self_decibel_change
+                if (decibel_change := node.skill.fever_recovery) > 0:
+                    if node.char_name == self.NAME:
+                        decibel_change = node.skill.self_fever_re
                 self.decibel += decibel_change
                 self.decibel = max(0.0, min(self.decibel, 3000))
         # SP recovery over time

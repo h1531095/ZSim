@@ -1,4 +1,4 @@
-def _skill_node_filter(*args, **kwargs) -> list:
+def _skill_node_filter(*args, **kwargs):
     """过滤出输入的 SKillNode，并作为列表返回"""
     from Preload import SkillNode
     skill_nodes: list[SkillNode] = []
@@ -10,7 +10,7 @@ def _skill_node_filter(*args, **kwargs) -> list:
             skill_nodes.append(value)
     return skill_nodes
 
-def _multiplier_filter(*args, **kwargs) -> list:
+def _multiplier_filter(*args, **kwargs):
     """过滤出输入的 乘区数据，并作为列表返回"""
     from ScheduledEvent import MultiplierData
     multiplier_data: list[MultiplierData] = []
@@ -22,7 +22,7 @@ def _multiplier_filter(*args, **kwargs) -> list:
             multiplier_data.append(value)
     return multiplier_data
 
-def _sp_update_data_filter(*args, **kwargs) -> list:
+def _sp_update_data_filter(*args, **kwargs):
     """过滤出输入的 SPUpdateData，并作为列表返回"""
     from data_struct import SPUpdateData
     sp_update_data: list[SPUpdateData] = []
