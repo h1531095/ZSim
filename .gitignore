@@ -5,6 +5,7 @@ config.json
 .ipynb_checkpoints
 test.py
 .vscode
+.venv
 .run
 result.json
 /.run/

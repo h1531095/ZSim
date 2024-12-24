@@ -1,15 +1,16 @@
 from dataclasses import dataclass, field
+
 import Buff
-from define import APL_MODE
 import Load
 import Preload
 import Report
 import ScheduledEvent as ScE
 from Character import Character, character_factory
 from Enemy import Enemy
-from Report import write_to_csv, report_to_log
+from Report import write_to_csv
 from Update_Buff import update_dynamic_bufflist
 from data_struct import ActionStack
+from define import APL_MODE
 
 
 @dataclass
