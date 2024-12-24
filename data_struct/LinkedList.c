@@ -22,19 +22,6 @@ typedef struct {
     LinkedList* list;
 } LinkedListIterator;
 
-// 创建新的迭代器对象
-static PyObject* LinkedList_iter(LinkedList* self) {
-    LinkedListIterator* iter = (LinkedListIterator*)PyObject_GC_New(LinkedListIterator, &LinkedListIteratorType);
-    if (iter == NULL) {
-        return NULL;
-    }
-    iter->current = self->head;
-    iter->list = self;
-    Py_INCREF(self);
-    PyObject_GC_Track(iter);
-    return (PyObject*)iter;
-}
-
 // 迭代器的 next 方法
 static PyObject* LinkedList_iternext(LinkedListIterator* iter) {
     if (iter->current == NULL) {
@@ -47,16 +34,6 @@ static PyObject* LinkedList_iternext(LinkedListIterator* iter) {
     return data;
 }
 
-// 定义迭代器类型
-static PyTypeObject LinkedListIteratorType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "linkedlist.LinkedListIterator",
-    .tp_basicsize = sizeof(LinkedListIterator),
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
-    .tp_iternext = (iternextfunc)LinkedList_iternext,
-    .tp_dealloc = (destructor)LinkedListIterator_dealloc,
-    .tp_traverse = (traverseproc)LinkedListIterator_traverse,
-};
 
 // 迭代器的析构函数
 static void LinkedListIterator_dealloc(LinkedListIterator* self) {
@@ -70,6 +47,17 @@ static int LinkedListIterator_traverse(LinkedListIterator *self, visitproc visit
     Py_VISIT(self->list);
     return 0;
 }
+
+// 定义迭代器类型
+static PyTypeObject LinkedListIteratorType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "LinkedList.LinkedListIterator",
+    .tp_basicsize = sizeof(LinkedListIterator),
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
+    .tp_iternext = (iternextfunc)LinkedList_iternext,
+    .tp_dealloc = (destructor)LinkedListIterator_dealloc,
+    .tp_traverse = (traverseproc)LinkedListIterator_traverse,
+};
 
 // 创建新的链表对象
 static PyObject* LinkedList_new(PyTypeObject* type, PyObject* args, PyObject* kwds) {
@@ -202,6 +190,19 @@ static PyObject* LinkedList_remove(LinkedList* self, PyObject* data) {
     Py_RETURN_FALSE;
 }
 
+// 创建新的迭代器对象
+static PyObject* LinkedList_iter(LinkedList* self) {
+    LinkedListIterator* iter = (LinkedListIterator*)PyObject_GC_New(LinkedListIterator, &LinkedListIteratorType);
+    if (iter == NULL) {
+        return NULL;
+    }
+    iter->current = self->head;
+    iter->list = self;
+    Py_INCREF(self);
+    PyObject_GC_Track(iter);
+    return (PyObject*)iter;
+}
+
 static PyObject* LinkedList_getitem(LinkedList* self, Py_ssize_t index) {
     if (index < 0 || index >= self->length) {
         PyErr_SetString(PyExc_IndexError, "Index out of range.");
@@ -210,25 +211,11 @@ static PyObject* LinkedList_getitem(LinkedList* self, Py_ssize_t index) {
 
     Node* current = self->head;
     for (Py_ssize_t i = 0; i < index; i++) {
-}
-}
-
-static PyObject* LinkedList_iter(LinkedList *self) {
-    if (self->head == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, "Cannot iterate over an empty linked list");
-        return NULL;
+        current = current->next;
     }
-
-    PyObject *iterator = PyObject_GetIter(self->head);
-    if (iterator == NULL) {
-        // 设置更具体的错误信息，例如 "self->head is not iterable"
-        PyErr_SetString(PyExc_TypeError, "self->head is not iterable");
-        return NULL;
-    }
-
-    return iterator;
+    Py_INCREF(current->data);
+    return current->data;
 }
-
 
 // 获取链表长度
 static PyObject* LinkedList_length(LinkedList* self, void* closure) {
@@ -246,6 +233,11 @@ static PyObject* LinkedList_str(LinkedList* self) {
     PyObject* str_result = PyObject_Str(result);
     Py_DECREF(result);
     return str_result;
+}
+
+// 定义获取链表长度的函数
+static Py_ssize_t LinkedList_sq_length(LinkedList* self) {
+    return self->length;
 }
 
 // 定义链表的方法
@@ -266,7 +258,7 @@ static PyGetSetDef LinkedList_getset[] = {
 // 链表类型定义
 static PyTypeObject LinkedListType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "linkedlist.LinkedList",
+    .tp_name = "LinkedList",
     .tp_doc = "A simple linked list.",
     .tp_basicsize = sizeof(LinkedList),
     .tp_flags = Py_TPFLAGS_DEFAULT,
@@ -276,22 +268,26 @@ static PyTypeObject LinkedListType = {
     .tp_getset = LinkedList_getset,
     .tp_str = (reprfunc)LinkedList_str,
     .tp_iter = (getiterfunc)LinkedList_iter,
+    .tp_as_sequence = &(PySequenceMethods){
+        .sq_item = (ssizeargfunc)LinkedList_getitem,
+        .sq_length = (lenfunc)LinkedList_sq_length,
+    },
 };
 
 // 模块初始化
-static PyModuleDef linkedlistmodule = {
+static PyModuleDef LinkedListmodule = {
     PyModuleDef_HEAD_INIT,
-    "linkedlist",
+    "LinkedList",
     "A simple linked list module.",
     -1,
 };
 
-PyMODINIT_FUNC PyInit_linkedlist(void) {
+PyMODINIT_FUNC PyInit_LinkedList(void) {
     PyObject* m;
     if (PyType_Ready(&LinkedListType) < 0) {
         return NULL;
     }
-    m = PyModule_Create(&linkedlistmodule);
+    m = PyModule_Create(&LinkedListmodule);
     if (!m) {
         return NULL;
     }
