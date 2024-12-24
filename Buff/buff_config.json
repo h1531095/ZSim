@@ -158,5 +158,25 @@
     "Buff-武器-精5贵重骨核-50%以上": {
     "module": ".BuffXLogic.PreciousFossilizedCoreStunBonusOver50Hp",
     "class": "PreciousFossilizedCoreStunBonusOver50Hp"
+    },
+    "Buff-武器-精1人为刀俎": {
+        "module": ".BuffXLogic.SteamOven",
+        "class": "SteamOven"
+    },
+    "Buff-武器-精2人为刀俎": {
+        "module": ".BuffXLogic.SteamOven",
+        "class": "SteamOven"
+    },
+    "Buff-武器-精3人为刀俎": {
+        "module": ".BuffXLogic.SteamOven",
+        "class": "SteamOven"
+    },
+    "Buff-武器-精4人为刀俎": {
+        "module": ".BuffXLogic.SteamOven",
+        "class": "SteamOven"
+    },
+    "Buff-武器-精5人为刀俎": {
+        "module": ".BuffXLogic.SteamOven",
+        "class": "SteamOven"
     }
 }

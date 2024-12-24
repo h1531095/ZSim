@@ -6,6 +6,7 @@ from Report import report_to_log
 from define import EFFECT_FILE_PATH
 import importlib.util
 import pandas as pd
+from typing import  Callable
 
 with open('./config.json', 'r', encoding='utf-8') as file:
     config = json.load(file)
@@ -278,16 +279,7 @@ class Buff:
             self.last_duration = 0  # buff上一次的持续时间
             self.end_times = 0  # buff结束过的次数
             self.real_count = 0  # 莱特组队被动专用的字段，用于记录实层。
-
-    def get_my_count(self):
-        """
-        获取层数现在要用这个层数了，不能直接获取self.dy.count了
-        """
-        if self.ft.individual_settled:
-            count = len(self.dy.built_in_buff_box)
-        else:
-            count = self.dy.count
-        return count
+            self.last_update_tick = 0  # 部分复杂buff需要的上一次更新时间
 
     def __lookup_buff_effect(self, index: str) -> dict:
         """
@@ -382,6 +374,7 @@ class Buff:
         self.dy.startticks = timenow
         self.dy.endticks = timenow + self.ft.maxduration
         self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+        self.dy.is_changed = True
         if self.ft.individual_settled:
             self.dy.built_in_buff_box.append((self.dy.startticks, self.dy.endticks))
         self.update_to_buff_0(buff_0)
@@ -403,6 +396,7 @@ class Buff:
         # 不管是否pop，都需要append
         self.dy.built_in_buff_box.append((start, end))
         self.dy.count = len(self.dy.built_in_buff_box)
+        self.dy.startticks = start
         self.dy.endticks = end
         self.dy.active = True
         self.dy.ready = False
@@ -431,11 +425,7 @@ class Buff:
             当然那，不用担心这一步会污染startticks和endticks，因为后面该对这两个东西做出改动的函数，都会改动它们。
             不该做出改动的，那自然不需要改，也是符合需求的。
             """
-            self.dy.startticks = buff_0.dy.startticks
-            self.dy.endticks = buff_0.dy.endticks
-            self.dy.count = buff_0.dy.count
-            self.dy.active = buff_0.dy.active
-            self.dy.built_in_buff_box = buff_0.dy.built_in_buff_box
+            self.download_from_buff_0(buff_0)
         if not isinstance(buff_0, Buff):
             raise TypeError(f'{buff_0}不是Buff类！')
         buff_0.ready_judge(timenow)
@@ -466,12 +456,26 @@ class Buff:
             raise TypeError(f'{buff_0}不是Buff类！')
         buff_0.dy.active = self.dy.active
         buff_0.dy.ready = self.dy.ready
-        buff_0.dy.count = self.dy.count
         buff_0.dy.startticks = self.dy.startticks
         buff_0.dy.endticks = self.dy.endticks
         buff_0.dy.built_in_buff_box = self.dy.built_in_buff_box
         buff_0.history.active_times += 1
+        if buff_0.ft.individual_settled:
+            buff_0.dy.count = len(self.dy.built_in_buff_box)
+        else:
+            buff_0.dy.count = self.dy.count
         # report_to_log(f'[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发')
+
+    def download_from_buff_0(self, buff_0):
+        if not isinstance(buff_0, Buff):
+            raise TypeError(f'{buff_0}不是Buff类！')
+        self.dy.active = buff_0.dy.active
+        self.dy.ready = buff_0.dy.ready
+        self.dy.is_changed = buff_0.dy.is_changed
+        self.dy.startticks = buff_0.dy.startticks
+        self.dy.endticks = buff_0.dy.endticks
+        self.dy.built_in_buff_box = buff_0.dy.built_in_buff_box
+        self.dy.count = buff_0.dy.count
 
     def update_cause_start(self, timenow, timecost, exist_buff_dict: dict):
         buff_0 = exist_buff_dict[self.ft.index]
@@ -607,7 +611,9 @@ class Buff:
                     # EXAMPLE：普攻期间命中时，攻击力提高3%，层数之间独立结算。
                     # 如果maxduration是0，那么endticks是不能变的。要还原回来。
                     self.dy.endticks = endticks
+                self.dy.active = True
                 self.dy.is_changed = True
+                self.dy.ready = False
             else:
                 # EXAMPLE: 命中可叠层，且持续时间刷新。
                 # EXAMPLE：所有的具有复杂判断逻辑但是光环类的Debuff会在这里被处理。
@@ -619,6 +625,9 @@ class Buff:
                 """
                 self.dy.endticks = timenow + self.ft.maxduration if self.ft.maxduration != 0 else endticks
                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                self.dy.active = True
+                self.dy.is_changed = True
+                self.dy.ready = False
         else:
             """
             处理剩下的其他buff逻辑（fresh = False 或瞬时 buff）
@@ -627,13 +636,13 @@ class Buff:
             if not self.ft.individual_settled:
                 # EXAMPLE：强化E持续期间，命中一次叠层一次。
                 self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                self.dy.active = True
+                self.dy.is_changed = True
+                self.dy.ready = False
 
-        self.dy.ready = False
-        self.dy.active = True
-        self.dy.is_changed = True
     # report_to_log(f"[Buff INFO]:{timenow}:{buff_0.ft.index}第{buff_0.history.active_times}次触发", level=3)
         if self.dy.is_changed:
             self.update_to_buff_0(buff_0)
 
     def __str__(self) -> str:
-        return f'Buff: {self.ft.description}'
+        return f'Buff名: {self.ft.index}→{self.ft.description}'

@@ -15,11 +15,11 @@ from data_struct import ActionStack
 @dataclass
 class InitData:
     name_box = ['莱特', '露西', '雅']
-    Judge_list_set = [['雅', '霰落星殿', '折枝剑歌'],
+    Judge_list_set = [['雅', '硫磺石', '折枝剑歌'],
                       ['露西', '含羞恶面', '自由蓝调'],
-                      ['莱特', '焰心桂冠', '镇星迪斯科']]
+                      ['莱特', '人为刀俎', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
-              'weapon': '霰落星殿', 'weapon_level': 1,
+              'weapon': '硫磺石', 'weapon_level': 1,
               'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
               'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
               'scATK_percent': 10, 'scCRIT': 20,
@@ -31,7 +31,7 @@ class InitData:
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 0}
     char_0 = {'name' : name_box[0],
-              'weapon': '焰心桂冠', 'weapon_level': 1,
+              'weapon': '人为刀俎', 'weapon_level': 5,
               'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
               'drive4' : '暴击率', 'drive5' : '火属性伤害', 'drive6' : '冲击力%',
               'scATK_percent': 10, 'scCRIT': 20,

@@ -22,8 +22,7 @@ class BranchBladeSongCritDamageBonus(Buff.BuffLogic):
         if self.equipper is None:
             self.equipper = JudgeTools.find_equipper("折枝剑歌")
         if self.char is None:
-            char_list = JudgeTools.find_char_list()
-            self.char = JudgeTools.find_char_from_name(self.equipper, char_list)
+            self.char = JudgeTools.find_char_from_name(self.equipper)
         if self.enemy is None:
             self.enemy = JudgeTools.find_enemy()
         if self.dynamic_buff_list is None:

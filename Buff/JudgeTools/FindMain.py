@@ -28,3 +28,15 @@ def find_dynamic_buff_list():
     main_module = find_main()
     dynamic_buff_list = main_module.global_stats.DYNAMIC_BUFF_DICT
     return dynamic_buff_list
+
+
+def find_tick():
+    main_module = find_main()
+    tick = main_module.tick
+    return tick
+
+
+def find_exist_buff_dict():
+    main_module = find_main()
+    exist_buff_dict = main_module.load_data.exist_buff_dict
+    return exist_buff_dict

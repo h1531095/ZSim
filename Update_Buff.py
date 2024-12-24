@@ -39,6 +39,7 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
             if _.ft.individual_settled:
                 if len(_.dy.built_in_buff_box) <= 0:
                     _.end(timetick, sub_exist_buff_dict)
+                    DYNAMIC_BUFF_DICT[charname].remove(_)
                     if _.ft.is_debuff:
                         # debuff比正常的buff需要多执行一步，那就是将DYNAMIC_BUFF_DICT的修改同步到enemy.dynamic.dynamic_debuff_list中。
                         enemy.dynamic.dynamic_debuff_list.remove(_)
