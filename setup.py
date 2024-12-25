@@ -2,12 +2,12 @@ from setuptools import setup, Extension
 
 module_LinkedList = Extension(
     'data_struct.LinkedList',
-    sources=[r'.\\data_struct\\LinkedList.c'],
+    sources=[r'./data_struct/LinkedList.c'],
 )
 
 module_ActionStack = Extension(
     'data_struct.ActionStack',
-    sources=[r'.\\data_struct\\ActionStack.cpp'],
+    sources=[r'./data_struct/ActionStack.cpp'],
 )
 
 setup(

@@ -12,4 +12,6 @@ result.json
 /results/
 *.pyd
 *.pyc
+*.so
+*.dll
 build
