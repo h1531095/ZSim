@@ -3,6 +3,8 @@
 #include <Python.h>
 #include <structmember.h>
 #include <stdlib.h>
+#pragma execution_character_set("utf-8")
+
 
 // 节点结构定义
 typedef struct Node {

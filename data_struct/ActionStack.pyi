@@ -7,7 +7,7 @@ class ActionStack:
         # 初始化一个空的栈，用列表作为基础
         self.stack = []
 
-    def push(self, item):
+    def push(self, item, /):
         """向栈中压入一个元素，如果栈内元素超过2个，移除最早的元素"""
         self.stack.append(item)
         # 如果栈的大小超过 2，就删除栈底元素（即最先加入的元素）
@@ -48,12 +48,12 @@ class ActionStack:
     def __iter__(self): 
         return iter(self.stack)
     
-    def __getitem__(self, index):
+    def __getitem__(self, index, /):
         return self.stack[index]
     
-    def __eq__(self, value: object) -> bool:
+    def __eq__(self, value: object, /) -> bool:
         return self.stack == value or self.stack == getattr(value, 'stack', None)
     
-    def __ne__(self, value: object) -> bool:
+    def __ne__(self, value: object, /) -> bool:
         return not self.__eq__(value)
     

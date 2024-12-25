@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 import pandas as pd
+from dataclasses import dataclass
+
 from Character import Skill
 from Enemy import Enemy
 from data_struct import LinkedList
@@ -69,7 +70,6 @@ class Preload:
         return f"Preload Data: \n{self.preload_data.preloaded_action}"
 
     def do_preload(self, tick: int, enemy: Enemy = None, name_box: list[str] = None, char_data = None):
-        print(self.skills_queue)
         if isinstance(enemy, Enemy):
             stun_status: bool = stun_judge(enemy)
         if self.preload_data.current_node is None:
