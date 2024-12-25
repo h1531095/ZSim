@@ -24,6 +24,13 @@ class BuffInitCache:
         while len(self.cache) > max_cache:
             self.cache.popitem()
 
+    def __getitem__(self, key):
+        return self.cache[key]
+
+class BuffJudgeCache(BuffInitCache):
+    def __init__(self):
+        super().__init__()
+
 
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     """
@@ -171,30 +178,44 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache
     return results
 
 
-def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission):
+def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission, *, cache = BuffJudgeCache()) -> bool:
     """
         如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
         说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
     """
+    # 以下为缓存逻辑
+    cache_key = hash((id(buff_now), tuple(judge_condition_dict.items()), id(mission)))
+    if cache_key in cache.cache:
+        return cache[cache_key]
+    result: bool
+    def save_cache_and_return(result: bool, *,cache = cache):
+        """由于本函数有多个return中断，所以写了个这玩意，把直接return换成return这个函数就行"""
+        cache.add(cache_key, result)
+        return result
+    # ——————缓存逻辑结束————————
     if buff_now.ft.alltime:
-        return True
+        result = True
+        return save_cache_and_return(result)
     # if buff_now.ft.index == 'Buff-武器-精1燃狱齿轮-后台能量自动回复':
     #     print(mission.mission_character)
     if (not any(value if value is None else True for value in judge_condition_dict.values)) and buff_now.ft.simple_judge_logic:
         # EXPLAIN：全部数据都是None并且是简单判断逻辑
         #   这通常意味着Buff的判断不在Load阶段，而是通过某种方式在其他阶段暴力添加。
         #   但是部分alltime的buff也会进入这一分支，所以需要在判断alltime之后再进行全空判断。
-        return False
+        result = False
+        return save_cache_and_return(result)
     if buff_now.ft.passively_updating:
         """
         这一步主要检查的是：buff的拥有者是否就是当前的任务角色。
         这可以避免莱特在前台的平A暴击触发了后台艾莲身上的啄木鸟4
         """
-        return False
+        result = False
+        return save_cache_and_return(result)
     else:
         if buff_now.ft.operator != mission.mission_character:
             if not buff_now.ft.backend_acitve:
-                return False
+                result = False
+                return save_cache_and_return(result)
     """
     正常buff的判断逻辑
     """
@@ -224,28 +245,23 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission
                     all_match = False
     else:
         all_match = buff_now.logic.xjudge()
-    return all_match
+    result = all_match
+    return save_cache_and_return(result)
 
 
-def process_string(s):
+def process_string(source: str) -> list[int|float|str]:
     """
     在2024.11.13的更新中，从csv中读取的数据从单个数值变成了字符串，但是数据类型有点复杂。
-    如果单元格内没有分隔符，那么就会被转化为单元素列表，且会自动转换其中的数字为int，
-    如果有分隔符，则会根据分隔符打散成列表，并且将其中的数字转化成int。
+    如果单元格内没有分隔符，那么就会被转化为单元素列表，且会自动转换其中的数字为python数字，
+    如果有分隔符，则会根据分隔符打散成列表，并且将其中的数字转化成python数字。
     由于getattr方法获得的技能属性的数值永远是单个的，所以用 技能属性 in list 的判定逻辑，
     这样就可以实现“或”逻辑。
     """
-    if isinstance(s, str):
-        if '|' in s:
-            split_list = s.split('|')
-            return [int(item) if item.isdigit() else item for item in split_list]
+    if isinstance(source, str):
+        if '|' in source:
+            split_list = source.split('|')
+            return [eval(item) if item.isdigit() else item for item in split_list]
         else:
-            return [int(s) if s.isdigit() else s]
-    return [s]
-
-
-
-
-
-
-
+            return [eval(source) if source.isdigit() else source]
+    else:
+        return [source]

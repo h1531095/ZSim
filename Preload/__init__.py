@@ -1,8 +1,9 @@
-from dataclasses import dataclass
 import pandas as pd
+from dataclasses import dataclass
+
 from Character import Skill
 from Enemy import Enemy
-from data_struct.LinkedList import LinkedList
+from data_struct import LinkedList
 from Report import report_to_log
 from define import INPUT_ACTION_LIST, APL_MODE, APL_PATH
 from . import SkillsQueue
