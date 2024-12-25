@@ -1,17 +1,26 @@
+# 编译生成的文件
 __pycache__
-logs
-config.json
-.idea
-.ipynb_checkpoints
-test.py
-.vscode
-.venv
-.run
-result.json
-/.run/
-/results/
-*.pyd
 *.pyc
+*.pyd
 *.so
 *.dll
+
+# 日志和配置文件
+logs
+config.json
+result.json
+/results/
+
+# 开发工具和环境文件
+.idea
+.vscode
+.venv
+.ipynb_checkpoints
+.run
+/.run/
+
+# 测试文件
+test.py
+
+# 运行时生成的文件
 build
