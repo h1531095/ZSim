@@ -19,17 +19,38 @@ class APLExecutor:
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"初始化时发生错误: {e}")
             self.NA_action_dict = {}
+        self.apl = None
 
     def execute(self):
         if self.game_state is None:
             self.get_game_state()
+        if self.apl is None:
+            self.apl = APLCondition(self.game_state)
+
         # 找到第一个符合条件的动作并执行
         for action in self.actions_list:
-            if action['conditions']:
-                if all(APLCondition(self.game_state).evaluate(action, cond) for cond in action['conditions']):
-                    return self.perform_action(action['CID'], action["action"])
+            conditions = action.get('conditions', None)
+
+            # 如果没有条件，直接执行
+            if not conditions:
+                self.perform_action(action['CID'], action["action"])
+                return
+
+            # 检查条件
+            for cond in conditions:
+                # 如果 cond 是字符串，evaluate 返回 False 则跳过该动作
+                if isinstance(cond, str):
+                    if not self.apl.evaluate(action, cond):
+                        break
+                # 如果 cond 是列表，只有所有 sub_cond 都为 False 才跳过该动作
+                elif "/or/" in cond:
+                    cond_list = cond.split("/or/")
+                    if not any(self.apl.evaluate(action, sub_cond) for sub_cond in cond_list):
+                        break
             else:
-                return self.perform_action(action['CID'], action["action"])
+                # 如果所有条件都通过，执行动作并退出
+                self.perform_action(action['CID'], action["action"])
+                return
 
     def get_game_state(self):
         if self.game_state is None:

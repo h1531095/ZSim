@@ -280,6 +280,7 @@ class Buff:
             self.end_times = 0  # buff结束过的次数
             self.real_count = 0  # 莱特组队被动专用的字段，用于记录实层。
             self.last_update_tick = 0  # 部分复杂buff需要的上一次更新时间
+            self.last_update_resource = 0   # 部分复杂buff需要的上一次更新时的资源数量
 
     def __lookup_buff_effect(self, index: str) -> dict:
         """

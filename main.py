@@ -15,10 +15,10 @@ from define import APL_MODE
 
 @dataclass
 class InitData:
-    name_box = ['莱特', '露西', '雅']
+    name_box = ['莱卡恩', '苍角', '雅']
     Judge_list_set = [['雅', '硫磺石', '折枝剑歌'],
-                      ['露西', '含羞恶面', '自由蓝调'],
-                      ['莱特', '人为刀俎', '镇星迪斯科']]
+                      ['苍角', '含羞恶面', '自由蓝调'],
+                      ['莱卡恩', '人为刀俎', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
               'weapon': '硫磺石', 'weapon_level': 1,
               'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
@@ -28,7 +28,7 @@ class InitData:
     char_1 = {'name' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,
               'equip_set4': '自由蓝调', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '攻击力%', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
+              'drive4' : '攻击力%', 'drive5' : '攻击力%', 'drive6' : '能量自动回复%',
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 0}
     char_0 = {'name' : name_box[0],

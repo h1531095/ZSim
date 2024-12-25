@@ -40,3 +40,9 @@ def find_exist_buff_dict():
     main_module = find_main()
     exist_buff_dict = main_module.load_data.exist_buff_dict
     return exist_buff_dict
+
+
+def find_stack():
+    main_module = find_main()
+    stack = main_module.load_data.action_stack
+    return stack

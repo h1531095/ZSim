@@ -5,6 +5,7 @@ class APLCondition:
     def __init__(self, game_state: dict):
         self.game_state = game_state
         self.found_char_dict = {}           # 用于装角色实例，键值是CID
+        self.sub_condition_box = []       # 如果单个condition中，存在两个用or关系并列的condition，那么就暂存在这里。
 
     def evaluate(self, sub_action_dict: dict, condition: str):
         char_CID = sub_action_dict['CID']
@@ -13,18 +14,25 @@ class APLCondition:
         if "auto_NA" not in action_name and char_CID != action_name[:4]:
             print(action_name)
             raise ValueError(f'动作名称和角色的CID不同！')
-
         # 示例条件解析逻辑
         if condition is None:
             return True
-        elif "status" in condition:
+
+        if "status" in condition:
             judge_code = condition.split(":")[-1].strip()
-            # 例：enemy.dynamic.stun==True
+            # EXAMPLE：enemy.dynamic.stun==True
             return self.get_dynamic_status(judge_code)
         elif "buff" in condition:
-            judge_code = condition.split(":")[-2].strip(), condition.split(":")[-1].strip()
-            # EXPLAIN：judge_code = (buff.ft.index, condition)
-            return self.evaluate_buff_conditions(char_CID, judge_code)
+            if "count" in condition:
+                judge_code = condition.split(":")[-2].strip(), condition.split(":")[-1].strip()
+                # EXAMPLE：judge_code = (buff.ft.index, condition)
+                return self.evaluate_buff_count_conditions(char_CID, judge_code)
+            elif "exist" in condition:
+                buff_index = condition.split(":")[-1].strip()
+                if self.find_buff(char, buff_index):
+                    return True
+                else:
+                    return False
         elif "energy" in condition:
             compared_value = char.sp
             return compare_method(compared_value, condition)
@@ -38,12 +46,6 @@ class APLCondition:
         elif "decibel" in condition:
             compared_value = char.decibel
             return compare_method(compared_value, condition)
-        elif "stun" in condition:
-            pass
-        elif "health_pct" in condition:
-            pass
-        elif "time" in condition:
-            pass
         else:
             return False
 
@@ -78,7 +80,7 @@ class APLCondition:
             hole_string = first_half + judge_code
             return eval(hole_string, {}, {"self": self})
 
-    def evaluate_buff_conditions(self, char_CID, judge_code: tuple) -> bool:
+    def evaluate_buff_count_conditions(self, char_CID, judge_code: tuple) -> bool:
         """
         该函数用于处理Buff类的判定条件，并最终输出布尔值。
         """
@@ -86,7 +88,7 @@ class APLCondition:
         char = self.find_char(char_CID)
         condition_code = judge_code[1]
         buff = self.find_buff(char, buff_index)
-        if buff is None:
+        if not buff:
             return False
         if "count" in condition_code:
             compared_value = buff.dy.count
@@ -97,10 +99,7 @@ class APLCondition:
             if buffs.ft.index == buff_index:
                 return buffs
         else:
-            return None
-
-
-
+            return False
 
 
 def compare_method(compared_value, condition: str):
