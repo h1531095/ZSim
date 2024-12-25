@@ -10,3 +10,6 @@ test.py
 result.json
 /.run/
 /results/
+*.pyd
+*.pyc
+build

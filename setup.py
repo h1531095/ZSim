@@ -1,7 +1,7 @@
 from setuptools import setup, Extension
 
 module = Extension(
-    'LinkedList',
+    'data_struct.LinkedList',
     sources=[r'.\\data_struct\\LinkedList.c'],
 )
 

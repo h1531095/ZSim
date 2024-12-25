@@ -1,3 +1,5 @@
+#define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include <structmember.h>
 #include <stdlib.h>
@@ -219,7 +221,7 @@ static PyObject* LinkedList_getitem(LinkedList* self, Py_ssize_t index) {
 
 // 获取链表长度
 static PyObject* LinkedList_length(LinkedList* self, void* closure) {
-    return PyLong_FromLong(self->length);
+    return self->length;
 }
 
 // 链表字符串表示
@@ -240,6 +242,31 @@ static Py_ssize_t LinkedList_sq_length(LinkedList* self) {
     return self->length;
 }
 
+static PyObject* LinkedList_gethead(LinkedList* self, void* closure) {
+    if (self->head) {
+        Py_INCREF(self->head->data);
+        return self->head->data;
+    }
+    Py_RETURN_NONE;
+};
+
+static PyObject* LinkedList_getnext(LinkedList* self, void* closure) {
+    if (self->head) {
+        Py_INCREF(self->head->next);
+        return self->head->next;
+    }
+    Py_RETURN_NONE;
+}
+
+static int LinkedList_is_empty(LinkedList* self) {
+    return self->head == NULL;
+}
+
+static int LinkedList_bool(LinkedList* self) {
+    return !LinkedList_is_empty(self);
+}
+
+
 // 定义链表的方法
 static PyMethodDef LinkedList_methods[] = {
     {"add", (PyCFunction)LinkedList_add, METH_VARARGS, "Add an element to the linked list."},
@@ -251,6 +278,8 @@ static PyMethodDef LinkedList_methods[] = {
 
 // 定义链表的成员
 static PyGetSetDef LinkedList_getset[] = {
+    {"head", (getter)LinkedList_gethead, NULL, "Get the head element of the linked list.", NULL},
+    {"next", (getter)LinkedList_getnext, NULL, "Get the next element of the linked list.", NULL},
     {"length", (getter)LinkedList_length, NULL, "Get the length of the linked list.", NULL},
     {NULL}  // Sentinel
 };
@@ -268,9 +297,13 @@ static PyTypeObject LinkedListType = {
     .tp_getset = LinkedList_getset,
     .tp_str = (reprfunc)LinkedList_str,
     .tp_iter = (getiterfunc)LinkedList_iter,
+    // .tp_bool = (inquiry)LinkedList_bool,
     .tp_as_sequence = &(PySequenceMethods){
         .sq_item = (ssizeargfunc)LinkedList_getitem,
         .sq_length = (lenfunc)LinkedList_sq_length,
+    },
+    .tp_as_mapping = &(PyMappingMethods){
+        .mp_length = (lenfunc)LinkedList_sq_length,
     },
 };
 
