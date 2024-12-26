@@ -315,7 +315,7 @@ class Enemy:
                 except IndexError:  # 索引错误，说明是第一次收到QTE标签
                     last_tag = None
                     CID_last = None
-                if CID_tag == CID_last and _tag != last_tag:
+                if (CID_tag == CID_last) and (_tag != last_tag):
                     # 若本次输入的tag与上一次输入的源角色一致，且不是相同tag，则不增加触发次数
                     pass
                 else:
