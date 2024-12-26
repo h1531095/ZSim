@@ -23,6 +23,7 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         self.last_frostbite = False
         self.char = None
         self.main_module = None
+
     def special_judge_logic(self):
         """
         这个复杂判断逻辑需要同时检索当前技能的element_type，
@@ -54,7 +55,7 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
             self.main_module = sys.modules['__main__']
         enemy = self.main_module.schedule_data.enemy
         event_list = self.main_module.schedule_data.event_list
-        frostbite_now = enemy.dynamic.frostbite
+        frostbite_now = enemy.dynamic.frost_frostbite
         if frostbite_now is None:
             frostbite_now = False
         frostbite_statement = [self.last_frostbite, frostbite_now]

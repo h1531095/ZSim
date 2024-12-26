@@ -21,6 +21,7 @@ class SkillNode:
         self.preload_tick: int = preload_tick
         self.hit_times: int = skill.hit_times
         self.skill: Skill.InitSkill = skill
+        self.end_tick: int = self.preload_tick + self.skill.ticks
 
     def __str__(self) -> str:
         return f"SkillNode: {self.skill_tag}"

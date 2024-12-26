@@ -79,6 +79,10 @@
         "module": ".BuffXLogic.AnomalyDebuffExitJudge",
         "class": "AnomalyDebuffExitJudge"
     },
+    "Buff-异常-烈霜霜寒": {
+        "module": ".BuffXLogic.AnomalyDebuffExitJudge",
+        "class": "AnomalyDebuffExitJudge"
+    },
     "Buff-角色-雅-核心被动-冰焰": {
         "module": ".BuffXLogic.MiyabiCoreSkill_IceFire",
         "class": "MiyabiCoreSkill_IceFire"
@@ -178,5 +182,9 @@
     "Buff-武器-精5人为刀俎": {
         "module": ".BuffXLogic.SteamOven",
         "class": "SteamOven"
+    },
+    "Buff-角色-苍角-额外能力": {
+        "module": ".BuffXLogic.SokakuAdditionalAbilityICEBonus",
+        "class": "SokakuAdditionalAbilityICEBonus"
     }
 }

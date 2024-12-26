@@ -80,7 +80,6 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
             active_bar = deepcopy(bar)
             enemy.dynamic.active_anomaly_bar_dict[element_type] = active_bar
 
-
             '''
             更新完毕，现在正式进入分支判断——触发同类异常 & 触发异类异常（紊乱）。
             无论是哪个分支，都需要涉及enemy下的两大容器：enemy_debuff_list以及enemy_dot_list的修改，
@@ -142,8 +141,6 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
                     obj.special_resources(disorder)
                 event_list.append(disorder)
                 # print(f'触发紊乱！')
-
-
             # 在异常与紊乱两个分支的最后，清空bar的异常积蓄和快照。
             bar.reset_current_info_cause_output()
 

@@ -29,10 +29,10 @@ class APLCondition:
                 return self.evaluate_buff_count_conditions(char_CID, judge_code)
             elif "exist" in condition:
                 buff_index = condition.split(":")[-1].strip()
-                if self.find_buff(char, buff_index):
-                    return True
-                else:
+                if self.find_buff(char, buff_index) is None:
                     return False
+                else:
+                    return True
         elif "energy" in condition:
             compared_value = char.sp
             return compare_method(compared_value, condition)
@@ -95,11 +95,13 @@ class APLCondition:
             return compare_method(compared_value, condition_code)
 
     def find_buff(self, char, buff_index):
+        """
+        根据buff的index来找到buff
+        通常用于判断“当前是否有该Buff激活”
+        """
         for buffs in self.game_state["global_stats"].DYNAMIC_BUFF_DICT[char.NAME]:
             if buffs.ft.index == buff_index:
                 return buffs
-        else:
-            return False
 
 
 def compare_method(compared_value, condition: str):

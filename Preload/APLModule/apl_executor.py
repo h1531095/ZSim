@@ -33,24 +33,26 @@ class APLExecutor:
 
             # 如果没有条件，直接执行
             if not conditions:
-                self.perform_action(action['CID'], action["action"])
-                return
-
+                return self.perform_action(action['CID'], action["action"])
             # 检查条件
             for cond in conditions:
+                if "/or/" in cond:
+                    cond_new = cond.split("/or/")
+                else:
+                    cond_new = cond
                 # 如果 cond 是字符串，evaluate 返回 False 则跳过该动作
-                if isinstance(cond, str):
-                    if not self.apl.evaluate(action, cond):
+                if isinstance(cond_new, str):
+                    if not self.distinguish_bool_logic(action, cond_new):
                         break
                 # 如果 cond 是列表，只有所有 sub_cond 都为 False 才跳过该动作
-                elif "/or/" in cond:
-                    cond_list = cond.split("/or/")
-                    if not any(self.apl.evaluate(action, sub_cond) for sub_cond in cond_list):
+                elif isinstance(cond_new, list):
+                    if any(self.distinguish_bool_logic(action, sub_cond) for sub_cond in cond_new):
+                        continue
+                    else:
                         break
             else:
                 # 如果所有条件都通过，执行动作并退出
-                self.perform_action(action['CID'], action["action"])
-                return
+                return self.perform_action(action['CID'], action["action"])
 
     def get_game_state(self):
         if self.game_state is None:
@@ -64,7 +66,7 @@ class APLExecutor:
                 print(f"Error loading dictionary A: {e}")
         return self.game_state
 
-    def perform_action(self, CID, action: str):
+    def perform_action(self, CID, action: str)->str:
         self.game_state = self.get_game_state()
         if action == 'auto_NA':
             last_action = self.game_state['preload'].preload_data.last_node
@@ -73,9 +75,19 @@ class APLExecutor:
             elif last_action.skill_tag in self.NA_action_dict[CID]:
                 output = self.NA_action_dict[CID][last_action.skill_tag]
             else:
-                output = f'{CID}_NA_1'
+                if CID in ['1141']:
+                    output = f'{CID}_SNA_1'
+                else:
+                    output = f'{CID}_NA_1'
         else:
             output = action
-
         return output
 
+    def distinguish_bool_logic(self, action: dict,  cond: str):
+        if not cond:
+            raise ValueError(f'当前{action['action']}的condition为空！')
+        if cond.startswith("!"):
+            cond_new = cond[1:]
+            return not self.apl.evaluate(action, cond_new)
+        else:
+            return self.apl.evaluate(action, cond)

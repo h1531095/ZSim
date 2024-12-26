@@ -1,7 +1,10 @@
 from Buff import Buff, JudgeTools
+
+
 anomaly_statement_dict = {
     'Buff-异常-霜寒': 'frostbite',
-    'Buff-异常-畏缩': 'assault'
+    'Buff-异常-畏缩': 'assault',
+    'Buff-异常-烈霜霜寒': 'frost_frostbite'
 }
 
 
@@ -14,6 +17,7 @@ class AnomalyDebuffExitJudge(Buff.BuffLogic):
         self.buff_instance = buff_instance
         self.xexit = self.special_exit_logic
         self.last_frostbite = False
+        self.last_frost_frostbite = False
         self.last_assault = False
         self.last_shock = False
         self.last_burn = False

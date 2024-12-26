@@ -65,6 +65,7 @@ class Preload:
             self.apl_action_list = APLParser(file_path=APL_PATH).parse()
             self.apl_executor = APLExecutor(self.apl_action_list)
             self.apl_preload_tick = 0
+            self.apl_next_end_tick = 0
 
     def __str__(self):
         return f"Preload Data: \n{self.preload_data.preloaded_action}"
@@ -72,8 +73,14 @@ class Preload:
     def do_preload(self, tick: int, enemy: Enemy = None, name_box: list[str] = None, char_data = None):
         if isinstance(enemy, Enemy):
             stun_status: bool = stun_judge(enemy)
-        if self.preload_data.current_node is None:
-
+        if self.preload_data.current_node is None and self.apl_next_end_tick <= tick:
+            """
+            由于，第一个动作在第0帧进行Preload后，会立刻被拿去算，所以，在第1帧，程序就会检测到self.current_node is None，遂开始生成新的Node。
+            这会导致APL模块在根据 当前tick的状态 去生成一个未来的动作，在诸如QTE、或是其他特殊手法的场合，会导致技能重复释放等问题。
+            所以，在20241226的更新中，我们为生成新Node的逻辑新增了  self.apl_next_end_tick <= tick 的判定条件，
+            确保上一个动作彻底结束了（子标签为end），才会生成新动作。
+            这主要是为了屏蔽第一个动作和第二个动作在第0帧、第1帧进行preload的问题。
+            """
             if APL_MODE:
                 # When APL is Enabled, we will use APL to preload skills.
                 apl_output_skill: str = self.apl_executor.execute() # Try to get the next skill to preload.
@@ -82,12 +89,13 @@ class Preload:
                         self.apl_preload_tick,
                         *self.preload_data.skills)  # generate a SkillNode through the tag and preload tick.
                 self.skills_queue.insert(node)  # Insert the node into the queue.
-                self.apl_preload_tick += node.skill.ticks   # Update the preload tick.
-
+                self.apl_preload_tick += node.skill.ticks  # Update the preload tick.
+                self.apl_next_end_tick = node.end_tick
             this_node = self.skills_queue.pop_head()
             self.preload_data.current_node = this_node
         else:
             this_node = self.preload_data.current_node
+
         if this_node is not None:
             # 随技能Preload技能而起的逻辑
             if this_node.preload_tick <= tick:

@@ -77,7 +77,7 @@ class Enemy:
 
         # 下面的两个dict本来写在外面的，但是别的程序也要用这两个dict，所以索性写进来了。我是天才。
         self.trans_element_number_to_str = {0: 'PHY', 1: 'FIRE', 2: 'ICE', 3: 'ELECTRIC', 4: 'ETHER', 5: 'FIREICE'}
-        self.trans_anomaly_effect_to_str = {0: 'assault', 1: 'burn', 2: 'frostbite', 3: 'shock', 4: 'corruption', 5: 'frostbite'}
+        self.trans_anomaly_effect_to_str = {0: 'assault', 1: 'burn', 2: 'frostbite', 3: 'shock', 4: 'corruption', 5: 'frost_frostbite'}
         """
         enemy实例化的时候，6种异常积蓄条也随着一起实例化。
         """
@@ -321,6 +321,8 @@ class Enemy:
                 else:
                     # 其余情况默认+1
                     self.dynamic.QTE_triggered_times += 1
+                # if _tag == '1131_QTE':
+                #     print(_tag, self.dynamic.QTE_received_tag, self.QTE_triggerable_times)
             assert self.dynamic.QTE_triggered_times <= self.QTE_triggerable_times, "QTE触发次数超过上限"
 
     def __HP_update(self, dmg_expect: np.float64) -> None:
@@ -340,7 +342,7 @@ class Enemy:
             self.stun = False  # 失衡状态
             self.frozen = False  # 冻结状态
             self.frostbite = False  # 霜寒状态
-            self.burn_frostbite = False # 烈霜状态
+            self.frost_frostbite = False  # 烈霜霜寒状态
             self.assault = False  # 畏缩状态
             self.shock = False  # 感电状态
             self.burn = False  # 灼烧状态
@@ -364,7 +366,7 @@ class Enemy:
             self.corruption_tick = 0
 
         def __str__(self):
-            return f"失衡: {self.stun}, 失衡条: {self.stun_bar:.2f}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 侵蚀：{self.corruption}"
+            return f"失衡: {self.stun}, 失衡条: {self.stun_bar:.2f}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 侵蚀：{self.corruption}, 烈霜霜寒：{self.frost_frostbite}"
 
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"

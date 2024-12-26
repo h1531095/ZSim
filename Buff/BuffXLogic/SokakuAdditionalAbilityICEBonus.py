@@ -2,11 +2,10 @@ from Buff import Buff, JudgeTools
 import sys
 
 
-class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
+class SokakuAdditionalAbilityICEBonus(Buff.BuffLogic):
     """
     苍角组队被动：
     消耗涡流发动展旗时激活
-
     """
     def __init__(self, buff_instance):
         super().__init__(buff_instance)

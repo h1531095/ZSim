@@ -52,6 +52,7 @@ def update_dynamic_bufflist(DYNAMIC_BUFF_DICT: dict, timetick, exist_buff_dict: 
                 if timetick >= _.dy.endticks or ((not _.ft.simple_exit_logic) and shoud_exit):
                     # 不管是不是debuff，时间到点了就要结束。所以buff.end()以及对应的DYNAMIC_BUFF_DICT的修改都是必须进行的.
                     _.end(timetick, sub_exist_buff_dict)
+
                     DYNAMIC_BUFF_DICT[charname].remove(_)
                     report_to_log(f"[Buff END]:{timetick}:{_.ft.index}结束，已从动态列表移除", level=4)
                     if _.ft.is_debuff:

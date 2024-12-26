@@ -38,7 +38,6 @@ class AnomalyBar:
         remaining_tick = max(self.max_duration - self.duration(timetick), 0)
         return remaining_tick
 
-
     def duration(self, timetick: int):
         duration = timetick - self.last_active
         assert duration <= self.max_duration, f'该异常早就结束了！不应该触发紊乱！'
