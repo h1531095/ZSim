@@ -26,9 +26,19 @@ class Soukaku(Character):
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
             # 这里不能 elif
             if self.vortex >= 3:
-                if node.skill_tag in ['1131_E_EX_A', '1131_QTE', '1131_Q']:
+                if node.skill_tag in ['1131_E_EX_A']:
+                    """
+                    在20241227的更新中，由于APL中补全了展旗的逻辑，
+                    现在展旗会正确衔接了，具体会触发衔接的场合有：
+                    1、能量不够（<30）的1、2段强化E
+                    2、QTE
+                    3、Q
+                    """
+                    # FIXME：也正是由于进行了上述的更新，所以需要确认，
+                    #  数据库中已有的QTE与Q的帧数，是否是扣除了展旗的？
+                    #  如若不是，则应该及时更新。
                     self.vortex = 0
-                    BuffAddStrategy('Buff-角色-苍角-核心被动-2')
+                    # BuffAddStrategy('Buff-角色-苍角-核心被动-2')
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
 
     def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:

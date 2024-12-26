@@ -1,5 +1,4 @@
 from Buff import Buff, JudgeTools
-import sys
 
 
 class SokakuAdditionalAbilityICEBonus(Buff.BuffLogic):
@@ -24,11 +23,14 @@ class SokakuAdditionalAbilityICEBonus(Buff.BuffLogic):
         if self.buff_0 is None:
             self.buff_0 = JudgeTools.find_exist_buff_dict()['苍角'][self.buff_instance.ft.index]
         action_now = self.action_stack.peek()
-        if action_now.mission_tag not in ['1131_E_EX_A', '1131_QTE', '1131_Q']:
+        resource_now = self.char.get_resources()[1]
+        if action_now.mission_tag != '1131_E_EX_A':
             return False
-        if self.buff_0.history.last_update_resource < self.char.get_resources()[1]:
-            return True
+        if self.buff_0.history.last_update_resource <= resource_now:
+            self.buff_0.history.last_update_resource = resource_now
+            return False
         else:
-            return False
+            self.buff_0.history.last_update_resource = resource_now
+            return True
 
 

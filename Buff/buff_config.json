@@ -186,5 +186,13 @@
     "Buff-角色-苍角-额外能力": {
         "module": ".BuffXLogic.SokakuAdditionalAbilityICEBonus",
         "class": "SokakuAdditionalAbilityICEBonus"
+    },
+    "Buff-角色-苍角-核心被动-1": {
+        "module": ".BuffXLogic.SokakuUniqueSkillMinorATKBonus",
+        "class": "SokakuUniqueSkillMinorATKBonus"
+    },
+    "Buff-角色-苍角-核心被动-2": {
+        "module": ".BuffXLogic.SokakuUniqueSkillMajorATKBonus",
+        "class": "SokakuUniqueSkillMajorATKBonus"
     }
 }
