@@ -18,13 +18,13 @@ def cal_buff_total_bonus(enabled_buff: tuple | Generator) -> dict:
         # 初始化动态语句字典，用于累加buff效果的值
         dynamic_statement: dict = {}
         # 遍历角色身上的所有buff
+        buff_obj: Buff
         for buff_obj in enabled_buff:
             # 确保buff是Buff类的实例
             if not isinstance(buff_obj, Buff):
                 raise TypeError(f"{buff_obj} 不是Buff类型，无法计算！")
             else:
                 # 检查buff的简单效果是否为空
-                buff_obj: Buff
                 if not buff_obj.dy.active:
                     report_to_log(f"[Buff Effect] 动态buff列表中混入了未激活buff: {str(buff_obj)}，已跳过")
                     continue
