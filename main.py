@@ -15,10 +15,10 @@ from define import APL_MODE
 
 @dataclass
 class InitData:
-    name_box = ['莱特', '苍角', '雅']
+    name_box = ['莱卡恩', '苍角', '雅']
     Judge_list_set = [['雅', '硫磺石', '折枝剑歌'],
                       ['苍角', '含羞恶面', '自由蓝调'],
-                      ['莱特', '人为刀俎', '镇星迪斯科']]
+                      ['莱卡恩', '人为刀俎', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
               'weapon': '硫磺石', 'weapon_level': 1,
               'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
@@ -159,3 +159,5 @@ if __name__ == '__main__':
     write_to_csv()
     Report.log_queue.join()
     Report.result_queue.join()
+
+

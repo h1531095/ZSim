@@ -46,3 +46,8 @@ def find_stack():
     main_module = find_main()
     stack = main_module.load_data.action_stack
     return stack
+
+def find_load_data():
+    main_module = find_main()
+    load_data = main_module.load_data
+    return load_data
