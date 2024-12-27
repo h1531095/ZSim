@@ -39,6 +39,6 @@ class Qingyi(Character):
 
     def get_resources(self, *args, **kwargs) -> dict[str, int|float]:
         return {
-            '闪络电压': self.flash_connect_voltage / 100,
+            '闪络电压': self.flash_connect_voltage / self.MAX_VOLTAGE,      # 返回一个比例
             '闪络状态': self.flash_connect,
         }
