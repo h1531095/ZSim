@@ -19,14 +19,8 @@ class Qingyi(Character):
         """模拟青衣的闪络电压机制"""
         skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
-            if self.flash_connect:
-                # 闪络状态执行逻辑
-                if node.skill_tag == '1300_SNA_1':
-                    self.flash_connect_voltage = 0
-                    self.rush_attack_available_times -= 1
-                    self.flash_connect = False
-            else:
-                # 非闪络状态执行逻辑
+            # 闪络电压增加逻辑
+            if self.flash_connect_voltage < self.__MAX_VOLTAGE:
                 if node.skill_tag == '1300_NA_3_NFC':
                     self.flash_connect_voltage += self.__QUAN_VOLTAGE
                 elif node.skill_tag == '1300_NA_3_FC':
@@ -41,7 +35,16 @@ class Qingyi(Character):
                     self.flash_connect_voltage += self.__QUAN_VOLTAGE * 8
                 elif node.skill_tag == '1300_Q':
                     self.flash_connect_voltage += self.__QUAN_VOLTAGE * 12
-                elif node.skill_tag == '1300_SNA_1':
+
+            if self.flash_connect:
+                # 闪络状态执行逻辑
+                if node.skill_tag == '1300_SNA_1':
+                    self.flash_connect_voltage = 0
+                    self.rush_attack_available_times -= 1
+                    self.flash_connect = False
+            else:
+                # 非闪络状态执行逻辑
+                if node.skill_tag == '1300_SNA_1':
                     # 醉花月云转-突进攻击可用次数减一
                     assert self.rush_attack_available_times != 5, 'WTF APL is doing?'
                     assert self.rush_attack_available_times != 0, 'WTF APL is doing?'
@@ -50,8 +53,8 @@ class Qingyi(Character):
                 if self.flash_connect_voltage > self.__FLASH_THRESHOLD:
                     self.flash_connect = True
                     self.rush_attack_available_times = 5
-                # 闪络电压不能超过最大值
-                self.flash_connect_voltage = min(self.flash_connect_voltage, self.__MAX_VOLTAGE)
+            # 闪络电压不能超过最大值
+            self.flash_connect_voltage = min(self.flash_connect_voltage, self.__MAX_VOLTAGE)
 
     def get_resources(self, *args, **kwargs) -> dict[str, int|float|bool]:
         return {
