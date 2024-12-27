@@ -51,5 +51,8 @@ def character_factory(
     elif name == '11号':
         from .Soldier11 import Soldier11
         return Soldier11(**char_init_args)
+    elif name == '青衣':
+        from .Qingyi import Qingyi
+        return Qingyi(**char_init_args)
     else:
         return Character(**char_init_args)
