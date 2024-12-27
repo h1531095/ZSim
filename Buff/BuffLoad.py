@@ -38,8 +38,8 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
     """
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, mission)
-    # if not all_match and "焰心桂冠-受暴伤提升" in buff_0.ft.index:
-    #     print(111111111)
+    if buff_0.ft.index == 'Buff-青衣-核心被动-失衡易伤' and all_match:
+        print(3333333333)
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:
@@ -59,8 +59,6 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
                 buff_new = Buff(active_condition_dict, judge_condition_dict)
                 if buff_0.ft.simple_effect_logic:
                     buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-                    # if buff_new.ft.index =='Buff-角色-雅-核心被动-冰焰':
-                    #     print(11111111111, buff_new.dy.is_changed)
                 else:
                     buff_new.logic.xeffect()
                 if buff_new.dy.is_changed:
@@ -140,6 +138,8 @@ def BuffLoadLoop(
                 raise TypeError(f"当前{debuff_key}不是Buff类！")
             if debuff_0.ft.schedule_judge:
                 continue
+            if debuff_0.ft.operator != 'enemy':
+                continue
             process_buff(debuff_0, sub_exist_debuff_dict, mission, time_now, ['enemy'], LOADING_BUFF_DICT)
     return LOADING_BUFF_DICT
 
@@ -188,6 +188,7 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission
     if cache_key in cache.cache:
         return cache[cache_key]
     result: bool
+
     def save_cache_and_return(result: bool, *,cache = cache):
         """由于本函数有多个return中断，所以写了个这玩意，把直接return换成return这个函数就行"""
         cache.add(cache_key, result)
@@ -219,7 +220,6 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission
     """
     正常buff的判断逻辑
     """
-
     skill_now = mission.mission_node.skill
     if not isinstance(skill_now, Skill.InitSkill):
         raise TypeError(f"{skill_now}并非Skill类！")

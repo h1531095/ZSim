@@ -194,5 +194,9 @@
     "Buff-角色-苍角-核心被动-2": {
         "module": ".BuffXLogic.SokakuUniqueSkillMajorATKBonus",
         "class": "SokakuUniqueSkillMajorATKBonus"
+    },
+    "Buff-青衣-核心被动-失衡易伤": {
+        "module": ".BuffXLogic.QingYiCoreSkillStunDMGBonus",
+        "class": "QingYiCoreSkillStunDMGBonus"
     }
 }

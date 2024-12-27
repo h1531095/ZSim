@@ -8,7 +8,7 @@ class APLCondition:
         self.sub_condition_box = []       # 如果单个condition中，存在两个用or关系并列的condition，那么就暂存在这里。
 
     def evaluate(self, sub_action_dict: dict, condition: str):
-        char_CID = sub_action_dict['CID']
+        char_CID: str = sub_action_dict['CID']
         char = self.find_char(char_CID)
         action_name = sub_action_dict['action']
         if "auto_NA" not in action_name and char_CID != action_name[:4]:
@@ -17,11 +17,15 @@ class APLCondition:
         # 示例条件解析逻辑
         if condition is None:
             return True
-
         if "status" in condition:
-            judge_code = condition.split(":")[-1].strip()
-            # EXAMPLE：enemy.dynamic.stun==True
-            return self.get_dynamic_status(judge_code)
+            if "status.char" in condition:
+                checked_CID = condition.split(":")[0].split("_")[-1].strip()
+                judge_code = condition.split(":")[-1].strip()
+                return self.evaluate_other_char_status(checked_CID, judge_code)
+            else:
+                judge_code = condition.split(":")[-1].strip()
+                # EXAMPLE：enemy.dynamic.stun==True
+                return self.get_dynamic_status(judge_code)
         elif "buff" in condition:
             if "count" in condition:
                 judge_code = condition.split(":")[-2].strip(), condition.split(":")[-1].strip()
@@ -49,7 +53,7 @@ class APLCondition:
         else:
             return False
 
-    def find_char(self, CID):
+    def find_char(self, CID: str):
         """
         根据提供的CID，找到对应的char，并且返回、保存在self.found_char_dict中。
         每次调用时，会先检查是否在self.found_char_dict中。如果找不到，再扔出去。
@@ -93,6 +97,14 @@ class APLCondition:
         if "count" in condition_code:
             compared_value = buff.dy.count
             return compare_method(compared_value, condition_code)
+
+    def evaluate_other_char_status(self, CID: str, judge_code: str):
+        """
+        用来处理查询其他角色状态或是特殊资源的逻辑；
+        """
+        char = self.find_char(CID)
+        hole_judge_code = 'char.' + judge_code
+        return eval(hole_judge_code,  {}, {"char": char})
 
     def find_buff(self, char, buff_index):
         """

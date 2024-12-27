@@ -110,7 +110,7 @@ Buff-武器-精3硫磺石,TRUE,FALSE,FALSE,硫磺石,FALSE,普攻、冲刺攻击
 Buff-武器-精4硫磺石,TRUE,FALSE,FALSE,硫磺石,FALSE,普攻、冲刺攻击、闪反命中时攻击力提升,TRUE,480,8,1,FALSE,FALSE,TRUE,FALSE,TRUE,30,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,4,1000,FALSE,TRUE,FALSE
 Buff-武器-精5硫磺石,TRUE,FALSE,FALSE,硫磺石,FALSE,普攻、冲刺攻击、闪反命中时攻击力提升,TRUE,480,8,1,FALSE,FALSE,TRUE,FALSE,TRUE,30,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,5,1000,FALSE,TRUE,FALSE
 Buff-角色-苍角-额外能力,FALSE,FALSE,TRUE,苍角,FALSE,消耗涡流发动展旗时，全队造成冰伤提升20%,TRUE,1320,1,1,TRUE,FALSE,TRUE,FALSE,FALSE,0,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,0,1110,FALSE,FALSE,FALSE
-Buff-青衣-核心被动-失衡易伤,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Buff-青衣-核心被动-失衡易伤,FALSE,TRUE,FALSE,青衣,FALSE,增加失衡易伤,TRUE,9999999,20,1,TRUE	,FALSE,TRUE,FALSE,FALSE,0,TRUE,TRUE,FALSE,TRUE,TRUE,TRUE,FALSE,0,1,FALSE,FALSE,FALSE
 Buff-青衣-额外能力-失衡效率,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 Buff-青衣-额外能力-冲击转攻击,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 Buff-角色-11号-核心被动,,,,,,,,,,,,,,,,,,,,,,,,,,,,
