@@ -56,13 +56,13 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
         self.buff_instance.dy.count = self.buff_0.dy.count
         if action_now.mission_tag == '1300_SNA_1':
             self.buff_instance.dy.count += 1
-            self.buff_0.history.record.pre_saved_counts += 1
-            if self.buff_0.history.record.pre_saved_counts > 5:
-                raise ValueError(f'1300_SNA_1提供的预叠层数已经超过了5，当前为：{self.buff_0.history.record.pre_saved_counts}')
+            self.record.pre_saved_counts += 1
+            if self.record.pre_saved_counts > 5:
+                raise ValueError(f'1300_SNA_1提供的预叠层数已经超过了5，当前为：{self.record.pre_saved_counts}')
         elif action_now.mission_tag == '1300_SNA_2':
             self.buff_instance.dy.count += 5
-            self.buff_instance.dy.count += self.buff_0.history.record.pre_saved_counts
-            self.buff_0.history.record.pre_saved_counts = 0
+            self.buff_instance.dy.count += self.record.pre_saved_counts
+            self.record.pre_saved_counts = 0
         self.buff_instance.dy.count = min(self.buff_instance.dy.count, 20)
         self.buff_instance.update_to_buff_0(self.buff_0)
 
@@ -73,10 +73,10 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(char_CID=1300, sub_exist_buff_dict=1, enemy=1)
         mode_func = lambda a, b: a is True and b is False
-        stun_statement_tuple = self.buff_0.history.record.last_update_stun, self.record.enemy.dynamic.stun
+        stun_statement_tuple = self.record.last_update_stun, self.record.enemy.dynamic.stun
         if JudgeTools.detect_edge(stun_statement_tuple, mode_func):
-            self.buff_0.history.record.last_update_stun = self.record.enemy.dynamic.stun
+            self.record.last_update_stun = self.record.enemy.dynamic.stun
             return True
-        self.buff_0.history.record.last_update_stun = self.record.enemy.dynamic.stun
+        self.record.last_update_stun = self.record.enemy.dynamic.stun
         return False
 

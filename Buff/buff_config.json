@@ -198,5 +198,13 @@
     "Buff-青衣-核心被动-失衡易伤": {
         "module": ".BuffXLogic.QingYiCoreSkillStunDMGBonus",
         "class": "QingYiCoreSkillStunDMGBonus"
+    },
+    "Buff-青衣-核心被动-额外电压补偿": {
+        "module": ".BuffXLogic.QingYiCoreSkillExtraStunBonus",
+        "class": "QingYiCoreSkillExtraStunBonus"
+    },
+    "Buff-青衣-额外能力-冲击转攻击": {
+        "module": ".BuffXLogic.QingYiAdditionalAbilityStunConvertToATK",
+        "class": "QingYiAdditionalAbilityStunConvertToATK"
     }
 }

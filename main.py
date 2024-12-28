@@ -15,9 +15,9 @@ from define import APL_MODE
 
 @dataclass
 class InitData:
-    name_box = ['青衣', '丽娜', '雅']
+    name_box = ['青衣', '艾莲', '雅']
     Judge_list_set = [['雅', '硫磺石', '折枝剑歌'],
-                      ['丽娜', '含羞恶面', '自由蓝调'],
+                      ['艾莲', '含羞恶面', '自由蓝调'],
                       ['青衣', '玉壶青冰', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
               'weapon': '硫磺石', 'weapon_level': 1,

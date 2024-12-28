@@ -19,6 +19,8 @@ def check_preparation(buff_0, **kwargs):
     char_NAME: str = kwargs.get("char_NAME")
     enemy = kwargs.get("enemy")
     sub_exist_buff_dict = kwargs.get("sub_exist_buff_dict")
+    dynamic_buff_list = kwargs.get("dynamic_buff_list")
+    action_stack = kwargs.get("action_stack")
 
     # 参数正确性检查
     if sub_exist_buff_dict and char_NAME is None and char_CID is None:
@@ -34,8 +36,16 @@ def check_preparation(buff_0, **kwargs):
         if record.char is None:
             record.char = find_char_from_name(char_NAME)
     if sub_exist_buff_dict:
+        if record.char is None:
+            raise ValueError(f'在buff_0.history.record 中并未读取到对应的char')
         if record.sub_exist_buff_dict is None:
             record.sub_exist_buff_dict = find_exist_buff_dict()[record.char.NAME]
     if enemy:
         if record.enemy is None:
             record.enemy = find_enemy()
+    if dynamic_buff_list:
+        if record.dynamic_buff_list is None:
+            record.dynamic_buff_list = find_dynamic_buff_list()
+    if action_stack:
+        if record.action_stack is None:
+            record.action_stack = find_stack()

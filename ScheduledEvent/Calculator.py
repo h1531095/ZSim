@@ -730,12 +730,22 @@ class Calculator:
             else:
                 assert False, INVALID_ELEMENT_ERROR
 
-            element_dmg_percentage = data.skill_node.skill.element_damage_percent
+            # FIXME:这个参数暂时不知道是啥，用if else简单屏蔽了，Snow你记得回头修！
+            if data.skill_node.skill.element_type == 5:
+                element_dmg_percentage = data.skill_node.skill.element_damage_percent
+            else:
+                element_dmg_percentage = data.skill_node.skill.element_damage_percent + 1
             hit_times = data.skill_node.hit_times
 
             anomaly_buildup = (accumulation * (am / 100) * (
                     1 + element_buildup_bonus + trigger_buildup_bonus) *
                                buildup_res * element_dmg_percentage / hit_times)
+
+            # print(f'属性编号：{element_type}，参数：基础值：{accumulation}，\
+            # 掌控：{am}，属性积蓄加成：{element_buildup_bonus}，\
+            # 技能积蓄加成{trigger_buildup_bonus}，积蓄抗性{buildup_res}，\
+            # 属性伤害百分比{element_dmg_percentage}，命中次数{hit_times}')
+
             return np.float64(anomaly_buildup)
 
         @staticmethod
@@ -915,6 +925,7 @@ class Calculator:
         """专门更新延长失衡时间的 buff"""
         if data.dynamic.stun_tick_increase >= 1:
             enemy_obj.increase_stun_recovery_time(data.dynamic.stun_tick_increase)
+
 
 
 if __name__ == '__main__':

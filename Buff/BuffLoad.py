@@ -176,21 +176,28 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache
     return results
 
 
-def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission, *, cache = BuffJudgeCache()) -> bool:
+def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission, *, cache=BuffJudgeCache()) -> bool:
     """
         如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
         说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
     """
     # 以下为缓存逻辑
     simple_logic: bool = buff_now.ft.simple_judge_logic
-    if simple_logic:
+    all_simple = [buff_now.ft.simple_judge_logic,
+                  buff_now.ft.simple_start_logic,
+                  buff_now.ft.simple_hit_logic,
+                  buff_now.ft.simple_end_logic,
+                  buff_now.ft.simple_effect_logic,
+                  buff_now.ft.simple_exit_logic]
+    if all(all_simple):
         cache_key = hash((id(buff_now), tuple(judge_condition_dict.items()), id(mission)))
         if cache_key in cache.cache:
             return cache[cache_key]
     result: bool
+
     def save_cache_and_return(result: bool, *,cache = cache):
         """由于本函数有多个return中断，所以写了个这玩意，把直接return换成return这个函数就行"""
-        if simple_logic:
+        if all(all_simple):
             cache.add(cache_key, result)
         return result
     # ——————缓存逻辑结束————————
