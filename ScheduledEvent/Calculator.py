@@ -731,10 +731,9 @@ class Calculator:
                 assert False, INVALID_ELEMENT_ERROR
 
             # FIXME:这个参数暂时不知道是啥，用if else简单屏蔽了，Snow你记得回头修！
-            if data.skill_node.skill.element_type == 5:
-                element_dmg_percentage = data.skill_node.skill.element_damage_percent
-            else:
-                element_dmg_percentage = data.skill_node.skill.element_damage_percent + 1
+            #  回头看了下，青衣、格丽斯的这部分数据都没有，得更新。
+            element_dmg_percentage = data.skill_node.skill.element_damage_percent
+
             hit_times = data.skill_node.hit_times
 
             anomaly_buildup = (accumulation * (am / 100) * (

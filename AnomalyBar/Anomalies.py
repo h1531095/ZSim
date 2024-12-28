@@ -40,12 +40,16 @@ class ElectricAnomaly(AnomalyBar):
         super().__post_init__()  # 调用父类的初始化方法
         main_module = sys.modules['__main__']
         char_name_box = main_module.init_data.name_box
+        exist_buff_dict = main_module.load_data.exist_buff_dict
         self.element_type = 3  # 电属性
         self.accompany_dot = '感电'
         if '丽娜' in char_name_box:
-            self.max_duration = 600+180
+            if "Buff-角色-丽娜-组队被动-延长感电" in exist_buff_dict['丽娜']:
+                self.max_duration: int = 600 + 180
+            else:
+                self.max_duration: int = 600
         else:
-            self.max_duration = 600
+            self.max_duration: int = 600
 
 
 
