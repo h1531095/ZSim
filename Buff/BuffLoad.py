@@ -38,8 +38,6 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
     """
     all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
     all_match = BuffJudge(buff_0, judge_condition_dict, mission)
-    if buff_0.ft.index == 'Buff-青衣-核心被动-失衡易伤' and all_match:
-        print(3333333333)
     if not all_match:
         return
     # if not buff_0.ft.is_debuff:

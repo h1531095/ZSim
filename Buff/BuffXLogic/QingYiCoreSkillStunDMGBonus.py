@@ -1,7 +1,7 @@
-from Buff import Buff, JudgeTools
+from Buff import Buff, JudgeTools, check_preparation
 
 
-class Record:
+class QintYiCoreSkillRecord:
     """
     记录信息的类。从青衣开始，这些类要统一管理。
     """
@@ -9,7 +9,9 @@ class Record:
         self.pre_saved_counts = 0
         self.last_update_stun = False
         self.last_update_skill_tag = None
-        # self.last_update_SNA_count = 5
+        self.char = None
+        self.enemy = None
+        self.sub_exist_buff_dict = None
 
 
 class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
@@ -25,10 +27,18 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
         self.buff_instance = buff_instance
         self.xstart = self.special_start_logic
         self.xexit = self.special_exit_logic
-        self.sub_exist_buff_dict = None
         self.buff_0 = None
-        self.char = None
-        self.enemy = None
+        self.record = None
+
+    def get_prepared(self, **kwargs):
+        return check_preparation(self.buff_0, **kwargs)
+
+    def check_record_module(self):
+        if self.buff_0 is None:
+            self.buff_0 = JudgeTools.find_exist_buff_dict()['青衣'][self.buff_instance.ft.index]
+        if self.buff_0.history.record is None:
+            self.buff_0.history.record = QintYiCoreSkillRecord()
+        self.record = self.buff_0.history.record
 
     def special_start_logic(self):
         """
@@ -36,11 +46,12 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
         SNA_1叠1层， 且预叠1层；
         SNA_2叠5层，且追加叠加所有的预叠层数。
         """
-        self.check_preparation()
+        self.check_record_module()
+        self.get_prepared(char_CID=1300, sub_exist_buff_dict=1, enemy=1)
         action_stack = JudgeTools.find_stack()
         action_now = action_stack.peek()
         tick_now = JudgeTools.find_tick()
-        self.buff_instance.simple_start(tick_now, self.sub_exist_buff_dict)
+        self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_0.dy.count -= 1
         self.buff_instance.dy.count = self.buff_0.dy.count
         if action_now.mission_tag == '1300_SNA_1':
@@ -59,23 +70,13 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
         """
         退出逻辑：检测到失衡的下降沿。
         """
-        self.check_preparation()
+        self.check_record_module()
+        self.get_prepared(char_CID=1300, sub_exist_buff_dict=1, enemy=1)
         mode_func = lambda a, b: a is True and b is False
-        stun_statement_tuple = self.buff_0.history.record.last_update_stun, self.enemy.dynamic.stun
+        stun_statement_tuple = self.buff_0.history.record.last_update_stun, self.record.enemy.dynamic.stun
         if JudgeTools.detect_edge(stun_statement_tuple, mode_func):
-            self.buff_0.history.record.last_update_stun = self.enemy.dynamic.stun
+            self.buff_0.history.record.last_update_stun = self.record.enemy.dynamic.stun
             return True
-        self.buff_0.history.record.last_update_stun = self.enemy.dynamic.stun
+        self.buff_0.history.record.last_update_stun = self.record.enemy.dynamic.stun
         return False
 
-    def check_preparation(self):
-        if self.char is None:
-            self.char = JudgeTools.find_char_from_CID(1300)
-        if self.sub_exist_buff_dict is None:
-            self.sub_exist_buff_dict = JudgeTools.find_exist_buff_dict()['青衣']
-        if self.buff_0 is None:
-            self.buff_0 = self.sub_exist_buff_dict[self.buff_instance.ft.index]
-        if self.enemy is None:
-            self.enemy = JudgeTools.find_enemy()
-        if self.buff_0.history.record is None:
-            self.buff_0.history.record = Record()

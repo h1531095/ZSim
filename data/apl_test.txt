@@ -9,16 +9,20 @@
 
 
 #-------------------以上为默认逻辑，大部分操作不需要执行，忽视即可。-------------------
+#若在连续激发SNA_1的过程中怪物进入了失衡状态，则需要提前打出SNA_2
+1300|action+=|1300_SNA_2|after:1300_SNA_1|status.char_1300:get_flash()['醉花月云转可用次数']>0|status:enemy.dynamic.stun==True
+
 #连携技释放：这支队伍苍角不能连携，太磨叽了。
 #1300|action+=|1300_QTE|status:enemy.dynamic.stun==True|status:enemy.QTE_triggerable_times==3|status:enemy.dynamic.QTE_triggered_times==0
 1300|action+=|1300_QTE|status:enemy.dynamic.stun==True|status:enemy.dynamic.QTE_triggered_times<1
 1091|action+=|1091_QTE_A|status:enemy.dynamic.stun==True|status:enemy.dynamic.QTE_triggered_times<2
 
 #泄电压逻辑：
-#收尾SNA_2的逻辑
+#SNA_2正常结束的逻辑
 1300|action+=|1300_SNA_2|after:1300_SNA_1|status.char_1300:get_flash()['醉花月云转可用次数']==0
 #后续SNA_1的释放逻辑：
 1300|action+=|1300_SNA_1|after:1300_SNA_1|status:enemy.dynamic.stun==False|status.char_1300:get_flash()['醉花月云转可用次数']>0
+
 #启动逻辑，主要是看何时打出第一个SNA_1
 1300|action+=|1300_SNA_1|resource>=75|status:enemy.dynamic.stun==False|status.char_1300:get_flash()['醉花月云转可用次数']==5
 
@@ -43,6 +47,7 @@
 #豆子小于6且能量足够时，在强化E第一段后自动衔接强化E第二段，
 1091|action+=|1091_E_EX_B_1|after:1091_E_EX_A_2|energy>=40|resource<6
 #豆子小于6时，能量够就强化E（雅的傻瓜泄能逻辑）
+1091|action+=|1091_E_EX_B_1|energy>=40|resource<6|after:1091_E_EX_A_2
 1091|action+=|1091_E_EX_A_1|energy>=40|resource<6
 
 

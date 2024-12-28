@@ -85,7 +85,7 @@ class APLExecutor:
 
     def distinguish_bool_logic(self, action: dict,  cond: str):
         if not cond:
-            raise ValueError(f'当前{action['action']}的condition为空！')
+            raise ValueError(f'当前{action["action"]}的condition为空！')
         if cond.startswith("!"):
             cond_new = cond[1:]
             return not self.apl.evaluate(action, cond_new)

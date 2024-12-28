@@ -248,7 +248,7 @@ class Enemy:
         except AttributeError:
             pass
 
-        for _ in range(np.floor(times)):
+        for _ in range(int(np.floor(times))):
             if element == 'ICE' or element == '冰' or element == 2:
                 self.max_anomaly_ICE *= update_ratio
             elif element == 'FIRE' or element == '火' or element == 1:
