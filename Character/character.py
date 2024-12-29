@@ -543,7 +543,7 @@ class Character:
         self.baseCRIT_score += (scCRIT * 4.8)
 
     def update_sp_and_decibel(self, *args, **kwargs):
-        """更新能量和喧响"""
+        """自然更新的能量和喧响"""
         # Preload Skill
         skill_nodes = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
@@ -555,8 +555,7 @@ class Character:
                 if self.sp < sp_threshold:
                     print(f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树")
                 sp_change = sp_recovery - sp_consume
-                self.sp += sp_change
-                self.sp = max(0.0, min(self.sp, self.sp_limit))
+                self.update_sp(sp_change)
             # Decibel
             if self.NAME == node.char_name and node.skill_tag.split('_')[1] == 'Q':
                 if self.decibel - 3000 <= -1e-5:
@@ -566,14 +565,23 @@ class Character:
                 if (decibel_change := node.skill.fever_recovery) > 0:
                     if node.char_name == self.NAME:
                         decibel_change = node.skill.self_fever_re
-                self.decibel += decibel_change
-                self.decibel = max(0.0, min(self.decibel, 3000))
+                self.update_decibel(decibel_change)
         # SP recovery over time
         mul_data = _sp_update_data_filter(*args, **kwargs)
         for mul in mul_data:
             if mul.char_name == self.NAME:
-                sp_change_2 = mul.get_sp_regen()
-                self.sp += sp_change_2 / 60
+                sp_change_2 = mul.get_sp_regen() / 60   # 每秒回能转化为每帧回能
+                self.update_sp(sp_change_2)
+
+    def update_sp(self, sp_value: int | float):
+        """可外部强制更新能量的方法"""
+        self.sp += sp_value
+        self.sp = max(0.0, min(self.sp, self.sp_limit))
+
+    def update_decibel(self, decibel_value: int | float):
+        """可外部强制更新喧响的方法"""
+        self.decibel += decibel_value
+        self.decibel = max(0.0, min(self.decibel, 3000))
 
     def special_resources(self, *args, **kwargs) -> None:
         """父类中不包含默认特殊资源"""
@@ -585,6 +593,7 @@ class Character:
 
     def __str__(self) -> str:
         return f"{self.NAME} {self.level}级，能量{self.sp:.2f}，喧响{self.decibel:.2f}"
+
 
 
 if __name__ == "__main__":

@@ -20,3 +20,38 @@ class SPUpdateData:
 
     def get_sp_regen(self) -> float:
         return self.static_sp_regen + self.dynamic_sp_regen
+
+class ScheduleRefreshData:
+    def __init__(self,
+             *,
+             sp_target: tuple[str] | None = None,
+             sp_value: float | int = 0,
+             decibel_target: tuple[str] | None = None,
+             decibel_value: float | int = 0,
+             **kwargs):
+        # 避免可变默认参数
+        self.sp_target: tuple[str] = sp_target if sp_target is not None else ('',)
+        self.decibel_target: tuple[str] = decibel_target if decibel_target is not None else ('',)
+
+        # 类型检查和异常处理
+        if not isinstance(sp_value, (float, int)):
+            raise TypeError("sp_value must be a number")
+        if not isinstance(decibel_value, (float, int)):
+            raise TypeError("decibel_value must be a number")
+
+        self.sp_value = sp_value
+        self.decibel_value = decibel_value
+
+        # 输入验证
+        if not self.sp_target or not all(isinstance(item, str) for item in self.sp_target):
+            raise ValueError("sp_target must be a non-empty tuple of strings")
+        if not self.decibel_target or not all(isinstance(item, str) for item in self.decibel_target):
+            raise ValueError("decibel_target must be a non-empty tuple of strings")
+
+        allowed_kwargs = {'additional_param1', 'additional_param2'}  # 根据实际情况定义允许的额外参数
+        for key, value in kwargs.items():
+            if key in allowed_kwargs:
+                setattr(self, key, value)
+            else:
+                raise ValueError(f"Unexpected keyword argument: {key}")
+
