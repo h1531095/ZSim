@@ -25,8 +25,6 @@ def check_preparation(buff_0, **kwargs):
     # 参数正确性检查
     if sub_exist_buff_dict and char_NAME is None and char_CID is None:
         raise ValueError(f'在查询sub_exist_buff_dict的同时，应保证传入char_CID与char_NAME中的一个参数')
-    if char_CID is None and char_NAME is None and buff_0:
-        raise ValueError(f'在传入buff_0参数的同时，应保证传入char_CID与char_NAME中的一个参数')
 
     # 函数主体部分
     if char_CID:

@@ -206,5 +206,13 @@
     "Buff-青衣-额外能力-冲击转攻击": {
         "module": ".BuffXLogic.QingYiAdditionalAbilityStunConvertToATK",
         "class": "QingYiAdditionalAbilityStunConvertToATK"
+    },
+    "Buff-角色-丽娜-核心被动-穿透率": {
+        "module": ".BuffXLogic.LinaCoreSkillPenRatioBonus",
+        "class": "LinaCoreSkillPenRatioBonus"
+    },
+    "Buff-角色-丽娜-组队被动-增伤": {
+        "module": ".BuffXLogic.LinaAdditionalSkillEleDMGBonus",
+        "class": "LinaAdditionalSkillEleDMGBonus"
     }
 }

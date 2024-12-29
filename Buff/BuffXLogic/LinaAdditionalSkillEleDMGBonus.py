@@ -16,6 +16,7 @@ class LinaAdditionalSkillEleDMGBonus(Buff.BuffLogic):
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic
+        self.xexit = self.special_exit_logic
 
     def get_prepared(self, **kwargs):
         return check_preparation(self.buff_0, **kwargs)
@@ -35,6 +36,13 @@ class LinaAdditionalSkillEleDMGBonus(Buff.BuffLogic):
         else:
             return False
 
+    def special_exit_logic(self):
+        self.check_record_module()
+        self.get_prepared(enemy=1)
+        if not self.record.enemy.dynamic.shock:
+            return True
+        else:
+            return False
 
 
 

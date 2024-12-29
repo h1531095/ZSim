@@ -97,3 +97,9 @@ class AnomalyBar:
         self.is_full = False
         self.current_anomaly = np.float64(0)
         self.current_ndarray = np.zeros((1, self.current_ndarray.shape[0]), dtype=np.float64)
+
+    def get_buildup_pct(self):
+        if self.max_anomaly is None:
+            return 0
+        pct = self.current_anomaly / self.max_anomaly
+        return pct

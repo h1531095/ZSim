@@ -8,6 +8,7 @@ class LinaCoreSkillRecord:
         self.char = None
         self.enemy = None
         self.dynamic_buff_list = None
+        self.sub_exist_buff_dict = None
 
 
 class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
@@ -46,7 +47,7 @@ class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
 
     def special_start_logic(self):
         self.check_record_module()
-        self.get_prepared(action_stack=1, char_CID=1211, dynamic_buff_list=1, enemy=1)
+        self.get_prepared(action_stack=1, char_CID=1211, dynamic_buff_list=1, enemy=1, sub_exist_buff_dict=1)
         tick_now = JudgeTools.find_tick()
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_0.dy.count -= self.buff_0.ft.step
@@ -66,6 +67,9 @@ class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(action_stack=1)
         if self.record.action_stack.peek().mission_tag != "1211_SNA_1":
+            tick = JudgeTools.find_tick()
+            if self.buff_instance.dy.endticks <= tick:
+                return True
             return False
         else:
             return True

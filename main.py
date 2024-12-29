@@ -16,11 +16,11 @@ from define import APL_MODE
 @dataclass
 class InitData:
     name_box = ['青衣', '丽娜', '雅']
-    Judge_list_set = [['雅', '硫磺石', '折枝剑歌'],
+    Judge_list_set = [['雅', '霰落星殿', '折枝剑歌'],
                       ['丽娜', '含羞恶面', '自由蓝调'],
                       ['青衣', '玉壶青冰', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
-              'weapon': '硫磺石', 'weapon_level': 1,
+              'weapon': '霰落星殿', 'weapon_level': 1,
               'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
               'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
               'scATK_percent': 10, 'scCRIT': 20,
@@ -28,13 +28,13 @@ class InitData:
     char_1 = {'name' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,
               'equip_set4': '自由蓝调', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '攻击力%', 'drive5' : '攻击力%', 'drive6' : '能量自动回复%',
+              'drive4' : '攻击力%', 'drive5' : '穿透率', 'drive6' : '能量自动回复%',
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 0}
     char_0 = {'name' : name_box[0],
-              'weapon': '玉壶青冰', 'weapon_level': 5,
+              'weapon': '玉壶青冰', 'weapon_level': 1,
               'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '暴击率', 'drive5' : '火属性伤害', 'drive6' : '冲击力%',
+              'drive4' : '暴击率', 'drive5' : '电属性伤害', 'drive6' : '冲击力%',
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 0}
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
