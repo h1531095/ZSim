@@ -11,33 +11,34 @@ class Qingyi(Character):
         self.__MAX_VOLTAGE: int = 10000
         self.__QUAN_VOLTAGE: float = self.__MAX_VOLTAGE / 100 * (1.3 if self.cinema >= 1 else 1)
         self.__FLASH_THRESHOLD: float = self.__MAX_VOLTAGE * 0.75
+        self.VOLTAGE_MAP: dict = {
+            '1300_NA_3_NFC': self.__QUAN_VOLTAGE * 4.6875,
+            '1300_NA_3_FC': self.__FLASH_THRESHOLD,
+            '1300_SNA': self.__QUAN_VOLTAGE * 1.94,
+            '1300_NA_4': self.__QUAN_VOLTAGE * 7.7,
+            '1300_CA': self.__QUAN_VOLTAGE * 16.08,
+            '1300_BH_Aid': self.__QUAN_VOLTAGE * 6.08,
+            '1300_Assault_Aid': self.__QUAN_VOLTAGE * 14.89,
+            '1300_E': self.__QUAN_VOLTAGE * 2.83,
+            '1300_E_EX_NFC': self.__QUAN_VOLTAGE * 22.29,
+            '1300_E_EX_FC': self.__QUAN_VOLTAGE * 30,
+            '1300_QTE': self.__QUAN_VOLTAGE * 25,
+            '1300_Q': self.__QUAN_VOLTAGE * 80
+        }
 
         self.flash_connect_voltage: int = 0 if self.cinema == 0 else self.__MAX_VOLTAGE  # 闪络电压，初始化为0
         self.flash_connect: bool = False if self.cinema == 0 else True  # 闪络状态
         self.rush_attack_available_times: int = 5   # 醉花月云转-突进攻击可用次数
+
 
     def special_resources(self, *args, **kwargs) -> None:
         """模拟青衣的闪络电压机制"""
         skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
             # 闪络电压增加逻辑
-            voltage_map: dict = {
-                '1300_NA_3_NFC': self.__QUAN_VOLTAGE * 4.6875,
-                '1300_NA_3_FC': self.__FLASH_THRESHOLD,
-                '1300_SNA': self.__QUAN_VOLTAGE * 1.94,
-                '1300_NA_4': self.__QUAN_VOLTAGE * 7.7,
-                '1300_CA': self.__QUAN_VOLTAGE * 16.08,
-                '1300_BH_Aid': self.__QUAN_VOLTAGE * 6.08,
-                '1300_Assault_Aid': self.__QUAN_VOLTAGE * 14.89,
-                '1300_E': self.__QUAN_VOLTAGE * 2.83,
-                '1300_E_EX_NFC': self.__QUAN_VOLTAGE * 22.29,
-                '1300_E_EX_FC': self.__QUAN_VOLTAGE * 30,
-                '1300_QTE': self.__QUAN_VOLTAGE * 25,
-                '1300_Q': self.__QUAN_VOLTAGE * 80
-            }
             if self.flash_connect_voltage < self.__MAX_VOLTAGE:
                 skill_tag = node.skill_tag
-                self.flash_connect_voltage += voltage_map.get(skill_tag, 0)
+                self.flash_connect_voltage += self.VOLTAGE_MAP.get(skill_tag, 0)
             # 闪络电压不能超过最大值
             self.flash_connect_voltage = min(self.flash_connect_voltage, self.__MAX_VOLTAGE)
             # 闪络电压超过75%时，进入闪络状态
