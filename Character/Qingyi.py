@@ -13,7 +13,7 @@ class Qingyi(Character):
         self.__FLASH_THRESHOLD: float = self.__MAX_VOLTAGE * 0.75
         self.VOLTAGE_MAP: dict = {
             '1300_NA_3_NFC': self.__QUAN_VOLTAGE * 4.6875,
-            '1300_NA_3_FC': self.__FLASH_THRESHOLD,
+            '1300_NA_3_FC': self.__QUAN_VOLTAGE * 4.6875 * 16,
             '1300_SNA': self.__QUAN_VOLTAGE * 1.94,
             '1300_NA_4': self.__QUAN_VOLTAGE * 7.7,
             '1300_CA': self.__QUAN_VOLTAGE * 16.08,
@@ -42,7 +42,7 @@ class Qingyi(Character):
             # 闪络电压不能超过最大值
             self.flash_connect_voltage = min(self.flash_connect_voltage, self.__MAX_VOLTAGE)
             # 闪络电压超过75%时，进入闪络状态
-            if self.flash_connect_voltage - self.__FLASH_THRESHOLD <= 1e-5:
+            if self.flash_connect_voltage - self.__FLASH_THRESHOLD >= 1e-5:
                 self.flash_connect = True
                 self.rush_attack_available_times = 5
             if self.flash_connect:
