@@ -1,13 +1,14 @@
 import json
 import sys
 from functools import lru_cache
+
 import numpy as np
 
-import Buff
 from Character import Character
 from Enemy import Enemy
 from Preload import SkillNode
 from Report import report_to_log
+from data_struct import cal_buff_total_bonus
 from define import ElementType, INVALID_ELEMENT_ERROR
 
 with open("ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as f:
@@ -20,7 +21,8 @@ class MultiplierData:
     def __new__(cls, enemy_obj: Enemy, dynamic_buff: dict = None, character_obj: Character = None):
 
         hashable_dynamic_buff = tuple((key, tuple(value)) for key, value in dynamic_buff.items())
-        cache_key = tuple((enemy_obj, hashable_dynamic_buff, character_obj))
+        enemy_hashable = (tuple(enemy_obj.dynamic.dynamic_debuff_list), tuple(enemy_obj.dynamic.dynamic_dot_list))
+        cache_key = tuple((enemy_hashable, hashable_dynamic_buff, id(character_obj)))
         if cache_key in cls.mul_data_cache:
             return cls.mul_data_cache[cache_key]
         else:
@@ -31,26 +33,25 @@ class MultiplierData:
             return instance
 
     def __init__(self, enemy_obj: Enemy, dynamic_buff: dict = None, character_obj: Character = None):
+        if not hasattr(self, 'char_name'):
+            self.skill_node: SkillNode | None = None # 此类内部不调用该属性
+            if character_obj is None:
+                self.char_name = None
+                self.char_level = None
+                self.cid = None
+            else:
+                self.char_name = character_obj.NAME
+                self.char_level = character_obj.level
+                self.cid = character_obj.CID
 
-        self.skill_node: SkillNode | None = None # 此类内部不调用该属性
-
-        if character_obj is None:
-            self.char_name = None
-            self.char_level = None
-            self.cid = None
-        else:
-            self.char_name = character_obj.NAME
-            self.char_level = character_obj.level
-            self.cid = character_obj.CID
-
-        # 获取角色局外面板数据
-        static_statement: Character.Statement | None = getattr(character_obj, 'statement', None)
-        self.static = self.StaticStatement(static_statement)    # 按理来说静态面板在角色都没有的情况下根本没必要生成，但是屎山就是这样搭建的，尊重
-        # 获取敌人数据
-        self.enemy_obj = enemy_obj
-        # 获取buff动态加成
-        dynamic_statement: dict = self.get_buff_bonus(dynamic_buff)
-        self.dynamic = self.DynamicStatement(dynamic_statement)
+            # 获取角色局外面板数据
+            static_statement: Character.Statement | None = getattr(character_obj, 'statement', None)
+            self.static = self.StaticStatement(static_statement)    # 按理来说静态面板在角色都没有的情况下根本没必要生成，但是屎山就是这样搭建的，尊重
+            # 获取敌人数据
+            self.enemy_obj = enemy_obj
+            # 获取buff动态加成
+            dynamic_statement: dict = self.get_buff_bonus(dynamic_buff)
+            self.dynamic = self.DynamicStatement(dynamic_statement)
 
     def get_buff_bonus(self, dynamic_buff) -> dict:
         if self.char_name is None:
@@ -72,7 +73,7 @@ class MultiplierData:
                 report_to_log(f"[WARNING] dynamic_buff 中依然找不到动态buff列表", level=4)
                 enemy_buff: list = []
         enabled_buff: tuple = tuple(char_buff + enemy_buff)
-        dynamic_statement: dict = self.__cal_buff_total_bonus(enabled_buff)
+        dynamic_statement: dict = cal_buff_total_bonus(enabled_buff)
         return dynamic_statement
 
     class StaticStatement:
@@ -141,48 +142,6 @@ class MultiplierData:
                 for attr, static_attr in attribute_map.items():
                     setattr(self, attr, getattr(static_statement, static_attr, 0.0))
 
-    @staticmethod
-    @lru_cache(maxsize=128)
-    def __cal_buff_total_bonus(enabled_buff: tuple) -> dict:
-        """
-        计算角色buff的总加成。
-
-        该方法首先读取buff效果的键值对，然后遍历角色身上的所有buff。
-        对于每个buff，检查其是否为Buff类型，然后根据buff的计数（count）来计算总加成。
-
-        参数:
-        - char_buff: 包含角色所有buff的列表。
-        """
-        # 初始化动态语句字典，用于累加buff效果的值
-        dynamic_statement: dict = {}
-
-        # 遍历角色身上的所有buff
-        for buff_obj in enabled_buff:
-            # 确保buff是Buff类的实例
-            if not isinstance(buff_obj, Buff.Buff):
-                raise TypeError(f"{buff_obj} 不是Buff类型，无法计算！")
-            else:
-                # 检查buff的简单效果是否为空
-                buff_obj: Buff.Buff
-                # if not buff_obj.ft.simple_hit_logic:
-                #     raise NotImplementedError(f"属性 ft.simple_effect 不能为：{buff_obj.ft.simple_hit_logic}，功能还没写！")
-                if not buff_obj.dy.active:
-                     report_to_log(f"[Buff Effect] 动态buff列表中混入了未激活buff: {str(buff_obj)}，已跳过")
-                     continue
-
-
-                # 获取buff的层数
-                count = buff_obj.dy.count
-                count = count if count > 0 else 0
-
-                # 遍历buff的每个效果和对应的值，并将其累加
-                for key, value in buff_obj.effect_dct.items():
-                    # 如果键值对在动态语句字典中，则累加值，否则初始化并赋值
-                    try:
-                        dynamic_statement[key] = dynamic_statement.get(key, 0) + value * count
-                    except TypeError:
-                        continue
-        return dynamic_statement
 
     class DynamicStatement:
         def __init__(self, dynamic_statement):
@@ -326,9 +285,9 @@ class MultiplierData:
             # 打开buff_effect_trans.json
 
             # 确保所有的属性都有默认值
-            for value in buff_effect_trans.values():
-                if not hasattr(self, value):
-                    setattr(self, value, 0.0)
+            # for value in buff_effect_trans.values():
+            #     if not hasattr(self, value):
+            #         setattr(self, value, 0.0)
             # 遍历dynamic_statement，根据json翻译，设置对应的属性值
             for key, value in dynamic_statement.items():
                 if key in buff_effect_trans:
@@ -771,12 +730,21 @@ class Calculator:
             else:
                 assert False, INVALID_ELEMENT_ERROR
 
+            # FIXME:这个参数暂时不知道是啥，用if else简单屏蔽了，Snow你记得回头修！
+            #  回头看了下，青衣、格丽斯的这部分数据都没有，得更新。
             element_dmg_percentage = data.skill_node.skill.element_damage_percent
+
             hit_times = data.skill_node.hit_times
 
             anomaly_buildup = (accumulation * (am / 100) * (
                     1 + element_buildup_bonus + trigger_buildup_bonus) *
                                buildup_res * element_dmg_percentage / hit_times)
+
+            # print(f'属性编号：{element_type}，参数：基础值：{accumulation}，\
+            # 掌控：{am}，属性积蓄加成：{element_buildup_bonus}，\
+            # 技能积蓄加成{trigger_buildup_bonus}，积蓄抗性{buildup_res}，\
+            # 属性伤害百分比{element_dmg_percentage}，命中次数{hit_times}')
+
             return np.float64(anomaly_buildup)
 
         @staticmethod
@@ -952,33 +920,12 @@ class Calculator:
         return stun
 
     @staticmethod
-    def update_stun_tick(enemy_obj: Enemy, data):
+    def update_stun_tick(enemy_obj: Enemy, data: MultiplierData):
         """专门更新延长失衡时间的 buff"""
         if data.dynamic.stun_tick_increase >= 1:
             enemy_obj.increase_stun_recovery_time(data.dynamic.stun_tick_increase)
 
 
+
 if __name__ == '__main__':
-    char = Character(name='艾莲')
-    import Preload
-
-    skills = char.skill_object
-    p = Preload.Preload(skills)
-    skill = p.preload_data.skills_queue[0]
-    enemy = Enemy()
-    import Buff.BuffLoad
-    from Buff.BuffExist_Judge import buff_exist_judge
-
-    name_box = ['艾莲', '苍角', '莱卡恩']
-    Judge_list_set = [['艾莲', '深海访客', '极地重金属'], ['苍角', '含羞恶面', '自由蓝调'],
-                      ['莱卡恩', '拘缚者', '镇星迪斯科']]
-    weapon_dict = {'艾莲': ['深海访客', 1], '苍角': ['含羞恶面', 5], '莱卡恩': ['拘缚者', 1]}
-    exist_buff_dict = buff_exist_judge(name_box, Judge_list_set, weapon_dict)
-    all_match, judge_condition_dict, active_condition_dict = Buff.BuffLoad.BuffInitialize('Ellen_PassiveSkill',
-                                                                                          exist_buff_dict['艾莲'])
-    buff = Buff.Buff(active_condition_dict, judge_condition_dict)
-    test_md = Calculator(skill, char, enemy, {'艾莲': [buff]})
-    de = test_md.cal_dmg_expect()
-    dc = test_md.cal_dmg_crit()
-    sps = test_md.cal_snapshot()
-    breakpoint()
+    pass

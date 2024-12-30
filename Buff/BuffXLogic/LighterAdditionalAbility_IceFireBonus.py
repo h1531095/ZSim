@@ -1,4 +1,4 @@
-from Buff import Buff
+from Buff import Buff, JudgeTools
 from ScheduledEvent import Calculator
 from ScheduledEvent.Calculator import MultiplierData
 import sys
@@ -25,24 +25,27 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         self.buff_instance = buff_instance
         # 初始化特定逻辑
         self.xhit = self.special_hit_logic
+        self.main_module = None
+        self.char = None
+        self.enemy = None
+        self.dynamic_buff_list = None
+        self.exist_buff_dict = None
 
     def special_hit_logic(self):
-        main_module = sys.modules['__main__']
-        enemy = main_module.schedule_data.enemy
-        dynamic_buff = main_module.global_stats.DYNAMIC_BUFF_DICT
-        char_list = main_module.char_data.char_obj_list
-        for _ in char_list:
-            if _.CID == 1161:
-                character = _
-                mul_data = MultiplierData(enemy, dynamic_buff, character)
-                break
-        else:
-            raise ValueError(f'char_list中并未找到角色莱特')
-        buff_0 = main_module.load_data.exist_buff_dict['莱特'][self.buff_instance.ft.index]
+        if self.main_module is None:
+            self.main_module = sys.modules['__main__']
+        if self.enemy is None:
+            self.enemy = JudgeTools.find_enemy()
+        if self.dynamic_buff_list is None:
+            self.dynamic_buff_list = JudgeTools.find_dynamic_buff_list()
+        if self.char is None:
+            self.char = JudgeTools.find_char_from_CID(1161)
+        mul_data = MultiplierData(self.enemy, self.dynamic_buff_list, self.char)
+        buff_0 = self.main_module.load_data.exist_buff_dict['莱特'][self.buff_instance.ft.index]
         buff_i = self.buff_instance
         buff_i.dy.active = True
-        buff_i.dy.startticks = main_module.tick
-        buff_i.dy.endticks = main_module.tick + buff_i.ft.maxduration
+        buff_i.dy.startticks = self.main_module.tick
+        buff_i.dy.endticks = self.main_module.tick + buff_i.ft.maxduration
 
         real_count = buff_0.history.real_count
         real_count = min(real_count + 5, 100)
@@ -53,7 +56,7 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         stun_value = Calculator.StunMul.cal_imp(mul_data)
         fake_count_delta = max((stun_value - 170)/10, 0)
         sum_fake_count = real_count / 5 * fake_count_delta
-        buff_i.dy.count = real_count + sum_fake_count
+        buff_i.dy.count = min(real_count + sum_fake_count, 300)
         buff_i.update_to_buff_0(buff_0)
         # print('buff_i：', main_module.tick, buff_i.dy.active, buff_i.dy.startticks, buff_i.dy.endticks, real_count, sum_fake_count)
         # print('buff_0：', buff_0.dy.active, buff_0.dy.startticks, buff_0.dy.endticks, buff_0.history.real_count)

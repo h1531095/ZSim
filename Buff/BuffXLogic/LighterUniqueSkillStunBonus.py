@@ -1,4 +1,5 @@
 from Buff import Buff
+from Buff.JudgeTools import find_char_from_CID
 from Character.Lighter import Lighter
 import sys
 
@@ -6,12 +7,13 @@ import sys
 class LighterUniqueSkillStunBonus(Buff.BuffLogic):
     """
     该buff是复杂判断 + 复杂生效双代码控制。
+    检测莱特士气的变化。如果发生了变化，则返回True
     """
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
-        self.xstart = self.special_start_logic
+        self.xeffect = self.special_effect_logic
         self.last_morale = 40
         self.last_morale_delta = 0
         self.buff_count = 0
@@ -21,14 +23,8 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
         """
         调用这个方法的位置，应该是buff_0的xjudge，所以，有效的self.buff_count也是存在buff_0里面的。
         """
-        module_main = sys.modules['__main__']
-        char_list = module_main.char_data.char_obj_list
-        for _ in char_list:
-            if isinstance(_, Lighter):
-                self.char_lighter = _
-                break
-        else:
-            raise ValueError(f'char_obj_list中并未找到莱特！')
+        if self.char_lighter is None:
+            self.char_lighter = find_char_from_CID(1161)
         if self.char_lighter.morale > 10000:
             raise ValueError(f'snow又写错了')
         if self.last_morale > self.char_lighter.morale:
@@ -42,7 +38,7 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
             self.last_morale = self.char_lighter.morale
             return False
 
-    def special_start_logic(self):
+    def special_effect_logic(self):
         """
         这个方法需要在xjudge通过之后调用，此时调用的是buff_new的xeffect。
         所以这里需要向buff_0获取它的的层数。

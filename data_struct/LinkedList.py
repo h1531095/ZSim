@@ -18,14 +18,12 @@ class NodeIterator:
     def __iter__(self):
         return self
 
-
-
-
 class LinkedList:
     def __init__(self):
         self.head = None
 
     def add(self, data):
+        """在链表尾部添加"""
         new_node = Node(data)
         if self.head is None:
             self.head = new_node
@@ -34,6 +32,12 @@ class LinkedList:
             while current.next:
                 current = current.next
             current.next = new_node
+
+    def insert(self, data):
+        """在链表头部插入"""
+        new_node = Node(data)
+        new_node.next = self.head
+        self.head = new_node
 
     def __iter__(self):
         return NodeIterator(self.head)
@@ -91,37 +95,3 @@ class LinkedList:
             previous = current
             current = current.next
         return False
-
-
-if __name__ == "__main__":
-    # 使用示例
-    sll = LinkedList()
-    sll.add(1)
-    sll.add(2)
-    sll.add(3)
-    print(len(sll))
-    # 打印链表
-    sll.print_list()  # 输出: 1 -> 2 -> 3 -> None
-
-    print(next(iter(sll)))
-    print(next(iter(sll)))
-    print(next(iter(sll)))
-
-    # 使用 for 循环遍历链表
-    for data in sll:
-        print(data)  # 输出: 1 2 3
-
-    # 删除头部节点
-    removed = sll.pop_head()
-
-    print(f"Removed: {removed}")  # 输出: Removed: 1
-
-    # 再次打印链表
-    sll.print_list()  # 输出: 2 -> 3 -> None
-
-    # 再次使用 for 循环遍历链表
-    for data in sll:
-        print(data)  # 输出: 2 3
-
-    # 直接打印链表
-    print(sll)  # 输出: [2, 3]

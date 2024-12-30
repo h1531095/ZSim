@@ -1,11 +1,10 @@
 from AnomalyBar import AnomalyBar
 from AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
 from copy import deepcopy
-import numpy as np
-import Enemy
 import importlib
 from Buff.BuffAddStrategy import BuffAddStrategy
 from Dot.BaseDot import Dot
+
 
 anomlay_dot_dict = {
     1: 'Ignite',
@@ -33,7 +32,7 @@ def spawn_output(anomaly_bar, mode_number):
     return output
 
 
-def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy: Enemy.Enemy, new_anomaly, element_type):
+def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy, new_anomaly, element_type):
     """
     该函数的作用是创建属性异常附带的debuff和dot，
     debuff与dot的index写在了Anomaly.accompany_debuff和Anomaly.accompany_dot里。
@@ -55,7 +54,7 @@ def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy: Enemy.Enemy, new
             # event_list.append(new_dot)
 
 
-def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_list: list):
+def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, char_obj_list: list):
     """
     该函数需要在Loading阶段，submission是End的时候运行。
     用于判断该次属性异常触发应该是新建、替换还是触发紊乱。
@@ -80,7 +79,6 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
             enemy.update_anomaly(element_type)
             active_bar = deepcopy(bar)
             enemy.dynamic.active_anomaly_bar_dict[element_type] = active_bar
-
 
             '''
             更新完毕，现在正式进入分支判断——触发同类异常 & 触发异类异常（紊乱）。
@@ -139,10 +137,10 @@ def update_anomaly(element_type: int, enemy: Enemy.Enemy, time_now: int, event_l
                 # 向eventlist中添加事件。主要包括非烈霜、冰属性的新异常，以及紊乱。
                 if element_type not in [2, 5]:
                     event_list.append(new_anomaly)
+                for obj in char_obj_list:
+                    obj.special_resources(disorder)
                 event_list.append(disorder)
                 # print(f'触发紊乱！')
-
-
             # 在异常与紊乱两个分支的最后，清空bar的异常积蓄和快照。
             bar.reset_current_info_cause_output()
 

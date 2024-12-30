@@ -1,9 +1,9 @@
-from LinkedList import LinkedList
+from data_struct import LinkedList
 import Preload
 import tqdm
 from Report import report_to_log
 import Load
-from Load import ActionStack
+from data_struct import ActionStack
 
 
 def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, name_dict: dict, timenow, action_stack: ActionStack):
@@ -34,9 +34,6 @@ def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, 
             report_to_log(f"[Skill LOAD]:{timenow}:{Load_mission_dict[key].mission_tag}已经结束,已从Load中移除", level=2)
             Load_mission_dict.pop(key)
     return Load_mission_dict
-
-
-
 
 
 if __name__ == "__main__":      # 测试

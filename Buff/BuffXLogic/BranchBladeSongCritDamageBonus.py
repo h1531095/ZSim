@@ -1,7 +1,6 @@
-from Buff import Buff
+from Buff import Buff, JudgeTools
 from ScheduledEvent import Calculator
 from ScheduledEvent.Calculator import MultiplierData
-import sys
 
 
 class BranchBladeSongCritDamageBonus(Buff.BuffLogic):
@@ -14,33 +13,21 @@ class BranchBladeSongCritDamageBonus(Buff.BuffLogic):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
-        self.main = None
         self.equipper = None
-
-    def get_main_module(self):
-        if self.main is None:
-            self.main = sys.modules["__main__"]
-        return self.main
+        self.enemy = None
+        self.dynamic_buff_list = None
+        self.char = None
 
     def special_judge_logic(self):
-        main_module = self.get_main_module()
-
         if self.equipper is None:
-            Judge_list_set = main_module.init_data.Judge_list_set
-            for box in Judge_list_set:
-                if box[2] == self.buff_instance.ft.bufffrom:
-                    self.equipper = box[0]
-                    break
-        char_list = main_module.char_data.char_obj_list
-        enemy = main_module.schedule_data.enemy
-        dynamic_buff = main_module.global_stats.DYNAMIC_BUFF_DICT
-        for _ in char_list:
-            if _.NAME == self.equipper:
-                character = _
-                mul_data = MultiplierData(enemy, dynamic_buff, character)
-                break
-        else:
-            raise ValueError(f'char_list中并未找到角色{self.equipper}')
+            self.equipper = JudgeTools.find_equipper("折枝剑歌")
+        if self.char is None:
+            self.char = JudgeTools.find_char_from_name(self.equipper)
+        if self.enemy is None:
+            self.enemy = JudgeTools.find_enemy()
+        if self.dynamic_buff_list is None:
+            self.dynamic_buff_list = JudgeTools.find_dynamic_buff_list()
+        mul_data = MultiplierData(self.enemy, self.dynamic_buff_list, self.char)
         am = Calculator.AnomalyMul.cal_am(mul_data)
         if am >= 115:
             return True

@@ -24,6 +24,13 @@ class BuffInitCache:
         while len(self.cache) > max_cache:
             self.cache.popitem()
 
+    def __getitem__(self, key):
+        return self.cache[key]
+
+class BuffJudgeCache(BuffInitCache):
+    def __init__(self):
+        super().__init__()
+
 
 def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
     """
@@ -48,12 +55,13 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
                 并且触发对应的分支（start、hit、end），完成符合buff属性的时间、层数更新。
                 """
                 buff_new = Buff(active_condition_dict, judge_condition_dict)
-                buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
-                # if buff_new.ft.index =='Buff-角色-雅-核心被动-冰焰':
-                #     print(11111111111, buff_new.dy.is_changed)
+                if buff_0.ft.simple_effect_logic:
+                    buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                else:
+                    buff_new.logic.xeffect()
                 if buff_new.dy.is_changed:
                     LOADING_BUFF_DICT[char].append(buff_new)
-        # else:
+            # else:
         #     print(1111111111111)
         #     """
         #     大部分拥有复杂判断逻辑的buff并没有明确的触发节点，往往是复杂判断过了，就激活了，不需要判断子任务的执行节点。
@@ -128,6 +136,8 @@ def BuffLoadLoop(
                 raise TypeError(f"当前{debuff_key}不是Buff类！")
             if debuff_0.ft.schedule_judge:
                 continue
+            if debuff_0.ft.operator != 'enemy':
+                continue
             process_buff(debuff_0, sub_exist_debuff_dict, mission, time_now, ['enemy'], LOADING_BUFF_DICT)
     return LOADING_BUFF_DICT
 
@@ -166,81 +176,104 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache
     return results
 
 
-def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission):
+def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission, *, cache=BuffJudgeCache()) -> bool:
     """
         如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
         说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
     """
+    # 以下为缓存逻辑
+    simple_logic: bool = buff_now.ft.simple_judge_logic
+    all_simple = [buff_now.ft.simple_judge_logic,
+                  buff_now.ft.simple_start_logic,
+                  buff_now.ft.simple_hit_logic,
+                  buff_now.ft.simple_end_logic,
+                  buff_now.ft.simple_effect_logic,
+                  buff_now.ft.simple_exit_logic]
+    if all(all_simple):
+        cache_key = hash((id(buff_now), tuple(judge_condition_dict.items()), id(mission)))
+        if cache_key in cache.cache:
+            return cache[cache_key]
+    result: bool
+
+    def save_cache_and_return(result: bool, *,cache = cache):
+        """由于本函数有多个return中断，所以写了个这玩意，把直接return换成return这个函数就行"""
+        if all(all_simple):
+            cache.add(cache_key, result)
+        return result
+    # ——————缓存逻辑结束————————
     if buff_now.ft.alltime:
-        return True
+        result = True
+        return save_cache_and_return(result)
     # if buff_now.ft.index == 'Buff-武器-精1燃狱齿轮-后台能量自动回复':
     #     print(mission.mission_character)
     if (not any(value if value is None else True for value in judge_condition_dict.values)) and buff_now.ft.simple_judge_logic:
         # EXPLAIN：全部数据都是None并且是简单判断逻辑
         #   这通常意味着Buff的判断不在Load阶段，而是通过某种方式在其他阶段暴力添加。
         #   但是部分alltime的buff也会进入这一分支，所以需要在判断alltime之后再进行全空判断。
-        return False
+        result = False
+        return save_cache_and_return(result)
     if buff_now.ft.passively_updating:
         """
         这一步主要检查的是：buff的拥有者是否就是当前的任务角色。
         这可以避免莱特在前台的平A暴击触发了后台艾莲身上的啄木鸟4
         """
-        return False
+        result = False
+        return save_cache_and_return(result)
     else:
         if buff_now.ft.operator != mission.mission_character:
             if not buff_now.ft.backend_acitve:
-                return False
+                result = False
+                return save_cache_and_return(result)
     """
     正常buff的判断逻辑
     """
-
     skill_now = mission.mission_node.skill
     if not isinstance(skill_now, Skill.InitSkill):
         raise TypeError(f"{skill_now}并非Skill类！")
-    if buff_now.ft.simple_judge_logic:
-        all_match = True
-        """
+    if simple_logic:
+        all_match = simple_string_judge(judge_condition_dict, skill_now)
+    else:
+        all_match = buff_now.logic.xjudge()
+    result = all_match
+    return save_cache_and_return(result)
+
+
+def simple_string_judge(judge_condition_dict, skill_now):
+    all_match = True
+    """
         先假定all_match是True，一会儿循环过程中一旦有不符合的项，就改成False。
         只有全部通过才能继续维持All_match的值。
         """
-        for condition, judge_condition in BUFF_LOADING_CONDITION_TRANSLATION_DICT.items():
-            """
-            由于SkillNode中的属性名和judge_condition_dict中的键值名不同，
-            所以需要BUFF_LOADING_CONDITION_TRANSLATION_DICT进行翻译。
-            """
-            csv_judge_condition = judge_condition_dict[condition]
+    for condition, judge_condition in BUFF_LOADING_CONDITION_TRANSLATION_DICT.items():
+        """
+        由于SkillNode中的属性名和judge_condition_dict中的键值名不同，
+        所以需要BUFF_LOADING_CONDITION_TRANSLATION_DICT进行翻译。
+        """
+        csv_judge_condition = judge_condition_dict[condition]
 
-            if csv_judge_condition is not None:
-                """
-                如果键值下面是None则直接跳过。
-                """
-                final_condition = process_string(csv_judge_condition)
-                if getattr(skill_now, judge_condition) not in final_condition:
-                    all_match = False
-    else:
-        all_match = buff_now.logic.xjudge()
+        if csv_judge_condition is not None:
+            """
+            如果键值下面是None则直接跳过。
+            """
+            final_condition = process_string(csv_judge_condition)
+            if getattr(skill_now, judge_condition) not in final_condition:
+                all_match = False
     return all_match
 
 
-def process_string(s):
+def process_string(source: str) -> list[int|float|str]:
     """
     在2024.11.13的更新中，从csv中读取的数据从单个数值变成了字符串，但是数据类型有点复杂。
-    如果单元格内没有分隔符，那么就会被转化为单元素列表，且会自动转换其中的数字为int，
-    如果有分隔符，则会根据分隔符打散成列表，并且将其中的数字转化成int。
+    如果单元格内没有分隔符，那么就会被转化为单元素列表，且会自动转换其中的数字为python数字，
+    如果有分隔符，则会根据分隔符打散成列表，并且将其中的数字转化成python数字。
     由于getattr方法获得的技能属性的数值永远是单个的，所以用 技能属性 in list 的判定逻辑，
     这样就可以实现“或”逻辑。
     """
-    if isinstance(s, str):
-        if '|' in s:
-            split_list = s.split('|')
-            return [int(item) if item.isdigit() else item for item in split_list]
+    if isinstance(source, str):
+        if '|' in source:
+            split_list = source.split('|')
+            return [eval(item) if item.isdigit() else item for item in split_list]
         else:
-            return [int(s) if s.isdigit() else s]
-    return [s]
-
-
-
-
-
-
-
+            return [eval(source) if source.isdigit() else source]
+    else:
+        return [source]

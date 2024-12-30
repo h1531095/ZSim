@@ -1,16 +1,14 @@
 import Buff.BuffAdd
 import Buff.BuffLoad
-from Buff import ScheduleBuffSettle
 import Enemy
 import Preload
 import Report
-import Load
-
 from AnomalyBar import AnomalyBar as AnB
-
 from AnomalyBar import Disorder
+from Buff import ScheduleBuffSettle
 from Buff.BuffExist_Judge import buff_exist_judge
 from Character import Character
+from data_struct import SingleHit, SPUpdateData, ActionStack, ScheduleRefreshData
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator, MultiplierData
 
@@ -33,7 +31,7 @@ class ScheduledEvent:
     2、遍历事件列表，从开始到结束，将每一个事件派发到分支逻辑链内进行处理
     """
 
-    def __init__(self, dynamic_buff: dict, data, tick: int, exist_buff_dict: dict, action_stack: Load.ActionStack, *, loading_buff: dict = None, judging_buff: dict = None):
+    def __init__(self, dynamic_buff: dict, data, tick: int, exist_buff_dict: dict, action_stack: ActionStack, *, loading_buff: dict = None, judging_buff: dict = None):
 
         self.data = data
         self.data.dynamic_buff = dynamic_buff
@@ -61,9 +59,8 @@ class ScheduledEvent:
         # 更新角色面板
         for char in self.data.char_obj_list:
             char: Character
-            # EXPLAIN：mul是个类，包含了角色的所有信息，包括静态面板、动态面板。
-            mul = MultiplierData(character_obj=char, dynamic_buff=self.data.dynamic_buff, enemy_obj=self.data.enemy)
-            char.update_sp_and_decibel(mul)
+            sp_update_date = SPUpdateData(char_obj=char, dynamic_buff=self.data.dynamic_buff)
+            char.update_sp_and_decibel(sp_update_date)
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
@@ -84,6 +81,9 @@ class ScheduledEvent:
                 elif isinstance(event, AnB):
                     self.anomaly_event(event)
                     self.judge_required_info_dict['anb'] = event
+                elif isinstance(event, ScheduleRefreshData):
+                    self.refresh_event(event)
+                    self.judge_required_info_dict['refresh'] = event
                 else:
                     raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
                 ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff, self.action_stack)
@@ -121,18 +121,16 @@ class ScheduledEvent:
                              dynamic_buff=self.data.dynamic_buff)
         snapshot = cal_obj.cal_snapshot()
         stun = cal_obj.cal_stun()
-        self.data.enemy.update_stun(stun)
-        if snapshot[1] >= 0.0001:
-            element_type_code = snapshot[0]
-            updated_bar = self.data.enemy.anomaly_bars_dict[element_type_code]
-            if isinstance(updated_bar, AnB):
-                updated_bar.update_snap_shot(snapshot)
+        dmg_expect = cal_obj.cal_dmg_expect()
+        dmg_crit = cal_obj.cal_dmg_crit()
+        hit_result = SingleHit(event.skill_tag, snapshot, stun, dmg_expect, dmg_crit)
+        self.enemy.hit_received(hit_result)
 
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,
                                  skill_tag=event.skill_tag,
-                                 dmg_expect=cal_obj.cal_dmg_expect(),
-                                 dmg_crit=cal_obj.cal_dmg_crit(),
+                                 dmg_expect=dmg_expect,
+                                 dmg_crit=dmg_crit,
                                  stun=stun,
                                  stun_status=self.data.enemy.dynamic.stun,
                                  buildup=snapshot[1],
@@ -159,6 +157,21 @@ class ScheduledEvent:
                                  dmg_expect=dmg_disorder,
                                  is_anomaly=True,
                                  is_disorder=True)
+
+    def refresh_event(self, event: ScheduleRefreshData):
+        """强制更新角色数据"""
+        character: Character
+        char_mapping = {character.NAME: character for character in self.data.char_obj_list}
+        target: str = ''
+        try:
+            for target in event.sp_target:
+                if target != '':
+                    char_mapping[target].update_sp(event.sp_value)
+            for target in event.decibel_target:
+                if target != '':
+                    char_mapping[target].update_decibel(event.decibel_value)
+        except KeyError:
+            raise ValueError(f"[Schedule] target: {target} not found in char_obj_list, check the alloc.")
 
 
 if __name__ == '__main__':

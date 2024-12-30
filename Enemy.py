@@ -2,9 +2,8 @@ import numpy as np
 import pandas as pd
 import AnomalyBar
 from Report import report_to_log
+from data_struct import SingleHit
 from define import ENEMY_DATA_PATH
-
-# 把属性异常标号从数字翻译成str的中转字典，用于和getattr方法联动。
 
 
 class EnemySettings:
@@ -27,6 +26,13 @@ class Enemy:
         - enemy_sub_ID (int): 敌人的子ID，格式为9000+索引ID
 
         !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会查找ID最靠前的那一个
+
+        更新参数接口：
+            hit_received(single_hit)
+            update_stun(float)
+        获取临时参数接口：
+            get_hp_percentage()
+            get_stun_percentage()
         """
         # 读取敌人数据文件，初始化敌人信息
         self.__last_stun_increase_tick = None
@@ -34,6 +40,8 @@ class Enemy:
         # !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会返回ID更靠前的
         enemy_info = self.__lookup_enemy(_raw_enemy_dataframe, enemy_name, enemy_index_ID, enemy_sub_ID)
         self.name, self.index_ID, self.sub_ID, self.data_dict = enemy_info
+        # 初始化动态属性
+        self.dynamic = self.EnemyDynamic()
         # 初始化敌人基础属性
         self.max_HP: float = float(self.data_dict['剧变节点7理论生命值'])
         self.max_ATK: float = float(self.data_dict['剧变节点7攻击力'])
@@ -44,7 +52,7 @@ class Enemy:
         self.able_to_get_anomaly: bool = bool(self.data_dict['能否异常'])
         self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度']) / 60
         self.stun_recovery_time: float = 0.0
-        self.restore_stun_recovery_time()
+        self.restore_stun()
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
 
@@ -63,14 +71,13 @@ class Enemy:
         self.ETHER_damage_resistance: float = float(self.data_dict['以太抗'])
         self.PHY_damage_resistance: float = float(self.data_dict['物抗'])
 
-        # 初始化敌人设置和动态属性
+        # 初始化敌人设置
         self.settings = EnemySettings()
         self.__apply_settings(self.settings)
-        self.dynamic = self.EnemyDynamic()
 
         # 下面的两个dict本来写在外面的，但是别的程序也要用这两个dict，所以索性写进来了。我是天才。
         self.trans_element_number_to_str = {0: 'PHY', 1: 'FIRE', 2: 'ICE', 3: 'ELECTRIC', 4: 'ETHER', 5: 'FIREICE'}
-        self.trans_anomaly_effect_to_str = {0: 'assault', 1: 'burn', 2: 'frostbite', 3: 'shock', 4: 'corruption', 5: 'frostbite'}
+        self.trans_anomaly_effect_to_str = {0: 'assault', 1: 'burn', 2: 'frostbite', 3: 'shock', 4: 'corruption', 5: 'frost_frostbite'}
         """
         enemy实例化的时候，6种异常积蓄条也随着一起实例化。
         """
@@ -106,9 +113,17 @@ class Enemy:
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
-    def restore_stun_recovery_time(self):
-        """还原 Enemy 本身的失衡恢复时间"""
+    def __restore_stun_recovery_time(self):
         self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
+
+    def restore_stun(self):
+        """还原 Enemy 本身的失衡恢复时间，与QTE计数"""
+        self.dynamic.stun = False
+        self.dynamic.stun_bar = 0
+        self.dynamic.stun_tick = 0
+        self.__restore_stun_recovery_time()
+        self.dynamic.QTE_triggered_times = 0
+        self.dynamic.QTE_received_tag = []
 
     def increase_stun_recovery_time(self, increase_tick: int):
         """更新失衡延长的时间，负责接收 Calculator 的 buff"""
@@ -117,7 +132,7 @@ class Enemy:
         else:
             if increase_tick >= self.__last_stun_increase_tick:
                 self.__last_stun_increase_tick = increase_tick
-                self.restore_stun_recovery_time()
+                self.__restore_stun_recovery_time()
                 self.stun_recovery_time += increase_tick
 
 
@@ -167,7 +182,7 @@ class Enemy:
         return name, index_ID, sub_ID, row
 
     @staticmethod
-    def __init_enemy_anomaly(able_to_get_anomaly: bool, QTE_triggerable_times: int) -> tuple:
+    def __init_enemy_anomaly(able_to_get_anomaly: bool, QTE_triggerable_times: int) -> tuple[int | float, int | float]:
         """
         根据敌人的异常能力和QTE触发次数(怪物等阶)初始化敌人的异常值。
 
@@ -208,6 +223,13 @@ class Enemy:
         else:
             pass
 
+    def __qte_tag_filter(self, tag: str) -> list[str]:
+        """判断输入的标签是否为QTE，并作为列表返回"""
+        result = []
+        if 'QTE' in tag:
+            result.append(tag)
+        return result
+
     def update_anomaly(self, element: str | int = "ALL", *, times: int = 1) -> None:
         """更新怪物异常值，触发一次异常后调用。"""
         # 检查参数类型
@@ -226,7 +248,7 @@ class Enemy:
         except AttributeError:
             pass
 
-        for _ in range(np.floor(times)):
+        for _ in range(int(np.floor(times))):
             if element == 'ICE' or element == '冰' or element == 2:
                 self.max_anomaly_ICE *= update_ratio
             elif element == 'FIRE' or element == '火' or element == 1:
@@ -252,12 +274,75 @@ class Enemy:
     def update_stun(self, stun: np.float64) -> None:
         self.dynamic.stun_bar += stun
 
+    def hit_received(self, single_hit: SingleHit) -> None:
+        """实现怪物的QTE次数计算、扣血计算等受击时的对象结算，与伤害计算器对接"""
+        # 怪物连携次数逻辑
+        self.__qte_counter(single_hit.skill_tag)
+        # 更新失衡，为减少函数调用
+        self.dynamic.stun_bar += single_hit.stun
+        # 怪物的扣血逻辑。
+        self.__HP_update(single_hit.dmg_expect)
+        # 更新异常值
+        self.__anomaly_prod(single_hit.snapshot)
+        # 遥远的需求：
+    # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
+
+    def get_hp_percentage(self) -> float:
+        """获取当前生命值百分比的方法"""
+        return 1 - self.dynamic.lost_hp / self.max_HP
+
+    def get_stun_percentage(self) -> float:
+        """获取当前失衡值百分比的方法"""
+        return self.dynamic.stun_bar / self.max_stun
+
+    def __qte_counter(self, tag: str) -> None:
+        """
+        判断该技能是否会影响角色的QTE触发次数。
+
+        @param tag: 接受技能字符串
+        """
+        if self.dynamic.stun:
+            # 仅在失衡期才执行以下逻辑
+            qte_tags: list[str] = self.__qte_tag_filter(tag)
+            diff_tags: set[str] = set(qte_tags) - set(self.dynamic.QTE_received_tag)    # 获取新收到的QTE标签
+            self.dynamic.QTE_received_tag += list(diff_tags)    # 添加新收到的标签
+            for _tag in diff_tags:
+                # 对每一个新标进行判断，是否需要更新QTE触发次数
+                CID_tag = _tag.split('_')[0]
+                try:
+                    last_tag = self.dynamic.QTE_received_tag[-2]    # 获取上一次收到的标签
+                    CID_last = last_tag.split('_')[0]
+                except IndexError:  # 索引错误，说明是第一次收到QTE标签
+                    last_tag = None
+                    CID_last = None
+                if (CID_tag == CID_last) and (_tag != last_tag):
+                    # 若本次输入的tag与上一次输入的源角色一致，且不是相同tag，则不增加触发次数
+                    pass
+                else:
+                    # 其余情况默认+1
+                    self.dynamic.QTE_triggered_times += 1
+                # if _tag == '1131_QTE':
+                #     print(_tag, self.dynamic.QTE_received_tag, self.QTE_triggerable_times)
+            assert self.dynamic.QTE_triggered_times <= self.QTE_triggerable_times, "QTE触发次数超过上限"
+
+    def __HP_update(self, dmg_expect: np.float64) -> None:
+        self.dynamic.lost_hp += dmg_expect
+        if (minus := self.max_HP - self.dynamic.lost_hp) <= 0:
+            self.dynamic.lost_hp = -1 * minus
+            report_to_log(f'怪物{self.name}死亡！')
+
+    def __anomaly_prod(self, snapshot: tuple[int, np.float64, np.ndarray]) -> None:
+        if snapshot[1] >= 1e-6: # 确保非零异常值才更新
+            element_type_code = snapshot[0]
+            updated_bar = self.anomaly_bars_dict[element_type_code]
+            updated_bar.update_snap_shot(snapshot)
+
     class EnemyDynamic:
         def __init__(self):
             self.stun = False  # 失衡状态
             self.frozen = False  # 冻结状态
             self.frostbite = False  # 霜寒状态
-            self.burn_frostbite = False # 烈霜状态
+            self.frost_frostbite = False  # 烈霜霜寒状态
             self.assault = False  # 畏缩状态
             self.shock = False  # 感电状态
             self.burn = False  # 灼烧状态
@@ -267,8 +352,11 @@ class Enemy:
             self.dynamic_dot_list = []      # 用来装dot的list
             self.active_anomaly_bar_dict = {number: None for number in range(6)}    # 用来装激活属性异常的字典。
 
-            self.stun_bar = 0
-            self.stun_tick = 0
+            self.stun_bar = 0   # 累计失衡条
+            self.lost_hp = 0    # 已损生命值
+            self.QTE_triggered_times: int = 0   # 已连携次数
+            self.QTE_received_tag: list[str] = []
+            self.stun_tick = 0  # 失衡已进行时间
 
             self.frozen_tick = 0
             self.frostbite_tick = 0
@@ -278,10 +366,12 @@ class Enemy:
             self.corruption_tick = 0
 
         def __str__(self):
-            return f"失衡: {self.stun}, 失衡条: {self.stun_bar:.2f}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 侵蚀：{self.corruption}"
+            return f"失衡: {self.stun}, 失衡条: {self.stun_bar:.2f}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 侵蚀：{self.corruption}, 烈霜霜寒：{self.frost_frostbite}"
 
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"
+
+
 
 if __name__ == '__main__':
     test = Enemy(enemy_index_ID=11432, enemy_sub_ID=900011432)

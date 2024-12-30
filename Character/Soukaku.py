@@ -5,22 +5,8 @@ from .character import Character
 from Buff.BuffAddStrategy import BuffAddStrategy
 
 class Soukaku(Character):
-    def __init__(self,
-                 name: str = '', CID: int = None,  # 角色名字和CID-必填至少一个
-                 weapon=None, weapon_level=1,  # 武器名字-选填项
-                 equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
-                 drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
-                 scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
-                 scPEN=0, scCRIT=0,  # 副词条数量-选填项
-                 sp_limit=120  # 能量上限-默认120
-                 ):
-        super().__init__(
-                name, CID,
-                weapon, weapon_level,
-                equip_set4, equip_set2_a, equip_set2_b, equip_set2_c,
-                drive4, drive5, drive6,
-                scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT,
-                sp_limit)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.vortex: int = 0  # 涡流初始0点
 
     def special_resources(self, *args, **kwargs) -> None:
@@ -40,9 +26,19 @@ class Soukaku(Character):
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
             # 这里不能 elif
             if self.vortex >= 3:
-                if node.skill_tag in ['1131_E_EX_A', '1131_QTE', '1131_Q']:
+                if node.skill_tag in ['1131_E_EX_A']:
+                    """
+                    在20241227的更新中，由于APL中补全了展旗的逻辑，
+                    现在展旗会正确衔接了，具体会触发衔接的场合有：
+                    1、能量不够（<30）的1、2段强化E
+                    2、QTE
+                    3、Q
+                    """
+                    # FIXME：也正是由于进行了上述的更新，所以需要确认，
+                    #  数据库中已有的QTE与Q的帧数，是否是扣除了展旗的？
+                    #  如若不是，则应该及时更新。
                     self.vortex = 0
-                    BuffAddStrategy('Buff-角色-苍角-核心被动-2')
+                    # BuffAddStrategy('Buff-角色-苍角-核心被动-2')
                     report_to_log(f"[Character] 苍角的涡流被更新为 {self.vortex}")
 
     def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:

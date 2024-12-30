@@ -1,6 +1,6 @@
 import UpdateAnomaly
 import Dot
-import Enemy
+# import Enemy
 from .loading_mission import LoadingMission
 
 
@@ -56,7 +56,7 @@ def ProcessHitUpdateDots(timetick: int, dot_list: list, event_list: list):
                 dot.dy.effect_times += 1
 
 
-def ProcessFreezLikeDots(timetick: int, enemy: Enemy.Enemy, event_list: list):
+def ProcessFreezLikeDots(timetick: int, enemy, event_list: list):
     """
     所有碎冰类逻辑的dot都用此函数结算。
     """
@@ -76,7 +76,7 @@ def ProcessFreezLikeDots(timetick: int, enemy: Enemy.Enemy, event_list: list):
                 return True
 
 
-def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy, event_list: list):
+def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: list, char_obj_list: list):
     """
     DamageEvent的Judge函数：轮询load_mission_dict以及enemy.dynamic_dot_list，判断是否应生成Hit事件。
     并且当Hit时间生成时，将对应的实例添加到event_list中。
@@ -104,7 +104,7 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy: Enemy.Enemy,
                 # 在end处进行属性异常检查。
                 # TODO：新增重攻击 判定的接口
                 freez_deal = ProcessFreezLikeDots(timetick, enemy, event_list)
-                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list)
+                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, char_obj_list)
 
     # 始终检查 effect_rules == 1 的 Dot
     ProcessTimeUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)

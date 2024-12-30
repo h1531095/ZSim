@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+
 import Buff
 import Load
 import Preload
@@ -6,31 +7,36 @@ import Report
 import ScheduledEvent as ScE
 from Character import Character, character_factory
 from Enemy import Enemy
-from Report import write_to_csv, report_to_log
+from Report import write_to_csv
 from Update_Buff import update_dynamic_bufflist
+from data_struct import ActionStack
+from define import APL_MODE
 
 
 @dataclass
 class InitData:
-    name_box = ['苍角', '柏妮思', '雅']
+    name_box = ['青衣', '丽娜', '雅']
     Judge_list_set = [['雅', '霰落星殿', '折枝剑歌'],
-                      ['柏妮思', '含羞恶面', '自由蓝调'],
-                      ['苍角', '燃狱齿轮', '镇星迪斯科']]
+                      ['丽娜', '含羞恶面', '自由蓝调'],
+                      ['青衣', '玉壶青冰', '镇星迪斯科']]
     char_2 = {'name' : name_box[2],
               'weapon': '霰落星殿', 'weapon_level': 1,
               'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
               'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
-              'scATK_percent': 10, 'scCRIT': 20}
+              'scATK_percent': 10, 'scCRIT': 20,
+              'cinema': 0}
     char_1 = {'name' : name_box[1],
               'weapon': '含羞恶面', 'weapon_level': 5,
-              'equip_set4': '摇摆爵士', 'equip_set2_a': '自由蓝调',
-              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '异常掌控',
-              'scATK_percent': 10, 'scCRIT': 20}
+              'equip_set4': '自由蓝调', 'equip_set2_a': '摇摆爵士',
+              'drive4' : '攻击力%', 'drive5' : '穿透率', 'drive6' : '能量自动回复%',
+              'scATK_percent': 10, 'scCRIT': 20,
+              'cinema': 0}
     char_0 = {'name' : name_box[0],
-              'weapon': '燃狱齿轮', 'weapon_level': 1,
+              'weapon': '玉壶青冰', 'weapon_level': 1,
               'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '暴击率', 'drive5' : '火属性伤害', 'drive6' : '冲击力%',
-              'scATK_percent': 10, 'scCRIT': 20}
+              'drive4' : '暴击率', 'drive5' : '电属性伤害', 'drive6' : '冲击力%',
+              'scATK_percent': 10, 'scCRIT': 20,
+              'cinema': 0}
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
                    name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
@@ -56,7 +62,7 @@ class LoadData:
     name_box: list
     Judge_list_set: list
     weapon_dict: dict
-    action_stack: Load.ActionStack
+    action_stack: ActionStack
     exist_buff_dict: dict = field(init=False)
     load_mission_dict = {}
     LOADING_BUFF_DICT = {}
@@ -98,7 +104,7 @@ load_data = LoadData(
         name_box=init_data.name_box,
         Judge_list_set=init_data.Judge_list_set,
         weapon_dict=init_data.weapon_dict,
-        action_stack=Load.ActionStack())
+        action_stack=ActionStack())
 schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11752), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
 skills = (char.skill_object for char in char_data.char_obj_list)
@@ -109,16 +115,17 @@ game_state = {
     "char_data": char_data,
     "load_data": load_data,
     "schedule_data": schedule_data,
-    "global_stats": global_stats
+    "global_stats": global_stats,
+    "preload": preload
 }
 
 
-def main_loop(stop_tick: int | None = None):
+def main_loop(stop_tick: int | None = 6000):
     global tick
     tick = 0
     while True:
         # Tick Update
-        report_to_log(f"[Update] Tick step to {tick}")
+        # report_to_log(f"[Update] Tick step to {tick}")
         update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
 
         # Preload
@@ -126,7 +133,7 @@ def main_loop(stop_tick: int | None = None):
         preload_list = preload.preload_data.preloaded_action
 
         if stop_tick is None:
-            if len(preload.preload_data.skills_queue) == 0:
+            if not APL_MODE and preload.preload_data.skills_queue.head is None:
                 stop_tick = tick + 120
         elif tick >= stop_tick:
             break
@@ -136,7 +143,7 @@ def main_loop(stop_tick: int | None = None):
             Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick, load_data.action_stack)
         Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT, load_data.all_name_order_box)
         Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
-        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list)
+        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, char_data.char_obj_list)
         # ScheduledEvent
         scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick, load_data.exist_buff_dict, load_data.action_stack)
         scheduled.event_start()
@@ -145,8 +152,12 @@ def main_loop(stop_tick: int | None = None):
 
 
 if __name__ == '__main__':
-    main_loop()
+    import timeit
+    print(f'\n主循环耗时: {timeit.timeit(main_loop, globals=globals(), number=1):.2f} s')
+    # main_loop(6000)
     print('\n正在等待IO结束···')
     write_to_csv()
     Report.log_queue.join()
     Report.result_queue.join()
+
+

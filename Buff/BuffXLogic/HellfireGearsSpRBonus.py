@@ -1,5 +1,4 @@
-from Buff import Buff
-import sys
+from Buff import Buff, JudgeTools
 
 
 class HellfireGearsSpRBonus(Buff.BuffLogic):
@@ -11,25 +10,23 @@ class HellfireGearsSpRBonus(Buff.BuffLogic):
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
         self.xexit = self.special_exit_logic
-        main_module = sys.modules['__main__']
-        Judge_list_set = main_module.init_data.Judge_list_set
-        for i in range(len(Judge_list_set)):
-            if Judge_list_set[i][1] == '燃狱齿轮':
-                self.user = Judge_list_set[i][0]
-                break
+        self.init_data = None
+        self.equipper = None
 
     def special_judge_logic(self):
-        main_module = sys.modules['__main__']
-        name_box = main_module.init_data.name_box
-        if name_box[0] != self.user:
+        if self.init_data is None:
+            self.init_data = JudgeTools.find_init_data()
+        if self.equipper is None:
+            self.equipper = JudgeTools.find_equipper("燃狱齿轮")
+        name_box = self.init_data.name_box
+        if name_box[0] != self.equipper:
             return True
         else:
             return False
 
     def special_exit_logic(self):
-        main_module = sys.modules['__main__']
-        name_box = main_module.init_data.name_box
-        if name_box[0] == self.user:
+        name_box = self.init_data.name_box
+        if name_box[0] == self.equipper:
             return True
         else:
             return False

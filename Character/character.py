@@ -2,7 +2,7 @@ import pandas as pd
 
 from .skill_class import Skill, lookup_name_or_cid
 from Report import report_to_log
-from .filters import _skill_node_filter, _multiplier_filter
+from .filters import _skill_node_filter, _sp_update_data_filter
 import logging
 from define import *
 
@@ -15,7 +15,8 @@ class Character:
                  drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
                  scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
                  scPEN=0, scCRIT=0,  # 副词条数量-选填项
-                 sp_limit=120  # 能量上限-默认120
+                 sp_limit=120,  # 能量上限-默认120
+                 cinema=0
                  ):
         """
         调用时，会生成包含全部角色基础信息的对象，自动从数据库中查找全部信息
@@ -202,14 +203,17 @@ class Character:
         self.PEN_numeric = 0
 
         # 单独初始化的各组件
-        self.level = 60
-        self.weapon_ID = weapon
-        self.weapon_level = weapon_level
+        self.level: int = 60
+        self.weapon_ID: str = weapon
+        self.weapon_level: int = weapon_level
+        self.cinema: int = cinema
         self.baseCRIT_score: float = 60
         self.sp_get_ratio: float = 1  # 能量获得效率
         self.sp_limit: int = sp_limit
-        self.sp: float = 42.0
+        self.sp: float = 40.0
+        # self.sp: float = 0
         self.decibel: float = 1000.0
+        # self.decibel: float = 0
 
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
@@ -539,7 +543,7 @@ class Character:
         self.baseCRIT_score += (scCRIT * 4.8)
 
     def update_sp_and_decibel(self, *args, **kwargs):
-        """更新能量和喧响"""
+        """自然更新的能量和喧响"""
         # Preload Skill
         skill_nodes = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
@@ -548,41 +552,48 @@ class Character:
                 sp_consume = node.skill.sp_consume
                 sp_threshold = node.skill.sp_threshold
                 sp_recovery = node.skill.sp_recovery
-                if self.sp <= sp_threshold:
+                if self.sp < sp_threshold:
                     print(f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树")
                 sp_change = sp_recovery - sp_consume
-                self.sp += sp_change
-                self.sp = max(0.0, min(self.sp + sp_change, self.sp_limit))
+                self.update_sp(sp_change)
             # Decibel
-            if f"{self.CID}-Q" in node.skill_tag:
-                if self.decibel <= 3000:
+            if self.NAME == node.char_name and node.skill_tag.split('_')[1] == 'Q':
+                if self.decibel - 3000 <= -1e-5:
                     print(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
                 self.decibel = 0
             else:
-                all_decibel_change = node.skill.fever_recovery
-                self_decibel_change = 0
-                if node.char_name == self.NAME:
-                    self_decibel_change = node.skill.self_fever_re
-                decibel_change = all_decibel_change + self_decibel_change
-                self.decibel += decibel_change
-                self.decibel = max(0.0, min(self.decibel + decibel_change, 3000))
+                if (decibel_change := node.skill.fever_recovery) > 0:
+                    if node.char_name == self.NAME:
+                        decibel_change = node.skill.self_fever_re
+                self.update_decibel(decibel_change)
         # SP recovery over time
-        mul_data = _multiplier_filter(*args, **kwargs)
+        mul_data = _sp_update_data_filter(*args, **kwargs)
         for mul in mul_data:
             if mul.char_name == self.NAME:
-                sp_change_2 = mul.static.sp_regen + mul.dynamic.field_sp_regen
-                self.sp += sp_change_2 / 60
+                sp_change_2 = mul.get_sp_regen() / 60   # 每秒回能转化为每帧回能
+                self.update_sp(sp_change_2)
+
+    def update_sp(self, sp_value: int | float):
+        """可外部强制更新能量的方法"""
+        self.sp += sp_value
+        self.sp = max(0.0, min(self.sp, self.sp_limit))
+
+    def update_decibel(self, decibel_value: int | float):
+        """可外部强制更新喧响的方法"""
+        self.decibel += decibel_value
+        self.decibel = max(0.0, min(self.decibel, 3000))
 
     def special_resources(self, *args, **kwargs) -> None:
         """父类中不包含默认特殊资源"""
         return None
 
-    def get_resources(self, *args, **kwargs) -> tuple[str | None, int | float | None]:
+    def get_resources(self, *args, **kwargs) -> tuple[str|None, int|float|bool|None] | dict[str, int|float|bool]:
         """获取特殊资源的属性名称与数量"""
         return None, None
 
     def __str__(self) -> str:
         return f"{self.NAME} {self.level}级，能量{self.sp:.2f}，喧响{self.decibel:.2f}"
+
 
 
 if __name__ == "__main__":

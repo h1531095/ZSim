@@ -38,7 +38,6 @@ class AnomalyBar:
         remaining_tick = max(self.max_duration - self.duration(timetick), 0)
         return remaining_tick
 
-
     def duration(self, timetick: int):
         duration = timetick - self.last_active
         assert duration <= self.max_duration, f'该异常早就结束了！不应该触发紊乱！'
@@ -98,3 +97,9 @@ class AnomalyBar:
         self.is_full = False
         self.current_anomaly = np.float64(0)
         self.current_ndarray = np.zeros((1, self.current_ndarray.shape[0]), dtype=np.float64)
+
+    def get_buildup_pct(self):
+        if self.max_anomaly is None:
+            return 0
+        pct = self.current_anomaly / self.max_anomaly
+        return pct

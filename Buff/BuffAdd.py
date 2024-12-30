@@ -1,11 +1,10 @@
-import Enemy
 from Buff.buff_class import Buff
 
 
 def buff_add(timenow: float,
              LOADING_BUFF_DICT: dict,
              DYNAMIC_BUFF_DICT: dict,
-             enemy: Enemy.Enemy):
+             enemy):
     """
     该函数是Buff三部曲中的最后一步。
     它负责把LOADING_BUFF_DICT中的待加载的buff添加到对应角色的Dynamic_Buff_List中，

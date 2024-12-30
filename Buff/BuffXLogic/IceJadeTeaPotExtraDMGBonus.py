@@ -1,4 +1,4 @@
-from Buff import Buff
+from Buff import Buff, JudgeTools
 import sys
 
 
@@ -10,26 +10,21 @@ class IceJadeTeaPotExtraDMGBonus(Buff.BuffLogic):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
-        main_module = sys.modules['__main__']
-        Judge_list_set = main_module.init_data.Judge_list_set
-        for i in range(len(Judge_list_set)):
-            if Judge_list_set[i][1] == '玉壶青冰':
-                self.user = Judge_list_set[i][0]
-                break
+        self.equipper = None
 
     def special_judge_logic(self):
-        main_module = sys.modules['__main__']
-        DYNAMIC_BUFF_DICT = main_module.global_stats.DYNAMIC_BUFF_DICT
-        for buffs in DYNAMIC_BUFF_DICT[self.user]:
+        if self.equipper is None:
+            self.equipper = JudgeTools.find_equipper("玉壶青冰")
+        dynamic_buff_list = JudgeTools.find_dynamic_buff_list()
+        # print([buffx.ft.index for buffx in dynamic_buff_list[self.equipper]])
+        for buffs in dynamic_buff_list[self.equipper]:
             if not isinstance(buffs, Buff):
                 raise TypeError(f'所检测的{buffs}不是Buff！')
-            if '玉壶青冰-普攻加冲击' in buffs.ft.index:
-                if buffs.dy.count >= 15:
-                    return True
-                else:
-                    return False
+            if '玉壶青冰-普攻加冲击' not in buffs.ft.index:
+                continue
+            if buffs.dy.count >= 15:
+                return True
             else:
-                print(f'目前角色并未触发青衣专武的第一特效！')
                 return False
 
 
