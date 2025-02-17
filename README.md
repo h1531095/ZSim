@@ -19,5 +19,16 @@ Clone the repository to your local directory.\
 install the dependencies.\
 `$ pip install -r requirements.txt`
 
-Then run the webui.\
-`$ streamlit run webui.py`
+~~Then run the webui.~~\
+~~`$ streamlit run webui.py`~~
+
+Webui is not available yet. Try run with CLI.\
+`$ python main.py`
+
+If you want to compile the C/C++ Extension Module, you can use the following command.\
+Make sure you have a C compiler installed.\
+`$ python setup.py build_ext --inplace`
+
+## TODO LIST
+
+Go check issues for more details.
