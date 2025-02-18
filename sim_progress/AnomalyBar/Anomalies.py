@@ -16,7 +16,7 @@ class PhysicalAnomaly(AnomalyBar):
 class FireAnomaly(AnomalyBar):
     def __post_init__(self):
         super().__post_init__()  # 调用父类的初始化方法
-        main_module = sys.modules['__main__']
+        main_module = sys.modules['simulator.main_loop']
         char_name_box = main_module.init_data.name_box
         self.accompany_dot = '灼烧'
         self.element_type = 1  # 火属性
@@ -40,7 +40,7 @@ class IceAnomaly(AnomalyBar):
 class ElectricAnomaly(AnomalyBar):
     def __post_init__(self):
         super().__post_init__()  # 调用父类的初始化方法
-        main_module = sys.modules['__main__']
+        main_module = sys.modules['simulator.main_loop']
         char_name_box = main_module.init_data.name_box
         exist_buff_dict = main_module.load_data.exist_buff_dict
         self.element_type = 3  # 电属性

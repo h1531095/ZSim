@@ -2,7 +2,7 @@ import sys
 
 
 def find_main():
-    main_module = sys.modules["__main__"]
+    main_module = sys.modules["simulator.main_loop"]
     return main_module
 
 
