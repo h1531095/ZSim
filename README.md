@@ -1,9 +1,5 @@
 # ZZZ_Calculator
 
-项目近期动向：
-
-\## 更新日志 查看 [更新日志](./UpdateLog.md) 以了解最新更改。
-
 **Introduction**
 
 `ZZZ_Calculator` is a web-based damage calculator for Zenless Zone Zero. It provides a user-friendly interface to calculate the total damage output of a team composition, taking into account the characteristics of each character's weapon and equipments. Then, it simulates a combo sequence you entered to estimate the damage output.
