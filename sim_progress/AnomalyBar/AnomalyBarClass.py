@@ -27,7 +27,7 @@ class AnomalyBar:
         self.current_anomaly: np.float64 = np.float64(0)
 
     def remaining_tick(self):
-        main_module = sys.modules["__main__"]
+        main_module = sys.modules["simulator.main_loop"]
         timetick = main_module.tick
         remaining_tick = max(self.max_duration - self.duration(timetick), 0)
         return remaining_tick

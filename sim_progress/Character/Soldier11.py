@@ -13,7 +13,7 @@ class Soldier11(Character):
         """模拟11号的火力镇压机制"""
         # 输入类型检查
         skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
-        main_module = sys.modules['__main__']
+        main_module = sys.modules['simulator.main_loop']
         tick = main_module.tick
         for node in skill_nodes:
             if self.settle_tick is not None:

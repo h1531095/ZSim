@@ -65,7 +65,7 @@ class Miyabi(Character):
 
     def _shatter_internal_cd(self) -> bool:
         """判断落霜叠层是否处于CD"""
-        main_module = sys.modules['__main__']
+        main_module = sys.modules['simulator.main_loop']
         tick: int = main_module.tick
         if self.last_tick is None:
             self.last_tick = tick

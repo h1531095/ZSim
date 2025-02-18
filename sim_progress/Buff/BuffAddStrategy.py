@@ -23,7 +23,7 @@ def BuffAddStrategy(*args, **kwargs):
     又比如核心被动强行添加buff的行为，都可以通过这个函数来实现。
     """
     buff_name_list: list[str] = _buff_filter(*args, **kwargs)
-    main_module = sys.modules['__main__']
+    main_module = sys.modules['simulator.main_loop']
     all_name_order_box = main_module.load_data.all_name_order_box
     # name_box = main_module.load_data.name_box
     # name_box_now = name_box + ['enemy']

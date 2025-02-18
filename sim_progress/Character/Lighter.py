@@ -58,7 +58,7 @@ class Lighter(Character):
                 self.morale = 0
 
         # 时间每 6 ticks 更新
-        main_module = sys.modules['__main__']
+        main_module = sys.modules['simulator.main_loop']
         tick = getattr(main_module, 'tick', None)
         if tick is not None:
             if (minus := tick - self.last_tick) >= 6:
