@@ -12,8 +12,17 @@
   },
   "apl_mode":{
     "enabled": true,
-    "na_order": "./Preload/APLModule/DefaultConfig/NAOrder.json"
+    "na_order": "./sim_progress/Preload/APLModule/DefaultConfig/NAOrder.json",
+    "enemy_random_attack": true,
+    "enemy_attack_response": true,
+    "enemy_attack_method_config": "./data/enemy_attack_method.csv",
+    "enemy_attack_action_data": "./data/enemy_attack_action.csv"
   },
+  "swap_cancel_mode":{
+    "enabled": true,
+    "completion_coefficient": 0.3,
+    "lag_time": 20
+},
   "database":{
     "CHARACTER_DATA_PATH" : "./data/character.csv",
     "WEAPON_DATA_PATH" : "./data/weapon.csv",
@@ -34,7 +43,7 @@
     "SpRecovery_hit": "sp_recovery",
     "Sp_Threshold": "sp_threshold",
     "FeverRecovery": "fever_recovery",
-    "ElementAbnormalAccumlation": "anomaly_accumulation",
+    "ElementAbnormalAccumulation": "anomaly_accumulation",
     "SkillType": "skill_type",
     "TriggerBuffLevel": "trigger_buff_level" ,
     "ElementType": "element_type",

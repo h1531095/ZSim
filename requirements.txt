@@ -2,4 +2,3 @@ pandas
 tqdm
 numpy
 streamlit
-tqdm

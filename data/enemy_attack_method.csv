@@ -1,0 +1,2 @@
+ID,method_name,discription,action_set,action_rate,rest_tick
+0,default_method,默认攻击策略,1|2|3,0.3|0.2|0.1,300

@@ -17,7 +17,7 @@ result.json
 .venv
 .ipynb_checkpoints
 .run
-/.run/
+.mypy_cache
 
 # 测试文件
 test.py

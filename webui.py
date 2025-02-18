@@ -3,11 +3,10 @@ import os
 import pandas as pd
 import streamlit as st
 
-import Preload
-import Report
+from sim_progress import Report
 # from main import init_data, char_data, schedule_data, load_data, global_stats, main_loop
 import main
-from Report import write_to_csv
+from sim_progress.Report import write_to_csv
 from define import CHARACTER_DATA_PATH
 
 init_data = main.init_data
@@ -86,7 +85,7 @@ if st.session_state.submit_role_info:
 
     st.title("输入计算序列")
     # 读取 INPUT_ACTION_LIST
-    INPUT_ACTION_LIST = pd.read_csv('./data/计算序列.csv')
+    INPUT_ACTION_LIST = pd.read_csv('data/计算序列.csv')
     # 展示 CSV 文件，并允许用户修改
     edited_data = st.data_editor(INPUT_ACTION_LIST, num_rows="dynamic")
 

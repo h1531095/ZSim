@@ -1,16 +1,6 @@
-#-------------------默认逻辑-------------------
-#默认释放：第一段强化E的第二段伤害
-1091|action+=|1091_E_EX_A_2|after:1091_E_EX_A_1|energy>=20
-#默认释放：第二段强化E的第二段伤害
-1091|action+=|1091_E_EX_B_2|after:1091_E_EX_B_1|energy>=20
-#雅的连携技B、C段的衔接释放
-1091|action+=|1091_QTE_C|after:1091_QTE_B|status:enemy.dynamic.stun==True
-1091|action+=|1091_QTE_B|after:1091_QTE_A|status:enemy.dynamic.stun==True
-
-
 #-------------------失衡期逻辑-------------------
 #若在连续激发SNA_1的过程中怪物进入了失衡状态，则需要提前打出SNA_2
-1300|action+=|1300_SNA_2|after:1300_SNA_1|status.char_1300:get_flash()['醉花月云转可用次数']>0|status:enemy.dynamic.stun==True
+1300|action+=|1300_SNA_2|after:1300_SNA_1|status.char_1300:get_special_stats()['醉花月云转可用次数']>=0|status:enemy.dynamic.stun==True
 
 #连携技释放逻辑
 #1300|action+=|1300_QTE|status:enemy.dynamic.stun==True|status:enemy.QTE_triggerable_times==3|status:enemy.dynamic.QTE_triggered_times==0
@@ -38,20 +28,22 @@
 
 
 #-------------------非失衡期逻辑-------------------
+1091|action+=|1091_BH_Aid|after:1211_E_EX
 #青衣泄电压逻辑：
 #SNA_2正常结束的逻辑
-1300|action+=|1300_SNA_2|after:1300_SNA_1|status.char_1300:get_flash()['醉花月云转可用次数']==0
+1300|action+=|1300_SNA_2|after:1300_SNA_1|status.char_1300:get_special_stats()['醉花月云转可用次数']==0
 #后续SNA_1的释放逻辑：
-1300|action+=|1300_SNA_1|after:1300_SNA_1|status:enemy.dynamic.stun==False|status.char_1300:get_flash()['醉花月云转可用次数']>0
+1300|action+=|1300_SNA_1|after:1300_SNA_1|status:enemy.dynamic.stun==False|status.char_1300:get_special_stats()['醉花月云转可用次数']>0
 
 #启动逻辑，主要是看何时打出第一个SNA_1
-1300|action+=|1300_SNA_1|resource>=75|status:enemy.dynamic.stun==False|status.char_1300:get_flash()['醉花月云转可用次数']==5
+1300|action+=|1300_SNA_1|resource>=75|status:enemy.dynamic.stun==False|status.char_1300:get_special_stats()['醉花月云转可用次数']==5
 
 #大招逻辑：
 1211|action+=|1211_Q|decibel==3000|status:enemy.dynamic.stun==False
 1300|action+=|1300_Q|decibel==3000|resource<75|status:enemy.dynamic.stun==False
 
 #泄能逻辑：
+1211|action+=|1211_E_EX|energy>=60
 1300|action+=|1300_E_EX_FC|energy>=80|status:enemy.dynamic.stun==False|resource<75
 1300|action+=|1300_E_EX_NFC|energy>=60|status:enemy.dynamic.stun==False|resource<75
 #青衣普攻逻辑：
@@ -77,7 +69,7 @@
 #豆子小于6且能量足够时，在强化E第一段后自动衔接强化E第二段，
 1091|action+=|1091_E_EX_B_1|after:1091_E_EX_A_2|energy>=40|resource<6
 #豆子小于6时，能量够就强化E（雅的傻瓜泄能逻辑）
-1091|action+=|1091_E_EX_B_1|energy>=40|resource<6|after:1091_E_EX_A_2
+1091|action+=|1091_E_EX_B_1|energy>=40|resource<6|after:1091_E_EX_A_1
 1091|action+=|1091_E_EX_A_1|energy>=40|resource<6
 
 #底层逻辑：没事干时平A

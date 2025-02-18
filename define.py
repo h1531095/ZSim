@@ -8,8 +8,15 @@ ID_CACHE_JSON = 'results/id_cache.json'
 _config = json.load(open('config.json',encoding="utf-8-sig"))
 
 APL_MODE: bool = _config['apl_mode']['enabled']
+SWAP_CANCEL: bool = _config['swap_cancel_mode']['enabled']
 APL_PATH: str = _config['database']['APL_FILE_PATH']
 APL_NA_ORDER_PATH: str = _config['apl_mode']['na_order']
+ENEMY_RANDOM_ATTACK: str = _config['apl_mode']['enemy_random_attack']
+ENEMY_ATTACK_RESPONSE: bool = _config['apl_mode']['enemy_attack_response']
+ENEMY_ATTACK_METHOD_CONFIG: str = _config['apl_mode']['enemy_attack_method_config']
+ENEMY_ATTACK_ACTION: str = _config['apl_mode']['enemy_attack_action_data']
+SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT: float = _config['swap_cancel_mode']['completion_coefficient']
+SWAP_CANCEL_MODE_LAG_TIME: float = _config['swap_cancel_mode']['lag_time']
 CHARACTER_DATA_PATH: str = _config["database"]["CHARACTER_DATA_PATH"]
 WEAPON_DATA_PATH: str = _config["database"]["WEAPON_DATA_PATH"]
 EQUIP_2PC_DATA_PATH: str = _config["database"]["EQUIP_2PC_DATA_PATH"]

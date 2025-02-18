@@ -1,5 +1,6 @@
 import unittest
-import Report
+from sim_progress import Report
+
 
 class TestReport(unittest.TestCase):
     def test_report_to_log(self):
