@@ -62,5 +62,6 @@ def process_all_csv_files(directory):
 
 
 if __name__ == '__main__':
-    path = './data'
-    process_all_csv_files(path)
+    # path = './data'
+    # process_all_csv_files(path)
+    process_csv_file('./data/skill.csv')

@@ -1,5 +1,5 @@
 import unittest
-from CharSet_new import Character
+from sim_progress.Character import Character
 
 class TestCharacter(unittest.TestCase):
     def test_init_character(self):
