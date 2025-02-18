@@ -10,7 +10,7 @@ class Shock(Dot):
 
     @dataclass
     class DotFeature(Dot.DotFeature):
-        main_module = sys.modules['__main__']
+        main_module = sys.modules['simulator.main_loop']
         char_name_box = main_module.init_data.name_box
         exist_buff_dict = main_module.load_data.exist_buff_dict
         update_cd: int = 60

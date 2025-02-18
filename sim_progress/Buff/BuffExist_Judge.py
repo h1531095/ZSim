@@ -11,11 +11,7 @@ EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
 JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
 CHARACTER_FILE = pd.read_csv(CHARACTER_DATA_PATH, index_col='name')
 
-with open('./CharConfig.json', 'r', encoding='utf-8') as file:
-    character_config_dict = json.load(file)
-
 # 设置初始值和数据预处理
-config_keys_list = list(character_config_dict.keys())
 allbuff_list = EXIST_FILE.index.tolist()  # 将索引列转为列表
 exist_buff_dict: dict[str, dict[str, Buff]] = {'enemy': {}}  # 初始化敌方buff的字典
 buff_name_box: dict[str, list[str]] = {}

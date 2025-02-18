@@ -11,7 +11,7 @@ class Freez(Dot):
 
     @dataclass
     class DotFeature(Dot.DotFeature):
-        main_module = sys.modules['__main__']
+        main_module = sys.modules['simulator.main_loop']
         enemy = main_module.schedule_data.enemy
         update_cd: int | float = np.inf
         index: str = 'Freez'

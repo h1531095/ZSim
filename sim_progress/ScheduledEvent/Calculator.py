@@ -838,7 +838,7 @@ class Calculator:
 
         def cal_anomaly_crit(self, data: MultiplierData) -> float:
             """目前只有简有这个被动"""
-            main_module = sys.modules['__main__']
+            main_module = sys.modules['simulator.main_loop']
             if '简' in main_module.init_data.name_box and data.skill_node.skill.element_type == 0:
                 ap = self.cal_ap(data)
                 crit_dmg = 1 + 0.5 # Magic 技能介绍 Number

@@ -76,7 +76,7 @@ class APLExecutor:
         if self.game_state is None:
             try:
                 # 延迟从 sys.modules 获取字典A，假设 main 模块中已定义字典 A
-                main_module = sys.modules['__main__']
+                main_module = sys.modules['simulator.main_loop']
                 if main_module is None:
                     raise ImportError("Main module not found.")
                 self.game_state = main_module.game_state  # 获取 main 中的 A
@@ -106,7 +106,7 @@ class APLExecutor:
             output = action
         return output
 
-    def distinguish_bool_logic(self, action: dict,  cond: str):
+    def distinguish_bool_logic(self, action: dict, cond: str):
         if not cond:
             raise ValueError(f'当前{action["action"]}的condition为空！')
         if self.apl is None:

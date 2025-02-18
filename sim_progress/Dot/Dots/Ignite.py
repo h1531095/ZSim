@@ -14,7 +14,7 @@ class Ignite(Dot):
     # 你可以在这里添加特定于Ignite的行为或方法
     @dataclass
     class DotFeature(Dot.DotFeature):
-        main_module = sys.modules['__main__']
+        main_module = sys.modules['simulator.main_loop']
         char_name_box = main_module.global_stats.name_box
         update_cd: int = 30
         index: str = 'Ignite'

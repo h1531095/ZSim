@@ -1,5 +1,6 @@
+import re
 from functools import lru_cache
-from typing import Any
+from typing import Any, Callable
 from define import SWAP_CANCEL
 from sim_progress.Character import Character
 
@@ -11,6 +12,30 @@ class APLCondition:
     def __init__(self, game_state: dict):
         self.game_state = game_state
         self.found_char_dict: dict[int, Character] = {}           # 用于装角色实例，键值是CID
+
+        # self._access_cache = lru_cache(maxsize=100)(self._create_accessor)
+
+    # def _parse_path(self, path: str):
+    #     """解析混合属性/字典的路径 (如 enemy.anomaly_bars_dict[5])"""
+    #     pattern = re.compile(r'(\w+)(?:\[([^]]+)])?\.?')
+    #     return pattern.findall(path)  # 返回 [(attr, key), ...]
+    #
+    # def _create_accessor(self, full_path: str) -> Callable:
+    #     """生成支持字典访问的访问器"""
+    #     steps = self._parse_path(full_path)
+    #
+    #     def accessor(obj):
+    #         current = obj
+    #         for attr, key in steps:
+    #             current = getattr(current, attr, None)
+    #             if key:  # 处理字典键访问
+    #                 key = int(key) if key.isdigit() else key.strip("\"'")
+    #                 current = current.get(key, None) if hasattr(current, 'get') else None
+    #             if current is None:
+    #                 break
+    #         return current
+    #
+    #     return accessor
 
     def evaluate(self, sub_action_dict: dict, condition: str):
         char_CID: int = int(sub_action_dict['CID'])
@@ -30,7 +55,8 @@ class APLCondition:
             else:
                 judge_code = condition.split(":")[-1].strip()
                 # EXAMPLE：enemy.dynamic.stun==True
-                return self.get_dynamic_status(judge_code)
+                status = self.get_dynamic_status(judge_code)
+                return status
         elif "buff" in condition:
             if "count" in condition:
                 judge_code = condition.split(":")[-2].strip(), condition.split(":")[-1].strip()
@@ -99,12 +125,47 @@ class APLCondition:
         由于eval函数是无法阅读上下文的，
         所以需要制定将self作为参数传进去，并且指定给“self”。
         """
+        # Original Code:
         if "enemy" in judge_code:
             first_half = 'self.game_state["schedule_data"].'
             hole_string = first_half + judge_code
             return eval(hole_string, {}, {"self": self})
         else:
             return False
+
+        # # Optimized Code:
+        #
+        # if "enemy" not in judge_code:
+        #     return False
+        # path, operator, value = self._judge_code_spliter(judge_code)
+        # accessor = self._access_cache(path)  # 缓存访问器
+        #
+        # # 获取实际数值
+        # target_value = accessor(self.game_state["schedule_data"])
+        # if target_value is None:
+        #     return False
+        #
+        # # 执行比较操作（可扩展更多运算符）
+        # compare_methods_mapping = {
+        #     '<': lambda a, b: a < b,
+        #     '<=': lambda a, b: a <= b,
+        #     '>': lambda a, b: a > b,
+        #     '>=': lambda a, b: a >= b,
+        #     '==': lambda a, b: a == b
+        # }
+        # print("Debugging 1st", target_value, '2nd', value)
+        # return compare_methods_mapping[operator](target_value, type(target_value)(value))  # 保持类型一致
+
+    @staticmethod
+    def _judge_code_spliter(judge_code: str) -> tuple:
+        """拆分为类似['enemy.hp', '<', '10']"""
+        operators = ['<=', '<', '>=', '>', '==']
+        for operator in operators:
+            if operator in judge_code:
+                path, value = judge_code.split(operator)
+                return path, operator, value
+        else:
+            raise ValueError(f"[APL]: 无法识别的判定条件！")
 
     def evaluate_buff_count_conditions(self, char_CID, judge_code: tuple) -> bool:
         """

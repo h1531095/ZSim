@@ -96,43 +96,47 @@ class Buff:
             cls.bf_instance_cache[cache_key] = instance
             return instance
 
-        def __init__(self, config):
+        def __init__(self, meta_config: pd.Series):
             if not hasattr(self, 'name'):
-                self.simple_judge_logic = config['simple_judge_logic']  # 复杂判断逻辑,
-                self.simple_start_logic = config[
+                try:
+                    config_dict: dict = dict(meta_config)
+                except TypeError:
+                    raise TypeError(f"{meta_config} is not a mapping")
+                self.simple_judge_logic = config_dict['simple_judge_logic']  # 复杂判断逻辑,
+                self.simple_start_logic = config_dict[
                     'simple_start_logic']  # 复杂开始逻辑,指的是buff的start方式比较特殊，需要代码控制
-                self.simple_end_logic = config[
+                self.simple_end_logic = config_dict[
                     'simple_end_logic']  # 复杂结束逻辑,指的是buff的结束不以常规buff的结束条件为约束的,比如消耗完层数才消失的,比如受击导致持续时间发生跳变的,
-                self.simple_hit_logic = config['simple_hit_logic']  # 复杂的命中判定逻辑
-                self.simple_effect_logic = config['simple_effect_logic']     # 复杂的生效逻辑，和simple_start对应
+                self.simple_hit_logic = config_dict['simple_hit_logic']  # 复杂的命中判定逻辑
+                self.simple_effect_logic = config_dict['simple_effect_logic']     # 复杂的生效逻辑，和simple_start对应
                 """
                 注意，此处的xeffect往往与xjudge进行配合。因为xjudge会导致buff在BuffLoad函数中进入else分支，
                 如果某buff既有复杂的judge_logic，又有复杂的start/hit/end_logic，
                 那么后者就应该使用xeffect来写，要不然就会进入simple_start分支而导致代码块无法执行。
                 """
-                self.simple_exit_logic = config['simple_exit_logic']    # 复杂退出逻辑
-                self.index = config['BuffName']  # buff的英文名,也是buff的索引
-                self.is_weapon = config['is_weapon']  # buff是否是武器特效
-                self.refinement = config['refinement']  # 武器特效的精炼等级
-                self.bufffrom = config['from']  # buff的来源,可以是角色名,也可以是其他,这个字段用来和配置文件比对,比对成功则证明这个buff是可以触发的;
-                self.description = config['description']  # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
-                self.exist = config['exist']  # buff是否参与了计算,即是否允许被激活
-                self.durationtype = config['durationtype']  # buff的持续时间类型,如果是True,就是有持续时间的,如果是False,就没有持续时间类型,属于瞬时buff.
-                self.maxduration = config['maxduration']  # buff最大持续时间
-                self.maxcount = config['maxcount']  # buff允许被叠加的最大层数
-                self.step = config['incrementalstep']  # buff的自增步长,也可以理解为叠层事件发生时的叠层效率.
-                self.prejudge = config['prejudge']  # buff的抬手判定类型,True是攻击抬手时会产生判定；False则是不会产生判定
-                self.endjudge = config['endjudge']  # buff的结束判定类型，True是攻击或动作结束时会产生判定，False则不会产生判定。
-                self.fresh = config['freshtype']  # buff的刷新类型,True是刷新层数时,刷新时间,False是刷新层数是,不影响时间.
-                self.alltime = config['alltime']  # buff的永远生效类型,True是无条件永远生效,False是有条件
-                self.hitincrease = config['hitincrease']  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
-                self.cd = config['increaseCD']  # buff的叠层内置CD
-                self.add_buff_to = config['add_buff_to']  # 记录了buff会被添加给谁?
-                self.is_debuff = config['is_debuff'] # 记录了这个buff是否是个debuff
-                self.schedule_judge = config['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
-                self.backend_acitve = config['backend_acitve']  # 记录了这个buff是否需要在后台才能触发
+                self.simple_exit_logic = config_dict['simple_exit_logic']    # 复杂退出逻辑
+                self.index = config_dict['BuffName']  # buff的英文名,也是buff的索引
+                self.is_weapon = config_dict['is_weapon']  # buff是否是武器特效
+                self.refinement = config_dict['refinement']  # 武器特效的精炼等级
+                self.bufffrom = config_dict['from']  # buff的来源,可以是角色名,也可以是其他,这个字段用来和配置文件比对,比对成功则证明这个buff是可以触发的;
+                self.description = config_dict['description']  # buff的中文名字,包括一些buff效果的拆分,这里的中文名写的会比较细
+                self.exist = config_dict['exist']  # buff是否参与了计算,即是否允许被激活
+                self.durationtype = config_dict['durationtype']  # buff的持续时间类型,如果是True,就是有持续时间的,如果是False,就没有持续时间类型,属于瞬时buff.
+                self.maxduration = config_dict['maxduration']  # buff最大持续时间
+                self.maxcount = config_dict['maxcount']  # buff允许被叠加的最大层数
+                self.step = config_dict['incrementalstep']  # buff的自增步长,也可以理解为叠层事件发生时的叠层效率.
+                self.prejudge = config_dict['prejudge']  # buff的抬手判定类型,True是攻击抬手时会产生判定；False则是不会产生判定
+                self.endjudge = config_dict['endjudge']  # buff的结束判定类型，True是攻击或动作结束时会产生判定，False则不会产生判定。
+                self.fresh = config_dict['freshtype']  # buff的刷新类型,True是刷新层数时,刷新时间,False是刷新层数是,不影响时间.
+                self.alltime = config_dict['alltime']  # buff的永远生效类型,True是无条件永远生效,False是有条件
+                self.hitincrease = config_dict['hitincrease']  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
+                self.cd = config_dict['increaseCD']  # buff的叠层内置CD
+                self.add_buff_to = config_dict['add_buff_to']  # 记录了buff会被添加给谁?
+                self.is_debuff = config_dict['is_debuff'] # 记录了这个buff是否是个debuff
+                self.schedule_judge = config_dict['schedule_judge']  # 记录了这个buff是否需要在schedule阶段处理。
+                self.backend_acitve = config_dict['backend_acitve']  # 记录了这个buff是否需要在后台才能触发
 
-                self.individual_settled = config['individual_settled']    # 记录了这个buff的叠层是否是独立结算
+                self.individual_settled = config_dict['individual_settled']    # 记录了这个buff的叠层是否是独立结算
                 """
                 在20241116的更新中，更新了新的buff结算逻辑，针对“层数独立结算”的buff，
                 在BuffFeature下新增了一个参数：individual_settled
@@ -140,8 +144,8 @@ class Buff:
                 如果是True，则应该检索当前DYNAMIC_BUFF_DICT中的buff是否存在，
                 如果存在，则应该直接更新self.dy.built_in_buff_box。
                 """
-                self.operator = config.get('operator', None)
-                self.passively_updating = config.get('passively_updating', None)
+                self.operator = config_dict.get('operator', None)
+                self.passively_updating = config_dict.get('passively_updating', None)
                 """
                 在20241130的更新中，新增了passively_updating这一参数。
                 在初始化阶段、生成exist_buff_dict以及一众buff_0时，
