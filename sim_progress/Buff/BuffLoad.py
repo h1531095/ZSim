@@ -138,7 +138,7 @@ def process_backend_buff(sub_exist_buff_dict: dict, all_name_order_box: dict, mi
     尽管当前的动作是别的角色（actor ≠ char_name），但是，两位后台角色身上，依旧存在着可能发生更新的Buff
     这些Buff都拥有backend_active标签。但并非所有拥有这一标签的buff都应该执行更新。
     比如，后台角色A会给所有人叠层，当前台动作满足该Buff的触发条件时，
-    应只执行该buff所有者（operator）的buff更新，而不执行受益者（benificiary）的更新，
+    应只执行该buff所有者（operator）的buff更新，而不执行受益者（beneficiary）的更新，
     这样就可以避免buff的重复更新。
 
     以 静听佳音4件套 为例：套装佩戴者位于后台时，如果前台角色使用了快速支援，
@@ -173,7 +173,7 @@ def buff_go_to(buff_0, all_name_box):
     return selected_characters
 
 
-def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache()):
+def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache()) -> tuple[bool, dict, dict]:
     cache_key = (buff_name, tuple(existbuff_dict.items()))
     if cache_key in cache.cache:
         return cache.get(cache_key)
@@ -184,17 +184,17 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache
         raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
     if buff_name not in JUDGE_FILE.index:
         raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
-    judge_condition_dict = JUDGE_FILE.loc[buff_name].copy()
-    active_condition_dict = EXIST_FILE.loc[buff_name].copy()
+    judge_condition_dict = dict(JUDGE_FILE.loc[buff_name])
+    active_condition_dict = dict(EXIST_FILE.loc[buff_name])
     active_condition_dict['BuffName'] = buff_name
     # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
 
-    results = all_match, judge_condition_dict, active_condition_dict
+    results = (all_match, judge_condition_dict, active_condition_dict)
     cache.add(cache_key, results)
     return results
 
 
-def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission, *, cache=BuffJudgeCache()) -> bool:
+def BuffJudge(buff_now: Buff, judge_condition_dict: dict, mission: Load.LoadingMission, *, cache=BuffJudgeCache()) -> bool:
     """
         如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
         说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
@@ -223,7 +223,8 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission
     if buff_now.ft.alltime:
         result = True
         return save_cache_and_return(result)
-    if (not any(value if value is None else True for value in judge_condition_dict.values)) and buff_now.ft.simple_judge_logic:
+    if not any(value if value is None else True for value in judge_condition_dict.values())\
+        and buff_now.ft.simple_judge_logic:
         # EXPLAIN：全部数据都是None并且是简单判断逻辑
         #   这通常意味着Buff的判断不在Load阶段，而是通过某种方式在其他阶段暴力添加。
         #   但是部分alltime的buff也会进入这一分支，所以需要在判断alltime之后再进行全空判断。
@@ -244,7 +245,7 @@ def BuffJudge(buff_now: Buff, judge_condition_dict, mission: Load.LoadingMission
     return save_cache_and_return(result)
 
 
-def simple_string_judge(judge_condition_dict, skill_now):
+def simple_string_judge(judge_condition_dict: dict, skill_now) -> bool:
     all_match = True
     """
         先假定all_match是True，一会儿循环过程中一旦有不符合的项，就改成False。

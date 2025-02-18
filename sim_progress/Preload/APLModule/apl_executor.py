@@ -106,7 +106,7 @@ class APLExecutor:
             output = action
         return output
 
-    def distinguish_bool_logic(self, action: dict,  cond: str):
+    def distinguish_bool_logic(self, action: dict, cond: str):
         if not cond:
             raise ValueError(f'当前{action["action"]}的condition为空！')
         if self.apl is None:
