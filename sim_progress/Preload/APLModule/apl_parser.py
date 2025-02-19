@@ -31,6 +31,7 @@ class APLParser:
         这一步应该在初始化的时候执行。
         """
         actions = []
+        priority = 1
         for line in self.apl_code.splitlines():
             # 去除空白字符并清理行内注释
             line = line.split("#", 1)[0].strip()
@@ -55,8 +56,10 @@ class APLParser:
                     "CID": CID,
                     "type": apl_type.strip(),
                     "action": action_name.strip(),
-                    "conditions": [cond.strip() for cond in conditions if cond.strip()]
+                    "conditions": [cond.strip() for cond in conditions if cond.strip()],
+                    "priority": priority
                 })
+                priority += 1
             except Exception as e:
                 print(f"Error parsing line: {line}, Error: {e}")
                 continue
