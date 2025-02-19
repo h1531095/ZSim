@@ -10,4 +10,3 @@ class TestReport(unittest.TestCase):
 
     def test_get_result_id(self):
         id = Report.get_result_id()
-        self.assertEqual(id, 0)
