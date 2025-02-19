@@ -33,6 +33,14 @@ BUFF_LOADING_CONDITION_TRANSLATION_DICT: dict = _config["translate"]
 ENABLE_WATCHDOG = _config["watchdog"]["enabled"]
 WATCHDOG_LEVEL = _config["watchdog"]["level"]
 INPUT_ACTION_LIST = './data/计算序列.csv'
+compare_methods_mapping = {
+    '<': lambda a, b: a < b,
+    '<=': lambda a, b: a <= b,
+    '>': lambda a, b: a > b,
+    '>=': lambda a, b: a >= b,
+    '==': lambda a, b: a == b,
+    '!=': lambda a, b: a != b
+}
 
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名
