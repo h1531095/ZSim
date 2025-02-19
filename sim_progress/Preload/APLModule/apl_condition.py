@@ -1,3 +1,4 @@
+
 from .sub_evaluation_unit import sub_evaluation_unit
 from sim_progress.Character import Character
 
@@ -38,7 +39,3 @@ class APLCondition:
 
         # print("Debugging 1st", target_value, '2nd', value)
         # return compare_methods_mapping[operator](target_value, type(target_value)(value))  # 保持类型一致
-
-
-
-
