@@ -1,8 +1,13 @@
 import streamlit as st
 import pandas as pd
 import sys
+import platform
 
-sys.path.append("F:/GithubProject/ZZZ_Calculator")
+os_name = platform.system()
+if os_name == "Windows":
+    sys.path.append("F:/GithubProject/ZZZ_Calculator")
+elif os_name == "Darwin":
+    sys.path.append("/Users/steinway/Code/ZZZ_Calculator")
 from define import CHARACTER_DATA_PATH
 
 
@@ -23,8 +28,10 @@ def initialize_state():
         st.session_state.char_name_list = load_char_data()
     if 'selected_char_name_dict' not in st.session_state:
         st.session_state.selected_char_name_dict = {}
-    if 'available_char_name_list' not in st.session_state:
-        st.session_state.available_char_name_list = st.session_state.char_name_list
+    if 'available_char_name_dict' not in st.session_state:
+        st.session_state.available_char_name_dict = {'char_1': st.session_state.char_name_list,
+                                                     'char_2': st.session_state.char_name_list,
+                                                     'char_3': st.session_state.char_name_list}
     if 'char_1' not in st.session_state:
         st.session_state.char_1 = None
     if 'char_2' not in st.session_state:
@@ -34,21 +41,64 @@ def initialize_state():
 
 
 def update_selected_char_name_dict(key: int):
-    char_key = f'char_{key}'
-    st.session_state.selected_char_name_dict[char_key] = st.session_state[char_key]
+    """更新选中的角色并刷新其他下拉框"""
+    # 获取当前选择的值
+    current_value = st.session_state[f"char_{key}"]
+    _saved_char_dict = {}
+    # 保存A、C的当前选择
+    for i in range(1, 4):
+        _saved_char_dict.update({f"char_{i}": getattr(st.session_state, f"char_{i}", None)})
+    print(_saved_char_dict)
 
-    selected_char_list = list(st.session_state.selected_char_name_dict.values())
-    result = list(item for item in st.session_state.char_name_list if item not in selected_char_list)
-    st.session_state.available_char_name_list = result
+    # 更新选中字典
+    st.session_state.selected_char_name_dict[f"char_{key}"] = current_value
+
+    # 计算可用角色列表
+    selected_chars = [
+        v for k, v in st.session_state.selected_char_name_dict.items()
+        if v is not None
+    ]
+    available_chars = [
+        char for char in st.session_state.char_name_list
+        if char not in selected_chars
+    ]
+
+    for i in range(1, 4):
+        _char_key = f"char_{i}"
+        if i == key:
+            continue
+        else:
+            st.session_state.available_char_name_dict[_char_key] = available_chars
+            setattr(st.session_state, f"char_{i}", _saved_char_dict[_char_key])
+
 
 st.title('初始化：请选择参与模拟的角色！')
 initialize_state()
 
-char_1 = st.selectbox('角色1', st.session_state.available_char_name_list, index=0, key='char_1', on_change=lambda: update_selected_char_name_dict(1))
-char_2 = st.selectbox('角色2', st.session_state.available_char_name_list, index=0, key='char_2', on_change=lambda: update_selected_char_name_dict(2))
-char_3 = st.selectbox('角色3', st.session_state.available_char_name_list, index=0, key='char_3', on_change=lambda: update_selected_char_name_dict(3))
+cols = st.columns(3)
+with cols[0]:
+    st.selectbox(
+        '角色1',
+        st.session_state.available_char_name_dict['char_1'],
+        key='char_1',
+        on_change=lambda: update_selected_char_name_dict(1),
+    )
+with cols[1]:
+    st.selectbox(
+        '角色2',
+        st.session_state.available_char_name_dict['char_2'],
+        key='char_2',
+        on_change=lambda: update_selected_char_name_dict(2)
+    )
+with cols[2]:
+    st.selectbox(
+        '角色3',
+        st.session_state.available_char_name_dict['char_3'],
+        key='char_3',
+        on_change=lambda: update_selected_char_name_dict(3)
+    )
 
-#print(st.session_state.available_char_name_list)
+# print(st.session_state.available_char_name_list)
 # print('================分割线===================')
 # print(f'更新函数调用！发生改变的角色为{char_key}，更新为了{st.session_state.char_1}')
 # print(f'所有角色列表：{st.session_state.char_name_list}')
