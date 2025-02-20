@@ -30,10 +30,10 @@
 
 #-------------------非失衡期逻辑-------------------
 1091|action+=|1091_BH_Aid|action.after:skill_tag==1211_E_EX
-#青衣泄电压逻辑：
+
+#后续SNA_1的释放逻辑：#青衣泄电压逻辑：
 #SNA_2正常结束的逻辑
 1300|action+=|1300_SNA_2|action.after:skill_tag==1300_SNA_1|attribute.1300:special_state→醉花月云转可用次数==0
-#后续SNA_1的释放逻辑：
 1300|action+=|1300_SNA_1|action.after:skill_tag==1300_SNA_1|status.enemy:stun==False|attribute.1300:special_state→醉花月云转可用次数>0
 
 #启动逻辑，主要是看何时打出第一个SNA_1

@@ -1,4 +1,3 @@
-
 from .sub_evaluation_unit import sub_evaluation_unit
 from sim_progress.Character import Character
 
