@@ -1,4 +1,4 @@
 pandas
 tqdm
 numpy
-streamlit
+gradio

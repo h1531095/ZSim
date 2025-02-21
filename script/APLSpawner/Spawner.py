@@ -1,106 +1,138 @@
-import streamlit as st
-import pandas as pd
-import sys
 import platform
+import gradio as gr
+import sys
+import pandas as pd
 
+# 系统路径设置
 os_name = platform.system()
 if os_name == "Windows":
     sys.path.append("F:/GithubProject/ZZZ_Calculator")
 elif os_name == "Darwin":
     sys.path.append("/Users/steinway/Code/ZZZ_Calculator")
+else:
+    raise NotImplementedError("Unsupported OS")
 from define import CHARACTER_DATA_PATH
 
-
-@st.cache_data
-def load_char_data():
-    """
-    加载角色数据并缓存。
-    """
-    char_data = pd.read_csv(CHARACTER_DATA_PATH)
-    char_name_list = char_data['name'].tolist()
-    return char_name_list
+# 初始化角色数据
+char_data = pd.read_csv(CHARACTER_DATA_PATH)
+full_char_name_list = char_data['name'].tolist()
 
 
-def initialize_state():
-    # 初始化应用程序
+class SpawnerManager:
+    def __init__(self):
+        self.selected = {1: None, 2: None, 3: None}
+        self.locked = False  # 新增锁定状态
 
-    if 'char_name_list' not in st.session_state:
-        st.session_state.char_name_list = load_char_data()
-    if 'selected_char_name_dict' not in st.session_state:
-        st.session_state.selected_char_name_dict = {}
-    if 'available_char_name_dict' not in st.session_state:
-        st.session_state.available_char_name_dict = {'char_1': st.session_state.char_name_list,
-                                                     'char_2': st.session_state.char_name_list,
-                                                     'char_3': st.session_state.char_name_list}
-    if 'char_1' not in st.session_state:
-        st.session_state.char_1 = None
-    if 'char_2' not in st.session_state:
-        st.session_state.char_2 = None
-    if 'char_3' not in st.session_state:
-        st.session_state.char_3 = None
+    def all_selected(self) -> bool:
+        """检查是否所有位置都已选择"""
+        return all(v is not None for v in self.selected.values())
+
+    def get_available_chars(self, current_pos: int) -> list:
+        """获取指定位置的可用角色列表（只排除其他位置的选择）"""
+        other_selected = {
+            k: v for k, v in self.selected.items()
+            if k != current_pos and v is not None
+        }
+        return [c for c in full_char_name_list if c not in other_selected.values()]
 
 
-def update_selected_char_name_dict(key: int):
-    """更新选中的角色并刷新其他下拉框"""
-    # 获取当前选择的值
-    current_value = st.session_state[f"char_{key}"]
-    _saved_char_dict = {}
-    # 保存A、C的当前选择
-    for i in range(1, 4):
-        _saved_char_dict.update({f"char_{i}": getattr(st.session_state, f"char_{i}", None)})
-    print(_saved_char_dict)
+def handle_select(pos: int, value: str, current_vals: tuple) -> tuple:
+    if manager.locked:  # 如果已锁定，直接返回当前状态
+        return (manager.selected[pos],) + current_vals
 
-    # 更新选中字典
-    st.session_state.selected_char_name_dict[f"char_{key}"] = current_value
+    # 更新选择数据
+    manager.selected[pos] = value
 
-    # 计算可用角色列表
-    selected_chars = [
-        v for k, v in st.session_state.selected_char_name_dict.items()
-        if v is not None
-    ]
-    available_chars = [
-        char for char in st.session_state.char_name_list
-        if char not in selected_chars
-    ]
+    updates = []
+    for i in [1, 2, 3]:
+        # 获取该菜单专属的可用列表
+        available = manager.get_available_chars(current_pos=i)
+        current_val = current_vals[i - 1]
 
-    for i in range(1, 4):
-        _char_key = f"char_{i}"
-        if i == key:
-            continue
+        if i == pos:
+            # 当前菜单：强制保留选择并确保选项包含该值
+            valid_choices = available + [value] if value not in available else available
+            new_value = value
         else:
-            st.session_state.available_char_name_dict[_char_key] = available_chars
-            setattr(st.session_state, f"char_{i}", _saved_char_dict[_char_key])
+            # 其他菜单：严格校验有效性
+            valid_choices = available
+            new_value = current_val if current_val in valid_choices else None
+
+        updates.append(gr.update(
+            choices=valid_choices,
+            value=new_value,
+            interactive=not manager.locked  # 根据锁定状态设置交互性
+        ))
+
+    return (value, *updates)
 
 
-st.title('初始化：请选择参与模拟的角色！')
-initialize_state()
+# 新增按钮状态更新函数
+def update_button_state(m1, m2, m3, locked):
+    # 如果已锁定：按钮始终可点击（用于解锁）
+    if locked:
+        return gr.Button(interactive=True)
 
-cols = st.columns(3)
-with cols[0]:
-    st.selectbox(
-        '角色1',
-        st.session_state.available_char_name_dict['char_1'],
-        key='char_1',
-        on_change=lambda: update_selected_char_name_dict(1),
+    # 未锁定时：仅当全部选择时可点击
+    all_selected = all([m1, m2, m3])
+    return gr.Button(interactive=all_selected)
+
+
+def toggle_lock(locked):
+    new_locked = not locked
+    manager.locked = new_locked
+    return [
+        new_locked,
+        gr.update(open=not new_locked),  # 控制折叠面板
+        gr.update(interactive=not new_locked),  # 菜单1
+        gr.update(interactive=not new_locked),  # 菜单2
+        gr.update(interactive=not new_locked),  # 菜单3
+        gr.Button(value="🔓 解锁" if new_locked else "🔒 锁定")  # 更新按钮图标
+    ]
+
+
+# 初始化管理器
+manager = SpawnerManager()
+
+# 构建界面
+with gr.Blocks(title="角色选择器", css=".locked { opacity: 0.6; }") as demo:
+    # 锁定状态存储
+    locked_state = gr.State(value=False)
+
+    # 可折叠面板
+    with gr.Accordion("角色选择面板", open=True) as accordion:
+        with gr.Row():
+            menu1 = gr.Dropdown(label="1号位", choices=full_char_name_list)
+            menu2 = gr.Dropdown(label="2号位", choices=full_char_name_list)
+            menu3 = gr.Dropdown(label="3号位", choices=full_char_name_list)
+
+    # 结果显示行
+    with gr.Row():
+        display1 = gr.Textbox(label="1号位选择", interactive=False)
+        display2 = gr.Textbox(label="2号位选择", interactive=False)
+        display3 = gr.Textbox(label="3号位选择", interactive=False)
+
+    # 事件绑定
+    for idx, (menu, display) in enumerate(zip([menu1, menu2, menu3], [display1, display2, display3]), 1):
+        menu.change(
+            fn=lambda val, m1, m2, m3, pos=idx: handle_select(pos, val, (m1, m2, m3)),
+            inputs=[menu, menu1, menu2, menu3],
+            outputs=[display, menu1, menu2, menu3]
+        )
+    # 锁定按钮
+    lock_button = gr.Button("🔒 锁定并进入下一步", variant="primary", interactive=False)
+    gr.on(
+        triggers=[menu1.change, menu2.change, menu3.change, locked_state.change],
+        fn=update_button_state,
+        inputs=[menu1, menu2, menu3, locked_state],
+        outputs=lock_button
     )
-with cols[1]:
-    st.selectbox(
-        '角色2',
-        st.session_state.available_char_name_dict['char_2'],
-        key='char_2',
-        on_change=lambda: update_selected_char_name_dict(2)
-    )
-with cols[2]:
-    st.selectbox(
-        '角色3',
-        st.session_state.available_char_name_dict['char_3'],
-        key='char_3',
-        on_change=lambda: update_selected_char_name_dict(3)
+
+    # 锁定按钮事件
+    lock_button.click(
+        fn=toggle_lock,
+        inputs=locked_state,
+        outputs=[locked_state, accordion, menu1, menu2, menu3, lock_button]
     )
 
-# print(st.session_state.available_char_name_list)
-# print('================分割线===================')
-# print(f'更新函数调用！发生改变的角色为{char_key}，更新为了{st.session_state.char_1}')
-# print(f'所有角色列表：{st.session_state.char_name_list}')
-# print(f'已经选取角色：{selected_char_list}, 当前角色字典：{st.session_state.selected_char_name_dict}')
-# print(f'可选取角色为：{st.session_state.available_char_name_list}')
+demo.launch()
