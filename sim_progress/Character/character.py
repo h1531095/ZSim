@@ -384,10 +384,10 @@ class Character:
             raise
 
     def _init_weapon_primitive(self, weapon: str | None, weapon_level: int) -> None:
-        """
-        初始化武器属性
-        """
-        assert weapon is not None
+        """初始化武器属性"""
+        if weapon is None:
+            return
+
         df = pd.read_csv(WEAPON_DATA_PATH)
         row_5 = df[df['weapon_ID'] == weapon]  # 找到所有包含此武器的行
         if not row_5.empty:  # 检查是否找到匹配项
