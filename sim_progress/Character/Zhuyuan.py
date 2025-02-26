@@ -34,7 +34,8 @@ class Zhuyuan(Character):
                     if self.shotshells_warehouse:
                         popping_shotshells = self.shotshells_warehouse.pop()
                         for shell in self.shotshells_warehouse[:]:
-                            self.shotshells_warehouse.remove(shell)
+                            if shell == popping_shotshells:
+                                self.shotshells_warehouse.remove(shell)
                         if popping_shotshells == '1241_QTE':
                             self.shotshells += self.QTE_STORED
                         elif popping_shotshells == '1241_Q':
@@ -42,3 +43,16 @@ class Zhuyuan(Character):
 
     def get_resources(self, *args, **kwargs) -> tuple[str|None, int|float|bool|None]:
         return '强化霰弹', self.shotshells
+
+    def get_special_stats(self, *args, **kwargs) -> dict[str|None, object|None]:
+        if self.allow_restore:
+            stored_shotshells = (
+                    (6 if '1241_QTE' in self.shotshells_warehouse else 0) +
+                    (9 if '1241_Q' in self.shotshells_warehouse else 0))
+        else:
+            stored_shotshells = 0
+        return {
+            '强化霰弹': self.shotshells,
+            '缓存霰弹': stored_shotshells,
+            '强化霰弹(含缓存)': self.shotshells + stored_shotshells,
+        }
