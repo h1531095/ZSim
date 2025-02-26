@@ -1,138 +1,122 @@
-import platform
-import gradio as gr
-import sys
+import dash
+from dash import Dash, dcc, html, Output, Input
+import dash_bootstrap_components as dbc
 import pandas as pd
-
-# 系统路径设置
-os_name = platform.system()
-if os_name == "Windows":
-    sys.path.append("F:/GithubProject/ZZZ_Calculator")
-elif os_name == "Darwin":
-    sys.path.append("/Users/steinway/Code/ZZZ_Calculator")
-else:
-    raise NotImplementedError("Unsupported OS")
 from define import CHARACTER_DATA_PATH
 
 # 初始化角色数据
 char_data = pd.read_csv(CHARACTER_DATA_PATH)
 full_char_name_list = char_data['name'].tolist()
+full_char_cid_list = char_data['CID'].tolist()
+full_char_dict = {name: cid for name, cid in zip(full_char_name_list, full_char_cid_list)}
 
 
-class SpawnerManager:
+class Spawner:
     def __init__(self):
-        self.selected = {1: None, 2: None, 3: None}
-        self.locked = False  # 新增锁定状态
+        self.full_char_dict = full_char_dict
 
-    def all_selected(self) -> bool:
-        """检查是否所有位置都已选择"""
-        return all(v is not None for v in self.selected.values())
 
-    def get_available_chars(self, current_pos: int) -> list:
-        """获取指定位置的可用角色列表（只排除其他位置的选择）"""
-        other_selected = {
-            k: v for k, v in self.selected.items()
-            if k != current_pos and v is not None
+spawner_data = Spawner()
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app.layout = html.Div([
+    dcc.Tabs(
+        id='tbas-container',
+        value='char-select-tab',
+        children=[
+            dcc.Tab(
+                label='角色选择',
+                value='char-select-tab',
+                children=[
+                    dbc.Row([
+                        dbc.Col(
+                            dcc.Dropdown(
+                                id='char-select-box-1',
+                                options=[{'label': t[0], 'value': t[1]} for t in spawner_data.full_char_dict.items()]
+                            ), md=4  # 每列占4格（Bootstrap共12格）
+                        ),
+                        dbc.Col(
+                            dcc.Dropdown(
+                                id='char-select-box-2',
+                                options=[{'label': t[0], 'value': t[1]} for t in spawner_data.full_char_dict.items()]
+                            ), md=4  # 每列占4格（Bootstrap共12格）
+                        ),
+                        dbc.Col(
+                            dcc.Dropdown(
+                                id='char-select-box-3',
+                                options=[{'label': t[0], 'value': t[1]} for t in spawner_data.full_char_dict.items()]
+                            ), md=4)]),
+                    # 第一行 三个角色选择框结束，第二行开始
+                    dbc.Button()
+                ]
+            )
+        ]
+    )
+])
+
+
+@app.callback(
+    [Output(component_id='char-select-box-1', component_property='options'),
+     Output(component_id='char-select-box-2', component_property='options'),
+     Output(component_id='char-select-box-3', component_property='options')],
+    [Input(component_id='char-select-box-1', component_property='value'),
+     Input(component_id='char-select-box-2', component_property='value'),
+     Input(component_id='char-select-box-3', component_property='value')],
+    prevent_initial_call=True
+)
+def update_dropdown(char_1, char_2, char_3):
+    """
+    回调1：角色选择界面的下拉菜单回调。
+    根据在下拉菜单中选择的角色，修改其他菜单的内容。
+    """
+    '''第一步：锁定触发会调函数的源头'''
+    ctx = dash.callback_context
+    """callback_context解释：
+    dash.callback_context输出的内容如下，根据AI的介绍，它输出的应该是JSON格式：
+        {
+            "triggered": [
+                    {
+                    "prop_id": "char-select-box_1.value",  // 触发源组件ID及属性
+                    "value": "1001",                       // 触发时的属性值
+                    "triggered": true                       // 是否实际触发
+                    },
+                    {
+                    "prop_id": ".",                        // 其他可能存在的非主动触发项
+                    "value": null,
+                    "triggered": false
+                    }]
         }
-        return [c for c in full_char_name_list if c not in other_selected.values()]
+        所以才需要下面代码的格式整理，最终获取triggered_id
+    """
+    if not ctx.triggered:
+        raise dash.exceptions.PreventUpdate
+    selected = {val for val in [char_1, char_2, char_3] if val is not None}
+    triggered_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
-
-def handle_select(pos: int, value: str, current_vals: tuple) -> tuple:
-    if manager.locked:  # 如果已锁定，直接返回当前状态
-        return (manager.selected[pos],) + current_vals
-
-    # 更新选择数据
-    manager.selected[pos] = value
-
-    updates = []
-    for i in [1, 2, 3]:
-        # 获取该菜单专属的可用列表
-        available = manager.get_available_chars(current_pos=i)
-        current_val = current_vals[i - 1]
-
-        if i == pos:
-            # 当前菜单：强制保留选择并确保选项包含该值
-            valid_choices = available + [value] if value not in available else available
-            new_value = value
+    filtered_options = []
+    for name, cid in spawner_data.full_char_dict.items():
+        if cid not in selected:
+            filtered_options.append({'label': name, 'value': cid})
         else:
-            # 其他菜单：严格校验有效性
-            valid_choices = available
-            new_value = current_val if current_val in valid_choices else None
-
-        updates.append(gr.update(
-            choices=valid_choices,
-            value=new_value,
-            interactive=not manager.locked  # 根据锁定状态设置交互性
-        ))
-
-    return (value, *updates)
-
-
-# 新增按钮状态更新函数
-def update_button_state(m1, m2, m3, locked):
-    # 如果已锁定：按钮始终可点击（用于解锁）
-    if locked:
-        return gr.Button(interactive=True)
-
-    # 未锁定时：仅当全部选择时可点击
-    all_selected = all([m1, m2, m3])
-    return gr.Button(interactive=all_selected)
+            filtered_options.append({'label': f"{name} (已选)", 'value': cid, 'disabled': True})
+    # 仅更新触发源的下拉框
+    if triggered_id == 'char-select-box-1':
+        return filtered_options, dash.no_update, dash.no_update
+    elif triggered_id == 'char-select-box-2':
+        return dash.no_update, filtered_options, dash.no_update
+    elif triggered_id == 'char-select-box-3':
+        return dash.no_update, dash.no_update, filtered_options
+    else:
+        raise ValueError('触发源ID错误！')
 
 
-def toggle_lock(locked):
-    new_locked = not locked
-    manager.locked = new_locked
-    return [
-        new_locked,
-        gr.update(open=not new_locked),  # 控制折叠面板
-        gr.update(interactive=not new_locked),  # 菜单1
-        gr.update(interactive=not new_locked),  # 菜单2
-        gr.update(interactive=not new_locked),  # 菜单3
-        gr.Button(value="🔓 解锁" if new_locked else "🔒 锁定")  # 更新按钮图标
-    ]
+@app.callback()
+def select_char_complete():
+    """
+    回调2：锁定选择按钮回调函数，
+    主要是判定角色是否完成选择，如果完成选择，那么就开放新的标签页。
+    """
+    pass
 
 
-# 初始化管理器
-manager = SpawnerManager()
-
-# 构建界面
-with gr.Blocks(title="角色选择器", css=".locked { opacity: 0.6; }") as demo:
-    # 锁定状态存储
-    locked_state = gr.State(value=False)
-
-    # 可折叠面板
-    with gr.Accordion("角色选择面板", open=True) as accordion:
-        with gr.Row():
-            menu1 = gr.Dropdown(label="1号位", choices=full_char_name_list)
-            menu2 = gr.Dropdown(label="2号位", choices=full_char_name_list)
-            menu3 = gr.Dropdown(label="3号位", choices=full_char_name_list)
-
-    # 结果显示行
-    with gr.Row():
-        display1 = gr.Textbox(label="1号位选择", interactive=False)
-        display2 = gr.Textbox(label="2号位选择", interactive=False)
-        display3 = gr.Textbox(label="3号位选择", interactive=False)
-
-    # 事件绑定
-    for idx, (menu, display) in enumerate(zip([menu1, menu2, menu3], [display1, display2, display3]), 1):
-        menu.change(
-            fn=lambda val, m1, m2, m3, pos=idx: handle_select(pos, val, (m1, m2, m3)),
-            inputs=[menu, menu1, menu2, menu3],
-            outputs=[display, menu1, menu2, menu3]
-        )
-    # 锁定按钮
-    lock_button = gr.Button("🔒 锁定并进入下一步", variant="primary", interactive=False)
-    gr.on(
-        triggers=[menu1.change, menu2.change, menu3.change, locked_state.change],
-        fn=update_button_state,
-        inputs=[menu1, menu2, menu3, locked_state],
-        outputs=lock_button
-    )
-
-    # 锁定按钮事件
-    lock_button.click(
-        fn=toggle_lock,
-        inputs=locked_state,
-        outputs=[locked_state, accordion, menu1, menu2, menu3, lock_button]
-    )
-
-demo.launch()
+if __name__ == '__main__':
+    app.run_server(debug=True)

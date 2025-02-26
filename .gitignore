@@ -24,3 +24,6 @@ test.py
 
 # 运行时生成的文件
 build
+
+# pytest相关
+.tests

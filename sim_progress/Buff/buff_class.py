@@ -3,7 +3,7 @@ import importlib
 from functools import lru_cache
 import numpy as np
 from sim_progress.Report import report_to_log
-from define import EFFECT_FILE_PATH
+from define import EFFECT_FILE_PATH, EXIST_FILE_PATH, JUDGE_FILE_PATH
 import importlib.util
 import pandas as pd
 
@@ -661,3 +661,28 @@ class Buff:
 
     def __str__(self) -> str:
         return f'Buff名: {self.ft.index}→{self.ft.description}'
+
+
+def spawn_buff_from_index(index: str):
+    """
+    注意：本函数基本上是为了Pytest服务的，所以涉及反复打开CSV，基本没有任何性能优化可言
+    正常的主程序运行不要调用本函数！！！！
+    """
+    def find_row_as_dict(_index: str, csv_path: str):
+        """根据index查找对应行并转换为字典"""
+        try:
+            df = pd.read_csv(csv_path)
+            # 查找匹配行（假设索引列名为'BuffName'）
+            matched = df[df['BuffName'] == _index]
+            return matched.iloc[0].copy()
+        except FileNotFoundError:
+            raise FileNotFoundError(f"CSV文件 {csv_path} 不存在")
+    trigger_dict = find_row_as_dict(index, EXIST_FILE_PATH)
+    judge_dict = find_row_as_dict(index, JUDGE_FILE_PATH)
+    # 创建Buff实例
+    return Buff(trigger_dict, judge_dict)
+
+
+if __name__ == '__main__':
+    buff_0 = spawn_buff_from_index('Buff-音擎-精1霰落星殿-暴伤')
+    print(buff_0.ft.index)

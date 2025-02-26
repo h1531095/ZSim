@@ -20,8 +20,11 @@
 #豆子相差很远时，也优先开大
 1091|action+=|1091_Q|attribute.1091:special_resource<4|attribute.1091:decibel==3000|status.enemy:stun==True
 
+#有能量、有大时，根据豆子数量判断大招如何释放。
+1091|action+=|1091_E_EX_A_1|status.enemy:stun==True|attribute.1091:special_resource<6|attribute.1091:special_resource>4|attribute.1091:decibel==3000
+1091|action+=|1091_Q|status.enemy:stun==True|attribute.1091:special_resource<3|attribute.1091:decibel==3000
+
 #泄能逻辑
-1091|action+=|1091_E_EX_B_1|status.enemy:stun==True|attribute.1091:energy>=40|action.after:skill_tag==1091_E_EX_A_2|attribute.1091:special_resource<6
 1091|action+=|1091_E_EX_A_1|status.enemy:stun==True|attribute.1091:energy>=40|attribute.1091:special_resource<6
 
 #剩余情况都是后置开大
@@ -30,10 +33,10 @@
 
 #-------------------非失衡期逻辑-------------------
 1091|action+=|1091_BH_Aid|action.after:skill_tag==1211_E_EX
-#青衣泄电压逻辑：
+
+#后续SNA_1的释放逻辑：#青衣泄电压逻辑：
 #SNA_2正常结束的逻辑
 1300|action+=|1300_SNA_2|action.after:skill_tag==1300_SNA_1|attribute.1300:special_state→醉花月云转可用次数==0
-#后续SNA_1的释放逻辑：
 1300|action+=|1300_SNA_1|action.after:skill_tag==1300_SNA_1|status.enemy:stun==False|attribute.1300:special_state→醉花月云转可用次数>0
 
 #启动逻辑，主要是看何时打出第一个SNA_1

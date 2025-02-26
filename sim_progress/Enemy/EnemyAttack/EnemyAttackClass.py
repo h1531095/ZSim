@@ -103,6 +103,9 @@ class EnemyAttackAction:
         # TODO：暂时不考虑由技能范围不同而对命中率造成的影响，统一按照100%命中来处理，
         self.stoppable = self.action_dict.get('stoppable', False)
 
+    def block_judge(self, char_action):
+        pass
+
 
 if __name__ == '__main__':
     method = EnemyAttackMethod()
