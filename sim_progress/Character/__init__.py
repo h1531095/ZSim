@@ -9,7 +9,9 @@ __char_module_map = {
     '艾莲': 'Ellen',
     '雅': 'Miyabi',
     '11号': 'Soldier11',
-    '青衣': 'Qingyi'
+    '青衣': 'Qingyi',
+    '朱鸢': 'Zhuyuan',
+    '伊芙琳': 'Evelyn'
 }
 
 def character_factory(

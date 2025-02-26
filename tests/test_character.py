@@ -1,6 +1,7 @@
 import unittest
 from sim_progress.Character import Character
 
+
 class TestCharacter(unittest.TestCase):
     def test_init_character(self):
         char = Character(name="柳", weapon='时流贤者',
