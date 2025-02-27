@@ -86,6 +86,7 @@ class Preload:
         if SWAP_CANCEL:
             self.start_tick_stamps = defaultdict(int)             # 记录每个角色动作的起始时间
             self.end_tick_stamps = defaultdict(int)              # 记录每个角色动作的结束时间
+            self.lasting_node = {}
         if APL_MODE:
             self.apl_action_list = APLParser(file_path=APL_PATH).parse()
             self.apl_executor = APLExecutor(self.apl_action_list)
@@ -252,6 +253,21 @@ class Preload:
                 else:
                     self.preload_data.last_node = node
                     self.preload_data.current_node = None
+                # TODO：更新本地的计时器，并把结果同步给char。
+                if node.char_name not in self.lasting_node:
+                    self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+                else:
+                    if node.skill_tag != self.lasting_node[node.char_name][0]:
+                        self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+                    else:
+                        if self.lasting_node[node.char_name][1]['end'] == node.preload_tick:
+                            self.lasting_node[node.char_name][1]['end'] = node.end_tick
+                            self.lasting_node[node.char_name][1]['last_check'] = tick
+                        elif self.lasting_node[node.char_name][1]['end'] > node.preload_tick:
+                            raise ValueError(f'本人角色提早进入！')
+                        else:
+                            self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+
                 # Preload 结算特殊资源、能量、喧响
                 for char in char_data.char_obj_list:
                     char.update_sp_and_decibel(node)
