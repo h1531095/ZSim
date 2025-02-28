@@ -136,5 +136,7 @@
 
   "特殊乘区": "special_multiplier_zone",
 
-  "失衡延长": "stun_tick_increase"
+  "失衡延长": "stun_tick_increase",
+  "固定基础伤害增加": "base_dmg_increase",
+  "基础伤害增加%": "base_dmg_increase_percentage"
 }

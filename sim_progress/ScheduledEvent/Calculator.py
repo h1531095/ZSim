@@ -34,8 +34,10 @@ class MultiplierData:
             cls.mul_data_cache[cache_key] = instance
             return instance
 
-    def __init__(self, enemy_obj: Enemy, dynamic_buff: dict = {}, character_obj: Character | None = None):
-        # FIXME：IDE报错！dynamic_buff
+    def __init__(self, enemy_obj: Enemy, dynamic_buff: dict | None = None, character_obj: Character | None = None):
+        self.skill_node: SkillNode | None = None
+        if dynamic_buff is None:
+            dynamic_buff = {}
         if not hasattr(self, 'char_name'):
             self.skill_node: SkillNode # 此类内部不调用该属性
             if character_obj is None:
@@ -291,12 +293,13 @@ class MultiplierData:
 
             self.stun_tick_increase: int = 0
 
+            self.base_dmg_increase: float = 0.0
+            self.base_dmg_increase_percentage: float = 0.0
+
             self.__read_dynamic_statement(dynamic_statement)
 
         def __read_dynamic_statement(self, dynamic_statement: dict) -> None:
-            """
-            使用翻译json初始化动态面板
-            """
+            """使用翻译json初始化动态面板"""
             # 打开buff_effect_trans.json
 
             # 确保所有的属性都有默认值
@@ -434,9 +437,9 @@ class Calculator:
             而代理人的攻击力也可以在代理人页面或战斗中的暂停菜单中查阅，当然考虑到战斗中可能存在的各种Buff，
             实时的伤害计算请关注战斗中实际的攻击力数值。
             """
+            assert data.skill_node is not None, "非法的调用，没有获取到skill node"
             # 伤害倍率 = 技能伤害倍率 / 攻击次数
             dmg_ratio = data.skill_node.skill.damage_ratio / data.skill_node.hit_times
-            # FIXME：IDE报错！skill_node
             # 获取伤害对应属性
             base_attr = data.skill_node.skill.diff_multiplier
             # 属性为攻击力
@@ -454,7 +457,7 @@ class Calculator:
                 attr = data.static.am * (1 + data.dynamic.anomaly_mastery) + data.dynamic.field_anomaly_mastery
             else:
                 assert False, INVALID_ELEMENT_ERROR
-            base_dmg = dmg_ratio * attr
+            base_dmg = (dmg_ratio * attr) * data.dynamic.base_dmg_increase + data.dynamic.base_dmg_increase_percentage
             return base_dmg
 
         @staticmethod
