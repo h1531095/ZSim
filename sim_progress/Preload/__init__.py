@@ -86,6 +86,7 @@ class Preload:
         if SWAP_CANCEL:
             self.start_tick_stamps = defaultdict(int)             # 记录每个角色动作的起始时间
             self.end_tick_stamps = defaultdict(int)              # 记录每个角色动作的结束时间
+            self.lasting_node = {}
         if APL_MODE:
             self.apl_action_list = APLParser(file_path=APL_PATH).parse()
             self.apl_executor = APLExecutor(self.apl_action_list)
@@ -252,6 +253,21 @@ class Preload:
                 else:
                     self.preload_data.last_node = node
                     self.preload_data.current_node = None
+                # TODO：更新本地的计时器，并把结果同步给char。
+                if node.char_name not in self.lasting_node:
+                    self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+                else:
+                    if node.skill_tag != self.lasting_node[node.char_name][0]:
+                        self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+                    else:
+                        if self.lasting_node[node.char_name][1]['end'] == node.preload_tick:
+                            self.lasting_node[node.char_name][1]['end'] = node.end_tick
+                            self.lasting_node[node.char_name][1]['last_check'] = tick
+                        elif self.lasting_node[node.char_name][1]['end'] > node.preload_tick:
+                            raise ValueError(f'本人角色提早进入！')
+                        else:
+                            self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+
                 # Preload 结算特殊资源、能量、喧响
                 for char in char_data.char_obj_list:
                     char.update_sp_and_decibel(node)
@@ -360,7 +376,7 @@ class Preload:
                 因为在swap_cancel模式下，基本不会存在“前后两个技能涉及切人，但是后者会乖乖等到前者结束后才抛出”的情况，
                 若是同角色的两个不同技能，那么就不会调用本函数，更不会进入这个分支。
                 这个分支的存在，主要就是为了处理类似于“雅正在打连携技A，后面还会接着打B和C，但是此时丽娜发现buff断了，想要切上来A一下”这类情况。
-                我们希望雅在ABC都打完后，丽娜再且上来。
+                我们希望雅在ABC都打完后，丽娜再切上来。
                 但是如果没有这个分支，那么self.preload_data.current_node就会永远定格在C上，然后永远会因为C技能是无法切人的技能，而导致输出False，从而导致这个tick无法抛出技能
                 整个Preload阶段就会卡在C技能这里，后面再也打不出一个技能来，全队停转
                 所以，这个地方的结束判断是必须的，它能够让主函数在被连携技、大招等无法合轴的技能阻滞时，及时重启.

@@ -1,4 +1,7 @@
-pandas
-tqdm
-numpy
-streamlit
+pandas~=2.2.3
+tqdm~=4.67.1
+numpy~=2.2.2
+gradio~=5.17.0
+dash~=2.18.2
+plotly~=6.0.0
+setuptools~=72.1.0

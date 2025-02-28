@@ -4,3 +4,4 @@ from .BuffLoad import BuffLoadLoop, BuffInitialize
 from .buff_class import Buff
 from .ScheduleBuffSettle import ScheduleBuffSettle
 from .JudgeTools import *
+from .buff_class import spawn_buff_from_index

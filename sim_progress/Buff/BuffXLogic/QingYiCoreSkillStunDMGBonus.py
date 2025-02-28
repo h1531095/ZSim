@@ -5,6 +5,7 @@ class QintYiCoreSkillRecord:
     """
     记录信息的类。从青衣开始，这些类要统一管理。
     """
+
     def __init__(self):
         self.pre_saved_counts = 0
         self.last_update_stun = False
@@ -50,17 +51,21 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
         self.get_prepared(char_CID=1300, sub_exist_buff_dict=1, enemy=1)
         action_stack = JudgeTools.find_stack()
         action_now = action_stack.peek()
+        last_action = action_stack.peek_bottom()
         tick_now = JudgeTools.find_tick()
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_0.dy.count -= 1
         self.buff_instance.dy.count = self.buff_0.dy.count
         if action_now.mission_tag == '1300_SNA_1':
+            if last_action.mission_tag != '1300_SNA_1':
+                """上一个动作不是1300_SNA_1时，强制清空现有层数。"""
+                self.record.pre_saved_counts = 0
             self.buff_instance.dy.count += 1
             self.record.pre_saved_counts += 1
             if self.record.pre_saved_counts > 5:
                 raise ValueError(f'1300_SNA_1提供的预叠层数已经超过了5，\n'
-                                 f'当前为：{self.record.pre_saved_counts}，\n'
-                                 f'应该是APL代码的逻辑有问题，请检查1300_SNA_2的释放逻辑！')
+                      f'当前为：{self.record.pre_saved_counts}，\n'
+                      f'应该是APL代码的逻辑有问题，请检查1300_SNA_2的释放逻辑！')
         elif action_now.mission_tag == '1300_SNA_2':
             self.buff_instance.dy.count += 5
             self.buff_instance.dy.count += self.record.pre_saved_counts
@@ -81,4 +86,3 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
             return True
         self.record.last_update_stun = self.record.enemy.dynamic.stun
         return False
-

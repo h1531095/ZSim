@@ -14,7 +14,7 @@ class SPUpdateData:
     @staticmethod
     def __cal_dynamic_sp_regen(enabled_buff: Generator):
         buff_bonus: dict = cal_buff_total_bonus(enabled_buff)
-        dynamic_sp_regen = buff_bonus.get('sp_regen', 0) + buff_bonus.get('field_sp_regen', 0)
+        dynamic_sp_regen = buff_bonus.get('能量自动恢复', 0) + buff_bonus.get('局内能量自动恢复', 0)
         return dynamic_sp_regen
 
     def get_sp_regen(self) -> float:

@@ -284,3 +284,13 @@ def process_string(source: str) -> list[int|float|str]:
             return [eval(source) if source.isdigit() else source]
     else:
         return [source]
+
+
+def process_buff_for_test(buff_0, sub_exist_buff_dict, mission):
+    """
+    本函数截取了process_buff函数的头部，专为Pytest服务，正常程序请勿调用！
+    """
+    all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
+    all_match = BuffJudge(buff_0, judge_condition_dict, mission)
+    return all_match
+
