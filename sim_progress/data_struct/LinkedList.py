@@ -60,10 +60,12 @@ class LinkedList:
 
     def __getitem__(self, index):
         current = self.head
+        if current is None:
+            raise IndexError("Index out of range")
         for _ in range(index):
+            current = current.next
             if current is None:
                 raise IndexError("Index out of range")
-            current = current.next
         return current.data
 
 
