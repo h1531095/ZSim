@@ -342,5 +342,25 @@
     "Buff-武器-精5聚宝箱-全队增伤": {
         "module": ".BuffXLogic.TheVault",
         "class": "TheVault"
+    },
+    "Buff-武器-精1好斗的阿炮-全局攻击力": {
+        "module": ".BuffXLogic.KaboomTheCannon",
+        "class": "KaboomTheCannon"
+    },
+    "Buff-武器-精2好斗的阿炮-全局攻击力": {
+        "module": ".BuffXLogic.KaboomTheCannon",
+        "class": "KaboomTheCannon"
+    },
+    "Buff-武器-精3好斗的阿炮-全局攻击力": {
+        "module": ".BuffXLogic.KaboomTheCannon",
+        "class": "KaboomTheCannon"
+    },
+    "Buff-武器-精4好斗的阿炮-全局攻击力": {
+        "module": ".BuffXLogic.KaboomTheCannon",
+        "class": "KaboomTheCannon"
+    },
+    "Buff-武器-精5好斗的阿炮-全局攻击力": {
+        "module": ".BuffXLogic.KaboomTheCannon",
+        "class": "KaboomTheCannon"
     }
 }
