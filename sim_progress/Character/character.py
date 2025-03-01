@@ -299,6 +299,12 @@ class Character:
                               if not callable(getattr(self, attr)) and not attr.startswith("__")}
             report_to_log(f'[CHAR STATUS]:{self.NAME}:{str(self.statement)}')
 
+        class Dynamic:
+            """用于记录角色各种动态信息的类，主要和APL模块进行互动。"""
+            def __init__(self):
+                self.lasting_node = {}
+
+
         @staticmethod
         def _func_statement_CRIT(CRIT_score: float,
                                  CRIT_rate_numeric: float,
