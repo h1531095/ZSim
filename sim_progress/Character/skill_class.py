@@ -238,7 +238,11 @@ class Skill:
             self.follow_up: str | None = _raw_skill_data['follow_up']   # 技能发动后强制衔接的技能标签
             self.follow_by: str | None = _raw_skill_data['follow_by']  # 发动技能必须的前置技能标签
             self.aid_direction: int = _raw_skill_data['aid_direction']  # 触发快速支援的方向
-            self.aid_lag_ticks: int = int(_raw_skill_data['aid_lag_ticks'])  # 技能激活快速支援的滞后时间
+            aid_lag_ticks_value = _raw_skill_data['aid_lag_ticks']
+            if aid_lag_ticks_value == 'inf':
+                self.aid_lag_ticks = self.ticks - 1
+            else:
+                self.aid_lag_ticks: int = int(_raw_skill_data['aid_lag_ticks'])  # 技能激活快速支援的滞后时间
             # 获取字段值（假设 _raw_skill_data 是 DataFrame 的一行）
             tick_value = _raw_skill_data['tick_list']
             if pd.isna(tick_value):

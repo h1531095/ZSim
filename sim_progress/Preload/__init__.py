@@ -76,7 +76,7 @@ class Preload:
     APL模式下，它会根据APL的代码，根据逻辑生成新的SkillNode。
     而在合轴模式（SWAP_CANCEL）下，它会根据适当地提前一些tick，生成新的SkillNode。
     """
-    def __init__(self, *args: Skill):
+    def __init__(self,  *args: Skill):
         self.preload_data = PreloadData(*args)
         self.skills_queue: LinkedList = self.preload_data.skills_queue
         if not APL_MODE and SWAP_CANCEL:
@@ -88,7 +88,7 @@ class Preload:
             self.end_tick_stamps = defaultdict(int)              # 记录每个角色动作的结束时间
             self.lasting_node = {}
         if APL_MODE:
-            self.apl_action_list = APLParser(file_path=APL_PATH).parse()
+            self.apl_action_list = APLParser(file_path=APL_PATH).parse(mode=0)
             self.apl_executor = APLExecutor(self.apl_action_list)
             self.apl_preload_tick = 0
             self.apl_next_end_tick = 0
@@ -254,24 +254,25 @@ class Preload:
                     self.preload_data.last_node = node
                     self.preload_data.current_node = None
                 # TODO：更新本地的计时器，并把结果同步给char。
-                if node.char_name not in self.lasting_node:
-                    self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
-                else:
-                    if node.skill_tag != self.lasting_node[node.char_name][0]:
-                        self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
-                    else:
-                        if self.lasting_node[node.char_name][1]['end'] == node.preload_tick:
-                            self.lasting_node[node.char_name][1]['end'] = node.end_tick
-                            self.lasting_node[node.char_name][1]['last_check'] = tick
-                        elif self.lasting_node[node.char_name][1]['end'] > node.preload_tick:
-                            raise ValueError(f'本人角色提早进入！')
-                        else:
-                            self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+                # if node.char_name not in self.lasting_node:
+                #     self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+                # else:
+                #     if node.skill_tag != self.lasting_node[node.char_name][0]:
+                #         self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
+                #     else:
+                #         if self.lasting_node[node.char_name][1]['end'] == node.preload_tick:
+                #             self.lasting_node[node.char_name][1]['end'] = node.end_tick
+                #             self.lasting_node[node.char_name][1]['last_check'] = tick
+                #         elif self.lasting_node[node.char_name][1]['end'] > node.preload_tick:
+                #             raise ValueError(f'本人角色提早进入！')
+                #         else:
+                #             self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
 
                 # Preload 结算特殊资源、能量、喧响
                 for char in char_data.char_obj_list:
                     char.update_sp_and_decibel(node)
                     char.special_resources(node)
+                    char.dynamic.lasting_node.update_node(node, tick)
                 # 切人逻辑
                 if (isinstance(name_box, list)
                         and all(isinstance(name, str) for name in name_box)
@@ -305,9 +306,7 @@ class Preload:
         而不是在A技能被添加后立刻全部添加。
         """
         if node.skill.follow_up is not np.nan:
-            """
-            存在后续node
-            """
+            """存在后续node"""
             follow_up_tag: str = self.preload_data.current_node.skill.follow_up
             follow_up_skill_CID = int(follow_up_tag[:4])
             follow_up_skill_add_tick = self.preload_data.current_node.end_tick
