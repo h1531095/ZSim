@@ -1,3 +1,3 @@
 # 青衣的角色内置手法
 #如果检测到第三段普攻持续时间超过2秒，就自动衔接强化普攻。
-1300|action+=|1300_NA_3_FC|action.after:skill_tag==1300_SNA_1|status.1300:on_field==False|status.1300:spamming_node→skill_tag==1300_NA_3_NFC|status.1300:spamming_node→lasting_tick>=120
+#1300|action+=|1300_NA_3_FC|action.after:skill_tag==1300_SNA_1|status.1300:on_field==False|status.1300:spamming_node→skill_tag==1300_NA_3_NFC|status.1300:spamming_node→lasting_tick>=120
