@@ -1,3 +1,4 @@
+import os.path
 from typing import Sequence
 
 
@@ -13,9 +14,7 @@ class APLParser:
 
     @staticmethod
     def _read_apl_from_file(file_path: str) -> str:
-        """
-        从文件中读取APL代码。
-        """
+        """从文件中读取APL代码。"""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 return f.read()
@@ -23,7 +22,7 @@ class APLParser:
             print(f"Error reading file {file_path}: {e}")
             return ""
 
-    def parse(self) -> list[dict[str, Sequence[str]]]:
+    def parse(self, mode: int) -> list[dict[str, Sequence[str]]]:
         """
         apl_code本来是一大串str，现在要通过这个函数，将其变为列表内含多字典的模式。
         action下面存的应该是技能ID或是Skill的Triggle_Buff_Level，
@@ -31,7 +30,10 @@ class APLParser:
         这一步应该在初始化的时候执行。
         """
         actions = []
-        priority = 1
+        priority = 0
+        if mode == 0:
+            priority = 1
+            selected_char_cid = []
         for line in self.apl_code.splitlines():
             # 去除空白字符并清理行内注释
             line = line.split("#", 1)[0].strip()
@@ -39,6 +41,10 @@ class APLParser:
             if not line:
                 continue
             try:
+                if mode == 0:
+                    # 0. 更新CID，
+                    if int(line[:4]) not in selected_char_cid:
+                        selected_char_cid.append(int(line[:4]))
                 # 1. 按 '|' 分割字符串
                 parts = line.split('|')
                 if len(parts) < 3:
@@ -59,19 +65,26 @@ class APLParser:
                     "conditions": [cond.strip() for cond in conditions if cond.strip()],
                     "priority": priority
                 })
-                priority += 1
+                if mode == 0:
+                    priority += 1
             except Exception as e:
                 print(f"Error parsing line: {line}, Error: {e}")
                 continue
+        if mode == 0:
+            for cid in selected_char_cid:
+                dir_path = './data/APLData/default_APL'
+                default_file_name = f'{cid}.txt'
+                full_path = dir_path + '/' + default_file_name
+                if not os.path.isfile(full_path):
+                    continue
+                else:
+                    default_action = APLParser(file_path=full_path).parse(mode=1)
+                    actions[:0] = default_action
         return actions
 
 
 if __name__ == "__main__":
-    apl_code = """
-    1091|actions+=|1091_NA_1|condition1|condition2
-    1091|actions+=|1091_NA_2|condition1
-    1091|actions+=|1091_NA_3|condition1|condition2|condition3
-    1091|actions+=|auto_NA
-    """
-    actions_list = APLParser(apl_code).parse()
-    print(actions_list)
+    from define import APL_PATH
+    actions_list = APLParser(file_path=APL_PATH).parse(mode=0)
+    for sub_dict in actions_list:
+        print(sub_dict)

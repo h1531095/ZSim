@@ -236,7 +236,7 @@ class Character:
         self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
         self.action_list = self.skill_object.action_list
         self.skills_dict = self.skill_object.skills_dict
-
+        self.dynamic = self.Dynamic(self)
 
     class Statement:
         def __init__(self, char_class, crit_balancing=True):
@@ -340,6 +340,14 @@ class Character:
 
         def __str__(self) -> str:
             return f"角色静态面板：{self.NAME}"
+
+    class Dynamic:
+        """用于记录角色各种动态信息的类，主要和APL模块进行互动。"""
+
+        def __init__(self, char_instantce):
+            self.character = char_instantce
+            self.lasting_node = LastingNode(self.character)
+
 
     def _init_base_attribute(self, char_name: str):
         """
@@ -597,11 +605,62 @@ class Character:
         """获取全部特殊属性的名称与数值"""
         result: dict[str|None, object|None] = {}
         return result
-        
 
     def __str__(self) -> str:
         return f"{self.NAME} {self.level}级，能量{self.sp:.2f}，喧响{self.decibel:.2f}"
 
+
+class LastingNode:
+    def __init__(self, char_instance: Character):
+        """用于记录角色持续释放某技能的Node"""
+        self.char_instance = char_instance
+        self.node = None
+        self.start_tick = 0
+        self.update_tick = 0
+        self.is_spamming = False      # 是否处于连续释放技能的状态
+
+    def update_node(self, node, tick: int):
+        """更新char.dynamic中的node"""
+        if node.char_name != self.char_instance.NAME:
+            if self.node is None:
+                return
+            if self.is_spamming and self.node.end_tick <= tick:
+                self.is_spamming = False
+                self.node = None
+                self.update_tick = tick
+                # print(f'新的node{node.skill_tag}传入了！与{self.char_instance.NAME}无关，但是Ta自身的持续释放技能状态已经结束了，所以对状态进行更新！')
+                return
+        else:
+            if self.node is None:
+                self.node = node
+                self.start_tick = tick
+                self.update_tick = tick
+                # print(f'第一个Node{node.char_name}传入！更新给{self.char_instance.NAME}')
+                return
+            if node.skill_tag in ['被打断', '发呆']:
+                self.is_spamming = False
+                self.node = node
+                self.start_tick = tick
+                self.update_tick = tick
+                # print(f'{self.char_instance.NAME}被打断了！')
+                return
+            else:
+                if self.node.end_tick > tick:
+                    raise ValueError(f'过早传入了node，当前node的end_tick为{self.node.end_tick},企图更新Node的tick为{tick}')
+                if self.node.skill_tag == node.skill_tag:
+                    # print(f'{self.char_instance.NAME}正在持续释放技能{node.skill_tag}！已经持续了{self.spamming_info(tick)[2]}tick！')
+                    self.is_spamming = True
+                else:
+                    self.is_spamming = False
+                    self.start_tick = tick
+                    # print(f'{self.char_instance.NAME}的持续释放技能被覆盖了！新的技能{node.skill_tag}传入')
+                self.node = node
+                self.update_tick = tick
+
+    def spamming_info(self, tick: int):
+        """用于给外部调用，来获取目前角色的持续释放技能的情况"""
+        lasting_tick = tick - self.start_tick
+        return self.is_spamming, self.node.skill_tag, lasting_tick
 
 
 if __name__ == "__main__":

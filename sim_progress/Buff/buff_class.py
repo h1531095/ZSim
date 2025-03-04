@@ -473,7 +473,7 @@ class Buff:
         buff_0.dy.built_in_buff_box = self.dy.built_in_buff_box
         buff_0.history.active_times += 1
         if buff_0.ft.individual_settled:
-            buff_0.dy.count = len(self.dy.built_in_buff_box)
+            buff_0.dy.count = min(len(self.dy.built_in_buff_box), self.ft.maxcount)
         else:
             # if buff_0.ft.index == 'Buff-武器-精1啜泣摇篮-全队增伤自增长':
             #     print(f'buff_0更新前层数：{buff_0.dy.count}， buff自身更新前层数：{self.dy.count}')

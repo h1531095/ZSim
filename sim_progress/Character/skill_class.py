@@ -1,4 +1,6 @@
 from functools import lru_cache
+
+import numpy as np
 import pandas as pd
 from sim_progress import Report
 from define import *
@@ -235,6 +237,40 @@ class Skill:
             self.swap_cancel_ticks: int = int(_raw_skill_data['swap_cancel_ticks'])  # 可执行合轴操作的最短时间
             self.follow_up: str | None = _raw_skill_data['follow_up']   # 技能发动后强制衔接的技能标签
             self.follow_by: str | None = _raw_skill_data['follow_by']  # 发动技能必须的前置技能标签
+            self.aid_direction: int = _raw_skill_data['aid_direction']  # 触发快速支援的方向
+            aid_lag_ticks_value = _raw_skill_data['aid_lag_ticks']
+            if aid_lag_ticks_value == 'inf':
+                self.aid_lag_ticks = self.ticks - 1
+            else:
+                self.aid_lag_ticks: int = int(_raw_skill_data['aid_lag_ticks'])  # 技能激活快速支援的滞后时间
+            # 获取字段值（假设 _raw_skill_data 是 DataFrame 的一行）
+            tick_value = _raw_skill_data['tick_list']
+            if pd.isna(tick_value):
+                self.tick_list = None
+            elif tick_value is np.nan:
+                self.tick_list = None
+            elif isinstance(tick_value, str):
+                # 处理空字符串或纯空格
+                if not tick_value.strip():
+                    self.tick_list = None
+                else:
+                    split_values = tick_value.split(':')
+                    try:
+                        # 转换并去除首尾空格
+                        self.tick_list = [int(v.strip()) for v in split_values]
+                    except ValueError as e:
+                        raise ValueError(f"{self.skill_tag} 的 tick_list 包含无效整数: {e}")
+            else:
+                # 处理非字符串类型（如意外数值）
+                self.tick_list = None
+            if self.tick_list:
+                if max(self.tick_list) >= self.ticks:
+                    raise ValueError(f'{self.skill_tag}的精确帧数分布的最大值超过技能总帧数！请检查数据正确性')
+                if len(self.tick_list) != self.hit_times:
+                    raise ValueError(f'{self.skill_tag}的精确帧数分布所包含的命中数与技能的命中总数不符！请检查数据正确性')
+
+            self.ratio_distribution: list | None = None    # 技能的精确倍率分布
+            #  _raw_skill_data['ratio_distribution'].split(':') if _raw_skill_data['ratio_distribution'] else None
 
             self.skill_attr_dict = {attr: getattr(self, attr)
                                     for attr in dir(self)
