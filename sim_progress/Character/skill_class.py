@@ -271,7 +271,20 @@ class Skill:
 
             self.ratio_distribution: list | None = None    # 技能的精确倍率分布
             #  _raw_skill_data['ratio_distribution'].split(':') if _raw_skill_data['ratio_distribution'] else None
-
+            self.force_add_condition_APL = []
+            condition_value = _raw_skill_data['force_add_condition_APL']
+            if condition_value is np.nan or pd.isna(condition_value):
+                self.force_add_condition_APL = None
+            else:
+                from sim_progress.Preload.APLModule.sub_evaluation_unit import sub_evaluation_unit
+                if ':' in condition_value:
+                    condition_list = condition_value.strip().split(';')
+                    for _cond_list in condition_list:
+                        _sub_evaluation_unit = sub_evaluation_unit(priority=0, all_condition_list=_cond_list.strip().split('|'))
+                        self.force_add_condition_APL.append(_sub_evaluation_unit)
+                else:
+                    _sub_unit = sub_evaluation_unit(priority=0, all_condition_list=condition_value.strip().split('|'))
+                    self.force_add_condition_APL.append(_sub_unit)
             self.skill_attr_dict = {attr: getattr(self, attr)
                                     for attr in dir(self)
                                     if not attr.startswith('__') and not callable(getattr(self, attr))

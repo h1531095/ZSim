@@ -597,7 +597,7 @@ class Character:
         """父类中不包含默认特殊资源"""
         return None
 
-    def get_resources(selfc) -> tuple[str|None, int|float|bool|None]:
+    def get_resources(self) -> tuple[str|None, int|float|bool|None]:
         """获取特殊资源的属性名称与数量"""
         return None, None
     
