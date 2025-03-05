@@ -71,6 +71,13 @@ class APLParser:
                 print(f"Error parsing line: {line}, Error: {e}")
                 continue
         if mode == 0:
+            """
+            这个if分枝的功能是：部分角色可能因角色特性而存在一些默认优先级最高的行为，
+            在APL代码进行解析和拆分时，这些优先级最高的代码会被安插在所有APL的最前端。
+            如果某角色存在着优先级永远最高的默认手法，则可以用这个功能实现，把对应的APL逻辑写到DefaultConfig中即可。
+            但是注意，DefaultConfig中的所有APL代码均会以最高优先级进行执行，
+            所以一般情况下还是推荐对APL进行全面定制
+            """
             for cid in selected_char_cid:
                 dir_path = './data/APLData/default_APL'
                 default_file_name = f'{cid}.txt'
@@ -80,7 +87,27 @@ class APLParser:
                 else:
                     default_action = APLParser(file_path=full_path).parse(mode=1)
                     actions[:0] = default_action
-        return actions
+        return renumber_priorities(actions)
+
+
+def renumber_priorities(data_list):
+    seen = set()  # 记录已使用的优先级值
+    current_max = -1  # 跟踪当前最大有效优先级
+
+    for item in data_list:
+        original = item["priority"]
+
+        # 策略1：优先保持原有数值（如果未被占用）
+        if original not in seen:
+            seen.add(original)
+            current_max = max(current_max, original)
+        # 策略2：分配当前最大+1（当原值已被占用时）
+        else:
+            current_max += 1
+            item["priority"] = current_max
+            seen.add(current_max)
+
+    return data_list
 
 
 if __name__ == "__main__":

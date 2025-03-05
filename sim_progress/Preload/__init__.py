@@ -23,7 +23,7 @@ from define import SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT as SCK, SWAP_CANCEL_M
 from . import SkillsQueue
 from . import watchdog
 from .SkillsQueue import SkillNode
-from .APLModule import APLParser, APLExecutor
+from .APLModule import APLParser, APLClass
 from collections import defaultdict
 from sim_progress.RandomNumberGenerator import RNG
 
@@ -88,8 +88,12 @@ class Preload:
             self.end_tick_stamps = defaultdict(int)              # 记录每个角色动作的结束时间
             self.lasting_node = {}
         if APL_MODE:
-            self.apl_action_list = APLParser(file_path=APL_PATH).parse(mode=0)
-            self.apl_executor = APLExecutor(self.apl_action_list)
+            apl_action_list = APLParser(file_path=APL_PATH).parse(mode=0)
+            self.apl = APLClass(apl_action_list)
+            self.apl_complex_force_add_dict = {}
+            # TODO：1、构建一个子类，类似以APLExecutor，并且形成字典。
+            #  2、设计好子类的数据结构，使其具备直接解读APL代码中condition部分的能力；
+            #  3、尝试独立这个模块，并争取其能够被更多的模块复用。
             self.apl_preload_tick = 0
             self.apl_next_end_tick = 0
 
@@ -119,7 +123,7 @@ class Preload:
             """
             if APL_MODE:
                 # When APL is Enabled, we will use APL to preload skills.
-                apl_output_skill: str = self.apl_executor.execute(mode=0)  # Try to get the next skill to preload.
+                apl_output_skill: str = self.apl.execute(mode=0)  # Try to get the next skill to preload.
                 node: SkillNode = SkillsQueue.spawn_node(
                     apl_output_skill,
                     self.apl_preload_tick,
@@ -162,7 +166,7 @@ class Preload:
             raise ValueError("合轴模式下必须开启APL模式！")
         # 0、初始化、准备工作、获取skill_tag
         current_char_available = True   # 当前角色是否可以进行下一个动作
-        skill_tag: str = self.apl_executor.execute(mode=0)
+        skill_tag: str = self.apl.execute(mode=0)
         current_node_CID = int(skill_tag[:4])
 
         # 1、处理skill_tag为首个动作的情况
@@ -320,6 +324,13 @@ class Preload:
                 """
                 raise ValueError(
                     f"出现了不应该出现的情况！技能{follow_up_tag}理应在{self.preload_data.current_node.skill_tag}之后、于{follow_up_skill_add_tick}执行，但是此时角色{follow_up_skill_CID}尚有动作存在。")
+            # force_add_conditions = node.skill.force_add_apl_condition
+            # if force_add_conditions is not None:
+            #     if force_add_conditions in self.apl_complex_force_add_dict.keys():
+            #         pass
+            #     else:
+            #         self.apl_complex_force_add_dict[force_add_conditions] = None
+            #         pass
             self.force_add_box[follow_up_skill_CID][follow_up_skill_add_tick] = follow_up_tag
 
     def preload_node(self, skill_tag, tick):
