@@ -28,7 +28,7 @@ class BaseSubConditionUnit(ABC):
         self.check_value = check_number_type(sub_condition_dict['value'])  # 参与计算的值 或者调用的函数名
 
     @abstractmethod
-    def check_myself(self,found_char_dict, game_state, *args, **kwargs):
+    def check_myself(self, found_char_dict, game_state, *args, **kwargs):
         pass
 
     def spawn_result(self, value=None):
@@ -46,8 +46,40 @@ class BaseSubConditionUnit(ABC):
 
 
 class StatusSubUnit(BaseSubConditionUnit):
+    @classmethod
+    class CheckHandler:
+        def handel(cls, enemy):
+            raise NotImplementedError
+
     def __init__(self, priority: int, sub_condition_dict: dict = None, mode=0):
         super().__init__(priority=priority, sub_condition_dict=sub_condition_dict, mode=mode)
+        self.enemy = None
+
+
+
+        class EnemyStatusCheck:
+            def __init__(self):
+                pass
+
+            class Stun:
+                def __init__(self):
+                    pass
+
+            class QTETriggerableTimes:
+                def __init__(self):
+                    pass
+
+            class QTETriggeredTimes:
+                def __init__(self):
+                    pass
+
+            class AnomalyPct:
+                def __init__(self):
+                    pass
+
+        class CharStatusCheck:
+            def __init__(self):
+                pass
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
         if self.check_target == 'enemy':
@@ -67,13 +99,13 @@ class StatusSubUnit(BaseSubConditionUnit):
                 return self.spawn_result(checked_value)
             else:
                 raise ValueError(f'子条件中的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！')
-    # else:
-    #     '''self.check_target 不是enemy就是角色，所以这个分支就是角色了。'''
-    #     try:
-    #         chra_cid = int(self.check_target)
-    #     except TypeError:
-    #         raise TypeError(f'在status.CID类的条件解析中，获取CID失败！出问题字段为：{self.check_target}')
-    #     # raise ValueError(f'子条件中的check_target为：{self.check_target}，优先级为{self.priority}，暂无处理该目标类型的逻辑模块！')
+        else:
+            '''self.check_target 不是enemy就是角色，所以这个分支就是角色了。'''
+            try:
+                chra_cid = int(self.check_target)
+            except ValueError:
+                raise ValueError(f'在status.CID类的条件解析中，获取CID失败！出问题字段为：{self.check_target}')
+            # raise ValueError(f'子条件中的check_target为：{self.check_target}，优先级为{self.priority}，暂无处理该目标类型的逻辑模块！')
 
 
 class AttributeSubUnit(BaseSubConditionUnit):
