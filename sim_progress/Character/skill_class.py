@@ -235,8 +235,17 @@ class Skill:
             self.anomaly_attack: bool = bool(_raw_skill_data['anomaly_attack'])
             # 技能链相关
             self.swap_cancel_ticks: int = int(_raw_skill_data['swap_cancel_ticks'])  # 可执行合轴操作的最短时间
-            self.follow_up: str | None = _raw_skill_data['follow_up']   # 技能发动后强制衔接的技能标签
-            self.follow_by: str | None = _raw_skill_data['follow_by']  # 发动技能必须的前置技能标签
+            follow_up = _raw_skill_data['follow_up']
+            if follow_up is np.nan or pd.isna(follow_up):
+                self.follow_up = []
+            else:
+                self.follow_up: list | None = _raw_skill_data['follow_up'].split('|')   # 技能发动后强制衔接的技能标签
+
+            follow_by = _raw_skill_data['follow_by']
+            if follow_by is np.nan or pd.isna(follow_by):
+                self.follow_by = []
+            else:
+                self.follow_by: list | None = _raw_skill_data['follow_by'].split('|')   # 发动技能必须的前置技能标签
             self.aid_direction: int = _raw_skill_data['aid_direction']  # 触发快速支援的方向
             aid_lag_ticks_value = _raw_skill_data['aid_lag_ticks']
             if aid_lag_ticks_value == 'inf':
@@ -274,17 +283,16 @@ class Skill:
             self.force_add_condition_APL = []
             condition_value = _raw_skill_data['force_add_condition_APL']
             if condition_value is np.nan or pd.isna(condition_value):
-                self.force_add_condition_APL = None
+                self.force_add_condition_APL = []
             else:
-                from sim_progress.Preload.APLModule.sub_evaluation_unit import sub_evaluation_unit
-                if ':' in condition_value:
-                    condition_list = condition_value.strip().split(';')
-                    for _cond_list in condition_list:
-                        _sub_evaluation_unit = sub_evaluation_unit(priority=0, all_condition_list=_cond_list.strip().split('|'))
-                        self.force_add_condition_APL.append(_sub_evaluation_unit)
-                else:
-                    _sub_unit = sub_evaluation_unit(priority=0, all_condition_list=condition_value.strip().split('|'))
-                    self.force_add_condition_APL.append(_sub_unit)
+                from sim_progress.Preload.APLModule.APLUnit import SimpleUnitForForceAdd
+                condition_list = condition_value.strip().split(';')
+                for _cond_str in condition_list:
+                    _cond_list = _cond_str.strip().split('|')
+                    simple_apl_unit_for_force_add = SimpleUnitForForceAdd(condition_list=_cond_list)
+                    self.force_add_condition_APL.append(simple_apl_unit_for_force_add)
+            if len(self.follow_up) != len(self.force_add_condition_APL) and self.force_add_condition_APL:
+                raise ValueError(f'ID为{self.skill_tag}的技能的follow_up与force_add_condition_APL长度不一致！请检查数据正确性')
             self.skill_attr_dict = {attr: getattr(self, attr)
                                     for attr in dir(self)
                                     if not attr.startswith('__') and not callable(getattr(self, attr))

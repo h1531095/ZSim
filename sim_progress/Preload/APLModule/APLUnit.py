@@ -1,4 +1,6 @@
-from .SubConditionUnit import *
+
+from sim_progress.Preload.APLModule.SubConditionUnit.StatusSubUnit import StatusSubUnit
+from sim_progress.Preload.APLModule.SubConditionUnit.SubConditionUnit import *
 from define import compare_methods_mapping
 from abc import ABC, abstractmethod
 
@@ -30,19 +32,23 @@ class ActionAPLUnit(APLUnit):
 
     def check_all_sub_units(self, found_char_dict, game_state):
         """单行APL的逻辑函数：检查所有子条件并且输出结果"""
+        result_box = []
         if not self.sub_conditions_unit_list:
             '''无条件直接输出True'''
-            return True
+            return True, result_box
         for sub_units in self.sub_conditions_unit_list:
             if not isinstance(sub_units, BaseSubConditionUnit):
                 raise TypeError(f'ActionAPLUnit类的sub_conditions_unit_list中的对象构建不正确！')
-            if not sub_units.check_myself(found_char_dict, game_state):
-                return False
+            result = sub_units.check_myself(found_char_dict, game_state)
+            result_box.append(result)
+            if not result:
+                return False, result_box
         else:
-            return True
+            return True, result_box
 
 
-def spawn_sub_condition(priority: int, sub_condition_code: str = None) -> ActionSubUnit | BuffSubUnit | StatusSubUnit | AttributeSubUnit | ActionSubUnit:
+def spawn_sub_condition(priority: int,
+                        sub_condition_code: str = None) -> ActionSubUnit | BuffSubUnit | StatusSubUnit | AttributeSubUnit | ActionSubUnit:
     """解构apl子条件字符串，并且组建出构建sub_condition类需要的构造字典"""
     logic_mode = 0
     sub_condition_dict = {}
@@ -82,3 +88,36 @@ def sub_condition_unit_factory(priority: int, sub_condition_dict: dict = None, m
         return ActionSubUnit(priority, sub_condition_dict, mode)
     elif condition_type == 'special':
         raise ValueError(f'special类的APL解析，是当前尚未开发的功能！优先级为{priority}，')
+
+
+class SimpleUnitForForceAdd(APLUnit):
+    def __init__(self, condition_list):
+        super().__init__()
+        for condition_str in condition_list:
+            self.sub_conditions_unit_list.append(spawn_sub_condition(self.priority, condition_str))
+
+    def check_all_sub_units(self, found_char_dict, game_state):
+        result_box = []
+        if not self.sub_conditions_unit_list:
+            return True, result_box
+        for sub_units in self.sub_conditions_unit_list:
+            if not isinstance(sub_units, BaseSubConditionUnit):
+                raise TypeError(f'ActionAPLUnit类的sub_conditions_unit_list中的对象构建不正确！')
+            result = sub_units.check_myself(found_char_dict, game_state)
+            result_box.append(result)
+            if not result:
+                return False, result_box
+        else:
+            return True, result_box
+
+
+if __name__ == '__main__':
+    from sim_progress.Preload import APLParser
+    code = '1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True'
+    # actions_list = APLParser(file_path=APL_PATH).parse(mode=0)
+    actions_list = APLParser(apl_code=code).parse(mode=0)
+    action_apl_unit = ActionAPLUnit(actions_list[0])
+    for conditions in action_apl_unit.sub_conditions_unit_list:
+        print(f'{conditions.logic_mode}')
+
+

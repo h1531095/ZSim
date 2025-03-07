@@ -112,6 +112,8 @@ def renumber_priorities(data_list):
 
 if __name__ == "__main__":
     from define import APL_PATH
-    actions_list = APLParser(file_path=APL_PATH).parse(mode=0)
+    code = '1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True'
+    # actions_list = APLParser(file_path=APL_PATH).parse(mode=0)
+    actions_list = APLParser(apl_code=code).parse(mode=0)
     for sub_dict in actions_list:
         print(sub_dict)

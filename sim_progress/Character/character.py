@@ -347,7 +347,7 @@ class Character:
         def __init__(self, char_instantce):
             self.character = char_instantce
             self.lasting_node = LastingNode(self.character)
-
+            self.on_field = False   # 角色是否在前台
 
     def _init_base_attribute(self, char_name: str):
         """
@@ -609,7 +609,6 @@ class Character:
     def __str__(self) -> str:
         return f"{self.NAME} {self.level}级，能量{self.sp:.2f}，喧响{self.decibel:.2f}"
 
-
 class LastingNode:
     def __init__(self, char_instance: Character):
         """用于记录角色持续释放某技能的Node"""
@@ -635,6 +634,7 @@ class LastingNode:
                 self.node = node
                 self.start_tick = tick
                 self.update_tick = tick
+
                 # print(f'第一个Node{node.char_name}传入！更新给{self.char_instance.NAME}')
                 return
             if node.skill_tag in ['被打断', '发呆']:
@@ -660,7 +660,11 @@ class LastingNode:
     def spamming_info(self, tick: int):
         """用于给外部调用，来获取目前角色的持续释放技能的情况"""
         lasting_tick = tick - self.start_tick
-        return self.is_spamming, self.node.skill_tag, lasting_tick
+        if self.node is None:
+            skill_tag = None
+        else:
+            skill_tag = self.node.skill_tag
+        return self.is_spamming, skill_tag, lasting_tick
 
 
 if __name__ == "__main__":

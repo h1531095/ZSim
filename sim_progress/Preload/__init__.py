@@ -24,6 +24,7 @@ from . import SkillsQueue
 from . import watchdog
 from .SkillsQueue import SkillNode
 from .APLModule import APLParser, APLClass
+from .APLModule.APLJudgeTools import find_char, get_game_state
 from collections import defaultdict
 from sim_progress.RandomNumberGenerator import RNG
 
@@ -86,7 +87,8 @@ class Preload:
         if SWAP_CANCEL:
             self.start_tick_stamps = defaultdict(int)             # 记录每个角色动作的起始时间
             self.end_tick_stamps = defaultdict(int)              # 记录每个角色动作的结束时间
-            self.lasting_node = {}
+            self.found_char_dict = {}
+            self.game_state = None
         if APL_MODE:
             apl_action_list = APLParser(file_path=APL_PATH).parse(mode=0)
             self.apl = APLClass(apl_action_list)
@@ -123,11 +125,12 @@ class Preload:
             """
             if APL_MODE:
                 # When APL is Enabled, we will use APL to preload skills.
-                apl_output_skill: str = self.apl.execute(mode=0)  # Try to get the next skill to preload.
+                apl_output_skill, apl_priority = self.apl.execute(mode=0)  # Try to get the next skill to preload.
                 node: SkillNode = SkillsQueue.spawn_node(
                     apl_output_skill,
                     self.apl_preload_tick,
-                    *self.preload_data.skills)  # generate a SkillNode through the tag and preload tick.
+                    *self.preload_data.skills
+                )  # generate a SkillNode through the tag and preload tick.
                 self.skills_queue.insert(node)  # Insert the node into the queue.
                 self.apl_preload_tick += node.skill.ticks  # Update the preload tick.
                 self.apl_next_end_tick = node.end_tick
@@ -166,7 +169,7 @@ class Preload:
             raise ValueError("合轴模式下必须开启APL模式！")
         # 0、初始化、准备工作、获取skill_tag
         current_char_available = True   # 当前角色是否可以进行下一个动作
-        skill_tag: str = self.apl.execute(mode=0)
+        skill_tag, _apl_priority = self.apl.execute(mode=0)
         current_node_CID = int(skill_tag[:4])
 
         # 1、处理skill_tag为首个动作的情况
@@ -175,6 +178,11 @@ class Preload:
             self.process_node(char_data, name_box, skill_tag, tick)
             self.preload_data.current_on_field_node_tag = skill_tag
             return
+
+        # 1.5、处理强制动作；
+        for char_cid, current_node in self.preload_data.personal_current_node.items():
+            if current_node.end_tick <= tick:
+                self.process_force_add_skill_tag(current_node)
 
         # 敌人进攻与角色响应模块
         stun_status: bool = stun_judge(enemy)
@@ -199,7 +207,7 @@ class Preload:
                     nodes_tag = mission_dict.pop(force_add_ticks)
                     if char_CIDs == current_node_CID:
                         current_char_available = False
-                        self.preload_data.current_on_field_node_tag = skill_tag
+                        self.preload_data.current_on_field_node_tag = nodes_tag
                     self.process_node(char_data, name_box, nodes_tag, tick)
 
         # 4、处理主动动作
@@ -257,21 +265,6 @@ class Preload:
                 else:
                     self.preload_data.last_node = node
                     self.preload_data.current_node = None
-                # TODO：更新本地的计时器，并把结果同步给char。
-                # if node.char_name not in self.lasting_node:
-                #     self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
-                # else:
-                #     if node.skill_tag != self.lasting_node[node.char_name][0]:
-                #         self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
-                #     else:
-                #         if self.lasting_node[node.char_name][1]['end'] == node.preload_tick:
-                #             self.lasting_node[node.char_name][1]['end'] = node.end_tick
-                #             self.lasting_node[node.char_name][1]['last_check'] = tick
-                #         elif self.lasting_node[node.char_name][1]['end'] > node.preload_tick:
-                #             raise ValueError(f'本人角色提早进入！')
-                #         else:
-                #             self.lasting_node[node.char_name] = (node.skill_tag, {'start': tick, 'end': node.end_tick, 'last_check': tick})
-
                 # Preload 结算特殊资源、能量、喧响
                 for char in char_data.char_obj_list:
                     char.update_sp_and_decibel(node)
@@ -281,8 +274,9 @@ class Preload:
                 if (isinstance(name_box, list)
                         and all(isinstance(name, str) for name in name_box)
                         and node.skill.on_field):
-                    self. switch_char(name_box, node)
-                self.process_force_add_skill_tag(node)
+                    self.switch_char(name_box, node, char_data)
+
+                # self.process_force_add_skill_tag(node)
 
         # 递归部分，
         # 虽然随着本函数的不断修改，递归部分的作用很小了，甚至在主函数逻辑重写后，就很少会发生递归调用了
@@ -303,18 +297,30 @@ class Preload:
         该函数的作用是，检查传入的node是否存在后续强制添加的技能，
         如果存在，则将其录入到self.force_add_box中。
         ================================================
-        该函数只在add_node的最后一步调用，所以，每次执行add_node函数，都只会处理处理一个强制添加技能，
-        因为每个技能最多只会存在一个后续强制添加技能。
-        如果技能A后续的强制添加涉及到多个技能，
-        则这些技能只会在上一个强制添加技能被添加后，才会被添加到self.force_add_box中，
-        而不是在A技能被添加后立刻全部添加。
+        该函数将在Preload阶段的第二步执行，当检测到角色自己的node即将结束时，
+        该函数便会运行，并且读取skill.follow_up和激活条件等参数，
+        最终向force_add_box中自动添加SkillNode，从而模拟技能的自动衔接。
+        注意，本函数不包含角色node的更新逻辑，更新逻辑在其他函数里。
         """
-        if node.skill.follow_up is not np.nan:
-            """存在后续node"""
-            follow_up_tag: str = self.preload_data.current_node.skill.follow_up
-            follow_up_skill_CID = int(follow_up_tag[:4])
-            follow_up_skill_add_tick = self.preload_data.current_node.end_tick
-            if self.preload_data.current_node.end_tick < self.end_tick_stamps[follow_up_skill_CID]:
+        follow_up: list = node.skill.follow_up
+        conditions_unit: list = node.skill.force_add_condition_APL
+        should_force_add = True
+        index = 0
+        if conditions_unit and self.game_state is None:
+            self.game_state = get_game_state()
+        if conditions_unit:
+            """存在条件类APL判定"""
+            for unit in conditions_unit:
+                _apl_result, result_box = unit.check_all_sub_units(self.found_char_dict, self.game_state)
+                if not _apl_result:
+                    should_force_add = False
+                    index += 1
+                else:
+                    break
+        if should_force_add and follow_up:
+            follow_up_skill_CID = int(follow_up[index][:4])
+            follow_up_skill_add_tick = node.end_tick
+            if node.end_tick < self.end_tick_stamps[follow_up_skill_CID]:
                 """
                 这里检查的情况是：如果A角色的技能会强制预载B角色的技能时，
                 那么B角色自己的end_tick_stamps中的记录的值（也就是B角色上一个动作的结束时间），
@@ -323,15 +329,8 @@ class Preload:
                 如果程序流程合理，这个分支是不会被执行的。所以，这个分支是一个报错分支。
                 """
                 raise ValueError(
-                    f"出现了不应该出现的情况！技能{follow_up_tag}理应在{self.preload_data.current_node.skill_tag}之后、于{follow_up_skill_add_tick}执行，但是此时角色{follow_up_skill_CID}尚有动作存在。")
-            # force_add_conditions = node.skill.force_add_apl_condition
-            # if force_add_conditions is not None:
-            #     if force_add_conditions in self.apl_complex_force_add_dict.keys():
-            #         pass
-            #     else:
-            #         self.apl_complex_force_add_dict[force_add_conditions] = None
-            #         pass
-            self.force_add_box[follow_up_skill_CID][follow_up_skill_add_tick] = follow_up_tag
+                    f"出现了不应该出现的情况！技能{follow_up[index]}理应在{node.skill_tag}之后、于{follow_up_skill_add_tick}执行，但是此时角色{follow_up_skill_CID}尚有动作存在。")
+            self.force_add_box[follow_up_skill_CID][follow_up_skill_add_tick] = follow_up[index]
 
     def preload_node(self, skill_tag, tick):
         """
@@ -423,7 +422,7 @@ class Preload:
         return lag_time
 
     @staticmethod
-    def switch_char(name_box: list[str], this_node: SkillNode) -> None:
+    def switch_char(name_box: list[str], this_node: SkillNode, char_data) -> None:
         name_index = name_box.index(this_node.char_name)
         # 更改前台角色（切人逻辑）
         if name_index == 1:
@@ -434,3 +433,9 @@ class Preload:
             name_box.append(name_switch)
             name_switch = name_box.pop(0)
             name_box.append(name_switch)
+        for char in char_data.char_obj_list:
+            if name_box[0] == char.NAME:
+                char.dynamic.on_field = True
+            else:
+                char.dynamic.on_field = False
+
