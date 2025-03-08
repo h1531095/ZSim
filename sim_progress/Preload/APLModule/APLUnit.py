@@ -1,6 +1,4 @@
-
-from sim_progress.Preload.APLModule.SubConditionUnit.StatusSubUnit import StatusSubUnit
-from sim_progress.Preload.APLModule.SubConditionUnit.SubConditionUnit import *
+from sim_progress.Preload.APLModule.SubConditionUnit import ActionSubUnit, AttributeSubUnit, BuffSubUnit, StatusSubUnit, BaseSubConditionUnit
 from define import compare_methods_mapping
 from abc import ABC, abstractmethod
 
