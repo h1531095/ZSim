@@ -3,7 +3,7 @@ from define import SWAP_CANCEL
 
 def get_last_action(game_state: dict):
     """
-    注意，这个函数获取的应该是上一个主动动作的名称，
+    注意，这个函数获取的应该是最新的主动动作的名称，
     所以，这里调用的是preload_data.current_on_field_node
     """
     if SWAP_CANCEL:

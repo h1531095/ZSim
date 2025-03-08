@@ -1,3 +1,4 @@
+# status.1300:lasting_node_tag==1300_NA_3_NFC|status.1300:lasting_node_tick>=180|status.1300:on_field==False
 #-------------------失衡期逻辑-------------------
 #若在连续激发SNA_1的过程中怪物进入了失衡状态，则需要提前打出SNA_2
 1300|action+=|1300_SNA_2|action.after:skill_tag==1300_SNA_1|status.enemy:stun==True|attribute.1300:special_state→醉花月云转可用次数>=0
