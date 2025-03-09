@@ -348,6 +348,7 @@ class Preload:
             # FIXME：暴力调用current_node会导致部分合轴技能抢队，这个地方需要重新梳理逻辑，修改。
             current_node_list = []
             for CID, node in self.preload_data.personal_current_node.items():
+
                 pass
             lag_time = self.spawn_lag_time(self.preload_data.current_node)
             current_node = self.preload_data.current_node
