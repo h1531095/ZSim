@@ -136,6 +136,8 @@ class Enemy:
         self.__restore_stun_recovery_time()
         self.dynamic.QTE_triggered_times = 0
         self.dynamic.QTE_received_tag = []
+        self.dynamic.QTE_activation = False
+        self.dynamic.QTE_activation_avaliable = True
 
     def increase_stun_recovery_time(self, increase_tick: int):
         """更新失衡延长的时间，负责接收 Calculator 的 buff"""
@@ -289,8 +291,8 @@ class Enemy:
 
     def hit_received(self, single_hit: SingleHit) -> None:
         """实现怪物的QTE次数计算、扣血计算等受击时的对象结算，与伤害计算器对接"""
-        # 怪物连携次数逻辑
-        self.__qte_counter(single_hit.skill_tag)
+        # 怪物连携逻辑
+        self.__qte_counter(single_hit)
         # 更新失衡，为减少函数调用
         self.dynamic.stun_bar += single_hit.stun
         # 怪物的扣血逻辑。
@@ -309,36 +311,54 @@ class Enemy:
         """获取当前失衡值百分比的方法"""
         return self.dynamic.stun_bar / self.max_stun
 
-    def __qte_counter(self, tag: str) -> None:
-        """
-        判断该技能是否会影响角色的QTE触发次数。
+    def qte_activation_judge(self, single_hit: SingleHit) -> None:
+        """判断当前SingleHit能否激发QTE状态"""
+        if not self.dynamic.stun:
+            return
+            # 首先进行前置判断：尽管处于失衡状态，但是当前QTE次数是否已达上限？如果达到上限，则关闭彩色失衡状态。
+        if self.dynamic.QTE_triggered_times == self.QTE_triggerable_times:
+            self.dynamic.QTE_activation_avaliable = False
+            self.dynamic.QTE_activation = False
+        # 判断是否处于彩色失衡状态
+        if self.dynamic.QTE_activation_avaliable:
+            # 其次，再判断当前攻击是否是重攻击的最后一击？
+            if single_hit.heavy_hit:
+                #   如果判定都通过，那么直接激活QTE状态
+                self.dynamic.QTE_activation = True
 
-        @param tag: 接受技能字符串
-        """
+
+    def stun_judge(self) -> bool:
+        """判断敌人是否处于 失衡 状态，并更新 失衡 状态"""
+        if not self.able_to_be_stunned:
+            return False
+
+        if self.dynamic.stun:
+            # Stunned, count the time and reset when stun time is out.
+            if self.stun_recovery_time <= self.dynamic.stun_tick:
+                self.restore_stun()
+            else:
+                self.dynamic.stun_tick += 1
+        else:
+            # Not stunned, check the stun bar.
+            if self.dynamic.stun_bar >= self.max_stun:
+                self.dynamic.stun = True
+        return self.dynamic.stun
+
+    def __qte_counter(self, single_hit: SingleHit) -> None:
+        """判断该技能是否会影响角色的QTE触发次数。"""
+        self.qte_activation_judge(single_hit)
         if self.dynamic.stun:
             # 仅在失衡期才执行以下逻辑
-            qte_tags: list[str] = self.__qte_tag_filter(tag)
-            diff_tags: set[str] = set(qte_tags) - set(self.dynamic.QTE_received_tag)    # 获取新收到的QTE标签
-            self.dynamic.QTE_received_tag += list(diff_tags)    # 添加新收到的标签
-            for _tag in diff_tags:
-                # 对每一个新标进行判断，是否需要更新QTE触发次数
-                CID_tag = _tag.split('_')[0]
-                try:
-                    last_tag = self.dynamic.QTE_received_tag[-2]    # 获取上一次收到的标签
-                    CID_last = last_tag.split('_')[0]
-                except IndexError:  # 索引错误，说明是第一次收到QTE标签
-                    last_tag = None
-                    CID_last = None
-                if (CID_tag == CID_last) and (_tag != last_tag):
-                    # 若本次输入的tag与上一次输入的源角色一致，且不是相同tag，则不增加触发次数
-                    pass
-                else:
-                    # 其余情况默认+1
-                    self.dynamic.QTE_triggered_times += 1
-                # if _tag == '1131_QTE':
-                #     print(_tag, self.dynamic.QTE_received_tag, self.QTE_triggerable_times)
-            assert self.dynamic.QTE_triggered_times <= self.QTE_triggerable_times, "QTE触发次数超过上限"
-            # TODO：怪物失衡条彩色闪烁状态（用来取代较为笨重死板的counter比对）
+            if 'QTE' not in single_hit.skill_tag:
+                return
+            if single_hit.hitted_count != 1:
+                return
+            if single_hit.proactive:
+                self.dynamic.QTE_received_tag.append(single_hit.skill_tag)
+                self.dynamic.QTE_triggered_times += 1
+                print(self.dynamic.QTE_received_tag, self.dynamic.QTE_triggered_times, self.QTE_triggerable_times)
+                assert self.dynamic.QTE_triggered_times <= self.QTE_triggerable_times, "QTE触发次数超过上限"
+            # # TODO：失衡激发状态和QTE计数器联动功能！
 
     def __HP_update(self, dmg_expect: np.float64) -> None:
         self.dynamic.lost_hp += dmg_expect
@@ -351,6 +371,8 @@ class Enemy:
             element_type_code = snapshot[0]
             updated_bar = self.anomaly_bars_dict[element_type_code]
             updated_bar.update_snap_shot(snapshot)
+
+
 
     class EnemyDynamic:
         def __init__(self):
@@ -371,6 +393,8 @@ class Enemy:
             self.lost_hp = 0    # 已损生命值
             self.QTE_triggered_times: int = 0   # 已连携次数
             self.QTE_received_tag: list[str] = []
+            self.QTE_activation = False     # QTE阶段的激活开关
+            self.QTE_activation_avaliable = False       # 是否还能被激发从而进入QTE阶段？也就是所谓的“彩色失衡状态”
             self.stun_tick = 0  # 失衡已进行时间
 
             self.frozen_tick = 0
@@ -391,3 +415,5 @@ class Enemy:
 if __name__ == '__main__':
     test = Enemy(enemy_index_ID=11432, enemy_sub_ID=900011432)
     print(test.ice_anomaly_bar.max_anomaly)
+
+

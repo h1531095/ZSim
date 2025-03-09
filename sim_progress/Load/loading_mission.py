@@ -12,6 +12,7 @@ class LoadingMission:
         self.mission_tag = mission.skill_tag
         self.mission_end_tick = mission.end_tick
         self.mission_character = mission.char_name
+        self.preload_tick = mission.preload_tick
 
     def mission_start(self, timenow):
         self.mission_active_state = True

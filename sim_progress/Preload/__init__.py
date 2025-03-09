@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import math
 from dataclasses import dataclass
@@ -6,7 +5,7 @@ from sim_progress.Character import Skill
 from sim_progress.Enemy import Enemy
 from sim_progress.data_struct import LinkedList
 from sim_progress.Report import report_to_log
-from define import INPUT_ACTION_LIST, APL_MODE, APL_PATH, SWAP_CANCEL, ENEMY_RANDOM_ATTACK, ENEMY_ATTACK_RESPONSE
+from define import INPUT_ACTION_LIST, APL_MODE, APL_PATH, SWAP_CANCEL, ENEMY_RANDOM_ATTACK
 from define import SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT as SCK, SWAP_CANCEL_MODE_LAG_TIME as SCLT
 # EXPLAIN：关于SCK和LT的作用：
 """
@@ -26,7 +25,6 @@ from .SkillsQueue import SkillNode
 from .APLModule import APLParser, APLClass
 from .APLModule.APLJudgeTools import find_char, get_game_state
 from collections import defaultdict
-from sim_progress.RandomNumberGenerator import RNG
 
 
 @dataclass
@@ -48,26 +46,6 @@ class PreloadData:
         self.current_node: SkillNode | None = None
         self.current_on_field_node_tag: str | None = None       # 这个记录同样是为了APL模块服务的，Preload阶段的两个主函数都用不到这个属性。只会执行更新。
         self.last_node: SkillNode | None = None
-
-
-def stun_judge(enemy: Enemy) -> bool:
-    """
-    判断敌人是否处于 失衡 状态，并更新 失衡 状态
-    """
-    if not enemy.able_to_be_stunned:
-        return False
-
-    if enemy.dynamic.stun:
-        # Stunned, count the time and reset when stun time is out.
-        if enemy.stun_recovery_time <= enemy.dynamic.stun_tick:
-            enemy.restore_stun()
-        else:
-            enemy.dynamic.stun_tick += 1
-    else:
-        # Not stunned, check the stun bar.
-        if enemy.dynamic.stun_bar >= enemy.max_stun:
-            enemy.dynamic.stun = True
-    return enemy.dynamic.stun
 
 
 class Preload:
@@ -171,6 +149,7 @@ class Preload:
         current_char_available = True   # 当前角色是否可以进行下一个动作
         skill_tag, _apl_priority = self.apl.execute(mode=0)
         current_node_CID = int(skill_tag[:4])
+        stun_status: bool = enemy.stun_judge()
 
         # 1、处理skill_tag为首个动作的情况
         if self.preload_data.last_node is None and self.preload_data.current_node is None:
@@ -185,7 +164,6 @@ class Preload:
                 self.process_force_add_skill_tag(current_node)
 
         # 敌人进攻与角色响应模块
-        stun_status: bool = stun_judge(enemy)
         if not stun_status and ENEMY_RANDOM_ATTACK:
             enemy_attack_action = enemy.attack_method.select_action(tick)
             if enemy_attack_action is not None:
@@ -370,6 +348,7 @@ class Preload:
             如果不能，那么就算前置的合轴条件（主要是针对时间[lag_time]的判定）都满足，也不能进行合轴
             """
             current_node_CID = int(skill_tag[:4])
+            # FIXME：暴力调用current_node会导致部分合轴技能抢队，这个地方需要重新梳理逻辑，修改。
             lag_time = self.spawn_lag_time(self.preload_data.current_node)
             current_node = self.preload_data.current_node
             if current_node.end_tick <= tick:
