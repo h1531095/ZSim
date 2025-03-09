@@ -71,9 +71,6 @@ class Preload:
             apl_action_list = APLParser(file_path=APL_PATH).parse(mode=0)
             self.apl = APLClass(apl_action_list)
             self.apl_complex_force_add_dict = {}
-            # TODO：1、构建一个子类，类似以APLExecutor，并且形成字典。
-            #  2、设计好子类的数据结构，使其具备直接解读APL代码中condition部分的能力；
-            #  3、尝试独立这个模块，并争取其能够被更多的模块复用。
             self.apl_preload_tick = 0
             self.apl_next_end_tick = 0
 
@@ -349,6 +346,9 @@ class Preload:
             """
             current_node_CID = int(skill_tag[:4])
             # FIXME：暴力调用current_node会导致部分合轴技能抢队，这个地方需要重新梳理逻辑，修改。
+            current_node_list = []
+            for CID, node in self.preload_data.personal_current_node.items():
+                pass
             lag_time = self.spawn_lag_time(self.preload_data.current_node)
             current_node = self.preload_data.current_node
             if current_node.end_tick <= tick:
