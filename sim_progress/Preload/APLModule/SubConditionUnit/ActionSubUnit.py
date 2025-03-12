@@ -5,7 +5,6 @@ from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
 class ActionSubUnit(BaseSubConditionUnit):
     def __init__(self, priority: int, sub_condition_dict: dict = None, mode=0):
         super().__init__(priority=priority, sub_condition_dict=sub_condition_dict, mode=mode)
-        self.personal_node_stack = None
 
     class ActionCheckHandler:
         @classmethod
@@ -16,6 +15,14 @@ class ActionSubUnit(BaseSubConditionUnit):
         @classmethod
         def handler(cls, game_state):
             return get_last_action(game_state)
+
+    class StrictLinkedHandler(ActionCheckHandler):
+        @classmethod
+        def handler(cls, game_state):
+            personal_node_stack = get_personal_node_stack(game_state)
+
+
+
 
     ActionHandlerMap = {
         'skill_tag': LatestActionTagHandler
@@ -28,9 +35,6 @@ class ActionSubUnit(BaseSubConditionUnit):
             handler = handler_cls() if handler_cls else None
         else:
             check_cid(self.check_target)
-            cid = int(self.check_target)
-            if self.personal_node_stack is None:
-                self.personal_node_stack = get_personal_node_stack()
 
 
         if not handler:
