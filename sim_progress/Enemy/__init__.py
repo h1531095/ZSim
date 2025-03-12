@@ -137,7 +137,7 @@ class Enemy:
         self.dynamic.QTE_triggered_times = 0
         self.dynamic.QTE_received_tag = []
         self.dynamic.QTE_activation = False
-        self.dynamic.QTE_activation_avaliable = True
+        self.dynamic.QTE_activation_available = True
 
     def increase_stun_recovery_time(self, increase_tick: int):
         """更新失衡延长的时间，负责接收 Calculator 的 buff"""
@@ -317,15 +317,15 @@ class Enemy:
             return
             # 首先进行前置判断：尽管处于失衡状态，但是当前QTE次数是否已达上限？如果达到上限，则关闭彩色失衡状态。
         if self.dynamic.QTE_triggered_times == self.QTE_triggerable_times:
-            self.dynamic.QTE_activation_avaliable = False
+            self.dynamic.QTE_activation_available = False
             self.dynamic.QTE_activation = False
         # 判断是否处于彩色失衡状态
-        if self.dynamic.QTE_activation_avaliable:
+        if self.dynamic.QTE_activation_available:
             # 其次，再判断当前攻击是否是重攻击的最后一击？
             if single_hit.heavy_hit:
                 #   如果判定都通过，那么直接激活QTE状态
+                print(f'{single_hit.skill_tag}激发了连携状态！')
                 self.dynamic.QTE_activation = True
-
 
     def stun_judge(self) -> bool:
         """判断敌人是否处于 失衡 状态，并更新 失衡 状态"""
@@ -341,7 +341,12 @@ class Enemy:
         else:
             # Not stunned, check the stun bar.
             if self.dynamic.stun_bar >= self.max_stun:
+                if not self.dynamic.stun:
+                    # 若是检测到失衡状态的上升沿，则应该开启彩色失衡状态。
+                    self.dynamic.QTE_activation_available = True
+                    print(f'怪物陷入失衡了！')
                 self.dynamic.stun = True
+
         return self.dynamic.stun
 
     def __qte_counter(self, single_hit: SingleHit) -> None:
@@ -372,8 +377,6 @@ class Enemy:
             updated_bar = self.anomaly_bars_dict[element_type_code]
             updated_bar.update_snap_shot(snapshot)
 
-
-
     class EnemyDynamic:
         def __init__(self):
             self.stun = False  # 失衡状态
@@ -394,7 +397,7 @@ class Enemy:
             self.QTE_triggered_times: int = 0   # 已连携次数
             self.QTE_received_tag: list[str] = []
             self.QTE_activation = False     # QTE阶段的激活开关
-            self.QTE_activation_avaliable = False       # 是否还能被激发从而进入QTE阶段？也就是所谓的“彩色失衡状态”
+            self.QTE_activation_available = False       # 是否还能被激发从而进入QTE阶段？也就是所谓的“彩色失衡状态”
             self.stun_tick = 0  # 失衡已进行时间
 
             self.frozen_tick = 0

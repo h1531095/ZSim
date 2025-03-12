@@ -7,7 +7,7 @@ class ActionStack:
     这个动作栈无法记录所有的动作，只能记录所有的前台角色的主动技能。
     功能类似于wow的插件TrufigGCD。但是长度只有2，因为只需要记录“上一个动作”和“当前动作”
     """
-    def __init__(self):
+    def __init__(self, length: int = 2):
         # 初始化一个空的栈，用列表作为基础
         """
         关于动作栈的更新：
@@ -19,7 +19,7 @@ class ActionStack:
         pop、peek方法会返回对应角色的上一个动作，
         但是相应的，如果我们没有开启合轴模式，那么传入Key参数时就会报错。
         """
-
+        self.length = length
         if SWAP_CANCEL:
             self.personal_stack = defaultdict(list)
 
@@ -32,11 +32,11 @@ class ActionStack:
         if SWAP_CANCEL:
             key = item.mission_character
             self.personal_stack[key].append(item)
-            if len(self.personal_stack[key]) > 2:
+            if len(self.personal_stack[key]) > self.length:
                 self.personal_stack[key].pop(0)
         self.stack.append(item)
         # 如果栈的大小超过 2，就删除栈底元素（即最先加入的元素）
-        if len(self.stack) > 2:
+        if len(self.stack) > self.length:
             self.stack.pop(0)  # pop(0) 移除栈底元素
 
     def pop(self, /, key: str = None):
@@ -106,4 +106,77 @@ class ActionStack:
     
     def __ne__(self, value: object, /) -> bool:
         return not self.__eq__(value)
-    
+
+
+class NodeStack:
+    def __init__(self, length: int = 3):
+        self.length = length
+        self.stack = []
+
+    def push(self, item, /):
+        self.stack.append(item)
+        if len(self.stack) > self.length:
+            self.stack.pop(0)
+
+    def pop(self):
+        if self.is_empty():
+            return None
+        else:
+            return self.stack.pop()
+
+    def peek(self, /):
+        if not self.is_empty():
+            return self.stack[-1]
+        else:
+            return None
+
+    def is_empty(self):
+        """判断栈是否为空"""
+        return len(self.stack) == 0
+
+    def peek_bottom(self, /):
+        """查看栈底元素"""
+        if not self.is_empty():
+            return self.stack[0]
+        else:
+            return None
+
+    def get_on_field_node(self, tick_now: int):
+        """
+        这个函数是NodeStack的内置方法，用来获取当前Stack中的前台技能。
+        在合轴模式中，想要获取当前的前台技能，需要进行分类讨论。
+        1、当目前场上没有node时，返回None
+        2、当目前场上只有1个ndoe时，无论这个node是什么类型，都返回该node
+        3、当目前场上存在多个node时，应返回最新的那个主动动作的SkillNode
+        """
+        _exist_node_list = []
+        for _node in self.stack:
+            if _node.end_tick <= tick_now:
+                _exist_node_list.append(_node)
+        if len(_exist_node_list) == 0:
+            return None
+        elif len(_exist_node_list) == 1:
+            return _exist_node_list[0]
+        elif len(_exist_node_list) > 1:
+            return max(
+                (x for x in _exist_node_list if x.active_generation),
+                key=lambda x: x.preload_tick)
+
+    def __len__(self):
+        return len(self.stack)
+
+    def __str__(self):
+        return str(self.stack)
+
+    def __iter__(self):
+        return iter(self.stack)
+
+    def __getitem__(self, index, /):
+        return self.stack[index]
+
+    def __eq__(self, value: object, /) -> bool:
+        return self.stack == value or self.stack == getattr(value, 'stack', None)
+
+    def __ne__(self, value: object, /) -> bool:
+        return not self.__eq__(value)
+

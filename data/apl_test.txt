@@ -10,7 +10,7 @@
 
 
 #失衡期间丽娜要满覆盖buff
-1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True
+1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True|status.enemy:QTE_activation_available==False
 
 #满豆自动放满蓄力普攻
 1091|action+=|1091_SNA_3|attribute.1091:special_resource==6|buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True|status.enemy:stun==True

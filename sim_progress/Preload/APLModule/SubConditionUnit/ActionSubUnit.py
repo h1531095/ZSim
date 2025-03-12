@@ -1,10 +1,11 @@
-from sim_progress.Preload.APLModule.APLJudgeTools import get_last_action
+from sim_progress.Preload.APLModule.APLJudgeTools import get_last_action, check_cid, get_personal_node_stack
 from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
 
 
 class ActionSubUnit(BaseSubConditionUnit):
     def __init__(self, priority: int, sub_condition_dict: dict = None, mode=0):
         super().__init__(priority=priority, sub_condition_dict=sub_condition_dict, mode=mode)
+        self.personal_node_stack = None
 
     class ActionCheckHandler:
         @classmethod
@@ -25,9 +26,16 @@ class ActionSubUnit(BaseSubConditionUnit):
         if self.check_target == "after":
             handler_cls = self.ActionHandlerMap.get(self.check_stat)
             handler = handler_cls() if handler_cls else None
-            if not handler:
-                raise ValueError(f'当前检查的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！')
-            return self.spawn_result(handler.handler(game_state))
+        else:
+            check_cid(self.check_target)
+            cid = int(self.check_target)
+            if self.personal_node_stack is None:
+                self.personal_node_stack = get_personal_node_stack()
+
+
+        if not handler:
+            raise ValueError(f'当前检查的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！')
+        return self.spawn_result(handler.handler(game_state))
         #     if self.check_stat == 'skill_tag':
         #         checked_value = get_last_action(game_state)
         #         return self.spawn_result(checked_value)

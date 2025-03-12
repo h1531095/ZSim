@@ -6,16 +6,16 @@ from sim_progress.data_struct import ActionStack
 from define import SWAP_CANCEL
 
 
-def SkillEventSplit(preloaded_action_list: LinkedList, Load_mission_dict: dict, name_dict: dict, timenow, action_stack: ActionStack):
+def SkillEventSplit(preloaded_action_list: list, Load_mission_dict: dict, name_dict: dict, timenow, action_stack: ActionStack):
     to_remove = []
     for mission in Load_mission_dict.values():
         if not isinstance(mission, Load.LoadingMission):
             raise TypeError(f'{mission}并非LoadingMission类！')
         mission.check_myself(timenow)
     for i in range(len(preloaded_action_list)):
-        skill = preloaded_action_list.pop_head()
+        skill = preloaded_action_list.pop()
         if not isinstance(skill, Preload.SkillNode):
-            raise ValueError(f"本次拆分的{skill}不是SkillNode类！")
+            raise ValueError(f"本次拆分的{type(skill)}不是SkillNode类！")
         this_mission = Load.LoadingMission(skill)
         this_mission.mission_start(timenow)
         action_stack.push(this_mission)

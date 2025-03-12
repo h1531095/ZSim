@@ -20,7 +20,7 @@ class APLOperator:
                 else:
                     if apl_unit.break_when_found_action:
                         # print(f'APL找到了新的最高优先级的动作！优先级为：{apl_unit.priority}，输出动作：{apl_unit.result}')
-                        return apl_unit.char_CID, apl_unit.result, apl_unit.priority
+                        return int(apl_unit.char_CID), apl_unit.result, apl_unit.priority
                     else:
                         continue
         else:

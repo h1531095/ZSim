@@ -1,0 +1,84 @@
+from sim_progress.Preload.PreloadEngine import BasePreloadEngine
+from sim_progress.Preload import SkillsQueue, watchdog, PreloadDataClass, SkillNode
+from sim_progress.Report import report_to_log
+
+
+class ConfirmEngine(BasePreloadEngine):
+    def __init__(self, data: PreloadDataClass):
+        """
+        这个引擎的主要功能有：
+        1、将各环节产生的需要进行Preload的skill_tag，构造成SkillNode，
+        2、可行性验证
+        3、内部数据交互、更新
+        4、外部数据交互、更新
+        """
+        super().__init__(data)
+        self.validators = [
+            self._validate_timing
+        ]
+
+    def run_myself(self, tick: int):
+        """依次执行 Node构造、验证、内外部数据交互"""
+        for i in range(len(self.data.preload_action_list_before_confirm)):
+            tuples = self.data.preload_action_list_before_confirm.pop()
+            #  1、创建node
+            node = self.spawn_node_from_tag(tick, tuples)
+            #  2、可行性验证
+            if self.validate_node_execution(node, tick):
+                # 3、内部数据交互
+                self.data.push_node_in_swap_cancel(node)
+
+                report_to_log(f"[PRELOAD]:In tick: {tick}, {node.skill_tag} has been preloaded")
+                # 4、外部数据交互
+                self.update_external_data(node, tick)
+            else:
+                print(f'可行性验证没通过！需要检查')
+
+    def spawn_node_from_tag(self, tick: int, tuples: tuple):
+        """通过skill_tag构造Node"""
+        skill_tag = tuples[0]
+        active_generation = tuples[1] if tuples[1] else False
+        node = SkillsQueue.spawn_node(skill_tag, tick, self.data.skills, active_generation=active_generation)
+        return node
+
+    def update_external_data(self, node: SkillNode, tick: int):
+        """与外部数据交互，主要是和char进行交互。"""
+        for char in self.data.char_data.char_obj_list:
+            char.update_sp_and_decibel(node)
+            char.special_resources(node)
+            char.dynamic.lasting_node.update_node(node, tick)
+        # 切人逻辑
+        name_box = self.data.name_box
+        if (isinstance(name_box, list)
+                and all(isinstance(name, str) for name in name_box)
+                and node.active_generation):
+            self.switch_char(node, self.data.char_data)
+
+    def switch_char(self, this_node: SkillNode, char_data) -> None:
+        name_box = self.data.name_box
+        name_index = name_box.index(this_node.char_name)
+        # 更改前台角色（切人逻辑）
+        if name_index == 1:
+            name_switch = name_box.pop(0)
+            name_box.append(name_switch)
+        elif name_index == 2:
+            name_switch = name_box.pop(0)
+            name_box.append(name_switch)
+            name_switch = name_box.pop(0)
+            name_box.append(name_switch)
+        for char in char_data.char_obj_list:
+            if name_box[0] == char.NAME:
+                char.dynamic.on_field = True
+            else:
+                char.dynamic.on_field = False
+
+    def validate_node_execution(self, node: SkillNode, tick: int) -> bool:
+        """集中验证节点可执行性"""
+        # watchdog.watch_reverse_order(node, self.data.personal_node_stack.peek())
+        result = all(validator(node, tick) for validator in self.validators)
+        return result
+
+    @staticmethod
+    def _validate_timing(node: SkillNode, tick: int) -> bool:
+        """检验preload_tick的封装是否有问题，"""
+        return node.preload_tick <= tick

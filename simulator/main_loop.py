@@ -3,7 +3,7 @@ from simulator.dataclasses import InitData, CharacterData, LoadData, ScheduleDat
 from define import APL_MODE
 from sim_progress import Load, Preload, Buff, ScheduledEvent as ScE, Enemy, update_dynamic_bufflist
 from sim_progress.data_struct import ActionStack
-
+from sim_progress.Preload import PreloadClass
 
 tick = 0
 crit_seed = 0
@@ -17,8 +17,9 @@ load_data = LoadData(
         action_stack=ActionStack())
 schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11752), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
-skills = (char.skill_object for char in char_data.char_obj_list)
-preload = Preload.Preload(*skills)
+skills = [char.skill_object for char in char_data.char_obj_list]
+# preload = Preload.Preload(*skills)
+preload = PreloadClass(skills)
 game_state = {
     "tick": tick,
     "init_data": init_data,
@@ -40,7 +41,8 @@ def main_loop(stop_tick: int | None = 6000):
 
         # Preload
         preload.do_preload(tick, schedule_data.enemy, init_data.name_box, char_data)
-        preload_list = preload.preload_data.preloaded_action
+        # preload_list = preload.preload_data.preloaded_action
+        preload_list = preload.preload_data.preload_action
 
         if stop_tick is None:
             if not APL_MODE and preload.preload_data.skills_queue.head is None:

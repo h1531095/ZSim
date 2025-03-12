@@ -33,6 +33,11 @@ class StatusSubUnit(BaseSubConditionUnit):
         def handler(cls, enemy):
             return enemy.dynamic.QTE_activation
 
+    class QTEActivationAvailableHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.dynamic.QTE_activation_available
+
     class AnomalyPctHandler(CheckHandler):
         def __init__(self, anomaly_number):
             self.anomaly_number = anomaly_number
@@ -68,7 +73,8 @@ class StatusSubUnit(BaseSubConditionUnit):
         'lasting_node_tag': CharLastingNodeTagHandler,
         'lasting_node_tick': CharLastingNodeTickHandler,
         'on_field': CharOnFieldHandler,
-        'QTE_activation': QTEActivationHandler
+        'QTE_activation': QTEActivationHandler,
+        'QTE_activation_available': QTEActivationAvailableHandler
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
