@@ -36,9 +36,11 @@ class ForceAddEngine(BasePreloadEngine):
         """
         follow_up_skill_CID = int(follow_up[index][:4])
         follow_up_skill_add_tick = node.end_tick
-        if node.end_tick < self.data.personal_node_stack.peek().end_tick:
-            raise ValueError(
-                f"出现了不应该出现的情况！技能{follow_up[index]}理应在{node.skill_tag}之后、于{follow_up_skill_add_tick}执行，但是此时角色{follow_up_skill_CID}尚有动作存在。")
+        followed_char_stack = self.data.personal_node_stack.get(follow_up_skill_CID, None)
+        if followed_char_stack is not None:
+            if node.end_tick < followed_char_stack.peek().end_tick:
+                raise ValueError(
+                    f"出现了不应该出现的情况！技能{follow_up[index]}理应在{node.skill_tag}之后、于{follow_up_skill_add_tick}执行，但是此时角色{follow_up_skill_CID}尚有动作存在。")
 
     def prcoess_force_add_apl(self, conditions_unit):
         """强制添加动作的前置判定，有APL模块则运行模块，无APL模块则直接通过。"""

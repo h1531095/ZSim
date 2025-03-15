@@ -39,10 +39,11 @@ class PreloadData:
         """获取当前的前台技能"""
         return self.current_node_stack.get_on_field_node(tick)
 
-    def chek_myself_before_start_preload(self):
+    def chek_myself_before_start_preload(self, enemy):
         """Preload阶段自检"""
         if self.preload_action:
             print(f'尚未被Load阶段处理的技能：{self.preload_action}')
+        enemy.stun_judge()
 
 
 

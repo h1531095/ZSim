@@ -20,10 +20,10 @@ class SwapCancelStrategy(BasePreloadStrategy):
         super().__init__(data)
         self.swap_cancel_engine = SwapCancelValidateEngine(data)
 
-    def generate_actions(self, tick: int):
+    def generate_actions(self, enemy, tick: int):
         """合轴逻辑"""
         # 0、自检
-        self.data.chek_myself_before_start_preload()
+        self.data.chek_myself_before_start_preload(enemy)
 
         # 1、APL引擎抛出本tick的主动动作
         apl_skill_tag, priority = self.apl_engine.run_myself()

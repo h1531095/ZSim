@@ -646,7 +646,7 @@ class LastingNode:
                 return
             else:
                 if self.node.end_tick > tick:
-                    raise ValueError(f'过早传入了node，当前node的end_tick为{self.node.end_tick},企图更新Node的tick为{tick}')
+                    raise ValueError(f'过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}的end_tick为{self.node.end_tick},但是{node.skill_tag}的企图在{tick}tick进行更新')
                 if self.node.skill_tag == node.skill_tag:
                     # print(f'{self.char_instance.NAME}正在持续释放技能{node.skill_tag}！已经持续了{self.spamming_info(tick)[2]}tick！')
                     self.is_spamming = True

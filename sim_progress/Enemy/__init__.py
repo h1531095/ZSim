@@ -346,7 +346,6 @@ class Enemy:
                     self.dynamic.QTE_activation_available = True
                     print(f'怪物陷入失衡了！')
                 self.dynamic.stun = True
-
         return self.dynamic.stun
 
     def __qte_counter(self, single_hit: SingleHit) -> None:

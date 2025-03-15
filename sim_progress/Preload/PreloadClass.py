@@ -16,5 +16,5 @@ class PreloadClass:
             self.preload_data.name_box = name_box
         if self.preload_data.char_data is None:
             self.preload_data.char_data = char_data
-        self.strategy.generate_actions(tick)
+        self.strategy.generate_actions(enemy, tick)
 
