@@ -6,7 +6,7 @@ class BasePreloadEngine(ABC):
     @abstractmethod
     def __init__(self, data):
         self.data = data
-        self.active_signal = False
+        self.active_signal = False      # 用于记录当前引擎在当前tick是否运行过。
 
     @abstractmethod
     def run_myself(self, *args, **kwargs):

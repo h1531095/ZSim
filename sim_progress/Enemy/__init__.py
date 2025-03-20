@@ -344,6 +344,8 @@ class Enemy:
                 if not self.dynamic.stun:
                     # 若是检测到失衡状态的上升沿，则应该开启彩色失衡状态。
                     self.dynamic.QTE_activation_available = True
+                    self.dynamic.QTE_triggered_times = 0
+                    self.dynamic.QTE_received_tag = []
                     print(f'怪物陷入失衡了！')
                 self.dynamic.stun = True
         return self.dynamic.stun
@@ -351,12 +353,20 @@ class Enemy:
     def __qte_counter(self, single_hit: SingleHit) -> None:
         """判断该技能是否会影响角色的QTE触发次数。"""
         self.qte_activation_judge(single_hit)
+
+        '''仅在失衡期才执行以下逻辑'''
         if self.dynamic.stun:
-            # 仅在失衡期才执行以下逻辑
+
+            '''不是QTE的直接返回！'''
             if 'QTE' not in single_hit.skill_tag:
                 return
+
+            '''由于本函数是QTE计数器，所以这里只接受“新的”QTE技能，
+            反过来说，就是屏蔽所有的已经结算过第一跳的single_hit。'''
             if single_hit.hitted_count != 1:
                 return
+
+            '''检测：这一次single_hit 是否来自于一个主动动作。主要是为了屏蔽多段连携技'''
             if single_hit.proactive:
                 self.dynamic.QTE_received_tag.append(single_hit.skill_tag)
                 self.dynamic.QTE_triggered_times += 1
@@ -395,7 +405,7 @@ class Enemy:
             self.lost_hp = 0    # 已损生命值
             self.QTE_triggered_times: int = 0   # 已连携次数
             self.QTE_received_tag: list[str] = []
-            self.QTE_activation = False     # QTE阶段的激活开关
+            # self.QTE_activation = False     # QTE阶段的激活开关
             self.QTE_activation_available = False       # 是否还能被激发从而进入QTE阶段？也就是所谓的“彩色失衡状态”
             self.stun_tick = 0  # 失衡已进行时间
 

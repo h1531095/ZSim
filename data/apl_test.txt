@@ -4,9 +4,9 @@
 1300|action+=|1300_SNA_2|action.1300:strict_linked_after==1300_SNA_1|status.enemy:stun==True|attribute.1300:special_state→醉花月云转可用次数>=0
 
 #连携技释放逻辑
-1300|action+=|1300_QTE|status.enemy:stun==True|status.enemy:QTE_triggerable_times==3|status.enemy:QTE_triggered_times==1|status.enemy:QTE_activation==True
-1211|action+=|1211_QTE|status.enemy:stun==True|status.enemy:QTE_triggered_times==0|status.enemy:QTE_activation==True
-1091|action+=|1091_QTE_A|status.enemy:stun==True|status.enemy:QTE_triggered_times>0|status.enemy:QTE_activation==True
+1300|action+=|1300_QTE|status.enemy:stun==True|status.enemy:QTE_triggerable_times==3|status.enemy:QTE_triggered_times==1|status.enemy:QTE_activation_available==True
+1211|action+=|1211_QTE|status.enemy:stun==True|status.enemy:QTE_triggered_times==0|status.enemy:QTE_activation_available==True
+1091|action+=|1091_QTE_A|status.enemy:stun==True|status.enemy:QTE_triggered_times>0|status.enemy:QTE_activation_available==True
 
 
 #失衡期间丽娜要满覆盖buff
@@ -26,6 +26,7 @@
 1091|action+=|1091_Q|status.enemy:stun==True|attribute.1091:special_resource<3|attribute.1091:decibel==3000
 
 #泄能逻辑
+1091|action+=|1091_E_EX_B_1|status.enemy:stun==True|attribute.1091:energy>=40|attribute.1091:special_resource<6|action.1091:strict_linked_after==1091_E_EX_A_2
 1091|action+=|1091_E_EX_A_1|status.enemy:stun==True|attribute.1091:energy>=40|attribute.1091:special_resource<6
 
 #剩余情况都是后置开大

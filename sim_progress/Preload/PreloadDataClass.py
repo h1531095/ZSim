@@ -10,7 +10,7 @@ class PreloadData:
         self.personal_node_stack: dict[int: NodeStack] = {}    # 个人的技能栈
         self.current_node_stack: NodeStack = NodeStack(length=5)      # Preload阶段的总技能栈
         self.latest_active_generation_node: SkillNode | None = None     # 最近一次主动生成的skillnode，#TODO：可能是无用参数！
-        self.preload_action_list_before_confirm: list[tuple[str, bool]] = []        # 当前tick需要执行preload的SkillTag列表
+        self.preload_action_list_before_confirm: list[tuple[str, bool]] = []        # 当前tick需要执行preload的SkillTag列表，列表中的元素是(skill_tag, active_generation)，其中，active_generation指的是动作是否是主动生成。
         self.name_box: list[str] | None = None
         self.char_data = None
 

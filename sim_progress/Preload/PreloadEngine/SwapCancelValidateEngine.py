@@ -57,8 +57,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         if char_latest_node.end_tick > tick:
             return False
 
-        '''虽然角色目前有空，但是当前tick正好添加了一个Ta的强制动作'''
-        for _tag in self.data.preload_action_list_before_confirm:
+        '''
+        虽然角色目前有空，但是当前tick正好添加了一个Ta的动作，
+        不管这个动作是主动的还是被动的，都意味着当前tick本角色没空。
+        '''
+        for _tuples in self.data.preload_action_list_before_confirm:
+            _tag = _tuples[0]
             if cid == int(_tag.split('_')[0]):
                 return False
 
