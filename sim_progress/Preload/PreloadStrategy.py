@@ -39,6 +39,7 @@ class SwapCancelStrategy(BasePreloadStrategy):
             #  4、Confirm引擎 清理data.preload_action_list_before_confirm，
             self.confirm_engine.run_myself(tick)
 
+
 class SequenceStrategy(BasePreloadStrategy):
     def generate_actions(self):
         # 封装顺序生成逻辑

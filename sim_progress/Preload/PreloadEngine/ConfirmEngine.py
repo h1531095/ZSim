@@ -32,7 +32,7 @@ class ConfirmEngine(BasePreloadEngine):
                 # 4、外部数据交互
                 self.update_external_data(node, tick)
             else:
-                print(f'可行性验证没通过！需要检查')
+                pass
 
     def spawn_node_from_tag(self, tick: int, tuples: tuple):
         """通过skill_tag构造Node"""
@@ -81,4 +81,7 @@ class ConfirmEngine(BasePreloadEngine):
     @staticmethod
     def _validate_timing(node: SkillNode, tick: int) -> bool:
         """检验preload_tick的封装是否有问题，"""
+        results = node.preload_tick <= tick
+        if not results:
+            print(f'Preload Tick的可行性验证未通过！应在{node.preload_tick}tick preload的{node.skill_tag}技能过早的在confirm引擎中出现！')
         return node.preload_tick <= tick
