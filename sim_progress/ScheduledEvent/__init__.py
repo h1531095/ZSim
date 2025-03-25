@@ -161,7 +161,7 @@ class ScheduledEvent:
         if event.hit_times == hitted_count and event.skill.heavy_attack:
             # 重攻击标签！
             hit_result.heavy_hit = True
-        self.enemy.hit_received(hit_result)
+        self.enemy.hit_received(hit_result, self.tick)
 
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,

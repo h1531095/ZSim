@@ -4,10 +4,11 @@
 1300|action+=|1300_SNA_2|action.1300:strict_linked_after==1300_SNA_1|status.enemy:stun==True|attribute.1300:special_state→醉花月云转可用次数>=0
 
 #连携技释放逻辑
-1300|action+=|1300_QTE|status.enemy:stun==True|status.enemy:QTE_triggerable_times==3|status.enemy:QTE_triggered_times==1|status.enemy:QTE_activation_available==True
-1211|action+=|1211_QTE|status.enemy:stun==True|status.enemy:QTE_triggered_times==0|status.enemy:QTE_activation_available==True
-1091|action+=|1091_QTE_A|status.enemy:stun==True|status.enemy:QTE_triggered_times>0|status.enemy:QTE_activation_available==True
+1300|action+=|1300_QTE|status.enemy:QTE_triggerable_times==3|status.enemy:QTE_triggered_times==1|status.enemy:single_qte!=None|special.preload_data:operating_char!=1300
+1211|action+=|1211_QTE|status.enemy:single_qte!=None|special.preload_data:operating_char!=1211
+1091|action+=|1091_QTE_A|status.enemy:single_qte!=None|special.preload_data:operating_char!=1091
 
+0000|action+=|wait|status.enemy:stun==True|status.enemy.status.enemy:QTE_activation_available==True|status.enemy:single_qte==None
 
 #失衡期间丽娜要满覆盖buff
 1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True|status.enemy:QTE_activation_available==False

@@ -22,7 +22,8 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         super().__init__(data)
         self.validators = [
             self._validate_char_avaliable,
-            self._validate_swap_tick
+            self._validate_swap_tick,
+            self._validate_qte_activation
         ]
 
     def run_myself(self, skill_tag: str, tick: int) -> bool:
@@ -35,6 +36,8 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             return False
         if not self._validate_swap_tick(skill_tag=skill_tag, tick=tick):
             return False
+        if self._validate_qte_activation(tick=tick):
+            return False
         self.data.preload_action_list_before_confirm.append((skill_tag, True))
         self.active_signal = True
         return True
@@ -42,6 +45,8 @@ class SwapCancelValidateEngine(BasePreloadEngine):
     def _validate_char_avaliable(self, **kwargs) -> bool:
         """角色是否可以获取的判定"""
         skill_tag = kwargs['skill_tag']
+        if skill_tag == 'wait':
+            return False
         tick = kwargs['tick']
         cid = int(skill_tag.split('_')[0])
         char_stack = self.data.personal_node_stack.get(cid, None)
@@ -106,4 +111,17 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         else:
             return True
 
+    def _validate_qte_activation(self, **kwargs) -> bool:
+        """针对当前技能的QTE是否处于激活状态的检测，当检查到有角色正在释放QTE时，返回True"""
+        tick = kwargs['tick']
+        for _cid, stack in self.data.personal_node_stack.items():
+            if stack.peek() is None:
+                continue
+            node_now = stack.peek()
+            if node_now.end_tick > tick:
+                if "QTE" in node_now.skill_tag:
+                    return True
+            continue
+        else:
+            return False
 

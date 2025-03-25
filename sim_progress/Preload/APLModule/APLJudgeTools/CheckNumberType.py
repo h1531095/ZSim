@@ -15,6 +15,9 @@ def check_number_type(text):
             return float(text)
         except ValueError:
             pass
+        # 尝试转化None
+        if text.lower() == 'none':
+            return None
         # 尝试转换为布尔值
         if text.lower() in ['true', 'false']:
             return text.lower() == 'true'
