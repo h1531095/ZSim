@@ -5,10 +5,10 @@ from sim_progress.Preload.APLModule.APLJudgeTools import check_number_type
 class BaseSubConditionUnit(ABC):
     def __init__(self, priority: int, sub_condition_dict: dict = None, mode=0):
         """单个APL判断条件的对象基类。"""
-        self.logic_mode = mode
-        self.priority = priority
+        self.logic_mode = mode      # mode 为1 时为反逻辑
+        self.priority = priority        # 优先级
         if sub_condition_dict is None:
-            self.no_condition = True
+            self.no_condition = True        # 无条件
         else:
             self.no_condition = False
         self.check_target = sub_condition_dict['target']  # 检查目标 比如enemy，self，或者角色ID

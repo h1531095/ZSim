@@ -22,7 +22,7 @@ class APLClass:
             self.NA_action_dict = {}
         self.apl_operator: APLOperator | None = None
 
-    def execute(self, mode: int):
+    def execute(self, mode: int) -> tuple[str, int]:
         if self.game_state is None:
             self.get_game_state()
         if self.apl_operator is None:
@@ -44,18 +44,23 @@ class APLClass:
 
     def perform_action(self, CID: int, action: str) -> str:
         """APL逻辑判定通过，执行动作！"""
-        self.game_state = self.get_game_state()
+        if self.game_state is None:
+            self.game_state = self.get_game_state()
         if action == 'auto_NA':
             last_action: SkillNode | None = None
             if self.game_state is not None and 'preload' in self.game_state:
                 if SWAP_CANCEL:
-                    last_action = self.game_state['preload'].preload_data.current_node
+                    stack = self.game_state['preload'].preload_data.personal_node_stack.get(CID, None)
+                    if stack is None:
+                        last_action = None
+                    else:
+                        last_action = stack.peek()
                 else:
                     last_action = self.game_state['preload'].preload_data.last_node
             if last_action is None:
                 output = f'{CID}_NA_1'
-            elif last_action.skill_tag in self.NA_action_dict[CID]:
-                output = self.NA_action_dict[CID][last_action.skill_tag]
+            elif last_action.skill_tag in self.NA_action_dict[str(CID)]:
+                output = self.NA_action_dict[str(CID)][last_action.skill_tag]
             else:
                 if CID in ['1141']:
                     '''部分角色默认的优先级最低的动作不是NA1而是SNA1'''

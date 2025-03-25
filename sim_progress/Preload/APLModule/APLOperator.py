@@ -14,13 +14,15 @@ class APLOperator:
         """APL执行器的核心功能函数——筛选出优先级最高的下一个动作"""
         for priority, apl_unit in self.apl_unit_inventory.items():
             if isinstance(apl_unit, ActionAPLUnit):
-                result = apl_unit.check_all_sub_units(self.found_char_dict, self.game_state)[0]
+                result, result_box = apl_unit.check_all_sub_units(self.found_char_dict, self.game_state)
                 if not result:
+                    # if priority in [2, 3, 4]:
+                    #     print(f'这次不通过的APL优先级为{priority}， 判定结果为：{result_box}')
                     continue
                 else:
                     if apl_unit.break_when_found_action:
                         # print(f'APL找到了新的最高优先级的动作！优先级为：{apl_unit.priority}，输出动作：{apl_unit.result}')
-                        return apl_unit.char_CID, apl_unit.result, apl_unit.priority
+                        return int(apl_unit.char_CID), apl_unit.result, apl_unit.priority
                     else:
                         continue
         else:

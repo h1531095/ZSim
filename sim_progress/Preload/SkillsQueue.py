@@ -6,7 +6,7 @@ from sim_progress.Character.skill_class import Skill
 
 
 class SkillNode:
-    def __init__(self, skill: Skill.InitSkill, preload_tick: int):
+    def __init__(self, skill: Skill.InitSkill, preload_tick: int, active_generation: bool = False):
         """
         预加载技能节点
 
@@ -20,18 +20,20 @@ class SkillNode:
         self.hit_times: int = skill.hit_times
         self.skill: Skill.InitSkill = skill
         self.end_tick: int = self.preload_tick + self.skill.ticks
+        self.active_generation: bool = active_generation            # 构造函数的调用来源是否是主动动作
 
     def __str__(self) -> str:
         return f"SkillNode: {self.skill_tag}"
 
 
-def spawn_node(tag: str, preload_tick: int, *skills: Skill) -> SkillNode:
+def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:
     """
     通过输入的tag和preload_tick，直接创建SkillNode。
     """
+    active_generation = kwargs.get('active_generation', False)
     for obj in skills:
         if tag in obj.skills_dict.keys():
-            node = SkillNode(obj.skills_dict[tag], preload_tick)
+            node = SkillNode(obj.skills_dict[tag], preload_tick, active_generation)
             return node
     else:
         raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")
@@ -82,7 +84,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
                 # 在__main__中寻找tick变量，并与preload_tick_stamp比较
                 tick = globals().get('tick', 0)
                 preload_tick_stamp = max(preload_tick_stamps[cid], tick)     # 取最大值作为preload_tick_stamp
-                node = spawn_node(tag, preload_tick_stamp, *skills)
+                node = spawn_node(tag, preload_tick_stamp, skills)
                 skills_queue.add(node)
                 preload_tick_stamps[cid] = preload_tick_stamp + node.skill.ticks  # 更新preload_tick_stamp
                 report_to_log(f"[PRELOAD]:预加载节点 {tag} 已创建，将在 {preload_tick_stamps[cid]} 执行", level=2)

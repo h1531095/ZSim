@@ -245,7 +245,7 @@ class Skill:
             if follow_by is np.nan or pd.isna(follow_by):
                 self.follow_by = []
             else:
-                self.follow_by: list | None = _raw_skill_data['follow_by'].split('|')   # 发动技能必须的前置技能标签
+                self.follow_by = _raw_skill_data['follow_by'].split('|')   # 发动技能必须的前置技能标签
             self.aid_direction: int = _raw_skill_data['aid_direction']  # 触发快速支援的方向
             aid_lag_ticks_value = _raw_skill_data['aid_lag_ticks']
             if aid_lag_ticks_value == 'inf':
@@ -297,7 +297,7 @@ class Skill:
                                     for attr in dir(self)
                                     if not attr.startswith('__') and not callable(getattr(self, attr))
                                     }
-            # TODO: 重攻击标签。
+            self.heavy_attack: bool = bool(_raw_skill_data['heavy_attack'])
             # TODO：抗打断标签；无敌标签
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
 

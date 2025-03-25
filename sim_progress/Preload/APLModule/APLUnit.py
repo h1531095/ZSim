@@ -1,4 +1,4 @@
-from sim_progress.Preload.APLModule.SubConditionUnit import ActionSubUnit, AttributeSubUnit, BuffSubUnit, StatusSubUnit, BaseSubConditionUnit
+from sim_progress.Preload.APLModule.SubConditionUnit import ActionSubUnit, AttributeSubUnit, BuffSubUnit, StatusSubUnit, BaseSubConditionUnit, SpecialSubUnit
 from define import compare_methods_mapping
 from abc import ABC, abstractmethod
 
@@ -85,6 +85,8 @@ def sub_condition_unit_factory(priority: int, sub_condition_dict: dict = None, m
     elif condition_type == 'action':
         return ActionSubUnit(priority, sub_condition_dict, mode)
     elif condition_type == 'special':
+        return SpecialSubUnit(priority, sub_condition_dict, mode)
+    else:
         raise ValueError(f'special类的APL解析，是当前尚未开发的功能！优先级为{priority}，')
 
 

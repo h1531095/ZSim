@@ -5,6 +5,7 @@ from .EnemyAttack import EnemyAttackMethod
 from sim_progress.Report import report_to_log
 from sim_progress.data_struct import SingleHit
 from define import ENEMY_DATA_PATH
+from .QTEManager import QTEManager
 
 
 class EnemySettings:
@@ -58,10 +59,9 @@ class Enemy:
         self.able_to_get_anomaly: bool = bool(self.data_dict['能否异常'])
         self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度']) / 60
         self.stun_recovery_time: float = 0.0
-        self.restore_stun()
+        self.qte_manager = None
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
-
         # 初始化敌人异常状态抗性
         max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(self.able_to_get_anomaly,
                                                                               self.QTE_triggerable_times)
@@ -122,6 +122,7 @@ class Enemy:
         else:
             attack_method_code = int(self.data_dict['进攻策略'])
         self.attack_method = EnemyAttackMethod(attack_method_code)
+        self.restore_stun()
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
@@ -134,8 +135,9 @@ class Enemy:
         self.dynamic.stun_bar = 0
         self.dynamic.stun_tick = 0
         self.__restore_stun_recovery_time()
-        self.dynamic.QTE_triggered_times = 0
-        self.dynamic.QTE_received_tag = []
+        if self.qte_manager is None:
+            self.qte_manager = QTEManager(self)
+        self.qte_manager.qte_data.restore()
 
     def increase_stun_recovery_time(self, increase_tick: int):
         """更新失衡延长的时间，负责接收 Calculator 的 buff"""
@@ -287,16 +289,38 @@ class Enemy:
     def update_stun(self, stun: np.float64) -> None:
         self.dynamic.stun_bar += stun
 
-    def hit_received(self, single_hit: SingleHit) -> None:
+    def hit_received(self, single_hit: SingleHit, tick: int) -> None:
         """实现怪物的QTE次数计算、扣血计算等受击时的对象结算，与伤害计算器对接"""
-        # 怪物连携次数逻辑
-        self.__qte_counter(single_hit.skill_tag)
+        """
+        在20250325的更新中，更新了receive_hit中处理数据的顺序。并且在receive_hit中增加了重复的stun_judge。
+        进行这一更新的原因有些复杂，详细描述如下：
+        原有逻辑：在preload的第一个步骤：自检阶段 进行失衡检查（即运行enemy.stun_judge()）——这也是整个程序中唯一进行stun_judge的地方，这样起码可以保证每个tick执行一次。
+        导致问题：如果一个tick中含有多个Hit，且其中某个hit打满了失衡值，且当前后续的hit中含有重攻击，错误的数据更新顺序就会让QTE管理器失效，
+        从而影响到下个Tick的APL的判断，使其输出错误动作：比如QTE后置，甚至整个失衡阶段被完全跳过。
+        以实际发现的问题为例：
+            上一个动作为重攻击，且最后一个hit恰好打满了失衡条，那么就会导致一个顺序错误：
+            在第n tick:
+                receive_hit中的qte_manager先执行，然后再更新stun_bar，然后在下个tick更新stun状态
+                qte_manager虽然成功接收到了足以激发连携的重攻击，但是此时无论是stun_bar还是stun状态都不足以让连携成功激发
+            在第n+1 tick:
+                preload的自检阶段，stun_judge执行，确实将stun状态更改为True，但是本应该在上个hit因为重攻击而激发的连携技，却错过了窗口，
+            导致：
+                连携技只能等待下一个重攻击才能被激发了——这种情况会严重误导APL的判断，让它一直认为：怪物正处于彩色失衡、且连携技尚未激发的状态，
+            如果我针对这一状态设置的APL策略为 "等待"：
+                [APL Code]: 0000|action+=|wait|status.enemy:stun==True|status.enemy.status.enemy:QTE_activation_available==True|status.enemy:single_qte==None
+            那么角色就会一直等待下去，一直到enemy.stun为False——具体表现为整个连携技阶段被完全跳过。
+        最终解决方案：只有让qte_manager最后一个执行，并且stun_judge必须在stun_bar更新后立刻执行，才能够让连携技成功激发。
+        显然，这会导致一个tick中多次执行stun_judge，会导致一部分的性能开销，但是实际影响估计很小，影响不大。
+        """
         # 更新失衡，为减少函数调用
         self.dynamic.stun_bar += single_hit.stun
+        self.stun_judge(tick)
         # 怪物的扣血逻辑。
         self.__HP_update(single_hit.dmg_expect)
         # 更新异常值
         self.__anomaly_prod(single_hit.snapshot)
+        # 更新连携管理器
+        self.qte_manager.receive_hit(single_hit)
 
         # 遥远的需求：
     # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
@@ -309,36 +333,30 @@ class Enemy:
         """获取当前失衡值百分比的方法"""
         return self.dynamic.stun_bar / self.max_stun
 
-    def __qte_counter(self, tag: str) -> None:
-        """
-        判断该技能是否会影响角色的QTE触发次数。
+    def stun_judge(self, _tick: int) -> bool:
+        """判断敌人是否处于 失衡 状态，并更新 失衡 状态"""
+        if not self.able_to_be_stunned:
+            self.dynamic.stun_update_tick = _tick
+            return False
 
-        @param tag: 接受技能字符串
-        """
         if self.dynamic.stun:
-            # 仅在失衡期才执行以下逻辑
-            qte_tags: list[str] = self.__qte_tag_filter(tag)
-            diff_tags: set[str] = set(qte_tags) - set(self.dynamic.QTE_received_tag)    # 获取新收到的QTE标签
-            self.dynamic.QTE_received_tag += list(diff_tags)    # 添加新收到的标签
-            for _tag in diff_tags:
-                # 对每一个新标进行判断，是否需要更新QTE触发次数
-                CID_tag = _tag.split('_')[0]
-                try:
-                    last_tag = self.dynamic.QTE_received_tag[-2]    # 获取上一次收到的标签
-                    CID_last = last_tag.split('_')[0]
-                except IndexError:  # 索引错误，说明是第一次收到QTE标签
-                    last_tag = None
-                    CID_last = None
-                if (CID_tag == CID_last) and (_tag != last_tag):
-                    # 若本次输入的tag与上一次输入的源角色一致，且不是相同tag，则不增加触发次数
-                    pass
-                else:
-                    # 其余情况默认+1
-                    self.dynamic.QTE_triggered_times += 1
-                # if _tag == '1131_QTE':
-                #     print(_tag, self.dynamic.QTE_received_tag, self.QTE_triggerable_times)
-            assert self.dynamic.QTE_triggered_times <= self.QTE_triggerable_times, "QTE触发次数超过上限"
-            # TODO：怪物失衡条彩色闪烁状态（用来取代较为笨重死板的counter比对）
+            # 如果已经是失衡状态，则判断是否恢复
+            if self.stun_recovery_time <= self.dynamic.stun_tick:
+                self.dynamic.stun_update_tick = _tick
+                self.restore_stun()
+            else:
+                if _tick - self.dynamic.stun_update_tick > 1:
+                    raise ValueError(f'状态更新间隔大于1！存在多个tick都未更新stun的情况！')
+                self.dynamic.stun_update_tick = _tick
+                self.dynamic.stun_tick += 1
+        else:
+            if self.dynamic.stun_bar >= self.max_stun:
+                # 若是检测到失衡状态的上升沿，则应该开启彩色失衡状态。
+                self.qte_manager.qte_data.reset()
+                print(f'怪物陷入失衡了！')
+                self.dynamic.stun = True
+                self.dynamic.stun_update_tick = _tick
+        return self.dynamic.stun
 
     def __HP_update(self, dmg_expect: np.float64) -> None:
         self.dynamic.lost_hp += dmg_expect
@@ -355,6 +373,7 @@ class Enemy:
     class EnemyDynamic:
         def __init__(self):
             self.stun = False  # 失衡状态
+            self.stun_update_tick = 0   # 上次更新失衡状态的时间
             self.frozen = False  # 冻结状态
             self.frostbite = False  # 霜寒状态
             self.frost_frostbite = False  # 烈霜霜寒状态
@@ -369,8 +388,6 @@ class Enemy:
 
             self.stun_bar = 0   # 累计失衡条
             self.lost_hp = 0    # 已损生命值
-            self.QTE_triggered_times: int = 0   # 已连携次数
-            self.QTE_received_tag: list[str] = []
             self.stun_tick = 0  # 失衡已进行时间
 
             self.frozen_tick = 0
@@ -391,3 +408,5 @@ class Enemy:
 if __name__ == '__main__':
     test = Enemy(enemy_index_ID=11432, enemy_sub_ID=900011432)
     print(test.ice_anomaly_bar.max_anomaly)
+
+

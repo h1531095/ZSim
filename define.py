@@ -15,7 +15,10 @@ ENEMY_RANDOM_ATTACK: str = _config['apl_mode']['enemy_random_attack']
 ENEMY_ATTACK_RESPONSE: bool = _config['apl_mode']['enemy_attack_response']
 ENEMY_ATTACK_METHOD_CONFIG: str = _config['apl_mode']['enemy_attack_method_config']
 ENEMY_ATTACK_ACTION: str = _config['apl_mode']['enemy_attack_action_data']
+#: 合轴操作完成度系数->根据前一个技能帧数的某个比例来延后合轴
 SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT: float = _config['swap_cancel_mode']['completion_coefficient']
+
+#: 操作滞后系数->合轴操作延后的另一种迟滞方案，即固定值延后。
 SWAP_CANCEL_MODE_LAG_TIME: float = _config['swap_cancel_mode']['lag_time']
 CHARACTER_DATA_PATH: str = _config["database"]["CHARACTER_DATA_PATH"]
 WEAPON_DATA_PATH: str = _config["database"]["WEAPON_DATA_PATH"]

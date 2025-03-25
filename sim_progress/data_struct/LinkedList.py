@@ -11,7 +11,7 @@ class NodeIterator:
     def __next__(self):
         if self.current is None:
             raise StopIteration
-        data = self.current.data
+        data = self.current.preload_data
         self.current = self.current.next
         return data
 
@@ -46,7 +46,7 @@ class LinkedList:
         elements = []
         current = self.head
         while current:
-            elements.append(current.data)
+            elements.append(current.preload_data)
             current = current.next
         return str(elements)
 
@@ -66,19 +66,18 @@ class LinkedList:
             current = current.next
             if current is None:
                 raise IndexError("Index out of range")
-        return current.data
-
+        return current.preload_data
 
     def print_list(self):
         current = self.head
         while current:
-            print(f"{current.data} -> ", end="")
+            print(f"{current.preload_data} -> ", end="")
             current = current.next
         print("None")
 
     def pop_head(self):
         if self.head is not None:
-            removed_data = self.head.data
+            removed_data = self.head.preload_data
             self.head = self.head.next
             return removed_data
         else:

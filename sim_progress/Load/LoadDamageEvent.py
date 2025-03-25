@@ -13,7 +13,7 @@ def SpawnDamageEvent(mission: LoadingMission | Dot.Dot, event_list: list):
         if mission.hitted_count > mission.mission_node.hit_times:
             raise ValueError(f'{mission.mission_tag}目前是第{mission.hitted_count}，最多{mission.mission_node.hit_times}')
         mission.hitted_count += 1
-        event_list.append(mission.mission_node)
+        event_list.append(mission)
     elif isinstance(mission, Dot.Dot):
         if mission.dy.effect_times > mission.ft.max_effect_times:
             raise ValueError('该Dot任务已经完成，应当被删除！')

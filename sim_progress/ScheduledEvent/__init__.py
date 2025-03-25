@@ -4,6 +4,7 @@ from sim_progress.AnomalyBar import Disorder
 from sim_progress.Buff import ScheduleBuffSettle
 from sim_progress.Character import Character
 from sim_progress.data_struct import SingleHit, SPUpdateData, ActionStack, ScheduleRefreshData
+from sim_progress.Load.loading_mission import LoadingMission
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator, MultiplierData
 
@@ -76,7 +77,7 @@ class ScheduledEvent:
                 # 添加buff
                 if isinstance(event, Buff.Buff):
                     raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
-                elif isinstance(event, Preload.SkillNode):
+                elif isinstance(event, Preload.SkillNode | LoadingMission):
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
                         self.judge_required_info_dict['skill_node'] = event
@@ -126,8 +127,19 @@ class ScheduledEvent:
                 other_events.append(event)
         self.data.event_list = buff_events + other_events
 
-    def skill_event(self, event: Preload.SkillNode) -> None:
+    def skill_event(self, _event: Preload.SkillNode | LoadingMission) -> None:
         """SkillNode处理分支逻辑"""
+        if isinstance(_event, LoadingMission):
+            event = _event.mission_node
+            hitted_count = _event.hitted_count
+        else:
+            event = _event
+            hitted_count = 0
+            """
+            注意，主动动作的skill_node，都会在Load阶段被打包成LoadingMission的数据结构传入，所以具有非0的hitted_count，
+            而其他阶段通过暴力手段添加进event_list的大概率都是未经打包的Skill_node，它们往往与hitted_count所关联的系统没有联动，所以此处强制设置为0
+            目前，hitted_count参数只服务于enemy下面的QTE次数计算。未来若有其他需求，那么本函数则需要重构（迟早的事）
+            """
         char_obj = None
         for character in self.data.char_obj_list:
             if character.NAME == event.skill.char_name:
@@ -143,8 +155,13 @@ class ScheduledEvent:
         stun = cal_obj.cal_stun()
         dmg_expect = cal_obj.cal_dmg_expect()
         dmg_crit = cal_obj.cal_dmg_crit()
-        hit_result = SingleHit(event.skill_tag, snapshot, stun, dmg_expect, dmg_crit)
-        self.enemy.hit_received(hit_result)
+        hit_result = SingleHit(event.skill_tag, snapshot, stun, dmg_expect, dmg_crit, hitted_count)
+        if event.skill.follow_by:
+            hit_result.proactive = False
+        if event.hit_times == hitted_count and event.skill.heavy_attack:
+            # 重攻击标签！
+            hit_result.heavy_hit = True
+        self.enemy.hit_received(hit_result, self.tick)
 
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,

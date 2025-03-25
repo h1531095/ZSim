@@ -21,12 +21,17 @@ class StatusSubUnit(BaseSubConditionUnit):
     class QTETriggerableHandler(CheckHandler):
         @classmethod
         def handler(cls, enemy):
-            return enemy.dynamic.QTE_triggerable_times
+            return enemy.qte_manager.qte_data.qte_triggerable_times
 
     class QTETriggeredHandler(CheckHandler):
         @classmethod
         def handler(cls, enemy):
-            return enemy.dynamic.QTE_triggered_times
+            return enemy.qte_manager.qte_data.qte_triggered_times
+
+    class QTEActivationAvailableHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.qte_manager.qte_data.qte_activation_available
 
     class AnomalyPctHandler(CheckHandler):
         def __init__(self, anomaly_number):
@@ -55,6 +60,11 @@ class StatusSubUnit(BaseSubConditionUnit):
             char = find_char(found_char_dict, game_state, char_cid)
             return char.dynamic.on_field
 
+    class SingleQTEHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.qte_manager.qte_data.single_qte
+
     HANDLE_MAP = {
         'stun': StunHandler,
         'QTE_triggerable_times': QTETriggerableHandler,
@@ -63,6 +73,8 @@ class StatusSubUnit(BaseSubConditionUnit):
         'lasting_node_tag': CharLastingNodeTagHandler,
         'lasting_node_tick': CharLastingNodeTickHandler,
         'on_field': CharOnFieldHandler,
+        'QTE_activation_available': QTEActivationAvailableHandler,
+        'single_qte': SingleQTEHandler
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
