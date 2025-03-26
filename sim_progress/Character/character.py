@@ -617,6 +617,7 @@ class LastingNode:
         self.start_tick = 0
         self.update_tick = 0
         self.is_spamming = False      # 是否处于连续释放技能的状态
+        self.repeat_times = 0
 
     def update_node(self, node, tick: int):
         """更新char.dynamic中的node"""
@@ -627,6 +628,7 @@ class LastingNode:
                 self.is_spamming = False
                 self.node = None
                 self.update_tick = tick
+                self.repeat_times = 0
                 # print(f'新的node{node.skill_tag}传入了！与{self.char_instance.NAME}无关，但是Ta自身的持续释放技能状态已经结束了，所以对状态进行更新！')
                 return
         else:
@@ -634,7 +636,7 @@ class LastingNode:
                 self.node = node
                 self.start_tick = tick
                 self.update_tick = tick
-
+                self.repeat_times = 1
                 # print(f'第一个Node{node.char_name}传入！更新给{self.char_instance.NAME}')
                 return
             if node.skill_tag in ['被打断', '发呆']:
@@ -642,6 +644,7 @@ class LastingNode:
                 self.node = node
                 self.start_tick = tick
                 self.update_tick = tick
+                self.repeat_times = 0
                 # print(f'{self.char_instance.NAME}被打断了！')
                 return
             else:
@@ -651,9 +654,11 @@ class LastingNode:
                 if self.node.skill_tag == node.skill_tag:
                     # print(f'{self.char_instance.NAME}正在持续释放技能{node.skill_tag}！已经持续了{self.spamming_info(tick)[2]}tick！')
                     self.is_spamming = True
+                    self.repeat_times += 1
                 else:
                     self.is_spamming = False
                     self.start_tick = tick
+                    self.repeat_times = 1
                     # print(f'{self.char_instance.NAME}的持续释放技能被覆盖了！新的技能{node.skill_tag}传入')
                 self.node = node
                 self.update_tick = tick

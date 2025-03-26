@@ -26,7 +26,7 @@ class SwapCancelStrategy(BasePreloadStrategy):
         self.data.chek_myself_before_start_preload(enemy, tick)
 
         # 1、APL引擎抛出本tick的主动动作
-        apl_skill_tag, priority = self.apl_engine.run_myself()
+        apl_skill_tag, priority = self.apl_engine.run_myself(tick)
         # print(apl_skill_tag, priority)
 
         #  2、ForceAdd引擎处理旧有的强制添加逻辑；

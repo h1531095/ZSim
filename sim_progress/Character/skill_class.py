@@ -298,6 +298,7 @@ class Skill:
                                     if not attr.startswith('__') and not callable(getattr(self, attr))
                                     }
             self.heavy_attack: bool = bool(_raw_skill_data['heavy_attack'])
+            self.max_repeat_times: int = int(_raw_skill_data['max_repeat_times'])       # 最大重复释放次数。
             # TODO：抗打断标签；无敌标签
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
 

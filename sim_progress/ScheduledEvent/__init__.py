@@ -166,13 +166,21 @@ class ScheduledEvent:
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.skill.element_type,
                                  skill_tag=event.skill_tag,
-                                 dmg_expect=dmg_expect,
-                                 dmg_crit=dmg_crit,
-                                 stun=stun,
-                                 stun_status=self.data.enemy.dynamic.stun,
-                                 buildup=snapshot[1],
-                                 enemy_dynamic=self.data.enemy.dynamic.__str__()
+                                 dmg_expect=round(dmg_expect, 2),
+                                 dmg_crit=round(dmg_crit, 2),
+                                 stun=round(stun, 2),
+                                 stun_status=self.data.enemy.dynamic.stun if self.data.enemy.dynamic.stun else None,
+                                 buildup=round(snapshot[1], 2),
+                                 stun_bar=round(self.data.enemy.dynamic.stun_bar, 2),
+                                 冻结=self.data.enemy.dynamic.frozen if self.data.enemy.dynamic.frozen else None,
+                                 霜寒=self.data.enemy.dynamic.frostbite if self.data.enemy.dynamic.frostbite else None,
+                                 烈霜霜寒=self.data.enemy.dynamic.frost_frostbite if self.data.enemy.dynamic.frost_frostbite else None,
+                                 畏缩=self.data.enemy.dynamic.assault if self.data.enemy.dynamic.assault else None,
+                                 感电=self.data.enemy.dynamic.shock if self.data.enemy.dynamic.shock else None,
+                                 灼烧=self.data.enemy.dynamic.burn if self.data.enemy.dynamic.burn else None,
+                                 侵蚀=self.data.enemy.dynamic.corruption if self.data.enemy.dynamic.corruption else None
                                  )
+        # enemy_dynamic=self.data.enemy.dynamic.__str__()
 
     def anomaly_event(self, event: AnB) -> None:
         """普通异常伤害处理分支逻辑"""
