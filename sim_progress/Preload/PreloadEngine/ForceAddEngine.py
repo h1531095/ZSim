@@ -25,8 +25,9 @@ class ForceAddEngine(BasePreloadEngine):
             if not follow_up:
                 return
             conditions_unit: list = node.skill.force_add_condition_APL
-            should_force_add, index = self.prcoess_force_add_apl(conditions_unit)
+            should_force_add, index = self.prcoess_force_add_apl(conditions_unit, skill_tag=node.skill_tag)
             if should_force_add:
+                # print(f'强制添加判定通过！该强制添加来自于{node.skill_tag}，将要添加：{follow_up[index]}')
                 self.check_char(follow_up, index, node)     # 检验数据的正确性
                 self.data.preload_action_list_before_confirm.append((follow_up[index], False, 0))
                 self.active_signal = True
@@ -44,10 +45,11 @@ class ForceAddEngine(BasePreloadEngine):
                 raise ValueError(
                     f"出现了不应该出现的情况！技能{follow_up[index]}理应在{node.skill_tag}之后、于{follow_up_skill_add_tick}执行，但是此时角色{follow_up_skill_CID}尚有动作存在。")
 
-    def prcoess_force_add_apl(self, conditions_unit) -> tuple[bool, int] | None:
+    def prcoess_force_add_apl(self, conditions_unit, **kwargs) -> tuple[bool, int]:
         """强制添加动作的前置判定，有APL模块则运行模块，无APL模块则直接通过。"""
         should_force_add = True
         index = 0
+        skill_tag = kwargs.get('skill_tag', None)
         if conditions_unit and self.game_state is None:
             self.game_state = get_game_state()
         if conditions_unit:
@@ -59,6 +61,7 @@ class ForceAddEngine(BasePreloadEngine):
                     should_force_add = False
                     index += 1
                 else:
+                    should_force_add = True
                     return should_force_add, index
             else:
                 '''

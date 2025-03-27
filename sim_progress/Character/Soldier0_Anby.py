@@ -1,5 +1,3 @@
-from operator import truediv
-
 from sim_progress.Preload import SkillNode
 from .filters import _skill_node_filter
 from .character import Character

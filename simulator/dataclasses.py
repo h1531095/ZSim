@@ -29,7 +29,7 @@ class InitData:
               'equip_set4': Judge_list_set[2][2], 'equip_set2_a': '啄木鸟电音',
               'drive4': '暴击率', 'drive5': '攻击力%', 'drive6': '攻击力%',
               'scATK_percent': 10, 'scCRIT': 20,
-              'cinema': 0}
+              'cinema': 1}
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
                    name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
