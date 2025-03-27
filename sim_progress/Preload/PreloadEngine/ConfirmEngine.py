@@ -31,6 +31,7 @@ class ConfirmEngine(BasePreloadEngine):
                 report_to_log(f"[PRELOAD]:In tick: {tick}, {node.skill_tag} has been preloaded")
                 # 4、外部数据交互
                 self.update_external_data(node, tick)
+                # print(f'{node.skill_tag}通过了可行性验证，该主动动作来自于优先级为{node.apl_priority}的APL代码')
             else:
                 pass
 
@@ -38,14 +39,14 @@ class ConfirmEngine(BasePreloadEngine):
         """通过skill_tag构造Node"""
         skill_tag = tuples[0]
         active_generation = tuples[1] if tuples[1] else False
-        node = SkillsQueue.spawn_node(skill_tag, tick, self.data.skills, active_generation=active_generation)
+        node = SkillsQueue.spawn_node(skill_tag, tick, self.data.skills, active_generation=active_generation, apl_priority=tuples[2])
         return node
 
     def update_external_data(self, node: SkillNode, tick: int):
         """与外部数据交互，主要是和char进行交互。"""
         for char in self.data.char_data.char_obj_list:
             char.update_sp_and_decibel(node)
-            char.special_resources(node)
+            char.special_resources(node, tick=tick)
             char.dynamic.lasting_node.update_node(node, tick)
         # 切人逻辑
         name_box = self.data.name_box

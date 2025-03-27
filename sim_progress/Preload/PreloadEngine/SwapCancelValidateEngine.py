@@ -26,11 +26,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             self._validate_qte_activation
         ]
 
-    def run_myself(self, skill_tag: str, tick: int) -> bool:
+    def run_myself(self, skill_tag: str, tick: int, **kwargs) -> bool:
         """合轴可行性分析基本分为以下几个步骤：
         1、当前涉及角色是否有空
         2、合轴时间是否符合
         3、确认合轴后，将skill_tag和主动参数 打包成tuple"""
+        apl_priority = kwargs.get('apl_priority', 0)
         self.active_signal = False
         if not self._validate_char_avaliable(skill_tag=skill_tag, tick=tick):
             return False
@@ -38,7 +39,7 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             return False
         if self._validate_qte_activation(tick=tick):
             return False
-        self.data.preload_action_list_before_confirm.append((skill_tag, True))
+        self.data.preload_action_list_before_confirm.append((skill_tag, True, apl_priority))
         self.active_signal = True
         return True
 

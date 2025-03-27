@@ -5,7 +5,6 @@ from define import APL_NA_ORDER_PATH, SWAP_CANCEL
 from sim_progress.Preload import SkillNode
 
 
-
 class APLClass:
     """
     APL代码的执行部分。它会调用apl_condition并且轮询所有的APL代码，
@@ -23,6 +22,7 @@ class APLClass:
             print(f"初始化时发生错误: {e}")
             self.NA_action_dict = {}
         self.apl_operator: APLOperator | None = None
+        self.repeat_action: tuple[str, int] = ('', 0)
 
     def execute(self, tick, mode: int) -> tuple[str, int]:
         if self.game_state is None:
@@ -53,8 +53,9 @@ class APLClass:
         output = self.action_processor(CID, action)
         return output
 
-    def action_processor(self, CID, action):
+    def action_processor(self, CID, action) -> str:
         """用于生成动作"""
+        last_action: SkillNode | None
         if action == 'auto_NA':
             stack = self.preload_data.personal_node_stack.get(CID, None)
             if stack is None:
@@ -66,10 +67,7 @@ class APLClass:
                 '''没有第一个动作时，直接派生第一段普攻'''
                 output = self.spawn_default_action(CID)
             elif last_action.skill_tag in self.NA_action_dict[str(CID)]:
-                if last_action:
-                    pass
-                else:
-                    output = self.NA_action_dict[str(CID)][last_action.skill_tag]
+                output = self.NA_action_dict[str(CID)][last_action.skill_tag]
             else:
                 output = self.spawn_default_action(CID)
         else:

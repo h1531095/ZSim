@@ -670,7 +670,7 @@ class LastingNode:
             skill_tag = None
         else:
             skill_tag = self.node.skill_tag
-        return self.is_spamming, skill_tag, lasting_tick
+        return self.is_spamming, skill_tag, lasting_tick, self.repeat_times
 
 
 if __name__ == "__main__":

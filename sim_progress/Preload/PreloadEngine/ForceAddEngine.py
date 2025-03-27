@@ -14,14 +14,13 @@ class ForceAddEngine(BasePreloadEngine):
         """当每个node结束时，都应该调用这个函数来判断强制添加。"""
         self.active_signal = False
         for stack in self.data.personal_node_stack.values():
+            node: SkillNode | None
             node = stack.peek()
             if node is None:
                 return
             if node.end_tick > tick:
                 '''如果当前node并未结束，则不符合“node”结束的条件，则应该直接跳过。'''
                 continue
-            if not isinstance(node, SkillNode):
-                raise TypeError("传入给ForceAddEngine的参数必须是SkillNode实例！")
             follow_up: list = node.skill.follow_up
             if not follow_up:
                 return
@@ -29,7 +28,7 @@ class ForceAddEngine(BasePreloadEngine):
             should_force_add, index = self.prcoess_force_add_apl(conditions_unit)
             if should_force_add:
                 self.check_char(follow_up, index, node)     # 检验数据的正确性
-                self.data.preload_action_list_before_confirm.append((follow_up[index], False))
+                self.data.preload_action_list_before_confirm.append((follow_up[index], False, 0))
                 self.active_signal = True
 
     def check_char(self, follow_up, index, node):

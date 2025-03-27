@@ -8,10 +8,10 @@ from sim_progress.data_struct import ActionStack
 
 @dataclass
 class InitData:
-    name_box = ['青衣', '丽娜', '雅']
+    name_box = ['青衣', '丽娜', '零号·安比']
     Judge_list_set = [[name_box[0], '玉壶青冰', '震星迪斯科'],
                       [name_box[1], '好斗的阿炮', '静听嘉音'],
-                      [name_box[2], '霰落星殿', '折枝剑歌']]
+                      [name_box[2], '牺牲洁纯', '如影相随']]
     char_0 = {'name': name_box[0],
               'weapon': Judge_list_set[0][1], 'weapon_level': 1,
               'equip_set4': Judge_list_set[0][2], 'equip_set2_a': '摇摆爵士',

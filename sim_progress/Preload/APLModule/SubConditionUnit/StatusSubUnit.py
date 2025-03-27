@@ -54,6 +54,13 @@ class StatusSubUnit(BaseSubConditionUnit):
             char = find_char(found_char_dict, game_state, char_cid)
             return char.dynamic.lasting_node.spamming_info(tick)[2]
 
+    class CharRepeatTimesHandler(CheckHandler):
+        @classmethod
+        def handler(cls, char_cid, found_char_dict, game_state):
+            tick = find_tick()
+            char = find_char(found_char_dict, game_state, char_cid)
+            return char.dynamic.lasting_node.spamming_info(tick)[3]
+
     class CharOnFieldHandler(CheckHandler):
         @classmethod
         def handler(cls, char_cid, found_char_dict, game_state):
@@ -74,7 +81,8 @@ class StatusSubUnit(BaseSubConditionUnit):
         'lasting_node_tick': CharLastingNodeTickHandler,
         'on_field': CharOnFieldHandler,
         'QTE_activation_available': QTEActivationAvailableHandler,
-        'single_qte': SingleQTEHandler
+        'single_qte': SingleQTEHandler,
+        'repeat_times': CharRepeatTimesHandler
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
