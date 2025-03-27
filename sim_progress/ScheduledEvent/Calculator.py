@@ -457,7 +457,9 @@ class Calculator:
                 attr = data.static.am * (1 + data.dynamic.anomaly_mastery) + data.dynamic.field_anomaly_mastery
             else:
                 assert False, INVALID_ELEMENT_ERROR
-            base_dmg = (dmg_ratio * attr) * data.dynamic.base_dmg_increase + data.dynamic.base_dmg_increase_percentage
+            base_dmg = ((dmg_ratio * attr) *
+                        (1 + data.dynamic.base_dmg_increase_percentage)
+                        + data.dynamic.base_dmg_increase)
             return base_dmg
 
         @staticmethod
