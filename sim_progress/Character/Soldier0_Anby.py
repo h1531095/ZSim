@@ -83,8 +83,6 @@ class Soldier0_Anby(Character):
         """处理层数逻辑"""
         self.__check_myself()
         if self.full:
-            if self.continuing_e:
-                print(f'e连击状态提前开启！（或没有消失）')
             self.continuing_e = True
         '''在解锁2画，并且有预存层数的时候，优先使用层数，并且照常激活白雷。'''
         if self.cinema >= 2 and self.c2_counter > 0:
@@ -115,6 +113,11 @@ class Soldier0_Anby(Character):
         if self.cinema == 6:
             self.c6_counter += 1
             if self.c6_counter >= 6:
+                '''
+                由于char对象接收skill_node，处理自身特殊资源的时候，已经是当前tick的preload阶段的最后一步了（Confirm Engine的最后环节：对外数据交互）
+                此时，基于node.follow_up 函数的skill_node添加行为已经结束，也就是说，让c6_counter变成6的那第六个CoAttack………………
+                '''
+                # TODO： 111111
                 self.c6_answer = True
                 self.c6_counter = 0
         self.__thunder_smite_active()
@@ -163,7 +166,7 @@ class Soldier0_Anby(Character):
         self.c6_answer = False
 
     def get_resources(self) -> tuple[str|None, int|float|bool|None]:
-        return '银星层数', self.silver_star / self.silver_star_basic_cost
+        return '银星层数', self.silver_star / self.silver_star_basic_cost + self.c2_counter
 
     def get_special_stats(self, *args, **kwargs) -> dict[str | None, object | None]:
         return {
