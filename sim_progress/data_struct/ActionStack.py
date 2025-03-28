@@ -150,17 +150,26 @@ class NodeStack:
         3、当目前场上存在多个node时，应返回最新的那个主动动作的SkillNode
         """
         _exist_node_list = []
+        _active_node_now = False
         for _node in self.stack:
             if _node.end_tick <= tick_now:
+                if _node.active_generation:
+                    _active_node_now = True
                 _exist_node_list.append(_node)
         if len(_exist_node_list) == 0:
             return None
         elif len(_exist_node_list) == 1:
             return _exist_node_list[0]
         elif len(_exist_node_list) > 1:
-            return max(
-                (x for x in _exist_node_list if x.active_generation),
-                key=lambda x: x.preload_tick)
+            if _active_node_now:
+                return max(
+                    (x for x in _exist_node_list if x.active_generation),
+                    key=lambda x: x.preload_tick)
+            else:
+                '''当场上的node全部都是被动动作时，只去其中最新的那个。'''
+                return max(
+                    (x for x in _exist_node_list),
+                    key=lambda x: x.preload_tick)
 
     def __len__(self):
         return len(self.stack)

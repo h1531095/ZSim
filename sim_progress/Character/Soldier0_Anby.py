@@ -109,18 +109,27 @@ class Soldier0_Anby(Character):
         else:
             self.c0_filter(tick)
         # 白雷计数器层数更新结束后，对雷殛进行更新。
-        # 更新6画逻辑
+        self.c6_updater()
+        self.__thunder_smite_active()
+
+    def c6_updater(self):
+        """
+        更新6画逻辑
+        从文字描述上看，6画的添加行为应该属于协同攻击「白雷」的后置，但如果利用白雷的follow_up来进行c6的添加，那么就会导致以下问题：
+        c6添加的时间点为白雷6 结束时，在这个Tick，白雷6会在Preload阶段的ForceAddEngine中被识别到结束信号，
+        此时，ForceAddEngine会尝试读取白雷6的follow up以及对应的force_add_APL，
+        由于ForceAddEngine每个Tick只能进行一次ForceAdd添加，这就会导致C6的协同攻击和雷殛相互抢队，谁排在前面，就执行谁。
+        所以，在之前的debug中，我总能观察到C6的协同攻击被大幅度延后，以至于C6计数器都出现了问题。
+        在后来的更新中，我将C6等价为雷殛的后置技能，从而摆脱了抢队问题。
+
+        经验：同一个技能的多个follow up必须是互斥的，如果存在一个tick通过多个follow up 判定的可能，就要做特殊处理。否则一定会以为抢队出问题。
+        """
         if self.cinema == 6:
             self.c6_counter += 1
             if self.c6_counter >= 6:
-                '''
-                由于char对象接收skill_node，处理自身特殊资源的时候，已经是当前tick的preload阶段的最后一步了（Confirm Engine的最后环节：对外数据交互）
-                此时，基于node.follow_up 函数的skill_node添加行为已经结束，也就是说，让c6_counter变成6的那第六个CoAttack………………
-                '''
-                # TODO： 111111
+                """"""
                 self.c6_answer = True
                 self.c6_counter = 0
-        self.__thunder_smite_active()
 
     def c0_filter(self, tick):
         """通用逻辑"""

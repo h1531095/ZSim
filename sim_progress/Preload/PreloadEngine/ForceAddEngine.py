@@ -16,7 +16,6 @@ class ForceAddEngine(BasePreloadEngine):
         for stack in self.data.personal_node_stack.values():
             node: SkillNode | None
             node = stack.peek()
-            # TODO: 每个tick貌似都只能执行一次，但万一我这个tick有多个node需要同时处理？
             if node is None:
                 return
             if node.end_tick > tick:

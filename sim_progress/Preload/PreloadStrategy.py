@@ -29,6 +29,8 @@ class SwapCancelStrategy(BasePreloadStrategy):
         apl_skill_tag, priority = self.apl_engine.run_myself(tick)
         # print(apl_skill_tag, priority)
 
+        # 1.1、缓存
+
         #  2、ForceAdd引擎处理旧有的强制添加逻辑；
         self.force_add_engine.run_myself(tick)
 
