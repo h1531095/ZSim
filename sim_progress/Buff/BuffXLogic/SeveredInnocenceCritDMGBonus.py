@@ -65,9 +65,9 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
         elif _skill_node.skill.trigger_buff_level in [1, 2]:
             self.record.update_signal.append(1)
             return True
-        elif _skill_node.skill.tags is None:
+        elif _skill_node.skill.labels is None:
             return False
-        elif 'aftershock_attack' in _skill_node.skill.tags.keys():
+        elif 'aftershock_attack' in _skill_node.skill.labels.keys():
             self.record.update_signal.append(2)
             return True
         else:
