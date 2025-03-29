@@ -295,6 +295,10 @@ class MultiplierData:
             self.base_dmg_increase: float = 0.0
             self.base_dmg_increase_percentage: float = 0.0
 
+            self.aftershock_attack_dmg_bonus: float = 0.0
+            self.aftershock_attack_crit_dmg_bonus: float = 0.0
+            self.aftershock_attack_stun_bonus: float = 0.0
+
             self.__read_dynamic_statement(dynamic_statement)
 
         def __read_dynamic_statement(self, dynamic_statement: dict) -> None:
@@ -509,15 +513,17 @@ class Calculator:
                 trigger_dmg_bonus = data.dynamic.assault_aid_dmg_bonus
             else:
                 assert False, 'Invalid trigger_level'
-
-            dmg_bonus = 1 + element_dmg_bonus + trigger_dmg_bonus
+            # 获取指定label增伤
+            if data.skill_node.skill.labels.get("aftershock_attack") == 1:
+                label_dmg_bonus = data.dynamic.aftershock_attack_dmg_bonus
+            else:
+                label_dmg_bonus = 0
+            dmg_bonus = 1 + element_dmg_bonus + trigger_dmg_bonus + label_dmg_bonus
             return dmg_bonus
 
         @staticmethod
         def cal_crit_rate(data: MultiplierData) -> float:
-            """
-            暴击率 = 面板暴击率 + buff暴击率 + 受暴击概率增加
-            """
+            """暴击率 = 面板暴击率 + buff暴击率 + 受暴击概率增加"""
             crit_rate = (data.static.crit_rate +
                          data.dynamic.crit_rate +
                          data.dynamic.field_crit_rate +
@@ -527,20 +533,23 @@ class Calculator:
 
         @staticmethod
         def cal_crit_dmg(data: MultiplierData) -> float:
-            """
-            暴击伤害 = 面板暴击伤害 + buff暴击伤害 + 受暴击伤害增加
-            """
+            """暴击伤害 = 静态面板暴击伤害 + buff暴击伤害 + 受暴击伤害增加"""
+            # 获取指定label暴伤
+            if data.skill_node.skill.labels.get("aftershock_attack") == 1:
+                label_crit_dmg_bonus = data.dynamic.aftershock_attack_crit_dmg_bonus
+            else:
+                label_crit_dmg_bonus = 0
+
+            buff_crit_dmg_bonus = data.dynamic.crit_dmg + data.dynamic.field_crit_dmg + label_crit_dmg_bonus
+
             crit_dmg = (data.static.crit_damage +
-                        data.dynamic.crit_dmg +
-                        data.dynamic.field_crit_dmg +
+                        buff_crit_dmg_bonus +
                         data.dynamic.received_crit_dmg_bonus)
             return crit_dmg
 
         @staticmethod
         def cal_personal_crit_dmg(data: MultiplierData) -> float:
-            """
-            个人暴击伤害 = 面板暴击伤害 + buff暴击伤害
-            """
+            """面板暴击伤害 = 静态面板暴击伤害 + buff暴击伤害"""
             personal_crit_dmg = (data.static.crit_damage +
                                  data.dynamic.crit_dmg +
                                  data.dynamic.field_crit_dmg)
@@ -764,7 +773,7 @@ class Calculator:
             else:
                 assert False, INVALID_ELEMENT_ERROR
 
-            # FIXME: 青衣、格丽斯的这部分数据都没有，得更新。
+
             element_dmg_percentage = data.skill_node.skill.element_damage_percent
 
             hit_times = data.skill_node.hit_times
@@ -772,11 +781,6 @@ class Calculator:
             anomaly_buildup = (accumulation * (am / 100) * (
                     1 + element_buildup_bonus + trigger_buildup_bonus) *
                                buildup_res * element_dmg_percentage / hit_times)
-
-            # print(f'属性编号：{element_type}，参数：基础值：{accumulation}，\
-            # 掌控：{am}，属性积蓄加成：{element_buildup_bonus}，\
-            # 技能积蓄加成{trigger_buildup_bonus}，积蓄抗性{buildup_res}，\
-            # 属性伤害百分比{element_dmg_percentage}，命中次数{hit_times}')
 
             return np.float64(anomaly_buildup)
 
@@ -911,7 +915,12 @@ class Calculator:
 
         @staticmethod
         def cal_stun_bonus(data: MultiplierData) -> float:
-            stun_bonus = 1 + data.dynamic.stun_bonus
+            # 获取指定label失衡值增加
+            if data.skill_node.skill.labels.get("aftershock_attack") == 1:
+                label_stun_bonus = data.dynamic.aftershock_attack_stun_bonus
+            else:
+                label_stun_bonus = 0
+            stun_bonus = 1 + data.dynamic.stun_bonus + label_stun_bonus
             return stun_bonus
 
         @staticmethod
