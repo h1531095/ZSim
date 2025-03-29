@@ -514,7 +514,7 @@ class Calculator:
             else:
                 assert False, 'Invalid trigger_level'
             # 获取指定label增伤
-            if data.skill_node.skill.labels.get("aftershock_attack") == 1:
+            if data.skill_node.skill.labels is not None and data.skill_node.skill.labels.get("aftershock_attack") == 1:
                 label_dmg_bonus = data.dynamic.aftershock_attack_dmg_bonus
             else:
                 label_dmg_bonus = 0
@@ -535,7 +535,7 @@ class Calculator:
         def cal_crit_dmg(data: MultiplierData) -> float:
             """暴击伤害 = 静态面板暴击伤害 + buff暴击伤害 + 受暴击伤害增加"""
             # 获取指定label暴伤
-            if data.skill_node.skill.labels.get("aftershock_attack") == 1:
+            if data.skill_node.skill.labels is not None and data.skill_node.skill.labels.get("aftershock_attack") == 1:
                 label_crit_dmg_bonus = data.dynamic.aftershock_attack_crit_dmg_bonus
             else:
                 label_crit_dmg_bonus = 0
@@ -916,7 +916,7 @@ class Calculator:
         @staticmethod
         def cal_stun_bonus(data: MultiplierData) -> float:
             # 获取指定label失衡值增加
-            if data.skill_node.skill.labels.get("aftershock_attack") == 1:
+            if data.skill_node.skill.labels is not None and data.skill_node.skill.labels.get("aftershock_attack") == 1:
                 label_stun_bonus = data.dynamic.aftershock_attack_stun_bonus
             else:
                 label_stun_bonus = 0
