@@ -86,13 +86,10 @@ def buff_exist_judge(charname_box, judge_list_set, weapon_dict, cinema_dict):
             """
             for sub_list in judge_list_set:
                 if buff_from in [sub_list[1], sub_list[2]]:
-                    equipment_carrier = sub_list[0]
-            current_name_box = name_order_dict[equipment_carrier]
-            selected_characters = [current_name_box[i] for i in range(len(current_name_box)) if adding_code[i] == '1']
-            if equipment_carrier not in selected_characters:
-                selected_characters.append(equipment_carrier)
-            for name0 in selected_characters:
-                initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, name0, equipment_carrier)
+                    processor_equipment_buff(adding_code, buff_info_tuple, buff_name, exist_buff_dict, name_order_dict, sub_list)
+                elif buff_from == sub_list[3]:
+                    if "二件套" in buff_name:
+                        processor_equipment_buff(adding_code, buff_info_tuple, buff_name, exist_buff_dict, name_order_dict, sub_list)
 
     for char_name, sub_buff_dict in exist_buff_dict.items():
         for f_buff in sub_buff_dict.values():
@@ -112,6 +109,16 @@ def buff_exist_judge(charname_box, judge_list_set, weapon_dict, cinema_dict):
     return exist_buff_dict
 
 
+def processor_equipment_buff(adding_code, buff_info_tuple, buff_name, exist_buff_dict, name_order_dict, sub_list):
+    equipment_carrier = sub_list[0]
+    current_name_box = name_order_dict[equipment_carrier]
+    selected_characters = [current_name_box[i] for i in range(len(current_name_box)) if adding_code[i] == '1']
+    if equipment_carrier not in selected_characters:
+        selected_characters.append(equipment_carrier)
+    for name0 in selected_characters:
+        initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, name0, equipment_carrier)
+
+
 def initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, benifiter, buff_orner):
     """
     参数中的benifiter和orner不是一个名字。benifiter是buff的受益者，但并不一定是触发buff的角色。
@@ -128,7 +135,6 @@ def initiate_buff(buff_info_tuple, buff_name, exist_buff_dict, benifiter, buff_o
     buff_new = Buff(dict_1, dict_2)
     buff_new.ft.beneficiary = benifiter
     exist_buff_dict[benifiter][buff_name] = buff_new
-
 
 
 # 数据预处理模块：筛选并打包DataFrame
@@ -162,7 +168,8 @@ def preprocess_dataframes(
                 if buff_from == weapon_dict[charname][0] and row_data['refinement'] == weapon_dict[charname][1]:
                     select_buffs(buff_name, judge_file, row_data, selected_buffs)
         elif row_data['is_cinema'] and buff_from in cinema_dict.keys():
-            if row_data['refinement']==cinema_dict[buff_from]:
+            '''处理影画'''
+            if row_data['refinement'] <= cinema_dict[buff_from]:
                 select_buffs(buff_name, judge_file, row_data, selected_buffs)
         else:
             if buff_from in weapon_dict:
@@ -240,34 +247,35 @@ def change_name_box(name_box: list):
 
 
 if __name__ == '__main__':
-    name_box = ['莱特', '露西', '雅']
-    Judge_list_set = [[name_box[2], '霰落星殿', '折枝剑歌'],
-                      [name_box[1], '含羞恶面', '自由蓝调'],
-                      [name_box[0], '人为刀俎', '镇星迪斯科']]
-    char_2 = {'name' : name_box[2],
-              'weapon': '霰落星殿', 'weapon_level': 1,
-              'equip_set4': '折枝剑歌', 'equip_set2_a': '极地重金属',
-              'drive4' : '暴击率', 'drive5' : '攻击力%', 'drive6' : '攻击力%',
+    name_box = ['青衣', '丽娜', '零号·安比']
+    Judge_list_set = [[name_box[0], '玉壶青冰', '震星迪斯科', '摇摆爵士'],
+                      [name_box[1], '好斗的阿炮', '静听嘉音', '如影相随'],
+                      [name_box[2], '牺牲洁纯', '如影相随', '啄木鸟电音']]
+    char_0 = {'name': name_box[0],
+              'weapon': Judge_list_set[0][1], 'weapon_level': 1,
+              'equip_set4': Judge_list_set[0][2], 'equip_set2_a': Judge_list_set[0][3],
+              'drive4': '暴击率', 'drive5': '电属性伤害', 'drive6': '冲击力%',
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 0}
-    char_1 = {'name' : name_box[1],
-              'weapon': '含羞恶面', 'weapon_level': 5,
-              'equip_set4': '自由蓝调', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '攻击力%', 'drive5' : '穿透率', 'drive6' : '能量自动回复%',
+    char_1 = {'name': name_box[1],
+              'weapon': Judge_list_set[1][1], 'weapon_level': 5,
+              'equip_set4': Judge_list_set[1][2], 'equip_set2_a': Judge_list_set[1][3],
+              'drive4': '暴击率%', 'drive5': '穿透率', 'drive6': '能量自动回复%',
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 2}
-    char_0 = {'name' : name_box[0],
-              'weapon': '玉壶青冰', 'weapon_level': 1,
-              'equip_set4': '震星迪斯科', 'equip_set2_a': '摇摆爵士',
-              'drive4' : '暴击率', 'drive5' : '电属性伤害', 'drive6' : '冲击力%',
+    char_2 = {'name': name_box[2],
+              'weapon': Judge_list_set[2][1], 'weapon_level': 1,
+              'equip_set4': Judge_list_set[2][2], 'equip_set2_a': Judge_list_set[2][3],
+              'drive4': '暴击率', 'drive5': '攻击力%', 'drive6': '攻击力%',
               'scATK_percent': 10, 'scCRIT': 20,
-              'cinema': 0}
+              'cinema': 6}
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
                    name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
     cinema_dict = {name_box[0]: char_0['cinema'],
                    name_box[1]: char_1['cinema'],
                    name_box[2]: char_2['cinema']}
+
     exist_buff_dict = buff_exist_judge(name_box, Judge_list_set, weapon_dict, cinema_dict)
     for names, buff_dict in exist_buff_dict.items():
         print(names)

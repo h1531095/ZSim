@@ -38,3 +38,13 @@ class LoadingMission:
     def check_myself(self, timenow):
         if self.mission_end_tick < timenow:
             self.mission_end()
+
+    def get_first_hit(self):
+        """返回首次命中的时间"""
+        tick_list = list(self.mission_dict.keys())
+        while tick_list:
+            tick = min(tick_list)
+            if self.mission_dict[tick] == "hit":
+                return tick
+            else:
+                tick_list.remove(tick)

@@ -1,5 +1,4 @@
 import timeit
-
 from sim_progress import Report
 from simulator.main_loop import main_loop
 from sim_progress.Report import write_to_csv

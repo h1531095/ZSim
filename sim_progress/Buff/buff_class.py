@@ -206,25 +206,25 @@ class Buff:
             self.xeffect = None     # 生效逻辑
             self.xexit = None  # 退出逻辑
 
-        def special_judge_logic(self):
+        def special_judge_logic(self, **kwargs):
             pass
 
-        def special_start_logic(self):
+        def special_start_logic(self, **kwargs):
             # 这里可以实现特定的开始逻辑
             pass
 
-        def special_hit_logic(self):
+        def special_hit_logic(self, **kwargs):
             # 这里可以实现特定的命中逻辑
             pass
 
-        def special_end_logic(self):
+        def special_end_logic(self, **kwargs):
             # 这里可以实现特定的结束逻辑
             pass
 
-        def special_effect_logic(self):
+        def special_effect_logic(self, **kwargs):
             pass
 
-        def special_exit_logic(self):
+        def special_exit_logic(self, **kwargs):
             pass
 
     class BuffSimpleJudgeCondition:

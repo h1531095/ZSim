@@ -39,7 +39,7 @@ class MultiplierData:
         if dynamic_buff is None:
             dynamic_buff = {}
         if not hasattr(self, 'char_name'):
-            self.skill_node: SkillNode # 此类内部不调用该属性
+            self.skill_node: SkillNode  # 此类内部不调用该属性
             if character_obj is None:
                 self.char_name = None
                 self.char_level = None
@@ -51,7 +51,7 @@ class MultiplierData:
 
             # 获取角色局外面板数据
             static_statement: Character.Statement | None = getattr(character_obj, 'statement', None)
-            self.static = self.StaticStatement(static_statement)    # 按理来说静态面板在角色都没有的情况下根本没必要生成，但是屎山就是这样搭建的，尊重
+            self.static = self.StaticStatement(static_statement)  # 按理来说静态面板在角色都没有的情况下根本没必要生成，但是屎山就是这样搭建的，尊重
             # 获取敌人数据
             self.enemy_obj = enemy_obj
             # 获取buff动态加成
@@ -92,7 +92,7 @@ class MultiplierData:
             else:
                 cache_key = tuple(sorted(static_statement.statement.items()))
             if cache_key in cls._instance_cache:
-                return  cls._instance_cache[cache_key]
+                return cls._instance_cache[cache_key]
             else:
                 instance = super().__new__(cls)
                 if len(cls._instance_cache) >= cls._max_cache_size:
@@ -147,7 +147,6 @@ class MultiplierData:
                 for attr, static_attr in attribute_map.items():
                     setattr(self, attr, getattr(static_statement, static_attr, 0.0))
 
-
     class DynamicStatement:
         def __init__(self, dynamic_statement):
             """
@@ -185,7 +184,7 @@ class MultiplierData:
             self.field_sp_regen: float = 0.0
             self.field_sp_get_ratio: float = 0.0
             self.field_sp_limit: float = 0.0
-            
+
             self.phy_crit_dmg_bonus: float = 0.0
             self.fire_crit_dmg_bonus: float = 0.0
             self.ice_crit_dmg_bonus: float = 0.0
@@ -537,6 +536,15 @@ class Calculator:
                         data.dynamic.received_crit_dmg_bonus)
             return crit_dmg
 
+        @staticmethod
+        def cal_personal_crit_dmg(data: MultiplierData) -> float:
+            """
+            个人暴击伤害 = 面板暴击伤害 + buff暴击伤害
+            """
+            personal_crit_dmg = (data.static.crit_damage +
+                                 data.dynamic.crit_dmg +
+                                 data.dynamic.field_crit_dmg)
+            return personal_crit_dmg
 
         def cal_defense_mul(self, data: MultiplierData) -> float:
             """
@@ -555,10 +563,10 @@ class Calculator:
             # 防御区
             defense_mul = k_attacker / (effective_def + k_attacker)
             return defense_mul
-        
 
         @staticmethod
-        def cal_recipient_def(data: MultiplierData, pen_ratio: float, *, addon_pen_ratio: float = 0.0, addon_pen_numeric: float = 0.0) -> float:
+        def cal_recipient_def(data: MultiplierData, pen_ratio: float, *, addon_pen_ratio: float = 0.0,
+                              addon_pen_numeric: float = 0.0) -> float:
             # 受击方防御
             recipient_def = (data.enemy_obj.max_DEF *
                              (1 - data.dynamic.percentage_def_reduction) -
@@ -570,9 +578,9 @@ class Calculator:
             return effective_def
 
         @staticmethod
-        def cal_pen_ratio(data: MultiplierData, *,  addon_pen_ratio = 0.0):
+        def cal_pen_ratio(data: MultiplierData, *, addon_pen_ratio=0.0):
             return data.static.pen_ratio + data.dynamic.pen_ratio + addon_pen_ratio
-        
+
         @staticmethod
         def cal_k_attacker(attacker_level: int) -> int:
             # 定义域检查
@@ -592,7 +600,7 @@ class Calculator:
             return k_attacker
 
         @staticmethod
-        def cal_res_mul(data: MultiplierData, *,element_type: ElementType | None = None, snapshot_res_pen = 0) -> float:
+        def cal_res_mul(data: MultiplierData, *, element_type: ElementType | None = None, snapshot_res_pen=0) -> float:
             """
             抗性区 = 1 - 受击方抗性 + 受击方抗性降低 + 攻击方抗性穿透
             """
@@ -685,17 +693,17 @@ class Calculator:
             self.res_pen: float = self.cal_res_pen(data)
 
             self.anomaly_snapshot = np.array([
-                                                self.base_damage,
-                                                self.dmg_bonus,
-                                                self.ap_mul,
-                                                self.level,
-                                                self.anomaly_bonus,
-                                                self.anomaly_crit,
-                                                self.pen_ratio,
-                                                self.pen_numeric,
-                                                self.res_pen
-                                                ],
-                                               dtype=np.float64)
+                self.base_damage,
+                self.dmg_bonus,
+                self.ap_mul,
+                self.level,
+                self.anomaly_bonus,
+                self.anomaly_crit,
+                self.pen_ratio,
+                self.pen_numeric,
+                self.res_pen
+            ],
+                dtype=np.float64)
 
         @staticmethod
         def cal_am(data: MultiplierData) -> np.float64:
@@ -846,7 +854,7 @@ class Calculator:
             main_module = sys.modules['simulator.main_loop']
             if '简' in main_module.init_data.name_box and data.skill_node.skill.element_type == 0:
                 ap = self.cal_ap(data)
-                crit_dmg = 1 + 0.5 # Magic 技能介绍 Number
+                crit_dmg = 1 + 0.5  # Magic 技能介绍 Number
                 crit_rate = min((0.4 + ap * 0.0016), 1)
                 return 1 + crit_dmg * crit_rate
             else:
@@ -965,6 +973,7 @@ class Calculator:
     #    （该数据结构粗看下来，布尔值应该就能满足要求，但是后续如果还有精确到tick的要求，那可能会变成字典。）
     #      而在下一个Tick，Preload会根据这个数据结构中的内容来判断“刚刚那个tick的动作是否被打断了”，
     #      这将影响到Preload抛出的是正常主动动作，还是“被打断”的空动作。
+
 
 if __name__ == '__main__':
     pass

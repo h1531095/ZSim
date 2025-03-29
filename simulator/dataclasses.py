@@ -9,24 +9,24 @@ from sim_progress.data_struct import ActionStack
 @dataclass
 class InitData:
     name_box = ['青衣', '丽娜', '零号·安比']
-    Judge_list_set = [[name_box[0], '玉壶青冰', '震星迪斯科'],
-                      [name_box[1], '好斗的阿炮', '静听嘉音'],
-                      [name_box[2], '牺牲洁纯', '如影相随']]
+    Judge_list_set = [[name_box[0], '玉壶青冰', '震星迪斯科','摇摆爵士'],
+                      [name_box[1], '好斗的阿炮', '静听嘉音', '摇摆爵士'],
+                      [name_box[2], '牺牲洁纯', '如影相随', '啄木鸟电音']]
     char_0 = {'name': name_box[0],
               'weapon': Judge_list_set[0][1], 'weapon_level': 1,
-              'equip_set4': Judge_list_set[0][2], 'equip_set2_a': '摇摆爵士',
+              'equip_set4': Judge_list_set[0][2], 'equip_set2_a': Judge_list_set[0][3],
               'drive4': '暴击率', 'drive5': '电属性伤害', 'drive6': '冲击力%',
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 0}
     char_1 = {'name': name_box[1],
               'weapon': Judge_list_set[1][1], 'weapon_level': 5,
-              'equip_set4': Judge_list_set[1][2], 'equip_set2_a': '摇摆爵士',
+              'equip_set4': Judge_list_set[1][2], 'equip_set2_a': Judge_list_set[1][3],
               'drive4': '暴击率%', 'drive5': '穿透率', 'drive6': '能量自动回复%',
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 2}
     char_2 = {'name': name_box[2],
               'weapon': Judge_list_set[2][1], 'weapon_level': 1,
-              'equip_set4': Judge_list_set[2][2], 'equip_set2_a': '啄木鸟电音',
+              'equip_set4': Judge_list_set[2][2], 'equip_set2_a': Judge_list_set[2][3],
               'drive4': '暴击率', 'drive5': '攻击力%', 'drive6': '攻击力%',
               'scATK_percent': 10, 'scCRIT': 20,
               'cinema': 6}

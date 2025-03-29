@@ -6,6 +6,7 @@ class PolarMetalRecord:
         self.last_tick_freez_statement = 0, False
         self.equipper = None
         self.enemy = None
+        self.char = None
 
 
 class PolarMetalFreezeBonus(Buff.BuffLogic):

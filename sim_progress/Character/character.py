@@ -212,6 +212,8 @@ class Character:
         self.decibel: float = 1000.0
         # self.decibel: float = 0
 
+        self.element_type = None    # 角色属性。
+
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
         self._init_base_attribute(name)
@@ -376,6 +378,9 @@ class Character:
                 self.PEN_numeric = float(row_0.get('基础穿透值', 0))
                 self.base_sp_regen = float(row_0.get('基础能量自动回复', 0))
                 self.base_sp_get_ratio = float(row_0.get('基础能量获取效率', 1))
+                self.element_type = int(row_0.get('角色属性', -1))
+                if self.element_type == -1:
+                    raise ValueError(f"角色{char_name}的属性类型为空")
                 # CID特殊处理，避免不必要的类型转换
                 cid_value = row_0.get('CID', None)
                 self.CID = int(cid_value) if cid_value is not None else -1
