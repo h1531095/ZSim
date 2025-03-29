@@ -236,12 +236,12 @@ class Skill:
             # 特殊标签
             labels_str = _raw_skill_data['labels']
             if pd.isna(labels_str) or not str(labels_str).strip():  # 判断空值或空字符串
-                labels = {}
+                labels = None
             else:
                 # 去除首尾空格后尝试解析字典
                 labels = ast.literal_eval(str(labels_str).strip())
 
-            self.labels: dict = labels   # 技能特殊标签
+            self.labels: dict | None = labels   # 技能特殊标签
             # if self.labels:
             #     pass
 
