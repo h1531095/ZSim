@@ -233,6 +233,20 @@ class Skill:
             self.hit_times: int = temp_hit_times if temp_hit_times > 0 else 1
             self.on_field: bool = bool(_raw_skill_data['on_field'])
             self.anomaly_attack: bool = bool(_raw_skill_data['anomaly_attack'])
+            # 特殊标签
+            labels_str = _raw_skill_data['labels']
+            if pd.isna(labels_str) or not str(labels_str).strip():  # 判断空值或空字符串
+                labels = None
+            else:
+                # 去除首尾空格后尝试解析字典
+                labels = ast.literal_eval(str(labels_str).strip())
+
+            self.labels: dict | None = labels   # 技能特殊标签
+            # if self.labels:
+            #     pass
+
+            # TODO：抗打断标签；无敌标签
+
             # 技能链相关
             self.swap_cancel_ticks: int = int(_raw_skill_data['swap_cancel_ticks'])  # 可执行合轴操作的最短时间
             follow_up = _raw_skill_data['follow_up']
@@ -299,18 +313,9 @@ class Skill:
                                     }
             self.heavy_attack: bool = bool(_raw_skill_data['heavy_attack'])
             self.max_repeat_times: int = int(_raw_skill_data['max_repeat_times'])       # 最大重复释放次数。
-            tags_str = _raw_skill_data['tags']
-            # 处理 tags_str
-            if pd.isna(tags_str) or not str(tags_str).strip():  # 判断空值或空字符串
-                tags = None
-            else:
-                # 去除首尾空格后尝试解析字典
-                tags = ast.literal_eval(str(tags_str).strip())
 
-            self.tags = tags
-
-            # TODO：抗打断标签；无敌标签
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
+
 
         @staticmethod
         def __init_skill_level(skill_type: int,
