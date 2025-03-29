@@ -138,5 +138,9 @@
 
   "失衡延长": "stun_tick_increase",
   "固定基础伤害增加": "base_dmg_increase",
-  "基础伤害增加%": "base_dmg_increase_percentage"
+  "基础伤害增加%": "base_dmg_increase_percentage",
+
+  "追加攻击增伤": "aftershock_attack_dmg_bonus",
+  "追加攻击暴伤": "aftershock_attack_crit_dmg_bonus",
+  "追加攻击失衡值增加": "aftershock_attack_stun_bonus"
 }
