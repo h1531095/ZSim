@@ -13,6 +13,8 @@ class ConfirmEngine(BasePreloadEngine):
         4、外部数据交互、更新
         """
         super().__init__(data)
+        self.external_update_signal = False
+        self.external_add_skill_list = []
         self.validators = [
             self._validate_timing
         ]
@@ -86,3 +88,8 @@ class ConfirmEngine(BasePreloadEngine):
         if not results:
             print(f'Preload Tick的可行性验证未通过！应在{node.preload_tick}tick preload的{node.skill_tag}技能过早的在confirm引擎中出现！')
         return node.preload_tick <= tick
+
+
+
+
+
