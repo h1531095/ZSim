@@ -127,7 +127,6 @@ class Soldier0_Anby(Character):
         if self.cinema == 6:
             self.c6_counter += 1
             if self.c6_counter >= 6:
-                """"""
                 self.c6_answer = True
                 self.c6_counter = 0
 

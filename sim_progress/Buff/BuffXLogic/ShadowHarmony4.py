@@ -52,11 +52,11 @@ class ShadowHarmony4(Buff.BuffLogic):
         '''是冲刺攻击或是追加攻击标签时，检测技能属性是否与四件套佩戴者属性相同，如果不同则不予触发！'''
         if skill_node.skill.element_type != self.record.char.element_type:
             return False
-        if not skill_node.skill.tags:
+        if not skill_node.skill.labels:
             if skill_node.skill.trigger_buff_level == 3:
                 return True
         else:
-            if 'aftershock_attack' in skill_node.skill.tags.keys():
+            if 'aftershock_attack' in skill_node.skill.labels.keys():
                 return True
         return False
 
