@@ -212,6 +212,8 @@ class Character:
         self.decibel: float = 1000.0
         # self.decibel: float = 0
 
+        self.element_type = None    # 角色属性。
+
         # 抄表赋值！
         # 初始化角色基础属性    .\data\character.csv
         self._init_base_attribute(name)
@@ -376,6 +378,9 @@ class Character:
                 self.PEN_numeric = float(row_0.get('基础穿透值', 0))
                 self.base_sp_regen = float(row_0.get('基础能量自动回复', 0))
                 self.base_sp_get_ratio = float(row_0.get('基础能量获取效率', 1))
+                self.element_type = int(row_0.get('角色属性', -1))
+                if self.element_type == -1:
+                    raise ValueError(f"角色{char_name}的属性类型为空")
                 # CID特殊处理，避免不必要的类型转换
                 cid_value = row_0.get('CID', None)
                 self.CID = int(cid_value) if cid_value is not None else -1
@@ -617,6 +622,7 @@ class LastingNode:
         self.start_tick = 0
         self.update_tick = 0
         self.is_spamming = False      # 是否处于连续释放技能的状态
+        self.repeat_times = 0
 
     def update_node(self, node, tick: int):
         """更新char.dynamic中的node"""
@@ -627,6 +633,7 @@ class LastingNode:
                 self.is_spamming = False
                 self.node = None
                 self.update_tick = tick
+                self.repeat_times = 0
                 # print(f'新的node{node.skill_tag}传入了！与{self.char_instance.NAME}无关，但是Ta自身的持续释放技能状态已经结束了，所以对状态进行更新！')
                 return
         else:
@@ -634,7 +641,7 @@ class LastingNode:
                 self.node = node
                 self.start_tick = tick
                 self.update_tick = tick
-
+                self.repeat_times = 1
                 # print(f'第一个Node{node.char_name}传入！更新给{self.char_instance.NAME}')
                 return
             if node.skill_tag in ['被打断', '发呆']:
@@ -642,6 +649,7 @@ class LastingNode:
                 self.node = node
                 self.start_tick = tick
                 self.update_tick = tick
+                self.repeat_times = 0
                 # print(f'{self.char_instance.NAME}被打断了！')
                 return
             else:
@@ -651,9 +659,11 @@ class LastingNode:
                 if self.node.skill_tag == node.skill_tag:
                     # print(f'{self.char_instance.NAME}正在持续释放技能{node.skill_tag}！已经持续了{self.spamming_info(tick)[2]}tick！')
                     self.is_spamming = True
+                    self.repeat_times += 1
                 else:
                     self.is_spamming = False
                     self.start_tick = tick
+                    self.repeat_times = 1
                     # print(f'{self.char_instance.NAME}的持续释放技能被覆盖了！新的技能{node.skill_tag}传入')
                 self.node = node
                 self.update_tick = tick
@@ -665,7 +675,7 @@ class LastingNode:
             skill_tag = None
         else:
             skill_tag = self.node.skill_tag
-        return self.is_spamming, skill_tag, lasting_tick
+        return self.is_spamming, skill_tag, lasting_tick, self.repeat_times
 
 
 if __name__ == "__main__":

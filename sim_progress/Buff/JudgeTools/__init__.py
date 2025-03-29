@@ -24,6 +24,7 @@ def check_preparation(buff_0, **kwargs):
     action_stack = kwargs.get("action_stack")
     event_list = kwargs.get("event_list")
     trigger_buff_0 = kwargs.get("trigger_buff_0")
+    preload_data = kwargs.get("preload_data")
 
     # 参数正确性检查
     if sub_exist_buff_dict and char_NAME is None and char_CID is None and equipper is None:
@@ -66,11 +67,21 @@ def check_preparation(buff_0, **kwargs):
         if record.trigger_buff_0 is None:
             operator = trigger_buff_0[0]
             buff_index = trigger_buff_0[1]
+            if operator == 'equipper':
+                if record.equipper is None:
+                    record.equipper = find_equipper(operator)
+                operator = record.equipper
             sub_exist_buff_dict = find_exist_buff_dict()[operator]
-            founded_list = [buff_founded for buff_founded in sub_exist_buff_dict.values() if buff_founded.ft.index == buff_index]
+            founded_list = []
+            for _buff_founded in sub_exist_buff_dict.values():
+                if buff_index in _buff_founded.ft.index:
+                    founded_list.append(_buff_founded)
             if len(founded_list) != 1:
                 raise ValueError(f'在{operator}的sub_exist_buff_dict中找到了{len(founded_list)}个{buff_index}')
             record.trigger_buff_0 = founded_list[0]
+    if preload_data:
+        if record.preload_data is None:
+            record.preload_data = find_preload_data()
 
 
 

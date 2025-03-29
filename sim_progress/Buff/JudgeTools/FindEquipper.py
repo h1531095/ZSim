@@ -7,7 +7,15 @@ def find_equipper(item_name: str):
     """
     main_module = find_main()
     Judge_list_set = main_module.init_data.Judge_list_set
-    for sub_list in Judge_list_set:
-        for i in sub_list:
-            if i == item_name:
-                return sub_list[0]
+    if "二件套" not in item_name:
+        '''默认找的是四件套 和武器'''
+        for sub_list in Judge_list_set:
+            for i in sub_list:
+                if i == item_name and i != sub_list[3]:
+                    return sub_list[0]
+    else:
+        '''找的是二件套'''
+        for sub_list in Judge_list_set:
+            for i in sub_list:
+                if i == item_name and i == sub_list[3]:
+                    return sub_list[0]

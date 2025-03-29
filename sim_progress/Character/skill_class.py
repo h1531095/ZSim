@@ -1,5 +1,5 @@
 from functools import lru_cache
-
+import ast
 import numpy as np
 import pandas as pd
 from sim_progress import Report
@@ -298,6 +298,17 @@ class Skill:
                                     if not attr.startswith('__') and not callable(getattr(self, attr))
                                     }
             self.heavy_attack: bool = bool(_raw_skill_data['heavy_attack'])
+            self.max_repeat_times: int = int(_raw_skill_data['max_repeat_times'])       # 最大重复释放次数。
+            tags_str = _raw_skill_data['tags']
+            # 处理 tags_str
+            if pd.isna(tags_str) or not str(tags_str).strip():  # 判断空值或空字符串
+                tags = None
+            else:
+                # 去除首尾空格后尝试解析字典
+                tags = ast.literal_eval(str(tags_str).strip())
+
+            self.tags = tags
+
             # TODO：抗打断标签；无敌标签
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
 

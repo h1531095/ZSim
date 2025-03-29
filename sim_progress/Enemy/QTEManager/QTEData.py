@@ -79,13 +79,13 @@ class QTEData:
                 raise TypeError(f'QTEData的single_qte属性不是SingleQTE类！你往里放入了{type(self.single_qte)}！')
             # 2.1、尝试将已经通过可行性检查的SingleHit传入到SingleQTE中，进行数据更新，
             self.single_qte.receive_hit(hit)
-            print(f'{hit.skill_tag}响应了本次连携技触发！')
+            # print(f'{hit.skill_tag}响应了本次连携技触发！')
         else:
             # 3、如果SingleQTE实例不存在，那么要对传入的SingHit进行判断；
             if self.qte_active_selector(hit):
                 # 3.1、如果是能够激发连携的hit，而此时又没有SingleHit存在，那么就是激活了新的QTE阶段，进入下一步判断。
                 self.single_qte = SingleQTE(self)
-                print(f'{hit.skill_tag}激发了连携技！')
+                # print(f'{hit.skill_tag}激发了连携技！')
             else:
                 '''
                 如果不是重攻击，那就只能是某技能的第一跳。
@@ -93,7 +93,7 @@ class QTEData:
                 这个分枝往往发生在：怪物已经失衡，但是重攻击标签还未传入时，可能是前台切人合轴了，也可能是角色的APL本来就不打连携技。
                 此时，下一个循环，函数就会触发隔壁分枝，因为有一个SingleQTE是待传入状态，
                 '''
-                print(f'虽然是彩色失衡状态，但是没有进行响应')
+                # print(f'虽然是彩色失衡状态，但是没有进行响应')
                 return
 
     def single_hit_filter(self, hit: SingleHit):

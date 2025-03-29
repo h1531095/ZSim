@@ -41,12 +41,18 @@ class AttributeSubUnit(BaseSubConditionUnit):
             else:
                 return char.get_special_stats()
 
+    class CinemaHandler(AttributeCheckHandler):
+        @classmethod
+        def handler(cls, char):
+            return char.cinema
+
     AttributeHandlerMap = {
         'energy': EnergyHandler,
         'decibel': DecibelHandler,
         'special_resource': SpecialResourceValueHandler,
         'special_resource_type': SpecialResourceTypeHandler,
-        'special_state': SpecialStateHandler
+        'special_state': SpecialStateHandler,
+        'cinema': CinemaHandler
     }
 
     def check_myself(self, found_char_dict, game_state: dict, *args, **kwargs):

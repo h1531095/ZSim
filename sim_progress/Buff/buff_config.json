@@ -362,5 +362,69 @@
     "Buff-武器-精5好斗的阿炮-全局攻击力": {
         "module": ".BuffXLogic.KaboomTheCannon",
         "class": "KaboomTheCannon"
+    },
+    "Buff-角色-零号·安比-银星触发器": {
+        "module": ".BuffXLogic.Soldier0AnbySilverStarTrigger",
+        "class": "Soldier0AnbySilverStarTrigger"
+    },
+    "Buff-角色-零号·安比-核心被动-增伤": {
+        "module": ".BuffXLogic.Soldier0AnbyCoreSkillDMGBonus",
+        "class": "Soldier0AnbyCoreSkillDMGBonus"
+    },
+    "Buff-角色-零号·安比-核心被动-受暴伤增加": {
+        "module": ".BuffXLogic.Soldier0AnbyCoreSkillCritDMGBonus",
+        "class": "Soldier0AnbyCoreSkillCritDMGBonus"
+    },
+    "Buff-角色-零号·安比-组队被动-全队对银星目标增伤": {
+        "module": ".BuffXLogic.Soldier0AnbyAdditionalSkillDMGBonus",
+        "class": "Soldier0AnbyAdditionalSkillDMGBonus"
+    },
+    "Buff-角色-零号·安比-4画-无视电抗": {
+        "module": ".BuffXLogic.Soldier0AnbyCinema4EleResReduce",
+        "class": "Soldier0AnbyCinema4EleResReduce"
+    },
+    "Buff-武器-精1牺牲洁纯-触发暴伤": {
+        "module": ".BuffXLogic.SeveredInnocenceCritDMGBonus",
+        "class": "SeveredInnocenceCritDMGBonus"
+    },
+    "Buff-武器-精2牺牲洁纯-触发暴伤": {
+        "module": ".BuffXLogic.SeveredInnocenceCritDMGBonus",
+        "class": "SeveredInnocenceCritDMGBonus"
+    },
+    "Buff-武器-精3牺牲洁纯-触发暴伤": {
+        "module": ".BuffXLogic.SeveredInnocenceCritDMGBonus",
+        "class": "SeveredInnocenceCritDMGBonus"
+    },
+    "Buff-武器-精4牺牲洁纯-触发暴伤": {
+        "module": ".BuffXLogic.SeveredInnocenceCritDMGBonus",
+        "class": "SeveredInnocenceCritDMGBonus"
+    },
+    "Buff-武器-精5牺牲洁纯-触发暴伤": {
+        "module": ".BuffXLogic.SeveredInnocenceCritDMGBonus",
+        "class": "SeveredInnocenceCritDMGBonus"
+    },
+    "Buff-武器-精1牺牲洁纯-满层电伤": {
+        "module": ".BuffXLogic.SeveredInnocencELEDMGBonus",
+        "class": "SeveredInnocencELEDMGBonus"
+    },
+    "Buff-武器-精2牺牲洁纯-满层电伤": {
+        "module": ".BuffXLogic.SeveredInnocencELEDMGBonus",
+        "class": "SeveredInnocencELEDMGBonus"
+    },
+    "Buff-武器-精3牺牲洁纯-满层电伤": {
+        "module": ".BuffXLogic.SeveredInnocencELEDMGBonus",
+        "class": "SeveredInnocencELEDMGBonus"
+    },
+    "Buff-武器-精4牺牲洁纯-满层电伤": {
+        "module": ".BuffXLogic.SeveredInnocencELEDMGBonus",
+        "class": "SeveredInnocencELEDMGBonus"
+    },
+    "Buff-武器-精5牺牲洁纯-满层电伤": {
+        "module": ".BuffXLogic.SeveredInnocencELEDMGBonus",
+        "class": "SeveredInnocencELEDMGBonus"
+    },
+    "Buff-驱动盘-如影相随-四件套": {
+        "module": ".BuffXLogic.ShadowHarmony4",
+        "class": "ShadowHarmony4"
     }
 }

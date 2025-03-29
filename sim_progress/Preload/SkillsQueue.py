@@ -6,7 +6,7 @@ from sim_progress.Character.skill_class import Skill
 
 
 class SkillNode:
-    def __init__(self, skill: Skill.InitSkill, preload_tick: int, active_generation: bool = False):
+    def __init__(self, skill: Skill.InitSkill, preload_tick: int, active_generation: bool = False, **kwargs):
         """
         预加载技能节点
 
@@ -14,6 +14,7 @@ class SkillNode:
         1、部分需要立即调用的信息；
         2、整个 Skill.InitSkill 对象，包含了技能的全部信息，用于计算器调用
         """
+        self.apl_priority: int = kwargs.get('apl_priority', 0)
         self.skill_tag: str = skill.skill_tag
         self.char_name: str = skill.char_name
         self.preload_tick: int = preload_tick
@@ -31,9 +32,10 @@ def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:
     通过输入的tag和preload_tick，直接创建SkillNode。
     """
     active_generation = kwargs.get('active_generation', False)
+    apl_priority = kwargs.get('apl_priority', 0)
     for obj in skills:
         if tag in obj.skills_dict.keys():
-            node = SkillNode(obj.skills_dict[tag], preload_tick, active_generation)
+            node = SkillNode(obj.skills_dict[tag], preload_tick, active_generation, apl_priority=apl_priority)
             return node
     else:
         raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")

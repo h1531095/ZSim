@@ -60,6 +60,12 @@ def find_load_data():
     return load_data
 
 
+def find_preload_data():
+    main_module = find_main()
+    preload_data = main_module.preload.preload_data
+    return preload_data
+
+
 def find_name_box():
     main_module = find_main()
     name_box = main_module.load_data.name_box
