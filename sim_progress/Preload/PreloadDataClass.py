@@ -53,6 +53,11 @@ class PreloadData:
             print(f'尚未被Load阶段处理的技能：{self.preload_action}')
         enemy.stun_judge(tick)
 
+    def external_add_skill(self, skill_tuple: tuple[str, bool]):
+        """外部Buff向下一个Tick添加技能的接口，通常用于协同攻击"""
+        skill_tag, active_generation = skill_tuple
+        self.preload_action_list_before_confirm.append(skill_tuple)
+
 
 
 

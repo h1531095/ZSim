@@ -48,3 +48,12 @@ class LoadingMission:
                 return tick
             else:
                 tick_list.remove(tick)
+
+    def is_hit_now(self, tick_now: int) -> bool:
+        """检测当前tick是否有hit事件。"""
+        for _tick in self.mission_dict.keys():
+            if tick_now - 1 < _tick <= tick_now:
+                if self.mission_dict[_tick] == "hit":
+                    return True
+        else:
+            return False
