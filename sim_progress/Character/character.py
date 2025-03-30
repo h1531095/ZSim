@@ -351,6 +351,14 @@ class Character:
             self.lasting_node = LastingNode(self.character)
             self.on_field = False   # 角色是否在前台
 
+    def is_available(self, tick: int):
+        """查询角色当前tick是否有空"""
+        if self.dynamic.lasting_node is None:
+            return ValueError("角色没有LastingNode")
+        if self.dynamic.lasting_node.node.end_tick >= tick:
+            return False
+        return True
+
     def _init_base_attribute(self, char_name: str):
         """
         初始化角色基础属性。
@@ -613,6 +621,7 @@ class Character:
 
     def __str__(self) -> str:
         return f"{self.NAME} {self.level}级，能量{self.sp:.2f}，喧响{self.decibel:.2f}"
+
 
 class LastingNode:
     def __init__(self, char_instance: Character):

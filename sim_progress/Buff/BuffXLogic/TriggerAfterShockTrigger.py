@@ -1,13 +1,11 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 
 
-
-
-
 class TriggerAfterShockTriggerRecord:
     def __init__(self):
         self.char = None
         self.preload_data = None
+        self.active_signal_node = None
         self.after_shock_manager = None
 
 
@@ -51,6 +49,10 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
         tick = find_tick()
         if not loading_mission.is_hit_now(tick):
             return False
+        self.record.active_signal_node = loading_mission.mission_node
+        return True
+
+
 
 
 
