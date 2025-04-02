@@ -5,12 +5,11 @@ class TriggerAfterShockTriggerRecord:
     def __init__(self):
         self.char = None
         self.preload_data = None
-        self.active_signal_node = None
+        self.active_signal_mission = None
         self.after_shock_manager = None
 
 
 class TriggerAfterShockTrigger(Buff.BuffLogic):
-
     def __init__(self, buff_instance):
         """扳机的协同攻击触发器"""
         super().__init__(buff_instance)
@@ -32,11 +31,7 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
 
     def special_judge_logic(self, **kwargs):
         """
-        触发器的xjudge函数，负责判断当前攻击是否能够触发协同攻击，主要包括
-        （以下选项优先级未定）
-        1、决意值的判定，决意值>消耗值，才允许触发
-        2、检查协战状态的buff是否存在？？
-        3、筛选触发条件
+        触发器的xjudge函数，负责判断当前攻击是否能够触发协同攻击
         """
         self.check_record_module()
         self.get_prepared(char_CID=1361, preload_data=1)
@@ -47,10 +42,38 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
         if not isinstance(loading_mission, LoadingMission):
             raise TypeError
         tick = find_tick()
+        '''如果当前mission不是hit，则不触发'''
         if not loading_mission.is_hit_now(tick):
             return False
-        self.record.active_signal_node = loading_mission.mission_node
+
+        '''如果当前mission是扳机自己的动作，也不触发'''
+        if '1361' in loading_mission.mission_tag:
+            return False
+
+        '''
+        剩余情况汇总：队友的、正在命中的skill_node，即为可能触发协同攻击的skill_node，
+        但是，这里是不包含 扳机 决意值 的判断逻辑的，
+        因为在after_shock管理器中，决意值不够时会直接返回None。
+        '''
+        self.record.active_signal_mission = loading_mission
+
         return True
+
+    def special_hit_logic(self, **kwargs):
+        """
+        扳机的协同攻击触发的核心函数，负责抛出对应的协同攻击给Preload，
+        同时更新角色的决意值、协战状态管理器数据
+        """
+        self.check_record_module()
+        self.get_prepared(char_CID=1361, preload_data=1)
+        if self.record.active_signal_mission is None:
+            raise ValueError(f'{self.buff_instance.ft.index}的xjudge函数在本tick通过判定，但是并未将通过判定的skill_node传入自身的record中')
+        tick = find_tick()
+        after_shock_tag = self.record.char.after_shock_manager.spawn_after_shock(tick, self.record.active_signal_mission)
+        if after_shock_tag is not None:
+            insert_tuple = (after_shock_tag, False, 0)
+            self.record.preload_data.preload_action_list_before_confirm.append(insert_tuple)
+
 
 
 

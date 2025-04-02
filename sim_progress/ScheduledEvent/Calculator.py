@@ -518,7 +518,7 @@ class Calculator:
                 label_dmg_bonus = data.dynamic.aftershock_attack_dmg_bonus
             else:
                 label_dmg_bonus = 0
-            dmg_bonus = 1 + element_dmg_bonus + trigger_dmg_bonus + label_dmg_bonus
+            dmg_bonus = 1 + element_dmg_bonus + trigger_dmg_bonus + label_dmg_bonus + data.dynamic.all_dmg_bonus
             return dmg_bonus
 
         @staticmethod
@@ -528,6 +528,15 @@ class Calculator:
                          data.dynamic.crit_rate +
                          data.dynamic.field_crit_rate +
                          data.dynamic.crit_rate_received_increase
+                         )
+            return crit_rate
+
+        @staticmethod
+        def cal_personal_crit_rate(data: MultiplierData) -> float:
+            """个人实时暴击率 = 面板暴击率 + buff暴击率 """
+            crit_rate = (data.static.crit_rate +
+                         data.dynamic.crit_rate +
+                         data.dynamic.field_crit_rate
                          )
             return crit_rate
 
@@ -920,7 +929,32 @@ class Calculator:
                 label_stun_bonus = data.dynamic.aftershock_attack_stun_bonus
             else:
                 label_stun_bonus = 0
-            stun_bonus = 1 + data.dynamic.stun_bonus + label_stun_bonus
+            # 接下来计算标签类失衡值
+            tbl = data.skill_node.skill.trigger_buff_level
+            if tbl == 0:
+                stun_bonus_tbl = data.dynamic.normal_attack_stun_bonus
+            elif tbl == 1:
+                stun_bonus_tbl = data.dynamic.special_skill_stun_bonus
+            elif tbl == 2:
+                stun_bonus_tbl = data.dynamic.ex_special_skill_stun_bonus
+            elif tbl == 3:
+                stun_bonus_tbl = data.dynamic.dash_attack_stun_bonus
+            elif tbl == 4:
+                stun_bonus_tbl = data.dynamic.counter_attack_stun_bonus
+            elif tbl == 5:
+                stun_bonus_tbl = data.dynamic.qte_stun_bonus
+            elif tbl == 6:
+                stun_bonus_tbl = data.dynamic.ultimate_stun_bonus
+            elif tbl == 7:
+                stun_bonus_tbl = data.dynamic.quick_aid_stun_bonus
+            elif tbl == 8:
+                stun_bonus_tbl = data.dynamic.defensive_aid_stun_bonus
+            elif tbl == 9:
+                stun_bonus_tbl = data.dynamic.assault_aid_stun_bonus
+            else:
+                raise ValueError(f'{data.skill_node.skill_tag}的trigger_buff_level为{tbl}，无法解析！')
+            all_stun_bonus = data.dynamic.stun_bonus        # 全品类失衡增幅
+            stun_bonus = 1 + stun_bonus_tbl + all_stun_bonus + label_stun_bonus
             return stun_bonus
 
         @staticmethod

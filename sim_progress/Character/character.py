@@ -353,9 +353,13 @@ class Character:
 
     def is_available(self, tick: int):
         """查询角色当前tick是否有空"""
-        if self.dynamic.lasting_node is None:
+        lasting_node = self.dynamic.lasting_node
+        if lasting_node is None:
             return ValueError("角色没有LastingNode")
-        if self.dynamic.lasting_node.node.end_tick >= tick:
+        node = lasting_node.node
+        if node is None:
+            return True
+        if node.end_tick >= tick:
             return False
         return True
 
@@ -424,7 +428,7 @@ class Character:
                 self.overall_DEF_percent += float(row_0.get('oDEF%', 0))
                 self.overall_HP_percent += float(row_0.get('oHP%', 0))
                 self.overall_IMP_percent += float(row_0.get('oIMP%', 0))
-                self.baseCRIT_score += 100 * (float(row_0.get('Crit_Rate', 0)) * 2 + float(row_0.get('Crit_Damage', 0)))
+                self.baseCRIT_score += 100 * (float(row_0.get('Crit_Rate', 0)) * 2 + float(row_0.get('Crit_DMG', 0)))
                 self.AM_numeric += float(row_0.get('Anomaly_Mastery', 0))
                 self.AP_numeric += float(row_0.get('Anomaly_Proficiency', 0))
                 self.sp_regen_percent += float(row_0.get('Regen%', 0))
@@ -480,6 +484,7 @@ class Character:
                         self.ELECTRIC_DMG_bonus += float(row_0.get('ELECTRIC_DMG_bonus', 0))
                         self.PHY_DMG_bonus += float(row_0.get('PHY_DMG_bonus', 0))
                         self.ETHER_DMG_bonus += float(row_0.get('ETHER_DMG_bonus', 0))
+                        self.baseCRIT_score += 100 * (float(row_0.get('Crit_Rate', 0)) * 2 + float(row_0.get('Crit_DMG', 0)))
                     else:
                         raise ValueError(f"套装 {equip_2pc} 不存在")
 

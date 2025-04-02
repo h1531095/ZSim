@@ -13,17 +13,17 @@ class ForceAddEngine(BasePreloadEngine):
     def run_myself(self, tick: int):
         """当每个node结束时，都应该调用这个函数来判断强制添加。"""
         self.active_signal = False
-        for stack in self.data.personal_node_stack.values():
+        for cid, stack in self.data.personal_node_stack.items():
             node: SkillNode | None
             node = stack.peek()
             if node is None:
-                return
+                continue
             if node.end_tick > tick:
                 '''如果当前node并未结束，则不符合“node”结束的条件，则应该直接跳过。'''
                 continue
             follow_up: list = node.skill.follow_up
             if not follow_up:
-                return
+                continue
             conditions_unit: list = node.skill.force_add_condition_APL
             should_force_add, index = self.prcoess_force_add_apl(conditions_unit, skill_tag=node.skill_tag)
             if should_force_add:

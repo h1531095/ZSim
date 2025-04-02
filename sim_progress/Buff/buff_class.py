@@ -365,6 +365,7 @@ class Buff:
         no_end = kwargs.get('no_end', False)
         no_count = kwargs.get('no_count', False)
         buff_0 = sub_exist_buff_dict[self.ft.index]
+
         self.dy.active = True
         if not no_start:
             self.dy.startticks = timenow

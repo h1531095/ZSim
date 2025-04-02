@@ -426,5 +426,81 @@
     "Buff-驱动盘-如影相随-四件套": {
         "module": ".BuffXLogic.ShadowHarmony4",
         "class": "ShadowHarmony4"
+    },
+    "Buff-角色-扳机-协同攻击-触发器": {
+        "module": ".BuffXLogic.TriggerAfterShockTrigger",
+        "class": "TriggerAfterShockTrigger"
+    },
+    "Buff-角色-扳机-核心被动-失衡易伤": {
+        "module": ".BuffXLogic.TriggerCoreSkillStunDMGBonus",
+        "class": "TriggerCoreSkillStunDMGBonus"
+    },
+    "Buff-角色-扳机-额外能力-追加攻击失衡值提升": {
+        "module": ".BuffXLogic.TriggerAdditionalAbilityStunBonus",
+        "class": "TriggerAdditionalAbilityStunBonus"
+    },
+    "Buff-角色-扳机-1画-失衡易伤提升": {
+        "module": ".BuffXLogic.TriggerCoreSkillStunDMGBonus",
+        "class": "TriggerCoreSkillStunDMGBonus"
+    },
+    "Buff-武器-精1索魂影眸-减防": {
+        "module": ".BuffXLogic.SpectralGazeDefReduce",
+        "class": "SpectralGazeDefReduce"
+    },
+    "Buff-武器-精2索魂影眸-减防": {
+        "module": ".BuffXLogic.SpectralGazeDefReduce",
+        "class": "SpectralGazeDefReduce"
+    },
+    "Buff-武器-精3索魂影眸-减防": {
+        "module": ".BuffXLogic.SpectralGazeDefReduce",
+        "class": "SpectralGazeDefReduce"
+    },
+    "Buff-武器-精4索魂影眸-减防": {
+        "module": ".BuffXLogic.SpectralGazeDefReduce",
+        "class": "SpectralGazeDefReduce"
+    },
+    "Buff-武器-精5索魂影眸-减防": {
+        "module": ".BuffXLogic.SpectralGazeDefReduce",
+        "class": "SpectralGazeDefReduce"
+    },
+    "Buff-武器-精1索魂影眸-魂锁": {
+        "module": ".BuffXLogic.SpectralGazeSpiritLock",
+        "class": "SpectralGazeSpiritLock"
+    },
+    "Buff-武器-精2索魂影眸-魂锁": {
+        "module": ".BuffXLogic.SpectralGazeSpiritLock",
+        "class": "SpectralGazeSpiritLock"
+    },
+    "Buff-武器-精3索魂影眸-魂锁": {
+        "module": ".BuffXLogic.SpectralGazeSpiritLock",
+        "class": "SpectralGazeSpiritLock"
+    },
+    "Buff-武器-精4索魂影眸-魂锁": {
+        "module": ".BuffXLogic.SpectralGazeSpiritLock",
+        "class": "SpectralGazeSpiritLock"
+    },
+    "Buff-武器-精5索魂影眸-魂锁": {
+        "module": ".BuffXLogic.SpectralGazeSpiritLock",
+        "class": "SpectralGazeSpiritLock"
+    },
+    "Buff-武器-精1索魂影眸-冲击力": {
+        "module": ".BuffXLogic.SpectralGazeImpactBonus",
+        "class": "SpectralGazeImpactBonus"
+    },
+    "Buff-武器-精2索魂影眸-冲击力": {
+        "module": ".BuffXLogic.SpectralGazeImpactBonus",
+        "class": "SpectralGazeImpactBonus"
+    },
+    "Buff-武器-精3索魂影眸-冲击力": {
+        "module": ".BuffXLogic.SpectralGazeImpactBonus",
+        "class": "SpectralGazeImpactBonus"
+    },
+    "Buff-武器-精4索魂影眸-冲击力": {
+        "module": ".BuffXLogic.SpectralGazeImpactBonus",
+        "class": "SpectralGazeImpactBonus"
+    },
+    "Buff-武器-精5索魂影眸-冲击力": {
+        "module": ".BuffXLogic.SpectralGazeImpactBonus",
+        "class": "SpectralGazeImpactBonus"
     }
 }

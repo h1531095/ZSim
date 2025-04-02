@@ -32,6 +32,7 @@ def cal_buff_total_bonus(enabled_buff: Iterable) -> dict[str, float]:
                 count = buff_obj.dy.count
                 count = count if count > 0 else 0
                 # 遍历buff的每个效果和对应的值，并将其累加
+
                 for key, value in buff_obj.effect_dct.items():
                     # 如果键值对在动态语句字典中，则累加值，否则初始化并赋值
                     try:

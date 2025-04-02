@@ -14,6 +14,10 @@ class BasePreloadStrategy(ABC):
     def generate_actions(self, *args, **kwargs):
         pass
 
+    @abstractmethod
+    def check_myself(self, *args, **kwargs):
+        pass
+
 
 class SwapCancelStrategy(BasePreloadStrategy):
     def __init__(self, data):
@@ -23,7 +27,7 @@ class SwapCancelStrategy(BasePreloadStrategy):
     def generate_actions(self, enemy, tick: int):
         """合轴逻辑"""
         # 0、自检
-        self.data.chek_myself_before_start_preload(enemy, tick)
+        self.check_myself(enemy, tick)
 
         # 1、APL引擎抛出本tick的主动动作
         apl_skill_tag, priority = self.apl_engine.run_myself(tick)
@@ -36,12 +40,14 @@ class SwapCancelStrategy(BasePreloadStrategy):
 
         #  3、SwapCancel引擎 判定当前tick和技能是否能够成功合轴
         self.swap_cancel_engine.run_myself(apl_skill_tag, tick, apl_priority=priority)
-
         if (self.swap_cancel_engine.active_signal or
-                self.force_add_engine.active_signal):
+                self.force_add_engine.active_signal or
+                self.swap_cancel_engine.external_update_signal):
             #  4、Confirm引擎 清理data.preload_action_list_before_confirm，
             self.confirm_engine.run_myself(tick)
 
+    def check_myself(self, enemy, tick, *args, **kwargs):
+        self.data.chek_myself_before_start_preload(enemy, tick)
 
 class SequenceStrategy(BasePreloadStrategy):
     def generate_actions(self):

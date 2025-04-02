@@ -36,8 +36,8 @@ class Soldier0AnbyCoreSkillDMGBonus(Buff.BuffLogic):
         只要是检测到有银星，就返回True
         """
         self.check_record_module()
-        self.get_prepared(char_CID=1381, trigger_buff_0=("零号·安比", "Buff-角色-零号·安比-银星触发器"))
-        if self.record.trigger_buff_0.dy.active:
+        self.get_prepared(char_CID=1381)
+        if self.record.char.get_resources()[1] > 0:
             return True
         else:
             return False

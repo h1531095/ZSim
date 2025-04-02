@@ -59,16 +59,15 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
             return False
         if not tick-1 < _skill_node.preload_tick <= tick:
             return False
-        if _skill_node.skill.trigger_buff_level == 0:
+        if _skill_node.skill.labels is not None:
+            if 'aftershock_attack' in _skill_node.skill.labels.keys():
+                self.record.update_signal.append(2)
+                return True
+        elif _skill_node.skill.trigger_buff_level == 0:
             self.record.update_signal.append(0)
             return True
         elif _skill_node.skill.trigger_buff_level in [1, 2]:
             self.record.update_signal.append(1)
-            return True
-        elif _skill_node.skill.labels is None:
-            return False
-        elif 'aftershock_attack' in _skill_node.skill.labels.keys():
-            self.record.update_signal.append(2)
             return True
         else:
             return False
