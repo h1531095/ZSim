@@ -10,7 +10,7 @@ class IceJadeTeaPotExtraDMGBonus(Buff.BuffLogic):
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         equipper = JudgeTools.find_equipper("玉壶青冰")
         dynamic_buff_list = JudgeTools.find_dynamic_buff_list()
         for buffs in dynamic_buff_list[equipper]:

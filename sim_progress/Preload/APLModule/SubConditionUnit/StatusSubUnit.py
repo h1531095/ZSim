@@ -40,6 +40,11 @@ class StatusSubUnit(BaseSubConditionUnit):
         def handler(self, enemy):
             return enemy.anomaly_bars_dict[self.anomaly_number].get_buildup_pct()
 
+    class StunPctHandler(CheckHandler):
+        @classmethod
+        def handler(cls,  enemy):
+            return enemy.get_stun_percentage()
+
     class CharLastingNodeTagHandler(CheckHandler):
         @classmethod
         def handler(cls, char_cid, found_char_dict, game_state):
@@ -82,7 +87,8 @@ class StatusSubUnit(BaseSubConditionUnit):
         'on_field': CharOnFieldHandler,
         'QTE_activation_available': QTEActivationAvailableHandler,
         'single_qte': SingleQTEHandler,
-        'repeat_times': CharRepeatTimesHandler
+        'repeat_times': CharRepeatTimesHandler,
+        'stun_pct': StunPctHandler
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):

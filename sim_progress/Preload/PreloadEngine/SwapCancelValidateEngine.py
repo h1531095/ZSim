@@ -26,6 +26,10 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             self._validate_qte_activation
         ]
 
+    @property
+    def external_update_signal(self):
+        return True if self.data.preload_action_list_before_confirm else False
+
     def run_myself(self, skill_tag: str, tick: int, **kwargs) -> bool:
         """合轴可行性分析基本分为以下几个步骤：
         1、当前涉及角色是否有空
@@ -126,3 +130,6 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         else:
             return False
 
+    def check_myself(self):
+        if self.data.preload_action_list_before_confirm:
+            self.active_signal = True

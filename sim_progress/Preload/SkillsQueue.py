@@ -3,9 +3,13 @@ from define import APL_MODE
 from sim_progress.data_struct.LinkedList import LinkedList
 from sim_progress.Report import report_to_log
 from sim_progress.Character.skill_class import Skill
+import threading
 
 
 class SkillNode:
+    _instance_counter = 0
+    _counter_lock = threading.Lock()
+
     def __init__(self, skill: Skill.InitSkill, preload_tick: int, active_generation: bool = False, **kwargs):
         """
         预加载技能节点
@@ -14,17 +18,25 @@ class SkillNode:
         1、部分需要立即调用的信息；
         2、整个 Skill.InitSkill 对象，包含了技能的全部信息，用于计算器调用
         """
-        self.apl_priority: int = kwargs.get('apl_priority', 0)
-        self.skill_tag: str = skill.skill_tag
-        self.char_name: str = skill.char_name
-        self.preload_tick: int = preload_tick
-        self.hit_times: int = skill.hit_times
-        self.skill: Skill.InitSkill = skill
-        self.end_tick: int = self.preload_tick + self.skill.ticks
-        self.active_generation: bool = active_generation            # 构造函数的调用来源是否是主动动作
+        with SkillNode._counter_lock:
+            self.apl_priority: int = kwargs.get('apl_priority', 0)
+            self.skill_tag: str = skill.skill_tag
+            self.char_name: str = skill.char_name
+            self.preload_tick: int = preload_tick
+            self.hit_times: int = skill.hit_times
+            self.skill: Skill.InitSkill = skill
+            self.end_tick: int = self.preload_tick + self.skill.ticks
+            self.active_generation: bool = active_generation            # 构造函数的调用来源是否是主动动作
+            self.instance_id = SkillNode._instance_counter
+            SkillNode._instance_counter += 1
 
     def __str__(self) -> str:
         return f"SkillNode: {self.skill_tag}"
+
+    @classmethod
+    def get_total_instances(cls) -> int:
+        """获取当前skill_node的唯一ID，该ID在skill_node被构造时就已经确定"""
+        return cls._instance_counter
 
 
 def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:

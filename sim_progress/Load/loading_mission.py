@@ -48,3 +48,23 @@ class LoadingMission:
                 return tick
             else:
                 tick_list.remove(tick)
+
+    def is_hit_now(self, tick_now: int) -> bool:
+        """检测当前tick是否有hit事件。"""
+        for _tick in self.mission_dict.keys():
+            if tick_now - 1 < _tick <= tick_now:
+                if self.mission_dict[_tick] == "hit":
+                    return True
+        else:
+            return False
+
+    def get_last_hit(self):
+        """返回最后一次命中的时间"""
+        tick_list = list(self.mission_dict.keys())
+        while tick_list:
+            tick = max(tick_list)
+            if self.mission_dict[tick] == "hit":
+                return tick
+            else:
+                tick_list.remove(tick)
+
