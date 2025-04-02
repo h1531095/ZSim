@@ -188,7 +188,7 @@ class ScheduledEvent:
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.element_type,
-                                 dmg_expect=dmg_anomaly,
+                                 dmg_expect=round(dmg_anomaly, 2),
                                  is_anomaly=True)
 
     def disorder_event(self, event: Disorder):
@@ -199,7 +199,7 @@ class ScheduledEvent:
         self.data.enemy.update_stun(stun)
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.element_type,
-                                 dmg_expect=dmg_disorder,
+                                 dmg_expect=round(dmg_disorder, 2),
                                  is_anomaly=True,
                                  is_disorder=True)
 
