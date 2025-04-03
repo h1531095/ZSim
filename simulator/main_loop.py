@@ -15,7 +15,7 @@ load_data = LoadData(
         weapon_dict=init_data.weapon_dict,
         cinema_dict=init_data.cinema_dict,
         action_stack=ActionStack())
-schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11051), char_obj_list=char_data.char_obj_list)
+schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11412), char_obj_list=char_data.char_obj_list)
 global_stats = GlobalStats(name_box=init_data.name_box)
 skills = [char.skill_object for char in char_data.char_obj_list]
 # preload = Preload.Preload(*skills)
@@ -31,7 +31,7 @@ game_state = {
 }
 
 
-def main_loop(stop_tick: int | None = 6000):
+def main_loop(stop_tick: int | None = 10800):
     global tick
     tick = 0
     while True:

@@ -317,6 +317,7 @@ class Enemy:
         self.stun_judge(tick)
         # 怪物的扣血逻辑。
         self.__HP_update(single_hit.dmg_expect)
+
         # 更新异常值
         self.__anomaly_prod(single_hit.snapshot)
         # 更新连携管理器

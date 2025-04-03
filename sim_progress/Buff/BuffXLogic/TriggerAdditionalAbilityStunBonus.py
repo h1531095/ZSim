@@ -56,6 +56,7 @@ class TriggerAdditionalAbilityStunBonus(Buff.BuffLogic):
 
         '''「扳机」的暴击率高于40%时，每超过1%暴击率会使自身发动[追加攻击]造成的失衡值提升1.5%，最多提升75%。'''
         count = min(max(crit_rate - 0.4, 0)/0.01 * 1.5, 75)
+        # print(f'当前暴击率：{crit_rate}, 层数：{count}')
 
         self.buff_instance.simple_start(tick, self.record.sub_exist_buff_dict, no_count=1)
         self.buff_instance.dy.count = count
