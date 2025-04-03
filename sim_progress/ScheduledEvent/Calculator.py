@@ -619,9 +619,7 @@ class Calculator:
 
         @staticmethod
         def cal_res_mul(data: MultiplierData, *, element_type: ElementType | None = None, snapshot_res_pen=0) -> float:
-            """
-            抗性区 = 1 - 受击方抗性 + 受击方抗性降低 + 攻击方抗性穿透
-            """
+            """抗性区 = 1 - 受击方抗性 + 受击方抗性降低 + 攻击方抗性穿透"""
             if element_type is None:
                 element_type = data.skill_node.skill.element_type
             # 获取抗性区，初始化为0

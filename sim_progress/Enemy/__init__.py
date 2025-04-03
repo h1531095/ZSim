@@ -50,9 +50,9 @@ class Enemy:
         # 初始化动态属性
         self.dynamic = self.EnemyDynamic()
         # 初始化敌人基础属性
-        self.max_HP: float = float(self.data_dict['剧变节点7理论生命值'])
-        self.max_ATK: float = float(self.data_dict['剧变节点7攻击力'])
-        self.max_stun: float = float(self.data_dict['剧变节点7失衡值上限'])
+        self.max_HP: float = float(self.data_dict['70级最大生命值'])
+        self.max_ATK: float = float(self.data_dict['70级最大攻击力'])
+        self.max_stun: float = float(self.data_dict['70级最大失衡值上限'])
         self.max_DEF: float = float(self.data_dict['60级及以上防御力'])
         self.CRIT_damage: float = float(self.data_dict['暴击伤害'])
         self.able_to_be_stunned: bool = bool(self.data_dict['能否失衡'])
@@ -71,11 +71,46 @@ class Enemy:
         # 初始化敌人其他防御属性
         self.interruption_resistance_level: int = int(self.data_dict['抗打断等级'])
         self.freeze_resistance: float = float(self.data_dict['冻结抵抗'])
-        self.ICE_damage_resistance: float = float(self.data_dict['冰抗'])
-        self.FIRE_damage_resistance: float = float(self.data_dict['火抗'])
-        self.ELECTRIC_damage_resistance: float = float(self.data_dict['电抗'])
-        self.ETHER_damage_resistance: float = float(self.data_dict['以太抗'])
-        self.PHY_damage_resistance: float = float(self.data_dict['物抗'])
+        # 伤害抗性
+        self.ICE_damage_resistance: float = float(self.data_dict['冰伤害抗性'])
+        self.FIRE_damage_resistance: float = float(self.data_dict['火伤害抗性'])
+        self.ELECTRIC_damage_resistance: float = float(self.data_dict['电伤害抗性'])
+        self.ETHER_damage_resistance: float = float(self.data_dict['以太伤害抗性'])
+        self.PHY_damage_resistance: float = float(self.data_dict['物理伤害抗性'])
+        # 异常抗性
+        self.ICE_anomaly_resistance: float = float(self.data_dict['冰异常抗性'])
+        self.FIRE_anomaly_resistance: float = float(self.data_dict['火异常抗性'])
+        self.ELECTRIC_anomaly_resistance: float = float(self.data_dict['电异常抗性'])
+        self.ETHER_anomaly_resistance: float = float(self.data_dict['以太异常抗性'])
+        self.PHY_anomaly_resistance: float = float(self.data_dict['物理异常抗性'])
+        # 失衡抗性
+        self.ICE_stun_resistance: float = float(self.data_dict['冰失衡抗性'])
+        self.FIRE_stun_resistance: float = float(self.data_dict['火失衡抗性'])
+        self.ELECTRIC_stun_resistance: float = float(self.data_dict['电失衡抗性'])
+        self.ETHER_stun_resistance: float = float(self.data_dict['以太失衡抗性'])
+        self.PHY_stun_resistance: float = float(self.data_dict['物理失衡抗性'])
+        # 各抗性对应字典
+        self.damage_resistance_dict: dict[int, float] = {
+            0: self.PHY_damage_resistance,
+            1: self.FIRE_damage_resistance,
+            2: self.ICE_damage_resistance,
+            3: self.ELECTRIC_damage_resistance,
+            4: self.ETHER_damage_resistance
+        }
+        self.anomaly_resistance_dict: dict[int, float] = {
+            0: self.PHY_anomaly_resistance,
+            1: self.FIRE_anomaly_resistance,
+            2: self.ICE_anomaly_resistance,
+            3: self.ELECTRIC_anomaly_resistance,
+            4: self.ETHER_anomaly_resistance
+        }
+        self.stun_resistance_dict: dict[int, float] = {
+            0: self.PHY_stun_resistance,
+            1: self.FIRE_stun_resistance,
+            2: self.ICE_stun_resistance,
+            3: self.ELECTRIC_stun_resistance,
+            4: self.ETHER_stun_resistance
+        }
 
         # 初始化敌人设置
         self.settings = EnemySettings()
@@ -84,11 +119,9 @@ class Enemy:
         # 下面的两个dict本来写在外面的，但是别的程序也要用这两个dict，所以索性写进来了。我是天才。
         self.trans_element_number_to_str = {0: 'PHY', 1: 'FIRE', 2: 'ICE', 3: 'ELECTRIC', 4: 'ETHER', 5: 'FIREICE'}
         self.trans_anomaly_effect_to_str = {0: 'assault', 1: 'burn', 2: 'frostbite', 3: 'shock', 4: 'corruption', 5: 'frost_frostbite'}
-        """
-        enemy实例化的时候，6种异常积蓄条也随着一起实例化。
-        """
 
-        self.fireice_anomaly_bar = AnomalyBar.FrostAnomaly()
+        # enemy实例化的时候，6种异常积蓄条也随着一起实例化
+        self.frost_anomaly_bar = AnomalyBar.FrostAnomaly()
         self.ice_anomaly_bar = AnomalyBar.IceAnomaly()
         self.fire_anomaly_bar = AnomalyBar.FireAnomaly()
         self.physical_anomaly_bar = AnomalyBar.PhysicalAnomaly()
@@ -109,7 +142,7 @@ class Enemy:
             2: self.ice_anomaly_bar,
             3: self.electric_anomaly_bar,
             4: self.ether_anomaly_bar,
-            5: self.fireice_anomaly_bar,
+            5: self.frost_anomaly_bar,
         }
         # 在初始化阶段更新属性异常条最大值。
         for element_type in self.anomaly_bars_dict:
