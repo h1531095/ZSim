@@ -28,8 +28,9 @@ class InitData:
               'weapon': Judge_list_set[2][1], 'weapon_level': 1,
               'equip_set4': Judge_list_set[2][2], 'equip_set2_a': Judge_list_set[2][3],
               'drive4': '暴击率', 'drive5': '电属性伤害', 'drive6': '攻击力%',
-              'scATK_percent': 8, 'scCRIT': 25, 'scATK': 2, 'scPEN': 5,
-              'cinema': 0}
+              'scATK_percent': 8, 'scCRIT': 10, 'scATK': 2, 'scPEN': 5, 'scCRIT_DMG': 15,
+              'cinema': 0,
+              'crit_balancing': False}
     weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
                    name_box[1]: [char_1['weapon'], char_1['weapon_level']],
                    name_box[2]: [char_2['weapon'], char_2['weapon_level']]}

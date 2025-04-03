@@ -14,9 +14,10 @@ class Character:
                  equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
                  drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
                  scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
-                 scPEN=0, scCRIT=0,  # 副词条数量-选填项
+                 scPEN=0, scCRIT=0, scCRIT_DMG=0,  # 副词条数量-选填项
                  sp_limit=120,  # 能量上限-默认120
-                 cinema=0
+                 cinema=0,
+                 crit_balancing=True,  # 暴击配平开关，默认开
                  ):
         """
         调用时，会生成包含全部角色基础信息的对象，自动从数据库中查找全部信息
@@ -55,91 +56,112 @@ class Character:
         生成角色面板示例：
         char_dynamic = Character.Statement(char)
 
+        暴击非配平逻辑（直接读取）：
+        scCRIT: 暴击率副词条
+        scCRIT_DMG: 暴击伤害副词条
+
+        是否配平由传入参数 crit_balancing 控制
+        非配平逻辑下，暴伤与暴击率词条将会被重新分配
+
         还没写的：
         -自定义技能等级、角色等级、武器等级
         不复杂，但麻烦，还不重要
-        -非暴击配平逻辑，未来会通过 config.json 控制
-        不复杂，麻烦，重要性较高
         """
-        # 参数类型检查，贼长
-        if not isinstance(name, str):
-            raise TypeError("char_name must be a string")
-        if CID is not None and not isinstance(CID, int):
-            try:
-                CID = int(CID)
-            except ValueError:
-                raise ValueError("CID must be an integer")
-        if not isinstance(sp_limit, int):
-            try:
-                sp_limit = int(sp_limit)
-            except ValueError:
-                raise TypeError("sp_limit must be an integer")
-        if weapon is not None and not isinstance(weapon, str):
-            raise TypeError("weapon must be a string")
-        if not isinstance(weapon_level, int):
-            try:
-                weapon_level = int(weapon_level)
-            except ValueError:
-                raise TypeError("weapon_level must be an integer")
-        if equip_set4 is not None and not isinstance(equip_set4, str):
-            raise TypeError("equip_set4 must be a string")
-        if equip_set2_a is not None and not isinstance(equip_set2_a, str):
-            raise TypeError("equip_set2_a must be a string")
-        if equip_set2_b is not None and not isinstance(equip_set2_b, str):
-            raise TypeError("equip_set2_b must be a string")
-        if equip_set2_c is not None and not isinstance(equip_set2_c, str):
-            raise TypeError("equip_set2_c must be a string")
-        if drive4 is not None and not isinstance(drive4, str):
-            raise TypeError("drive4 must be a string")
-        if drive5 is not None and not isinstance(drive5, str):
-            raise TypeError("drive5 must be a string")
-        if drive6 is not None and not isinstance(drive6, str):
-            raise TypeError("drive6 must be a string")
-        if not isinstance(scATK_percent, (int, float)):
-            try:
-                scATK_percent = float(scATK_percent)
-            except ValueError:
-                raise TypeError("scATK_percent must be a number")
-        if not isinstance(scATK, (int, float)):
-            try:
-                scATK = float(scATK)
-            except ValueError:
-                raise TypeError("scATK must be a number")
-        if not isinstance(scHP_percent, (int, float)):
-            try:
-                scHP_percent = float(scHP_percent)
-            except ValueError:
-                raise TypeError("scHP_percent must be a number")
-        if not isinstance(scHP, (int, float)):
-            try:
-                scHP = float(scHP)
-            except ValueError:
-                raise TypeError("scHP must be a number")
-        if not isinstance(scDEF_percent, (int, float)):
-            try:
-                scDEF_percent = float(scDEF_percent)
-            except ValueError:
-                raise TypeError("scDEF_percent must be a number")
-        if not isinstance(scDEF, (int, float)):
-            try:
-                scDEF = float(scDEF)
-            except ValueError:
-                raise TypeError("scDEF must be a number")
-        if not isinstance(scAnomalyProficiency, (int, float)):
-            try:
-                scAnomalyProficiency = float(scAnomalyProficiency)
-            except ValueError:
-                raise TypeError("scAnomalyProficiency must be a number")
-        if not isinstance(scPEN, (int, float)):
-            try:
-                scPEN = float(scPEN)
-            except ValueError:
-                raise TypeError("scPEN must be a number")
-        if not isinstance(scCRIT, (int, float)):
-            try:
-                scCRIT = float(scCRIT)
-            except ValueError:
-                raise TypeError("scCRIT must be a number")
+        # 参数类型检查，贼长，慎展开
+        if True:
+            if not isinstance(name, str):
+                raise TypeError("char_name must be a string")
+            if CID is not None and not isinstance(CID, int):
+                try:
+                    CID = int(CID)
+                except ValueError:
+                    raise ValueError("CID must be an integer")
+            if not isinstance(sp_limit, int):
+                try:
+                    sp_limit = int(sp_limit)
+                except ValueError:
+                    raise TypeError("sp_limit must be an integer")
+            if weapon is not None and not isinstance(weapon, str):
+                raise TypeError("weapon must be a string")
+            if not isinstance(weapon_level, int):
+                try:
+                    weapon_level = int(weapon_level)
+                except ValueError:
+                    raise TypeError("weapon_level must be an integer")
+            if equip_set4 is not None and not isinstance(equip_set4, str):
+                raise TypeError("equip_set4 must be a string")
+            if equip_set2_a is not None and not isinstance(equip_set2_a, str):
+                raise TypeError("equip_set2_a must be a string")
+            if equip_set2_b is not None and not isinstance(equip_set2_b, str):
+                raise TypeError("equip_set2_b must be a string")
+            if equip_set2_c is not None and not isinstance(equip_set2_c, str):
+                raise TypeError("equip_set2_c must be a string")
+            if drive4 is not None and not isinstance(drive4, str):
+                raise TypeError("drive4 must be a string")
+            if drive5 is not None and not isinstance(drive5, str):
+                raise TypeError("drive5 must be a string")
+            if drive6 is not None and not isinstance(drive6, str):
+                raise TypeError("drive6 must be a string")
+            if not isinstance(scATK_percent, (int, float)):
+                try:
+                    scATK_percent = float(scATK_percent)
+                except ValueError:
+                    raise TypeError("scATK_percent must be a number")
+            if not isinstance(scATK, (int, float)):
+                try:
+                    scATK = float(scATK)
+                except ValueError:
+                    raise TypeError("scATK must be a number")
+            if not isinstance(scHP_percent, (int, float)):
+                try:
+                    scHP_percent = float(scHP_percent)
+                except ValueError:
+                    raise TypeError("scHP_percent must be a number")
+            if not isinstance(scHP, (int, float)):
+                try:
+                    scHP = float(scHP)
+                except ValueError:
+                    raise TypeError("scHP must be a number")
+            if not isinstance(scDEF_percent, (int, float)):
+                try:
+                    scDEF_percent = float(scDEF_percent)
+                except ValueError:
+                    raise TypeError("scDEF_percent must be a number")
+            if not isinstance(scDEF, (int, float)):
+                try:
+                    scDEF = float(scDEF)
+                except ValueError:
+                    raise TypeError("scDEF must be a number")
+            if not isinstance(scAnomalyProficiency, (int, float)):
+                try:
+                    scAnomalyProficiency = float(scAnomalyProficiency)
+                except ValueError:
+                    raise TypeError("scAnomalyProficiency must be a number")
+            if not isinstance(scPEN, (int, float)):
+                try:
+                    scPEN = float(scPEN)
+                except ValueError:
+                    raise TypeError("scPEN must be a number")
+            if not isinstance(scCRIT, (int, float)):
+                try:
+                    scCRIT = float(scCRIT)
+                except ValueError:
+                    raise TypeError("scCRIT must be a number")
+            if not isinstance(scCRIT_DMG, (int, float)):
+                try:
+                    scCRIT_DMG = float(scCRIT_DMG)
+                except ValueError:
+                    raise TypeError("scCRIT_DMG must be a number")
+            if not isinstance(sp_limit, int):
+                try:
+                    sp_limit = int(sp_limit)
+                except ValueError:
+                    raise TypeError("sp_limit must be an integer")
+            if not isinstance(crit_balancing, bool):
+                try:
+                    crit_balancing = bool(crit_balancing)
+                except ValueError:
+                    raise TypeError("crit_balancing must be a boolean")
 
         # 从数据库中查找角色信息，并核对必填项
         self.NAME, self.CID = lookup_name_or_cid(name, CID)
@@ -181,8 +203,8 @@ class Character:
         self.overall_AM_percent = 0.0
         self.overall_AM_numeric = 0.0
 
-        self.CRIT_rate_numeric = 0.0
-        self.CRIT_damage_numeric = 0.0
+        self.CRIT_rate_numeric = 0.0    # 暴击率（非配平逻辑使用）
+        self.CRIT_damage_numeric = 0.0  # 暴击伤害（非配平逻辑使用）
 
         self.base_sp_regen = 0.0
         self.sp_regen_percent = 0.0
@@ -208,13 +230,13 @@ class Character:
         self.sp_get_ratio: float = 1  # 能量获得效率
         self.sp_limit: int = sp_limit
         self.sp: float = 40.0
-        # self.sp: float = 0
-        self.decibel: float = 1800
-        # self.decibel: float = 0
+
+        self.decibel: float = 1000.0
 
         self.element_type: int | None = None    # 角色属性。
 
-        # 抄表赋值！
+        self.crit_balancing: bool = crit_balancing
+
         # 初始化角色基础属性    .\data\character.csv
         self._init_base_attribute(name)
         # 初始化武器基础属性    .\data\weapon.csv
@@ -231,17 +253,17 @@ class Character:
         self._init_primary_drive(drive4, drive5, drive6)
         # 初始化副词条
         self._init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency,
-                                   scPEN, scCRIT)
+                                   scPEN, scCRIT, scCRIT_DMG)
 
         # 角色技能列表，还没有写修改技能等级的接口
-        self.statement = Character.Statement(self, crit_balancing=CRIT_BALANCING)
+        self.statement = Character.Statement(self, crit_balancing=crit_balancing)
         self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
         self.action_list = self.skill_object.action_list
         self.skills_dict = self.skill_object.skills_dict
         self.dynamic = self.Dynamic(self)
 
     class Statement:
-        def __init__(self, char_class, crit_balancing=True):
+        def __init__(self, char_class, crit_balancing):
             """
             -char_class : 已实例化的角色
 
@@ -305,7 +327,7 @@ class Character:
         def _func_statement_CRIT(CRIT_score: float,
                                  CRIT_rate_numeric: float,
                                  CRIT_damage_numeric: float,
-                                 balancing=True) -> tuple:
+                                 balancing) -> tuple:
             """
             双暴状态函数
             balancing : 是否使用配平逻辑
@@ -328,13 +350,12 @@ class Character:
                 raise ValueError("CRIT_damage_numeric must be above 0")
 
             if balancing:
-                all_CRIT_score = CRIT_score + CRIT_rate_numeric * 200 + CRIT_damage_numeric * 100
-                if all_CRIT_score >= 400:
+                if CRIT_score >= 400:
                     CRIT_rate = 1.0
-                    CRIT_damage = (CRIT_score / 100 - 2) + (CRIT_damage_numeric + CRIT_rate_numeric * 2)
+                    CRIT_damage = (CRIT_score / 100 - 2)
                 else:
-                    CRIT_damage = max(0.5, CRIT_score / 200) + CRIT_damage_numeric
-                    CRIT_rate = (CRIT_score / 100 - CRIT_damage) / 2 + CRIT_rate_numeric
+                    CRIT_damage = max(0.5, CRIT_score / 200)
+                    CRIT_rate = (CRIT_score / 100 - CRIT_damage) / 2
             else:
                 CRIT_damage = CRIT_damage_numeric
                 CRIT_rate = CRIT_rate_numeric
@@ -363,6 +384,32 @@ class Character:
             return False
         return True
 
+    def __mapping_csv_to_attr(self, row: dict):
+        self.baseATK += float(row.get('base_ATK', 0))
+        self.ATK_percent += float(row.get('ATK%', 0))
+        self.DEF_percent += float(row.get('DEF%', 0))
+        self.HP_percent += float(row.get('HP%', 0))
+        self.IMP_percent += float(row.get('IMP%', 0))
+        self.overall_ATK_percent += float(row.get('oATK%', 0))
+        self.overall_DEF_percent += float(row.get('oDEF%', 0))
+        self.overall_HP_percent += float(row.get('oHP%', 0))
+        self.overall_IMP_percent += float(row.get('oIMP%', 0))
+        self.AM_numeric += float(row.get('Anomaly_Mastery', 0))
+        self.AP_numeric += float(row.get('Anomaly_Proficiency', 0))
+        self.sp_regen_percent += float(row.get('Regen%', 0))
+        self.sp_regen_numeric += float(row.get('Regen', 0))
+        self.sp_get_ratio += float(row.get('Get_ratio', 0))
+        self.ICE_DMG_bonus += float(row.get('ICE_DMG_bonus', 0))
+        self.FIRE_DMG_bonus += float(row.get('FIRE_DMG_bonus', 0))
+        self.ELECTRIC_DMG_bonus += float(row.get('ELECTRIC_DMG_bonus', 0))
+        self.PHY_DMG_bonus += float(row.get('PHY_DMG_bonus', 0))
+        self.ETHER_DMG_bonus += float(row.get('ETHER_DMG_bonus', 0))
+        if self.crit_balancing:
+            self.baseCRIT_score += 100 * (float(row.get('Crit_Rate', 0)) * 2 + float(row.get('Crit_DMG', 0)))
+        else:
+            self.CRIT_rate_numeric += float(row.get('Crit_Rate', 0))
+            self.CRIT_damage_numeric += float(row.get('Crit_DMG', 0))
+
     def _init_base_attribute(self, char_name: str):
         """
         初始化角色基础属性。
@@ -386,6 +433,8 @@ class Character:
                 self.baseAP = float(row_0.get('基础异常精通', 0))
                 self.baseAM = float(row_0.get('基础异常掌控', 0))
                 self.baseCRIT_score = float(row_0.get('基础暴击分数', 60))
+                self.CRIT_rate_numeric = float(row_0.get('基础暴击率', 0))   # 此处不需要根据暴击配平区分
+                self.CRIT_damage_numeric = float(row_0.get('基础暴击伤害', 1))
                 self.PEN_ratio = float(row_0.get('基础穿透率', 0))
                 self.PEN_numeric = float(row_0.get('基础穿透值', 0))
                 self.base_sp_regen = float(row_0.get('基础能量自动回复', 0))
@@ -394,7 +443,7 @@ class Character:
                 if self.element_type is None or self.element_type < 0:
                     raise NotImplementedError(f"角色{char_name}的属性类型未定义")
                 # CID特殊处理，避免不必要的类型转换
-                cid_value = row_0.get('CID', None)
+                cid_value: int | None = row_0.get('CID', None)
                 self.CID = int(cid_value) if cid_value is not None else -1
             else:
                 raise ValueError(f"角色{char_name}不存在")
@@ -419,30 +468,13 @@ class Character:
             row: list[dict] = row_5[row_5['level'] == weapon_level].to_dict('records')  # 找到对应精炼等级的行，并转化为字典
             if row:
                 row_0: dict = row[0]
-                self.baseATK += float(row_0.get('base_ATK', 0))
-                self.ATK_percent += float(row_0.get('ATK%', 0))
-                self.DEF_percent += float(row_0.get('DEF%', 0))
-                self.HP_percent += float(row_0.get('HP%', 0))
-                self.IMP_percent += float(row_0.get('IMP%', 0))
-                self.overall_ATK_percent += float(row_0.get('oATK%', 0))
-                self.overall_DEF_percent += float(row_0.get('oDEF%', 0))
-                self.overall_HP_percent += float(row_0.get('oHP%', 0))
-                self.overall_IMP_percent += float(row_0.get('oIMP%', 0))
-                self.baseCRIT_score += 100 * (float(row_0.get('Crit_Rate', 0)) * 2 + float(row_0.get('Crit_DMG', 0)))
-                self.AM_numeric += float(row_0.get('Anomaly_Mastery', 0))
-                self.AP_numeric += float(row_0.get('Anomaly_Proficiency', 0))
-                self.sp_regen_percent += float(row_0.get('Regen%', 0))
-                self.sp_regen_numeric += float(row_0.get('Regen', 0))
-                self.sp_get_ratio += float(row_0.get('Get_ratio', 0))
-                self.ICE_DMG_bonus += float(row_0.get('ICE_DMG_bonus', 0))
-                self.FIRE_DMG_bonus += float(row_0.get('FIRE_DMG_bonus', 0))
-                self.ELECTRIC_DMG_bonus += float(row_0.get('ELECTRIC_DMG_bonus', 0))
-                self.PHY_DMG_bonus += float(row_0.get('PHY_DMG_bonus', 0))
-                self.ETHER_DMG_bonus += float(row_0.get('ETHER_DMG_bonus', 0))
+                self.__mapping_csv_to_attr(row_0)
             else:
                 raise ValueError(f"请输入正确的精炼等级")
         else:
             raise ValueError(f"请输入正确的武器名称，{weapon} 不存在！")
+
+
 
     def _init_equip_set(self, equip_set4: str | None, equip_set2_a: str | None, equip_set2_b: str | None, equip_set2_c: str | None):
         """
@@ -468,30 +500,12 @@ class Character:
                     row: list[dict] = df[df['set_ID'] == equip_2pc].to_dict('records')
                     if row:
                         row_0 = row[0]
-                        self.ATK_percent += float(row_0.get('ATK%', 0))
-                        self.HP_percent += float(row_0.get('HP%', 0))
-                        self.DEF_percent += float(row_0.get('DEF%', 0))
-                        self.IMP_percent += float(row_0.get('IMP%', 0))
-                        self.AM_numeric += float(row_0.get('Anomaly_Mastery', 0))
-                        self.AP_numeric += float(row_0.get('Anomaly_Proficiency', 0))
-                        self.sp_regen_percent += float(row_0.get('Regen%', 0))
-                        self.sp_regen_numeric += float(row_0.get('Regen', 0))
-                        self.sp_get_ratio += float(row_0.get('Get_ratio', 0))
-                        self.PEN_ratio += float(row_0.get('PEN%', 0))
-                        self.PEN_numeric += float(row_0.get('PEN', 0))
-                        self.ICE_DMG_bonus += float(row_0.get('ICE_DMG_bonus', 0))
-                        self.FIRE_DMG_bonus += float(row_0.get('FIRE_DMG_bonus', 0))
-                        self.ELECTRIC_DMG_bonus += float(row_0.get('ELECTRIC_DMG_bonus', 0))
-                        self.PHY_DMG_bonus += float(row_0.get('PHY_DMG_bonus', 0))
-                        self.ETHER_DMG_bonus += float(row_0.get('ETHER_DMG_bonus', 0))
-                        self.baseCRIT_score += 100 * (float(row_0.get('Crit_Rate', 0)) * 2 + float(row_0.get('Crit_DMG', 0)))
+                        self.__mapping_csv_to_attr(row_0)
                     else:
                         raise ValueError(f"套装 {equip_2pc} 不存在")
 
     def _init_primary_drive(self, drive4: str | None, drive5: str | None, drive6: str | None):
-        """
-        初始化主词条
-        """
+        """初始化主词条"""
         drive_parts = [drive4, drive5, drive6]
         # 初始化1-3号位
         self.HP_numeric += 2200
@@ -507,11 +521,15 @@ class Character:
                 case '防御力%' | '防御力':
                     self.DEF_percent += 0.48
                 case '暴击率%' | '暴击率':
-                    # self.CRIT_rate_numeric += 0.24
-                    self.baseCRIT_score += 48
+                    if self.crit_balancing:
+                        self.baseCRIT_score += 48
+                    else:
+                        self.CRIT_rate_numeric += 0.24
                 case '暴击伤害%' | '暴击伤害':
-                    # self.CRIT_damage_numeric += 0.48
-                    self.baseCRIT_score += 48
+                    if self.crit_balancing:
+                        self.baseCRIT_score += 48
+                    else:
+                        self.CRIT_damage_numeric += 0.48
                 case '异常精通':
                     self.AP_numeric += 92
                 case '穿透率%' | '穿透率':
@@ -540,7 +558,7 @@ class Character:
                     raise ValueError(f"提供的主词条名称 {drive} 不存在")
 
     def _init_secondary_drive(self, scATK_percent: int, scATK: int, scHP_percent: int, scHP: int, scDEF_percent: int,
-                              scDEF: int, scAnomalyProficiency: int, scPEN: int, scCRIT: int):
+                              scDEF: int, scAnomalyProficiency: int, scPEN: int, scCRIT: int, scCRIT_DMG: int):
         """
         初始化副词条
         """
@@ -563,7 +581,11 @@ class Character:
         self.DEF_numeric += (scDEF * 15)
         self.AP_numeric += (scAnomalyProficiency * 9)
         self.PEN_numeric += (scPEN * 9)
-        self.baseCRIT_score += (scCRIT * 4.8)
+        if self.crit_balancing:
+            self.baseCRIT_score += (scCRIT * 4.8) + (scCRIT_DMG * 4.8)
+        else:
+            self.CRIT_rate_numeric += (scCRIT * 0.024)
+            self.CRIT_damage_numeric += (scCRIT_DMG * 0.048)
 
     def update_sp_and_decibel(self, *args, **kwargs):
         """自然更新能量和喧响的方法"""
