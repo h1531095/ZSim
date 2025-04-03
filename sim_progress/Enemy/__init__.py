@@ -203,15 +203,22 @@ class Enemy:
         - enemy_name: str, 可选，敌人名称。
         - enemy_index_ID: int, 可选，敌人IndexID。
         - enemy_sub_ID: int, 可选，敌人SubID。
+
+        返回：
+        - 有传入参数时，返回对应怪物的数据
+        - 无传入参数时，返回尼尼微的数据
         """
-        if enemy_index_ID is not None:
-            row = enemy_data[enemy_data["IndexID"] == enemy_index_ID].to_dict('records')
-        elif enemy_sub_ID is not None:
-            row = enemy_data[enemy_data["SubID"] == enemy_sub_ID].to_dict('records')
-        elif enemy_name is not None:
-            row = enemy_data[enemy_data["CN_enemy_ID"] == enemy_name].to_dict('records')
-        else:
-            row = enemy_data[enemy_data["IndexID"] == 11531].to_dict('records')  # 默认打尼尼微（因为全部0抗）
+        try:
+            if enemy_index_ID is not None:
+                row = enemy_data[enemy_data["IndexID"] == enemy_index_ID].to_dict('records')
+            elif enemy_sub_ID is not None:
+                row = enemy_data[enemy_data["SubID"] == enemy_sub_ID].to_dict('records')
+            elif enemy_name is not None:
+                row = enemy_data[enemy_data["CN_enemy_ID"] == enemy_name].to_dict('records')
+            else:
+                row = enemy_data[enemy_data["IndexID"] == 11531].to_dict('records')  # 默认打尼尼微（因为全部0抗）
+        except IndexError:
+            raise ValueError("找不到对应的敌人")
 
         row_0: dict = row[0]
         name: str = row_0['CN_enemy_ID']
@@ -282,45 +289,77 @@ class Enemy:
 
     def update_anomaly(self, element: str | int = "ALL", *, times: int = 1) -> None:
         """更新怪物异常值，触发一次异常后调用。"""
-        # 检查参数类型
-        if not isinstance(element, (str, int)) :
+
+        # 参数类型检查
+        if not isinstance(element, (str, int)):
             raise TypeError(f"element参数类型错误，必须是整数或字符串，实际类型为{type(element)}")
         if not isinstance(times, int):
             raise TypeError(f"times参数必须是整数，实际类型为{type(times)}")
         if times <= 0:
             raise ValueError(f"times参数必须大于0，实际值为{times}")
 
-        update_ratio = 1.02
-        '''游戏中，每次异常增加2%对应属性异常值'''
-
-        try:
-            assert isinstance(element, str)
+        # 属性类型映射表
+        element_mapping: dict[str, tuple] = {
+            'PHY': ('物理', 0),
+            'FIRE': ('火', 1),
+            'ICE': ('冰', 2),
+            'ELECTRIC': ('电', 3),
+            'ETHER': ('以太', 4),
+            'FROST': ('烈霜', 'FIREICE', 5),
+            'ALL': ('全部', '所有')
+        }
+        # 检查并标准化元素
+        if isinstance(element, str):
             element = element.upper()
-        except AssertionError:
-            pass
-
-        for _ in range(int(np.floor(times))):
-            if element == 'ICE' or element == '冰' or element == 2:
-                self.max_anomaly_ICE *= update_ratio
-            elif element == 'FIRE' or element == '火' or element == 1:
-                self.max_anomaly_FIRE *= update_ratio
-            elif element == 'ETHER' or element == '以太' or element == 4:
-                self.max_anomaly_ETHER *= update_ratio
-            elif element == 'ELECTRIC' or element == '电' or element == 3:
-                self.max_anomaly_ELECTRIC *= update_ratio
-            elif element == 'PHY' or element == '物理' or element == 0:
-                self.max_anomaly_PHY *= update_ratio
-            elif element == 'FIREICE' or element == '烈霜' or element == 5:
-                self.max_anomaly_FIREICE *= update_ratio
-            elif isinstance(element, str) and ('ALL' in element or '全部' in element or '所有' in element):
-                self.max_anomaly_ICE *= update_ratio
-                self.max_anomaly_FIRE *= update_ratio
-                self.max_anomaly_ETHER *= update_ratio
-                self.max_anomaly_ELECTRIC *= update_ratio
-                self.max_anomaly_PHY *= update_ratio
-                self.max_anomaly_FIREICE *= update_ratio
+            for key, values in element_mapping.items():
+                if element in (key, *values):
+                    element = key
+                    break
             else:
                 raise ValueError(f"输入了不支持的元素种类：{element}")
+        elif isinstance(element, int):
+            for key, values in element_mapping.items():
+                if element in values:
+                    element = key
+                    break
+            else:
+                raise ValueError(f"输入了不支持的元素种类：{element}")
+        else:
+            raise ValueError(f"无法识别的元素种类：{element}")
+
+        # 更新比例
+        update_ratio = 1.02  # 每次异常增加 2% 对应属性异常值
+
+        # 确保 times 在合理范围内
+        if times > 1e6:  # 防止极端值导致性能问题
+            raise ValueError(f"times参数过大，可能导致性能问题，实际值为{times}")
+
+        # 计算最终更新比例
+        multiplier = update_ratio ** times
+
+        # 批量更新异常值
+        if element == 'ALL':
+            self.max_anomaly_ICE *= multiplier
+            self.max_anomaly_FIRE *= multiplier
+            self.max_anomaly_ETHER *= multiplier
+            self.max_anomaly_ELECTRIC *= multiplier
+            self.max_anomaly_PHY *= multiplier
+            self.max_anomaly_FIREICE *= multiplier
+        else:
+            # 单个元素更新
+            if element == 'ICE':
+                self.max_anomaly_ICE *= multiplier
+            elif element == 'FIRE':
+                self.max_anomaly_FIRE *= multiplier
+            elif element == 'ETHER':
+                self.max_anomaly_ETHER *= multiplier
+            elif element == 'ELECTRIC':
+                self.max_anomaly_ELECTRIC *= multiplier
+            elif element == 'PHY':
+                self.max_anomaly_PHY *= multiplier
+            elif element == 'FROST':
+                self.max_anomaly_FIREICE *= multiplier
+
 
     def update_stun(self, stun: np.float64) -> None:
         self.dynamic.stun_bar += stun
@@ -358,7 +397,7 @@ class Enemy:
         # 更新连携管理器
         self.qte_manager.receive_hit(single_hit)
 
-        # 遥远的需求：
+    # 遥远的需求：
     # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
 
     def get_hp_percentage(self) -> float:
@@ -395,12 +434,14 @@ class Enemy:
         return self.dynamic.stun
 
     def __HP_update(self, dmg_expect: np.float64) -> None:
+        """用于更新敌人已损生命值"""
         self.dynamic.lost_hp += dmg_expect
         if (minus := self.max_HP - self.dynamic.lost_hp) <= 0:
             self.dynamic.lost_hp = -1 * minus
             report_to_log(f'怪物{self.name}死亡！')
 
     def __anomaly_prod(self, snapshot: tuple[int, np.float64, np.ndarray]) -> None:
+        """用于更新异常条的角色面板快照"""
         if snapshot[1] >= 1e-6: # 确保非零异常值才更新
             element_type_code = snapshot[0]
             updated_bar = self.anomaly_bars_dict[element_type_code]
