@@ -34,7 +34,10 @@ class BaseSubConditionUnit(ABC):
         """根据self.operation_type中的匿名函数来输出结果的函数"""
         # value = check_number_type(value)
         result = self.operation_type(value, self.check_value)
-        # print(f'result：{value, self.check_value, str(self.operation_type), result}')
+        # if self.priority == 11 and result:
+        #     import inspect
+        #     print(f'{self.priority}_result：{value, self.check_value, inspect.getsource(self.operation_type).strip(), result}')
+
         return self.translate_result(result)
 
     def translate_result(self, result):

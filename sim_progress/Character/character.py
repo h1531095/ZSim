@@ -209,7 +209,7 @@ class Character:
         self.sp_limit: int = sp_limit
         self.sp: float = 40.0
         # self.sp: float = 0
-        self.decibel: float = 1000.0
+        self.decibel: float = 1800
         # self.decibel: float = 0
 
         self.element_type: int | None = None    # 角色属性。

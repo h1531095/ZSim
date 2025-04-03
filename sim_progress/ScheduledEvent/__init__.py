@@ -189,7 +189,20 @@ class ScheduledEvent:
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.element_type,
                                  dmg_expect=round(dmg_anomaly, 2),
-                                 is_anomaly=True)
+                                 is_anomaly=True,
+                                 dmg_crit=round(dmg_anomaly, 2),
+                                 stun=0,
+                                 stun_status=self.data.enemy.dynamic.stun if self.data.enemy.dynamic.stun else None,
+                                 buildup=0,
+                                 stun_bar=round(self.data.enemy.dynamic.stun_bar, 2),
+                                 冻结=self.data.enemy.dynamic.frozen if self.data.enemy.dynamic.frozen else None,
+                                 霜寒=self.data.enemy.dynamic.frostbite if self.data.enemy.dynamic.frostbite else None,
+                                 烈霜霜寒=self.data.enemy.dynamic.frost_frostbite if self.data.enemy.dynamic.frost_frostbite else None,
+                                 畏缩=self.data.enemy.dynamic.assault if self.data.enemy.dynamic.assault else None,
+                                 感电=self.data.enemy.dynamic.shock if self.data.enemy.dynamic.shock else None,
+                                 灼烧=self.data.enemy.dynamic.burn if self.data.enemy.dynamic.burn else None,
+                                 侵蚀=self.data.enemy.dynamic.corruption if self.data.enemy.dynamic.corruption else None
+                                 )
 
     def disorder_event(self, event: Disorder):
         """紊乱处理分支逻辑"""
@@ -201,7 +214,19 @@ class ScheduledEvent:
                                  element_type=event.element_type,
                                  dmg_expect=round(dmg_disorder, 2),
                                  is_anomaly=True,
-                                 is_disorder=True)
+                                 is_disorder=True,
+                                 stun=round(stun, 2),
+                                 stun_status=self.data.enemy.dynamic.stun if self.data.enemy.dynamic.stun else None,
+                                 buildup=0,
+                                 stun_bar=round(self.data.enemy.dynamic.stun_bar, 2),
+                                 冻结=self.data.enemy.dynamic.frozen if self.data.enemy.dynamic.frozen else None,
+                                 霜寒=self.data.enemy.dynamic.frostbite if self.data.enemy.dynamic.frostbite else None,
+                                 烈霜霜寒=self.data.enemy.dynamic.frost_frostbite if self.data.enemy.dynamic.frost_frostbite else None,
+                                 畏缩=self.data.enemy.dynamic.assault if self.data.enemy.dynamic.assault else None,
+                                 感电=self.data.enemy.dynamic.shock if self.data.enemy.dynamic.shock else None,
+                                 灼烧=self.data.enemy.dynamic.burn if self.data.enemy.dynamic.burn else None,
+                                 侵蚀=self.data.enemy.dynamic.corruption if self.data.enemy.dynamic.corruption else None
+                                 )
 
     def refresh_event(self, event: ScheduleRefreshData):
         """强制更新角色数据"""
