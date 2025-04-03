@@ -59,7 +59,7 @@ class Enemy:
         self.able_to_get_anomaly: bool = bool(self.data_dict['能否异常'])
         self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度']) / 60
         self.stun_recovery_time: float = 0.0
-        self.qte_manager = None
+        self.qte_manager: QTEManager | None = None
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
         # 初始化敌人异常状态抗性
@@ -95,21 +95,24 @@ class Enemy:
             1: self.FIRE_damage_resistance,
             2: self.ICE_damage_resistance,
             3: self.ELECTRIC_damage_resistance,
-            4: self.ETHER_damage_resistance
+            4: self.ETHER_damage_resistance,
+            5: self.ICE_damage_resistance
         }
         self.anomaly_resistance_dict: dict[int, float] = {
             0: self.PHY_anomaly_resistance,
             1: self.FIRE_anomaly_resistance,
             2: self.ICE_anomaly_resistance,
             3: self.ELECTRIC_anomaly_resistance,
-            4: self.ETHER_anomaly_resistance
+            4: self.ETHER_anomaly_resistance,
+            5: self.ICE_anomaly_resistance
         }
         self.stun_resistance_dict: dict[int, float] = {
             0: self.PHY_stun_resistance,
             1: self.FIRE_stun_resistance,
             2: self.ICE_stun_resistance,
             3: self.ELECTRIC_stun_resistance,
-            4: self.ETHER_stun_resistance
+            4: self.ETHER_stun_resistance,
+            5: self.ICE_stun_resistance
         }
 
         # 初始化敌人设置
