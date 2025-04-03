@@ -147,7 +147,7 @@ class CalDisorder(CalAnomaly):
     def cal_disorder_stun(self) -> np.float64:
         imp = self.final_multipliers[9]
         stun_ratio = 3
-        stun_res = Cal.StunMul.cal_stun_res(self.data)
+        stun_res = Cal.StunMul.cal_stun_res(self.data, self.element_type)
         stun_bonus = self.final_multipliers[10]
         stun_received = Cal.StunMul.cal_stun_received(self.data)
         return np.float64(np.prod([imp, stun_ratio, stun_res, stun_bonus, stun_received]))
