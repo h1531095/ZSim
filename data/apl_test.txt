@@ -1,5 +1,4 @@
-# 安扳手法——镇星击破扳
-
+# 扳机逻辑
 # 扳机补充决意值逻辑：
 # 连击逻辑：
 1361|action+=|1361_SNA_1|attribute.1361:special_state→狙击姿态==True|attribute.1361:special_resource<100|status.enemy:stun_pct<=0.7
@@ -29,7 +28,7 @@
 1381|action+=|1381_E_A|attribute.1381:special_resource>=1|attribute.1381:special_state→E连击>0
 
 1361|action+=|1361_E_EX|attribute.1361:energy>=60|status.enemy:stun==False
-1361|action+=|1361_Q|attribute.1361:decibel>=3000|status.enemy:stun==False
+1361|action+=|1361_Q|attribute.1361:decibel>=3000|status.enemy:stun==False|status.enemy:stun_pct<0.2
 
 # 平稳期，如果能量快要溢出且距离怪物失衡还有一段时间，那就可以放强化E
 1381|action+=|1381_E_EX|attribute.1381:energy>=100|attribute.1381:special_resource<0.01|status.enemy:stun_pct<=0.5
