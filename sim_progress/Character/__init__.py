@@ -17,14 +17,15 @@ __char_module_map = {
 }
 
 def character_factory(
-                 name: str = '', CID: int | None = None,  # 角色名字和CID-必填至少一个
-                 weapon=None, weapon_level=1,  # 武器名字-选填项
-                 equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
-                 drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
-                 scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
-                 scPEN=0, scCRIT=0,  # 副词条数量-选填项
-                 sp_limit=120,  # 能量上限-默认120
-                 cinema=0
+            name: str = '', CID: int | None = None,  # 角色名字和CID-必填至少一个
+            weapon=None, weapon_level=1,  # 武器名字-选填项
+            equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
+            drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
+            scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
+            scPEN=0, scCRIT=0, scCRIT_DMG=0,  # 副词条数量-选填项
+            sp_limit=120,  # 能量上限-默认120
+            cinema=0,
+            crit_balancing=True,  # 暴击配平开关，默认开
 ) -> Character:
     name, CID = lookup_name_or_cid(name, CID)
     char_init_args = {
@@ -48,8 +49,10 @@ def character_factory(
         'scAnomalyProficiency': scAnomalyProficiency,
         'scPEN': scPEN,
         'scCRIT': scCRIT,
+        'scCRIT_DMG': scCRIT_DMG,
         'sp_limit': sp_limit,
-        'cinema': cinema
+        'cinema': cinema,
+        'crit_balancing': crit_balancing
     }
     if name in __char_module_map:
         module_name = __char_module_map[name]
