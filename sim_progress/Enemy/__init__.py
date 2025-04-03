@@ -50,16 +50,16 @@ class Enemy:
         # 初始化动态属性
         self.dynamic = self.EnemyDynamic()
         # 初始化敌人基础属性
-        self.max_HP: float = float(self.data_dict['剧变节点7理论生命值'])
-        self.max_ATK: float = float(self.data_dict['剧变节点7攻击力'])
-        self.max_stun: float = float(self.data_dict['剧变节点7失衡值上限'])
+        self.max_HP: float = float(self.data_dict['70级最大生命值'])
+        self.max_ATK: float = float(self.data_dict['70级最大攻击力'])
+        self.max_stun: float = float(self.data_dict['70级最大失衡值上限'])
         self.max_DEF: float = float(self.data_dict['60级及以上防御力'])
         self.CRIT_damage: float = float(self.data_dict['暴击伤害'])
         self.able_to_be_stunned: bool = bool(self.data_dict['能否失衡'])
         self.able_to_get_anomaly: bool = bool(self.data_dict['能否异常'])
         self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度']) / 60
         self.stun_recovery_time: float = 0.0
-        self.qte_manager = None
+        self.qte_manager: QTEManager | None = None
         self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
         self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
         # 初始化敌人异常状态抗性
@@ -71,11 +71,49 @@ class Enemy:
         # 初始化敌人其他防御属性
         self.interruption_resistance_level: int = int(self.data_dict['抗打断等级'])
         self.freeze_resistance: float = float(self.data_dict['冻结抵抗'])
-        self.ICE_damage_resistance: float = float(self.data_dict['冰抗'])
-        self.FIRE_damage_resistance: float = float(self.data_dict['火抗'])
-        self.ELECTRIC_damage_resistance: float = float(self.data_dict['电抗'])
-        self.ETHER_damage_resistance: float = float(self.data_dict['以太抗'])
-        self.PHY_damage_resistance: float = float(self.data_dict['物抗'])
+        # 伤害抗性
+        self.ICE_damage_resistance: float = float(self.data_dict['冰伤害抗性'])
+        self.FIRE_damage_resistance: float = float(self.data_dict['火伤害抗性'])
+        self.ELECTRIC_damage_resistance: float = float(self.data_dict['电伤害抗性'])
+        self.ETHER_damage_resistance: float = float(self.data_dict['以太伤害抗性'])
+        self.PHY_damage_resistance: float = float(self.data_dict['物理伤害抗性'])
+        # 异常抗性
+        self.ICE_anomaly_resistance: float = float(self.data_dict['冰异常抗性'])
+        self.FIRE_anomaly_resistance: float = float(self.data_dict['火异常抗性'])
+        self.ELECTRIC_anomaly_resistance: float = float(self.data_dict['电异常抗性'])
+        self.ETHER_anomaly_resistance: float = float(self.data_dict['以太异常抗性'])
+        self.PHY_anomaly_resistance: float = float(self.data_dict['物理异常抗性'])
+        # 失衡抗性
+        self.ICE_stun_resistance: float = float(self.data_dict['冰失衡抗性'])
+        self.FIRE_stun_resistance: float = float(self.data_dict['火失衡抗性'])
+        self.ELECTRIC_stun_resistance: float = float(self.data_dict['电失衡抗性'])
+        self.ETHER_stun_resistance: float = float(self.data_dict['以太失衡抗性'])
+        self.PHY_stun_resistance: float = float(self.data_dict['物理失衡抗性'])
+        # 各抗性对应字典
+        self.damage_resistance_dict: dict[int, float] = {
+            0: self.PHY_damage_resistance,
+            1: self.FIRE_damage_resistance,
+            2: self.ICE_damage_resistance,
+            3: self.ELECTRIC_damage_resistance,
+            4: self.ETHER_damage_resistance,
+            5: self.ICE_damage_resistance
+        }
+        self.anomaly_resistance_dict: dict[int, float] = {
+            0: self.PHY_anomaly_resistance,
+            1: self.FIRE_anomaly_resistance,
+            2: self.ICE_anomaly_resistance,
+            3: self.ELECTRIC_anomaly_resistance,
+            4: self.ETHER_anomaly_resistance,
+            5: self.ICE_anomaly_resistance
+        }
+        self.stun_resistance_dict: dict[int, float] = {
+            0: self.PHY_stun_resistance,
+            1: self.FIRE_stun_resistance,
+            2: self.ICE_stun_resistance,
+            3: self.ELECTRIC_stun_resistance,
+            4: self.ETHER_stun_resistance,
+            5: self.ICE_stun_resistance
+        }
 
         # 初始化敌人设置
         self.settings = EnemySettings()
@@ -84,11 +122,9 @@ class Enemy:
         # 下面的两个dict本来写在外面的，但是别的程序也要用这两个dict，所以索性写进来了。我是天才。
         self.trans_element_number_to_str = {0: 'PHY', 1: 'FIRE', 2: 'ICE', 3: 'ELECTRIC', 4: 'ETHER', 5: 'FIREICE'}
         self.trans_anomaly_effect_to_str = {0: 'assault', 1: 'burn', 2: 'frostbite', 3: 'shock', 4: 'corruption', 5: 'frost_frostbite'}
-        """
-        enemy实例化的时候，6种异常积蓄条也随着一起实例化。
-        """
 
-        self.fireice_anomaly_bar = AnomalyBar.FrostAnomaly()
+        # enemy实例化的时候，6种异常积蓄条也随着一起实例化
+        self.frost_anomaly_bar = AnomalyBar.FrostAnomaly()
         self.ice_anomaly_bar = AnomalyBar.IceAnomaly()
         self.fire_anomaly_bar = AnomalyBar.FireAnomaly()
         self.physical_anomaly_bar = AnomalyBar.PhysicalAnomaly()
@@ -109,7 +145,7 @@ class Enemy:
             2: self.ice_anomaly_bar,
             3: self.electric_anomaly_bar,
             4: self.ether_anomaly_bar,
-            5: self.fireice_anomaly_bar,
+            5: self.frost_anomaly_bar,
         }
         # 在初始化阶段更新属性异常条最大值。
         for element_type in self.anomaly_bars_dict:
@@ -167,15 +203,22 @@ class Enemy:
         - enemy_name: str, 可选，敌人名称。
         - enemy_index_ID: int, 可选，敌人IndexID。
         - enemy_sub_ID: int, 可选，敌人SubID。
+
+        返回：
+        - 有传入参数时，返回对应怪物的数据
+        - 无传入参数时，返回尼尼微的数据
         """
-        if enemy_index_ID is not None:
-            row = enemy_data[enemy_data["IndexID"] == enemy_index_ID].to_dict('records')
-        elif enemy_sub_ID is not None:
-            row = enemy_data[enemy_data["SubID"] == enemy_sub_ID].to_dict('records')
-        elif enemy_name is not None:
-            row = enemy_data[enemy_data["CN_enemy_ID"] == enemy_name].to_dict('records')
-        else:
-            row = enemy_data[enemy_data["IndexID"] == 11531].to_dict('records')  # 默认打尼尼微（因为全部0抗）
+        try:
+            if enemy_index_ID is not None:
+                row = enemy_data[enemy_data["IndexID"] == enemy_index_ID].to_dict('records')
+            elif enemy_sub_ID is not None:
+                row = enemy_data[enemy_data["SubID"] == enemy_sub_ID].to_dict('records')
+            elif enemy_name is not None:
+                row = enemy_data[enemy_data["CN_enemy_ID"] == enemy_name].to_dict('records')
+            else:
+                row = enemy_data[enemy_data["IndexID"] == 11531].to_dict('records')  # 默认打尼尼微（因为全部0抗）
+        except IndexError:
+            raise ValueError("找不到对应的敌人")
 
         row_0: dict = row[0]
         name: str = row_0['CN_enemy_ID']
@@ -246,45 +289,77 @@ class Enemy:
 
     def update_anomaly(self, element: str | int = "ALL", *, times: int = 1) -> None:
         """更新怪物异常值，触发一次异常后调用。"""
-        # 检查参数类型
-        if not isinstance(element, (str, int)) :
+
+        # 参数类型检查
+        if not isinstance(element, (str, int)):
             raise TypeError(f"element参数类型错误，必须是整数或字符串，实际类型为{type(element)}")
         if not isinstance(times, int):
             raise TypeError(f"times参数必须是整数，实际类型为{type(times)}")
         if times <= 0:
             raise ValueError(f"times参数必须大于0，实际值为{times}")
 
-        update_ratio = 1.02
-        '''游戏中，每次异常增加2%对应属性异常值'''
-
-        try:
-            assert isinstance(element, str)
+        # 属性类型映射表
+        element_mapping: dict[str, tuple] = {
+            'PHY': ('物理', 0),
+            'FIRE': ('火', 1),
+            'ICE': ('冰', 2),
+            'ELECTRIC': ('电', 3),
+            'ETHER': ('以太', 4),
+            'FROST': ('烈霜', 'FIREICE', 5),
+            'ALL': ('全部', '所有')
+        }
+        # 检查并标准化元素
+        if isinstance(element, str):
             element = element.upper()
-        except AssertionError:
-            pass
-
-        for _ in range(int(np.floor(times))):
-            if element == 'ICE' or element == '冰' or element == 2:
-                self.max_anomaly_ICE *= update_ratio
-            elif element == 'FIRE' or element == '火' or element == 1:
-                self.max_anomaly_FIRE *= update_ratio
-            elif element == 'ETHER' or element == '以太' or element == 4:
-                self.max_anomaly_ETHER *= update_ratio
-            elif element == 'ELECTRIC' or element == '电' or element == 3:
-                self.max_anomaly_ELECTRIC *= update_ratio
-            elif element == 'PHY' or element == '物理' or element == 0:
-                self.max_anomaly_PHY *= update_ratio
-            elif element == 'FIREICE' or element == '烈霜' or element == 5:
-                self.max_anomaly_FIREICE *= update_ratio
-            elif isinstance(element, str) and ('ALL' in element or '全部' in element or '所有' in element):
-                self.max_anomaly_ICE *= update_ratio
-                self.max_anomaly_FIRE *= update_ratio
-                self.max_anomaly_ETHER *= update_ratio
-                self.max_anomaly_ELECTRIC *= update_ratio
-                self.max_anomaly_PHY *= update_ratio
-                self.max_anomaly_FIREICE *= update_ratio
+            for key, values in element_mapping.items():
+                if element in (key, *values):
+                    element = key
+                    break
             else:
                 raise ValueError(f"输入了不支持的元素种类：{element}")
+        elif isinstance(element, int):
+            for key, values in element_mapping.items():
+                if element in values:
+                    element = key
+                    break
+            else:
+                raise ValueError(f"输入了不支持的元素种类：{element}")
+        else:
+            raise ValueError(f"无法识别的元素种类：{element}")
+
+        # 更新比例
+        update_ratio = 1.02  # 每次异常增加 2% 对应属性异常值
+
+        # 确保 times 在合理范围内
+        if times > 1e6:  # 防止极端值导致性能问题
+            raise ValueError(f"times参数过大，可能导致性能问题，实际值为{times}")
+
+        # 计算最终更新比例
+        multiplier = update_ratio ** times
+
+        # 批量更新异常值
+        if element == 'ALL':
+            self.max_anomaly_ICE *= multiplier
+            self.max_anomaly_FIRE *= multiplier
+            self.max_anomaly_ETHER *= multiplier
+            self.max_anomaly_ELECTRIC *= multiplier
+            self.max_anomaly_PHY *= multiplier
+            self.max_anomaly_FIREICE *= multiplier
+        else:
+            # 单个元素更新
+            if element == 'ICE':
+                self.max_anomaly_ICE *= multiplier
+            elif element == 'FIRE':
+                self.max_anomaly_FIRE *= multiplier
+            elif element == 'ETHER':
+                self.max_anomaly_ETHER *= multiplier
+            elif element == 'ELECTRIC':
+                self.max_anomaly_ELECTRIC *= multiplier
+            elif element == 'PHY':
+                self.max_anomaly_PHY *= multiplier
+            elif element == 'FROST':
+                self.max_anomaly_FIREICE *= multiplier
+
 
     def update_stun(self, stun: np.float64) -> None:
         self.dynamic.stun_bar += stun
@@ -323,7 +398,7 @@ class Enemy:
         # 更新连携管理器
         self.qte_manager.receive_hit(single_hit)
 
-        # 遥远的需求：
+    # 遥远的需求：
     # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
 
     def get_hp_percentage(self) -> float:
@@ -360,12 +435,14 @@ class Enemy:
         return self.dynamic.stun
 
     def __HP_update(self, dmg_expect: np.float64) -> None:
+        """用于更新敌人已损生命值"""
         self.dynamic.lost_hp += dmg_expect
         if (minus := self.max_HP - self.dynamic.lost_hp) <= 0:
             self.dynamic.lost_hp = -1 * minus
             report_to_log(f'怪物{self.name}死亡！')
 
     def __anomaly_prod(self, snapshot: tuple[int, np.float64, np.ndarray]) -> None:
+        """用于更新异常条的角色面板快照"""
         if snapshot[1] >= 1e-6: # 确保非零异常值才更新
             element_type_code = snapshot[0]
             updated_bar = self.anomaly_bars_dict[element_type_code]

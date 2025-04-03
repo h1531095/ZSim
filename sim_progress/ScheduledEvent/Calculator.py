@@ -619,9 +619,7 @@ class Calculator:
 
         @staticmethod
         def cal_res_mul(data: MultiplierData, *, element_type: ElementType | None = None, snapshot_res_pen=0) -> float:
-            """
-            抗性区 = 1 - 受击方抗性 + 受击方抗性降低 + 攻击方抗性穿透
-            """
+            """抗性区 = 1 - 受击方抗性 + 受击方抗性降低 + 攻击方抗性穿透"""
             if element_type is None:
                 element_type = data.skill_node.skill.element_type
             # 获取抗性区，初始化为0
@@ -697,7 +695,7 @@ class Calculator:
 
         def __init__(self, data: MultiplierData):
 
-            self.element_type = data.skill_node.skill.element_type
+            self.element_type: ElementType = data.skill_node.skill.element_type
             self.anomaly_buildup: np.float64 = self.cal_anomaly_buildup(data)
 
             self.base_damage: float = self.cal_base_damage(data)
@@ -737,6 +735,9 @@ class Calculator:
             am = Calculator.AnomalyMul.cal_am(data)
             # 属性异常积蓄效率提升、属性异常积蓄抗性
             element_type = data.skill_node.skill.element_type
+
+            enemy_buildup_res = 1 - data.enemy_obj.anomaly_resistance_dict.get(element_type, 0)
+
             if element_type == 0:
                 element_buildup_bonus = data.dynamic.physical_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
                 buildup_res = 1 - data.enemy_obj.PHY_damage_resistance - data.dynamic.physical_anomaly_res_decrease
@@ -789,7 +790,8 @@ class Calculator:
 
             anomaly_buildup = (accumulation * (am / 100) * (
                     1 + element_buildup_bonus + trigger_buildup_bonus) *
-                               buildup_res * element_dmg_percentage / hit_times)
+                    buildup_res * element_dmg_percentage / hit_times) * (
+                    1 - enemy_buildup_res)
 
             return np.float64(anomaly_buildup)
 
@@ -896,9 +898,10 @@ class Calculator:
         """
 
         def __init__(self, data: MultiplierData):
+            self.element_type: ElementType = data.skill_node.skill.element_type
             self.imp = self.cal_imp(data)
             self.stun_ratio = self.cal_stun_ratio(data)
-            self.stun_res = self.cal_stun_res(data)
+            self.stun_res = self.cal_stun_res(data, self.element_type)
             self.stun_bonus = self.cal_stun_bonus(data)
             self.stun_received = self.cal_stun_received(data)
 
@@ -918,8 +921,9 @@ class Calculator:
             return stun_ratio
 
         @staticmethod
-        def cal_stun_res(data: MultiplierData, over_stun_res: float = 0) -> float:
-            stun_res = 1 - data.dynamic.stun_res - over_stun_res
+        def cal_stun_res(data: MultiplierData, element_type: ElementType, *, over_stun_res: float = 0) -> float:
+            enemy_stun_res = data.enemy_obj.stun_resistance_dict.get(element_type)
+            stun_res = 1 - data.dynamic.stun_res - over_stun_res - enemy_stun_res
             return stun_res
 
         @staticmethod
