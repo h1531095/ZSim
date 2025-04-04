@@ -736,26 +736,26 @@ class Calculator:
             # 属性异常积蓄效率提升、属性异常积蓄抗性
             element_type = data.skill_node.skill.element_type
 
-            enemy_buildup_res = 1 - data.enemy_obj.anomaly_resistance_dict.get(element_type, 0)
+            enemy_buildup_res = data.enemy_obj.anomaly_resistance_dict.get(element_type, 0)
 
             if element_type == 0:
                 element_buildup_bonus = data.dynamic.physical_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
-                buildup_res = 1 - data.enemy_obj.PHY_damage_resistance - data.dynamic.physical_anomaly_res_decrease
+                buildup_res = 1 - data.dynamic.physical_anomaly_res_decrease - enemy_buildup_res
             elif element_type == 1:
                 element_buildup_bonus = data.dynamic.fire_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
-                buildup_res = 1 - data.enemy_obj.FIRE_damage_resistance - data.dynamic.fire_anomaly_res_decrease
+                buildup_res = 1 - data.dynamic.fire_anomaly_res_decrease - enemy_buildup_res
             elif element_type == 2:
                 element_buildup_bonus = data.dynamic.ice_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
-                buildup_res = 1 - data.enemy_obj.ICE_damage_resistance - data.dynamic.ice_anomaly_res_decrease
+                buildup_res = 1 - data.dynamic.ice_anomaly_res_decrease - enemy_buildup_res
             elif element_type == 3:
                 element_buildup_bonus = data.dynamic.electric_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
-                buildup_res = 1 - data.enemy_obj.ELECTRIC_damage_resistance - data.dynamic.electric_anomaly_res_decrease
+                buildup_res = 1 - data.dynamic.electric_anomaly_res_decrease - enemy_buildup_res
             elif element_type == 4:
                 element_buildup_bonus = data.dynamic.ether_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
-                buildup_res = 1 - data.enemy_obj.ETHER_damage_resistance - data.dynamic.ether_anomaly_res_decrease
+                buildup_res = 1 - data.dynamic.ether_anomaly_res_decrease - enemy_buildup_res
             elif element_type == 5:
                 element_buildup_bonus = data.dynamic.frost_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus
-                buildup_res = 1 - data.enemy_obj.ICE_damage_resistance - data.dynamic.ice_anomaly_res_decrease
+                buildup_res = 1 - data.dynamic.ice_anomaly_res_decrease - enemy_buildup_res
             else:
                 assert False, INVALID_ELEMENT_ERROR
 
@@ -790,8 +790,7 @@ class Calculator:
 
             anomaly_buildup = (accumulation * (am / 100) * (
                     1 + element_buildup_bonus + trigger_buildup_bonus) *
-                    buildup_res * element_dmg_percentage / hit_times) * (
-                    1 - enemy_buildup_res)
+                    buildup_res * element_dmg_percentage / hit_times)
 
             return np.float64(anomaly_buildup)
 
