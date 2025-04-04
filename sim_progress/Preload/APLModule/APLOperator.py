@@ -16,7 +16,7 @@ class APLOperator:
             if isinstance(apl_unit, ActionAPLUnit):
                 result, result_box = apl_unit.check_all_sub_units(self.found_char_dict, self.game_state)
                 if not result:
-                    # if priority == 2:
+                    # if priority in [3,4]:
                     #     print(f'这次不通过的APL优先级为{priority}， 判定结果为：{result_box}')
                     continue
                 else:

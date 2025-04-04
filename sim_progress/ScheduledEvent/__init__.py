@@ -156,6 +156,7 @@ class ScheduledEvent:
         dmg_expect = cal_obj.cal_dmg_expect()
         dmg_crit = cal_obj.cal_dmg_crit()
         hit_result = SingleHit(event.skill_tag, snapshot, stun, dmg_expect, dmg_crit, hitted_count)
+        hit_result.skill_node = event
         if event.skill.follow_by:
             hit_result.proactive = False
         if event.hit_times == hitted_count and event.skill.heavy_attack:
@@ -186,6 +187,7 @@ class ScheduledEvent:
         """普通异常伤害处理分支逻辑"""
         cal_obj = CalAnomaly(anomaly_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
+        # TODO：异常伤害无法被enemy接收到，Enemy的血量更新是有问题的。
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.element_type,
                                  dmg_expect=round(dmg_anomaly, 2),
@@ -209,6 +211,7 @@ class ScheduledEvent:
         cal_obj = CalDisorder(disorder_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         stun = cal_obj.cal_disorder_stun()
+        # TODO：紊乱伤害无法被enemy接收到，Enemy的血量更新是有问题的。
         self.data.enemy.update_stun(stun)
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.element_type,

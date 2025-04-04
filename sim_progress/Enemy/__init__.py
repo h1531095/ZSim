@@ -3,7 +3,7 @@ import pandas as pd
 from sim_progress import AnomalyBar
 from .EnemyAttack import EnemyAttackMethod
 from sim_progress.Report import report_to_log
-from sim_progress.data_struct import SingleHit
+from sim_progress.data_struct import SingleHit, decibel_manager_instance
 from define import ENEMY_DATA_PATH
 from .QTEManager import QTEManager
 from .EnemyUniqueMechanic import unique_mechanic_factory
@@ -392,18 +392,18 @@ class Enemy:
         """
         # 更新失衡，为减少函数调用
         self.dynamic.stun_bar += single_hit.stun
-        self.stun_judge(tick)
+        self.stun_judge(tick, single_hit=single_hit)
         # 怪物的扣血逻辑。
         self.__HP_update(single_hit.dmg_expect)
 
         # 更新异常值
         self.__anomaly_prod(single_hit.snapshot)
-        # 更新连携管理器
-        self.qte_manager.receive_hit(single_hit)
 
         if self.unique_machanic_manager is not None:
             self.unique_machanic_manager.update_myself(single_hit, tick)
-            # self.unique_machanic_manager.report_all_legs()
+
+        # 更新连携管理器
+        self.qte_manager.receive_hit(single_hit)
 
     # 遥远的需求：
     # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
@@ -416,8 +416,9 @@ class Enemy:
         """获取当前失衡值百分比的方法"""
         return self.dynamic.stun_bar / self.max_stun
 
-    def stun_judge(self, _tick: int) -> bool:
+    def stun_judge(self, _tick: int, **kwargs) -> bool:
         """判断敌人是否处于 失衡 状态，并更新 失衡 状态"""
+        single_hit = kwargs.get('single_hit', None)
         if not self.able_to_be_stunned:
             self.dynamic.stun_update_tick = _tick
             return False
@@ -439,6 +440,9 @@ class Enemy:
                 print(f'怪物陷入失衡了！')
                 self.dynamic.stun = True
                 self.dynamic.stun_update_tick = _tick
+                if single_hit:
+                    decibel_manager_instance.update(single_hit=single_hit, key='stun')
+
         return self.dynamic.stun
 
     def __HP_update(self, dmg_expect: np.float64) -> None:

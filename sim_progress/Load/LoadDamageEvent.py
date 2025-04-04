@@ -104,7 +104,7 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: 
                 # 在end处进行属性异常检查。
                 # TODO：新增重攻击 判定的接口
                 freez_deal = ProcessFreezLikeDots(timetick, enemy, event_list)
-                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, char_obj_list)
+                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, char_obj_list, skill_node=mission.mission_node)
 
     # 始终检查 effect_rules == 1 的 Dot
     ProcessTimeUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)

@@ -161,6 +161,8 @@ class SingleQTE:
             raise TypeError( f'SingleQTE实例的_receive_hit函数被调用时，传入的single_hit参数不是SingleHit类！而是{type(_single_hit)}！')
         if _single_hit.hitted_count != 1:   # 如果传进来的不是第一跳，那直接return
             return
+        if not _single_hit.proactive:       # 如果传进来的是一个非主动动作，也直接return
+            return
         self.qte_triggered_times += 1  # 无论传进来的是哪一个hit的第一跳，都意味着响应了QTE
         if 'QTE' not in _single_hit.skill_tag:
             '''说明QTE被取消了'''

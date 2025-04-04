@@ -1,6 +1,8 @@
 from .BaseUniqueMechanic import BaseUniqueMechanic
-from sim_progress.data_struct import SingleHit
+from sim_progress.data_struct import SingleHit, decibel_manager_instance
 from sim_progress.Report import report_dmg_result
+
+
 
 '''
 FOCUS_RATIO_MAP 的存在，是为了模拟角色在破腿的过程中，
@@ -121,6 +123,7 @@ class SingleLeg(BaseUniqueMechanic):
         self.lost_leg_hp += single_hit.dmg_expect * ratio
         if self.broken_leg_judge(tick):
             self.event_active(single_hit, tick)
+            decibel_manager_instance.update(single_hit=single_hit, key='part_break')
 
 
 class BreakingEvent:
@@ -144,7 +147,7 @@ class BreakingEvent:
         # 2、更新失衡
         stun_value = self.enemy.max_stun * self.stun_ratio
         self.enemy.update_stun(stun_value)
-        self.enemy.stun_judge(tick)
+        self.enemy.stun_judge(tick, single_hit=single_hit)
 
         # 3、更新伤害
         dmg_value = self.enemy.max_HP * self.damage_ratio
