@@ -7,7 +7,6 @@
 
 
 # 失衡期逻辑：
-
 # 3E启动逻辑
 1381|action+=|1381_E_A|attribute.1381:special_state→满层==True|status.enemy:stun==True
 # 维持E连续释放，直至白雷耗尽

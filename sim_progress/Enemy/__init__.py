@@ -6,6 +6,7 @@ from sim_progress.Report import report_to_log
 from sim_progress.data_struct import SingleHit
 from define import ENEMY_DATA_PATH
 from .QTEManager import QTEManager
+from .EnemyUniqueMechanic import unique_mechanic_factory
 
 
 class EnemySettings:
@@ -159,6 +160,8 @@ class Enemy:
             attack_method_code = int(self.data_dict['进攻策略'])
         self.attack_method = EnemyAttackMethod(attack_method_code)
         self.restore_stun()
+
+        self.unique_machanic_manager = unique_mechanic_factory(self)        # 特殊机制管理器
 
         report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
 
@@ -397,6 +400,10 @@ class Enemy:
         self.__anomaly_prod(single_hit.snapshot)
         # 更新连携管理器
         self.qte_manager.receive_hit(single_hit)
+
+        if self.unique_machanic_manager is not None:
+            self.unique_machanic_manager.update_myself(single_hit, tick)
+            # self.unique_machanic_manager.report_all_legs()
 
     # 遥远的需求：
     # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
