@@ -19,8 +19,10 @@ scCRIT_DMG = 16
 drive4 = "攻击力%"
 drive5 = "电属性伤害%"
 drive6 = "暴击率"
-equip_set4 = "如影相随"
-equip_set2_a = "啄木鸟电音"
+equip_style = "2+2+2"
+equip_set2_a = "摇摆爵士"
+equip_set2_b = "啄木鸟电音"
+equip_set2_c = "静听嘉音"
 
 ["丽娜"]
 name = "丽娜"
@@ -41,6 +43,7 @@ scCRIT_DMG = 0
 drive4 = "攻击力%"
 drive5 = "攻击力%"
 drive6 = "攻击力%"
+equip_style = "4+2"
 equip_set4 = "如影相随"
 equip_set2_a = "啄木鸟电音"
 
@@ -63,5 +66,6 @@ scCRIT_DMG = 0
 drive4 = "攻击力%"
 drive5 = "攻击力%"
 drive6 = "攻击力%"
+equip_style = "4+2"
 equip_set4 = "如影相随"
 equip_set2_a = "啄木鸟电音"

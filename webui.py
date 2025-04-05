@@ -61,7 +61,7 @@ def character_config():
         with st.expander(f'{name}的配置'):
             col_weapon, col_level, col_cinema = st.columns(3)
             with col_weapon:
-                st.selectbox(f'{name}音擎', weapon_options, 
+                st.selectbox(f'音擎', weapon_options,
                              index=weapon_options.index(saved_config[name]['weapon']) if name in saved_config else 0, 
                              key=f'{name}_weapon')
             with col_level:
@@ -73,12 +73,14 @@ def character_config():
                               value=saved_config[name]['cinema'] if name in saved_config else 0, 
                               key=f'{name}_cinema_level')
             
-            equip_style = st.radio(f'驱动盘搭配方式', ['4+2', '2+2+2'], key=f'{name}_equip_style')
+            equip_style = st.radio(f'驱动盘搭配方式', ['4+2', '2+2+2'], 
+                                 index=0 if name not in saved_config or 'equip_style' not in saved_config[name] else (0 if saved_config[name]['equip_style'] == '4+2' else 1),
+                                 key=f'{name}_equip_style')
             col1, col2 = st.columns(2)
             with col1:
                 if equip_style == '4+2':
                     st.selectbox(f'四件套', equip_set4_options, 
-                                     index=equip_set4_options.index(saved_config[name]['equip_set4']) if name in saved_config else 0, 
+                                     index=equip_set4_options.index(saved_config[name]['equip_set4']) if name in saved_config and 'equip_set4' in saved_config[name] else 0, 
                                      key=f'{name}_equip_set4')
                     st.selectbox(f'二件套', equip_set2_options, 
                                      index=equip_set2_options.index(saved_config[name]['equip_set2_a']) if name in saved_config else 0, 
@@ -88,10 +90,10 @@ def character_config():
                                      index=equip_set2_options.index(saved_config[name]['equip_set2_a']) if name in saved_config else 0, 
                                      key=f'{name}_equip_set2A')
                     st.selectbox(f'二件套B', equip_set2_options, 
-                                     index=equip_set2_options.index(saved_config[name]['equip_set2_b']) if name in saved_config else 0, 
+                                     index=equip_set2_options.index(saved_config[name]['equip_set2_b']) if name in saved_config and 'equip_set2_b' in saved_config[name] else 0, 
                                      key=f'{name}_equip_set2B')
                     st.selectbox(f'二件套C', equip_set2_options, 
-                                     index=equip_set2_options.index(saved_config[name]['equip_set2_c']) if name in saved_config else 0, 
+                                     index=equip_set2_options.index(saved_config[name]['equip_set2_c']) if name in saved_config and 'equip_set2_c' in saved_config[name] else 0, 
                                      key=f'{name}_equip_set2C')
             with col2:
             # 主词条选择
@@ -148,7 +150,8 @@ def character_config():
             'scCRIT_DMG': st.session_state[f'{name}_scCRIT_DMG'],
             'drive4': st.session_state[f'{name}_main_stat4'],
             'drive5': st.session_state[f'{name}_main_stat5'],
-            'drive6': st.session_state[f'{name}_main_stat6']
+            'drive6': st.session_state[f'{name}_main_stat6'],
+            'equip_style': st.session_state[f'{name}_equip_style']
         }
         
         if st.session_state[f'{name}_equip_style'] == '4+2':
@@ -184,6 +187,8 @@ def character_config():
         for i, config in enumerate(all_char_configs):
             st.subheader(f"角色{i+1}: {config['name']}")
             df = pd.DataFrame.from_dict(config, orient='index', columns=['值'])
+            # 确保所有值转换为字符串类型以避免Arrow序列化错误
+            df['值'] = df['值'].astype(str)
             st.dataframe(df)
 
 def simulator():
