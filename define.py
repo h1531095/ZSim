@@ -1,8 +1,20 @@
 import json
+import toml
+from pathlib import Path
 from typing import NewType
+
 ElementType = NewType("ElementType", int)
 INVALID_ELEMENT_ERROR = "Invalid element type"
 ID_CACHE_JSON = 'results/id_cache.json'
+
+# 加载角色配置
+data_dir = Path("./data")
+data_dir.mkdir(exist_ok=True)
+config_file = data_dir / "character_config.toml"
+saved_char_config = {}
+if config_file.exists():
+    with open(config_file, "r", encoding="utf-8") as f:
+        saved_char_config = toml.load(f)
 
 
 _config = json.load(open('config.json',encoding="utf-8-sig"))
