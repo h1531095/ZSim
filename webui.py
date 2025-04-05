@@ -1,8 +1,8 @@
-import streamlit as st
-import pandas as pd
-import toml
-import os
 from pathlib import Path
+
+import pandas as pd
+import streamlit as st
+import toml
 
 # 页面导航
 PAGES = {
@@ -31,7 +31,7 @@ def character_config():
     if "name_box" in saved_config:
         default_chars = saved_config["name_box"]
 
-    from lib_webui.constants import char_options, weapon_options, equip_set4_options, equip_set2_options, main_stat4_options, main_stat5_options, main_stat6_options
+    from lib_webui.constants import char_options, weapon_options, equip_set4_options, equip_set2_options
     # 初始化选择框
     col1, col2, col3 = st.columns(3)
     with col1:
