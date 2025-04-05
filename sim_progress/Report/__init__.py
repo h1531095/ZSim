@@ -95,7 +95,7 @@ def write_to_csv():
         # 对 'time_tick' 列进行排序
         df = df.sort_values(by='time_tick')
         # 保存更新后的 CSV 文件
-        df.to_csv(buff_report_file_path, index=False)
+        df.to_csv(buff_report_file_path, index=False, encoding='utf-8-sig')
 
 
 def report_dmg_result(
