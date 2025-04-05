@@ -31,7 +31,7 @@ game_state = {
 }
 
 
-def main_loop(stop_tick: int | None = 6000):
+def main_loop(stop_tick: int | None = 10800):
     global tick
     tick = 0
     while True:
