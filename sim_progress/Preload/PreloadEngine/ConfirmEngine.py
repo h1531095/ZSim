@@ -1,6 +1,7 @@
 from sim_progress.Preload.PreloadEngine import BasePreloadEngine
 from sim_progress.Preload import SkillsQueue, watchdog, PreloadDataClass, SkillNode
 from sim_progress.Report import report_to_log
+from sim_progress.data_struct import decibel_manager_instance
 
 
 class ConfirmEngine(BasePreloadEngine):
@@ -56,6 +57,7 @@ class ConfirmEngine(BasePreloadEngine):
                 and all(isinstance(name, str) for name in name_box)
                 and node.active_generation):
             self.switch_char(node, self.data.char_data)
+        decibel_manager_instance.update(skill_node=node)
 
     def switch_char(self, this_node: SkillNode, char_data) -> None:
         name_box = self.data.name_box

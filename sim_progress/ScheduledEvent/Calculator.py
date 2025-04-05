@@ -736,7 +736,7 @@ class Calculator:
             # 属性异常积蓄效率提升、属性异常积蓄抗性
             element_type = data.skill_node.skill.element_type
 
-            enemy_buildup_res = 1 - data.enemy_obj.anomaly_resistance_dict.get(element_type, 0)
+            enemy_buildup_res = data.enemy_obj.anomaly_resistance_dict.get(element_type, 0)
 
             if element_type == 0:
                 element_buildup_bonus = data.dynamic.physical_anomaly_buildup_bonus + data.dynamic.all_anomaly_buildup_bonus

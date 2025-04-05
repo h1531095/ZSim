@@ -1,6 +1,6 @@
 import importlib
 from copy import deepcopy
-
+from sim_progress.data_struct import decibel_manager_instance
 from sim_progress.AnomalyBar import AnomalyBar
 from sim_progress.AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
 from sim_progress.Buff.BuffAddStrategy import BuffAddStrategy
@@ -54,13 +54,14 @@ def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy, new_anomaly, ele
             # event_list.append(new_dot)
 
 
-def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, char_obj_list: list):
+def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, char_obj_list: list, **kwargs):
     """
     该函数需要在Loading阶段，submission是End的时候运行。
     用于判断该次属性异常触发应该是新建、替换还是触发紊乱。
     第一个参数是属性种类，第二个参数是Enemy类的实例，第三个参数是当前时间
     如果判断通过触发，则会立刻实例化一个对应的属性异常实例（自带复制父类的状态与属性），
     """
+    skill_node = kwargs.get('skill_node', None)
     bar: AnomalyBar = enemy.anomaly_bars_dict[element_type]
     if not isinstance(bar, AnomalyBar):
         raise TypeError(f'{type(bar)}不是Anomaly类！')
@@ -76,11 +77,11 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
         bar.ready_judge(time_now)
         if bar.ready:
             # 内置CD检测也通过之后，属性异常正式触发。现将需要更新的信息更新一下。
+            decibel_manager_instance.update(skill_node=skill_node, key='anomaly')
             bar.change_info_cause_active(time_now)
             enemy.update_anomaly(element_type)
             active_bar = deepcopy(bar)
             enemy.dynamic.active_anomaly_bar_dict[element_type] = active_bar
-
             '''
             更新完毕，现在正式进入分支判断——触发同类异常 & 触发异类异常（紊乱）。
             无论是哪个分支，都需要涉及enemy下的两大容器：enemy_debuff_list以及enemy_dot_list的修改，
@@ -111,7 +112,6 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
                     event_list.append(new_anomaly)
                 setattr(enemy.dynamic, enemy.trans_anomaly_effect_to_str[element_type], True)
                 enemy.dynamic.active_anomaly_bar_dict[element_type] = active_bar
-
             elif element_type not in active_anomaly_list and len(active_anomaly_list) > 0:
                 '''
                 这个分支意味着：要结算紊乱。那么需要复制的就不应该是新的这个属性异常，而应该是老的属性异常的bar实例。
@@ -141,6 +141,7 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
                 for obj in char_obj_list:
                     obj.special_resources(disorder)
                 event_list.append(disorder)
+                decibel_manager_instance.update(skill_node=skill_node, key='disorder')
                 # print(f'触发紊乱！')
             # 在异常与紊乱两个分支的最后，清空bar的异常积蓄和快照。
             bar.reset_current_info_cause_output()
