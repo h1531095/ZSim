@@ -1,39 +1,56 @@
 import gc
+from sim_progress.Character.skill_class import Skill
 from simulator.dataclasses import InitData, CharacterData, LoadData, ScheduleData, GlobalStats
 from define import APL_MODE
 from sim_progress import Load, Preload, Buff, ScheduledEvent as ScE, Enemy, update_dynamic_bufflist
 from sim_progress.data_struct import ActionStack
 from sim_progress.Preload import PreloadClass
+from sim_progress.Report import start_thread
 
 tick = 0
 crit_seed = 0
-init_data = InitData()
-char_data = CharacterData(init_data)
-load_data = LoadData(
+init_data: InitData | None = None
+char_data: CharacterData | None = None
+load_data: LoadData | None = None
+schedule_data: ScheduleData | None = None
+global_stats: GlobalStats | None = None
+skills: Skill | None = None
+preload: PreloadClass | None = None
+game_state: dict[str: object] = None
+
+def reset_simulator():
+    """重置所有全局变量为初始状态。"""
+    global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, skills, preload, game_state
+    tick = 0
+    crit_seed = 0
+    init_data = InitData()
+    char_data = CharacterData(init_data)
+    load_data = LoadData(
         name_box=init_data.name_box,
         Judge_list_set=init_data.Judge_list_set,
         weapon_dict=init_data.weapon_dict,
         cinema_dict=init_data.cinema_dict,
-        action_stack=ActionStack())
-schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11412), char_obj_list=char_data.char_obj_list)
-global_stats = GlobalStats(name_box=init_data.name_box)
-skills = [char.skill_object for char in char_data.char_obj_list]
-# preload = Preload.Preload(*skills)
-preload = PreloadClass(skills)
-game_state = {
-    "tick": tick,
-    "init_data": init_data,
-    "char_data": char_data,
-    "load_data": load_data,
-    "schedule_data": schedule_data,
-    "global_stats": global_stats,
-    "preload": preload
-}
+        action_stack=ActionStack()
+    )
+    schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11412), char_obj_list=char_data.char_obj_list)
+    global_stats = GlobalStats(name_box=init_data.name_box)
+    skills = [char.skill_object for char in char_data.char_obj_list]
+    preload = PreloadClass(skills)
+    game_state = {
+        "tick": tick,
+        "init_data": init_data,
+        "char_data": char_data,
+        "load_data": load_data,
+        "schedule_data": schedule_data,
+        "global_stats": global_stats,
+        "preload": preload
+    }
+    start_thread()  # 启动线程以处理日志和结果写入
 
 
 def main_loop(stop_tick: int | None = 10800):
-    global tick
-    tick = 0
+    reset_simulator()
+    global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, preload
     while True:
         # Tick Update
         # report_to_log(f"[Update] Tick step to {tick}")

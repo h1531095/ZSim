@@ -4,6 +4,11 @@ import pandas as pd
 import streamlit as st
 import toml
 
+from sim_progress import Report
+from simulator.main_loop import main_loop
+import timeit
+from sim_progress.Report import write_to_csv
+
 # 页面导航
 PAGES = {
     "角色配置": "character_config",
@@ -161,30 +166,62 @@ def character_config():
         st.stop()
         
     # 保存配置到TOML文件
-    config_to_save = {"name_box": name_box}
+    _config_to_save = {"name_box": name_box}
     for name in name_box:
-        config_to_save[name] = st.session_state[f"{name}_config"]
-    
-    with open(config_file, "w", encoding="utf-8") as f:
-        toml.dump(config_to_save, f)
+        _config_to_save[name] = st.session_state[f"{name}_config"]
+
+    # 更新 saved_char_config, 并将其写入文件
+    saved_char_config.update(_config_to_save) 
+    from define import char_config_file
+    with open(char_config_file, "w", encoding="utf-8") as f:
+        toml.dump(saved_char_config, f)
 
     # 收集所有角色配置
     all_char_configs = []
     for name in name_box:
         all_char_configs.append(st.session_state[f'{name}_config'])
 
-        # 转换为DataFrame展示
-        st.title("角色配置信息")
-        for i, config in enumerate(all_char_configs):
-            st.subheader(f"角色{i+1}: {config['name']}")
-            df = pd.DataFrame.from_dict(config, orient='index', columns=['值'])
-            # 确保所有值转换为字符串类型以避免Arrow序列化错误
-            df['值'] = df['值'].astype(str)
-            st.dataframe(df)
+    # 转换为DataFrame展示
+    st.title("角色配置信息")
+    for i, config in enumerate(all_char_configs):
+        st.subheader(f"角色{i+1}: {config['name']}")
+        df = pd.DataFrame.from_dict(config, orient='index', columns=['值'])
+        # 确保所有值转换为字符串类型以避免Arrow序列化错误
+        df['值'] = df['值'].astype(str)
+        st.dataframe(df)
 
 def simulator():
     st.title("ZZZ Simulator - 模拟器")
-    st.write("模拟器功能开发中...")
+    
+    # 添加stop_tick输入框
+    stop_tick = st.number_input("模拟时长(tick)", min_value=1, max_value=10800, value=10800, key="stop_tick")
+    
+    # 添加开始模拟按钮
+    if not st.button("开始模拟"):
+        st.stop()
+
+    st.write(f"开始模拟，时长: {stop_tick} ticks")
+    
+    # 执行模拟
+    elapsed_time = timeit.timeit(lambda: main_loop(stop_tick), number=1)
+    
+    # 等待IO结束
+    st.write("正在等待IO结束...")
+    write_to_csv()
+    Report.log_queue.join()
+    Report.result_queue.join()
+    
+    st.success(f"模拟完成！耗时: {elapsed_time:.2f}秒")
+    
+    # 保存stop_tick到config.json
+    import json
+    config_path = "config.json"
+    with open(config_path, "r+", encoding='utf-8') as f:
+        config = json.load(f)
+        config["stop_tick"] = stop_tick
+        f.seek(0)
+        json.dump(config, f, indent=4)
+        f.truncate()
 
 def data_analysis():
     st.title("ZZZ Simulator - 数据分析")

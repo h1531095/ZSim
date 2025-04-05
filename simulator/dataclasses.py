@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from define import APL_MODE
+from define import APL_MODE, saved_char_config
 from sim_progress import Load, Preload, Buff, ScheduledEvent as ScE, Report
 from sim_progress.Character import Character, character_factory
 from sim_progress.Enemy import Enemy
@@ -8,49 +8,58 @@ from sim_progress.data_struct import ActionStack
 
 @dataclass
 class InitData:
-    name_box = ['扳机', '丽娜', '零号·安比']
-    Judge_list_set = [[name_box[0], '索魂影眸', '如影相随','啄木鸟电音'],
-                      [name_box[1], '深海访客', '静听嘉音', '摇摆爵士'],
-                      [name_box[2], '牺牲洁纯', '如影相随', '啄木鸟电音']]
-    char_0 = {'name': name_box[0],
-              'weapon': Judge_list_set[0][1], 'weapon_level': 1,
-              'equip_set4': Judge_list_set[0][2], 'equip_set2_a': Judge_list_set[0][3],
-              'drive4': '暴击率', 'drive5': '电属性伤害', 'drive6': '攻击力%',
-              'scCRIT': 9, 'scCRIT_DMG': 13, 'scATK_percent': 8,
-              'cinema': 0,
-              'crit_balancing': False}
-    char_1 = {'name': name_box[1],
-              'weapon': Judge_list_set[1][1], 'weapon_level': 5,
-              'equip_set4': Judge_list_set[1][2], 'equip_set2_a': Judge_list_set[1][3],
-              'drive4': '暴击率%', 'drive5': '穿透率', 'drive6': '能量自动回复%',
-              'scATK_percent': 10, 'scCRIT': 20,
-              'cinema': 2}
-    char_2 = {'name': name_box[2],
-              'weapon': Judge_list_set[2][1], 'weapon_level': 1,
-              'equip_set4': Judge_list_set[2][2], 'equip_set2_a': Judge_list_set[2][3],
-              'drive4': '暴击率', 'drive5': '电属性伤害', 'drive6': '攻击力%',
-              'scATK_percent': 8, 'scCRIT': 9, 'scATK': 2, 'scPEN': 5, 'scCRIT_DMG': 13,
-              'cinema': 0,
-              'crit_balancing': False}
-    weapon_dict = {name_box[0]: [char_0['weapon'], char_0['weapon_level']],
-                   name_box[1]: [char_1['weapon'], char_1['weapon_level']],
-                   name_box[2]: [char_2['weapon'], char_2['weapon_level']]}
-    cinema_dict = {name_box[0]: char_0['cinema'],
-                   name_box[1]: char_1['cinema'],
-                   name_box[2]: char_2['cinema']}
+    def __init__(self):
+        """
+        初始化角色配置数据。
+        
+        从配置文件中加载角色配置信息，并初始化相关数据结构。
+        如果配置文件不存在或配置信息不完整，将抛出异常。
+        """
+        config: dict = saved_char_config
+        if not config:
+            assert False, "No character init configuration found."
+        try:
+            self.name_box: list[str] = config['name_box']
+            self.Judge_list_set: list[list[str]] = []    # [[角色名, 武器名, 四件套, 二件套], ...]
+            self.char_0 = config[self.name_box[0]]
+            self.char_1 = config[self.name_box[1]]
+            self.char_2 = config[self.name_box[2]]
+        except KeyError as e:
+            assert False, f"Missing key in character init configuration: {e}"
+        
+        for name in self.name_box:
+            char = getattr(self, f'char_{self.name_box.index(name)}')
+            self.Judge_list_set.append([
+                name,
+                char['weapon'],
+                char.get('equip_set4', ''),
+                char.get('equip_set2_a', '')
+            ])
+        
+        self.weapon_dict: dict[str: list[str, int]] = {
+            name: [getattr(self, f'char_{self.name_box.index(name)}')['weapon'], 
+                   getattr(self, f'char_{self.name_box.index(name)}')['weapon_level']]
+            for name in self.name_box
+        }   # {角色名: [武器名, 武器精炼等级], ...}
+        
+        self.cinema_dict = {
+            name: getattr(self, f'char_{self.name_box.index(name)}')['cinema']
+            for name in self.name_box
+        }   # {角色名: 影画等级, ...}
+        pass
 
 
 @dataclass
 class CharacterData:
     char_obj_list: list[Character] = field(init=False)
-    InitData: InitData
+    init_data: InitData
 
     def __post_init__(self):
         self.char_obj_list = []
-        if self.InitData.name_box:
+        if self.init_data.name_box:
             i = 0
-            for _ in self.InitData.name_box:
-                char_dict = getattr(InitData, f'char_{i}')
+            for _ in self.init_data.name_box:
+                char_dict = getattr(self.init_data, f'char_{i}')
                 char_obj: Character = character_factory(**char_dict)
                 self.char_obj_list.append(char_obj)
                 i += 1

@@ -19,7 +19,7 @@ __char_module_map = {
 def character_factory(
             name: str = '', CID: int | None = None,  # 角色名字和CID-必填至少一个
             weapon=None, weapon_level=1,  # 武器名字-选填项
-            equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
+            equip_style: str = '4+2', equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
             drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
             scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
             scPEN=0, scCRIT=0, scCRIT_DMG=0,  # 副词条数量-选填项
@@ -33,6 +33,7 @@ def character_factory(
         'CID': CID,
         'weapon': weapon,
         'weapon_level': weapon_level,
+        'equip_style': equip_style,
         'equip_set4': equip_set4,
         'equip_set2_a': equip_set2_a,
         'equip_set2_b': equip_set2_b,
