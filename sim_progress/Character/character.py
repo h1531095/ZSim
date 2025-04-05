@@ -689,9 +689,14 @@ class LastingNode:
                 # print(f'{self.char_instance.NAME}被打断了！')
                 return
             else:
-                if self.node.end_tick > tick:
-                    raise ValueError(f'过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n'
-                                     f'但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！')
+                if self.node.end_tick > tick and node.active_generation:
+                    if not self.node.skill.do_immediately and node.skill.do_immediately:
+                        # print(f'{node.skill_tag}具备立刻执行的属性，并且顶替了自己的原有动作{self.node.skill_tag}')
+                        pass
+                    else:
+                        raise ValueError(f'过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n'
+                                         f'但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！')
+
                 if self.node.skill_tag == node.skill_tag:
                     # print(f'{self.char_instance.NAME}正在持续释放技能{node.skill_tag}！已经持续了{self.spamming_info(tick)[2]}tick！')
                     self.is_spamming = True

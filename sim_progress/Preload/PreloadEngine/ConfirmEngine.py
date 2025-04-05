@@ -32,7 +32,7 @@ class ConfirmEngine(BasePreloadEngine):
             #  2、可行性验证
             if self.validate_node_execution(node, tick):
                 # 3、内部数据交互
-                self.data.push_node_in_swap_cancel(node)
+                self.data.push_node_in_swap_cancel(node, tick)
 
                 report_to_log(f"[PRELOAD]:In tick: {tick}, {node.skill_tag} has been preloaded")
                 # 4、外部数据交互

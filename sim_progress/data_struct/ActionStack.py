@@ -152,10 +152,11 @@ class NodeStack:
         _exist_node_list = []
         _active_node_now = False
         for _node in self.stack:
-            if _node.end_tick <= tick_now:
+            if _node.end_tick >= tick_now:
                 if _node.active_generation:
                     _active_node_now = True
                 _exist_node_list.append(_node)
+        # print([nodes.skill_tag for nodes in _exist_node_list])
         if len(_exist_node_list) == 0:
             return None
         elif len(_exist_node_list) == 1:
@@ -170,6 +171,16 @@ class NodeStack:
                 return max(
                     (x for x in _exist_node_list),
                     key=lambda x: x.preload_tick)
+
+    def last_node_is_end(self, tick) -> bool:
+        """判断上一个skillnode是否结束"""
+        if self.is_empty():
+            return True
+        last_node = self.peek()
+        if last_node.end_tick <= tick:
+            return True
+        else:
+            return False
 
     def __len__(self):
         return len(self.stack)

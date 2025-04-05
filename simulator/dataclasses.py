@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from define import APL_MODE
 from sim_progress import Load, Preload, Buff, ScheduledEvent as ScE, Report
 from sim_progress.Character import Character, character_factory
 from sim_progress.Enemy import Enemy
@@ -16,7 +15,7 @@ class InitData:
               'weapon': Judge_list_set[0][1], 'weapon_level': 1,
               'equip_set4': Judge_list_set[0][2], 'equip_set2_a': Judge_list_set[0][3],
               'drive4': '暴击率', 'drive5': '电属性伤害', 'drive6': '攻击力%',
-              'scCRIT': 9, 'scCRIT_DMG': 13, 'scATK_percent': 8,
+              'scCRIT': 7, 'scCRIT_DMG': 13, 'scATK_percent': 8,
               'cinema': 0,
               'crit_balancing': False}
     char_1 = {'name': name_box[1],
