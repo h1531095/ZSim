@@ -41,7 +41,6 @@ def main_loop(stop_tick: int | None = 10800):
 
         # Preload
         preload.do_preload(tick, schedule_data.enemy, init_data.name_box, char_data)
-        # preload_list = preload.preload_data.preloaded_action
         preload_list = preload.preload_data.preload_action
 
         if stop_tick is None:

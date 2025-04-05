@@ -58,6 +58,11 @@ class PreloadData:
         skill_tag, active_generation = skill_tuple
         self.preload_action_list_before_confirm.append(skill_tuple)
 
+    def force_change_action(self, skill_node: SkillNode):
+        """强制更新动作，用于技能强制顶替、被打断或是类似场合"""
+        char_cid = int(skill_node.skill_tag.strip().split('_')[0])
+        self.personal_node_stack[]
+
 
 
 
