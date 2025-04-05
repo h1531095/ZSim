@@ -431,17 +431,18 @@ class Enemy:
             else:
                 if _tick - self.dynamic.stun_update_tick > 1:
                     raise ValueError(f'状态更新间隔大于1！存在多个tick都未更新stun的情况！')
+                self.dynamic.stun_bar = 0   # 避免 log 差错
                 self.dynamic.stun_update_tick = _tick
                 self.dynamic.stun_tick += 1
-        else:
-            if self.dynamic.stun_bar >= self.max_stun:
-                # 若是检测到失衡状态的上升沿，则应该开启彩色失衡状态。
-                self.qte_manager.qte_data.reset()
-                print(f'怪物陷入失衡了！')
-                self.dynamic.stun = True
-                self.dynamic.stun_update_tick = _tick
-                if single_hit:
-                    decibel_manager_instance.update(single_hit=single_hit, key='stun')
+        elif self.dynamic.stun_bar >= self.max_stun:
+            # 若是检测到失衡状态的上升沿，则应该开启彩色失衡状态。
+            self.qte_manager.qte_data.reset()
+            print(f'怪物陷入失衡了！')
+            self.dynamic.stun = True
+            self.dynamic.stun_bar = 0  # 避免 log 差错
+            self.dynamic.stun_update_tick = _tick
+            if single_hit:
+                decibel_manager_instance.update(single_hit=single_hit, key='stun')
 
         return self.dynamic.stun
 
@@ -488,6 +489,20 @@ class Enemy:
 
         def __str__(self):
             return f"失衡: {self.stun}, 失衡条: {self.stun_bar:.2f}, 冻结: {self.frozen}, 霜寒: {self.frostbite}, 畏缩: {self.assault}, 感电: {self.shock}, 灼烧: {self.burn}, 侵蚀：{self.corruption}, 烈霜霜寒：{self.frost_frostbite}"
+
+        def get_status(self) -> dict:
+            return {
+                '失衡状态': self.stun,
+                '失衡条': self.stun_bar,
+                '已损生命值': self.lost_hp,
+                '冻结': self.frozen,
+                '霜寒': self.frostbite,
+                '畏缩': self.assault,
+                '感电': self.shock,
+                '灼烧': self.burn,
+                '侵蚀': self.corruption,
+                '烈霜霜寒': self.frost_frostbite,
+            }
 
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"

@@ -16,18 +16,43 @@ buffered_data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 log_queue: queue.Queue = queue.Queue()
 result_queue: queue.Queue = queue.Queue()
 
-def prepare_to_report():
+
+def __get_result_id() -> int:
+    from define import ID_CACHE_JSON
+    cache_path = ID_CACHE_JSON
+    if not os.path.exists(cache_path):
+        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+        with open(cache_path, 'w') as f:
+            json.dump({}, f, indent=4)
+    with open(cache_path, 'r+') as f:
+        try:
+            id_cache_dict = json.load(f)
+        except json.decoder.JSONDecodeError:
+            id_cache_dict = {}
+        id_lst = list(id_cache_dict.keys())
+        if id_lst:
+            current_id = int(id_lst[-1]) + 1
+        else:
+            current_id = 0
+        id_cache_dict[str(current_id)] = datetime.now().strftime('%Y-%m-%d_%H%M')
+        f.seek(0)
+        json.dump(id_cache_dict, f, indent=4)
+        f.truncate()
+        return current_id
+
+__result_id = __get_result_id() # 每次程序运行仅生成一次的 result_id
+
+def prepare_to_report(rid: int = __result_id):
     # 获取当前日期和时间
-    now = datetime.now()
-    timestamp = now.strftime(r'%Y-%m-%d_%H%M')
-    report_file_path = f'./logs/{timestamp}.log'
-    buff_report_file_path_pre = f'./logs/BuffLog/{timestamp}_'
+    report_file_path = f'./logs/{rid}.log'
+    buff_report_file_path_pre = f'./results/{rid}/buff_log/'
     # 确保目录存在
     os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
+    os.makedirs(os.path.dirname(buff_report_file_path_pre), exist_ok=True)
     return report_file_path, buff_report_file_path_pre
 
 
-def report_to_log(content:str | None = None, level=4) -> None:
+def report_to_log(content: str | None = None, level=4) -> None:
     """
     如果满足调试级别要求 DEBUG_LEVEL <= level，则将指定内容写入日志文件中。
 
@@ -71,30 +96,7 @@ def write_to_csv():
         df = df.sort_values(by='time_tick')
         # 保存更新后的 CSV 文件
         df.to_csv(buff_report_file_path, index=False)
-        # FIXME 在本地不存在目录 'logs/BuffLog' 时，会报错
 
-def get_result_id() -> int:
-    from define import ID_CACHE_JSON
-    cache_path = ID_CACHE_JSON
-    if not os.path.exists(cache_path):
-        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-        with open(cache_path, 'w') as f:
-            json.dump({}, f, indent=4)
-    with open (cache_path, 'r+') as f:
-        try:
-            id_cache_dict = json.load(f)
-        except json.decoder.JSONDecodeError:
-            id_cache_dict = {}
-        id_lst = list(id_cache_dict.keys())
-        if id_lst:
-            current_id = int(id_lst[-1]) + 1
-        else:
-            current_id = 0
-        id_cache_dict[str(current_id)] = datetime.now().strftime('%Y-%m-%d_%H%M')
-        f.seek(0)
-        json.dump(id_cache_dict, f, indent=4)
-        f.truncate()
-        return current_id
 
 def report_dmg_result(
         tick: int,
@@ -105,7 +107,7 @@ def report_dmg_result(
         is_anomaly: bool = False,
         is_disorder: bool = False,
         **kwargs
-        ):
+):
     if is_anomaly:
         match element_type:
             case 0:
@@ -136,7 +138,6 @@ def report_dmg_result(
     result_queue.put(result_dict)
 
 
-
 def thread_log_writer():
     report_file_path, _ = prepare_to_report()
     while True:
@@ -145,30 +146,31 @@ def thread_log_writer():
             file.write(f"{content}\n")
         log_queue.task_done()
 
-def thread_result_writer(rid = get_result_id()):
-    result_path = f'./results/{rid}.csv'
-    new_file = os.path.exists(result_path)
+
+def thread_result_writer(rid = __result_id):
+    result_path = f'./results/{rid}/damage.csv'
+    os.makedirs(os.path.dirname(result_path), exist_ok=True)
+    new_file = not os.path.exists(result_path)
     while True:
         result_dict = result_queue.get()
         result_df = pd.DataFrame([result_dict])
         if new_file:
-            result_df.to_csv(result_path, mode='a', header=False, index=False)
+            result_df.to_csv(result_path, index=False, encoding='utf-8-sig')
+            new_file = False
         else:
-            result_df.to_csv(result_path, index=False)
-            new_file = True
+            result_df.to_csv(result_path, mode='a', header=False, index=False)
         result_queue.task_done()
+
+
 
 log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
 log_writer_thread.start()
 
-
 result_writer_thread = threading.Thread(target=thread_result_writer, daemon=True)
 result_writer_thread.start()
-
-
 
 if __name__ == '__main__':
 
     for i in trange(10000):
-        report_dmg_result(tick = i, element_type=0, skill_tag='test', dmg_expect=MAX_SIGNED_INT64, dmg_crit=MAX_SIGNED_INT64)
-
+        report_dmg_result(tick=i, element_type=0, skill_tag='test', dmg_expect=MAX_SIGNED_INT64,
+                          dmg_crit=MAX_SIGNED_INT64)

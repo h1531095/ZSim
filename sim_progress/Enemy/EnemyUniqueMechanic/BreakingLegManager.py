@@ -159,16 +159,8 @@ class BreakingEvent:
                           dmg_expect=round(dmg_value, 2),
                           dmg_crit=round(dmg_value, 2),
                           stun=round(stun_value, 2),
-                          stun_status=self.enemy.dynamic.stun if self.enemy.dynamic.stun else None,
                           buildup=0,
-                          stun_bar=round(self.enemy.dynamic.stun_bar, 2),
-                          冻结=self.enemy.dynamic.frozen if self.enemy.dynamic.frozen else None,
-                          霜寒=self.enemy.dynamic.frostbite if self.enemy.dynamic.frostbite else None,
-                          烈霜霜寒=self.enemy.dynamic.frost_frostbite if self.enemy.dynamic.frost_frostbite else None,
-                          畏缩=self.enemy.dynamic.assault if self.enemy.dynamic.assault else None,
-                          感电=self.enemy.dynamic.shock if self.enemy.dynamic.shock else None,
-                          灼烧=self.enemy.dynamic.burn if self.enemy.dynamic.burn else None,
-                          侵蚀=self.enemy.dynamic.corruption if self.enemy.dynamic.corruption else None
+                          **self.enemy.dynamic.get_status()
                           )
 
     def update_decibel(self, single_hit: SingleHit):

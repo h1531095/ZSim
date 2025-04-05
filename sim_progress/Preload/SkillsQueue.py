@@ -4,6 +4,7 @@ from sim_progress.data_struct.LinkedList import LinkedList
 from sim_progress.Report import report_to_log
 from sim_progress.Character.skill_class import Skill
 import threading
+import uuid
 
 
 class SkillNode:
@@ -27,8 +28,11 @@ class SkillNode:
             self.skill: Skill.InitSkill = skill
             self.end_tick: int = self.preload_tick + self.skill.ticks
             self.active_generation: bool = active_generation            # 构造函数的调用来源是否是主动动作
+            # TODO：后续需用UUID替换skill_node实例ID
             self.instance_id = SkillNode._instance_counter
             SkillNode._instance_counter += 1
+            # 生成 UUID
+            self.UUID = uuid.uuid4()
 
     def __str__(self) -> str:
         return f"SkillNode: {self.skill_tag}"
