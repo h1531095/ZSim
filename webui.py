@@ -231,8 +231,8 @@ def data_analysis():
     col1, col2 = st.columns(2)
     with col1:
         id_cache: dict = get_all_results()
-        options = list(id_cache.keys())
-        selected_key = st.selectbox("选择你要查看的结果", options)
+        options = list(id_cache.keys())[::-1]  # 使用切片反转列表
+        selected_key = st.selectbox("选择你要查看的结果", options)  # 反转后默认选第一个
     with col2:
         st.markdown(f'备注信息')
         st.markdown(f'<span style="color:gray;">{id_cache[selected_key]}</span>', unsafe_allow_html=True)
