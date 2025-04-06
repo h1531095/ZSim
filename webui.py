@@ -215,6 +215,7 @@ def simulator():
         gc.collect()
     
     st.success(f"模拟完成！耗时: {elapsed_time:.2f}秒，请前往数据分析查看结果。")
+    st.error("注意，目前程序无法保证第二次模拟的准确性，请刷新网页再尝试")
     
     # 保存stop_tick到config.json
     import json
