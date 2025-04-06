@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 import toml
+import gc
 
 from sim_progress import Report
 from simulator.main_loop import main_loop
@@ -194,7 +195,7 @@ def simulator():
     st.title("ZZZ Simulator - 模拟器")
     
     # 添加stop_tick输入框
-    stop_tick = st.number_input("模拟时长(tick)", min_value=1, max_value=10800, value=10800, key="stop_tick")
+    stop_tick = st.number_input("模拟时长（帧数，1秒=60帧）", min_value=1, max_value=65535, value=10800, key="stop_tick")
     
     # 添加开始模拟按钮
     if not st.button("开始模拟"):
@@ -211,6 +212,7 @@ def simulator():
         write_to_csv()
         Report.log_queue.join()
         Report.result_queue.join()
+        gc.collect()
     
     st.success(f"模拟完成！耗时: {elapsed_time:.2f}秒，请前往数据分析查看结果。")
     
