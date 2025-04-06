@@ -225,10 +225,28 @@ def simulator():
 
 def data_analysis():
     st.title("ZZZ Simulator - 数据分析")
-    st.write("数据分析功能开发中...")
+    from lib_webui.clean_results_cache import get_all_results
+    # 添加一个选择框来选择要查看的ID，以及一个按钮来刷新ID列表
+    col1, col2 = st.columns(2)
+    with col1:
+        id_cache: dict = get_all_results()
+        options = list(id_cache.keys())
+        selected_key = st.selectbox("选择你要查看的结果", options)
+    with col2:
+        st.markdown(f'备注信息')
+        st.markdown(f'<span style="color:gray;">{id_cache[selected_key]}</span>', unsafe_allow_html=True)
+    # 添加一个按钮来开始分析
+    if not st.button("开始分析"):
+        st.stop()
+    # 处理伤害结果
+    from lib_webui.process_dmg_result import process_dmg_result
+    process_dmg_result(selected_key)
 
 
 if __name__ == "__main__":
+    # 设置页面布局为宽屏
+    st.set_page_config(layout="wide")
+    
     # 初始化session_state
     if "current_page" not in st.session_state:
         st.session_state.current_page = "character_config"
@@ -236,17 +254,6 @@ if __name__ == "__main__":
     # 侧边栏导航
     with st.sidebar:
         st.title("导航菜单")
-        st.markdown(
-        """
-        <style>
-            div[data-testid="stButton"] button {
-                border: none !important;
-                background: none !important;
-                box-shadow: none !important;
-            }
-        </style>
-        """, 
-        unsafe_allow_html=True)
         for page_name, page_func_name in PAGES.items():
             if st.button(page_name):
                 st.session_state.current_page = page_func_name

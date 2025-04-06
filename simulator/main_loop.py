@@ -5,7 +5,7 @@ from define import APL_MODE
 from sim_progress import Load, Preload, Buff, ScheduledEvent as ScE, Enemy, update_dynamic_bufflist
 from sim_progress.data_struct import ActionStack
 from sim_progress.Preload import PreloadClass
-from sim_progress.Report import start_thread
+from sim_progress.Report import start_report_threads
 
 tick = 0
 crit_seed = 0
@@ -18,7 +18,8 @@ skills: Skill | None = None
 preload: PreloadClass | None = None
 game_state: dict[str: object] = None
 
-def reset_simulator():
+
+def reset_sim_data():
     """重置所有全局变量为初始状态。"""
     global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, skills, preload, game_state
     tick = 0
@@ -45,7 +46,11 @@ def reset_simulator():
         "global_stats": global_stats,
         "preload": preload
     }
-    start_thread()  # 启动线程以处理日志和结果写入
+
+def reset_simulator():
+    """重置程序为初始状态。"""
+    reset_sim_data()    # 重置所有全局变量
+    start_report_threads()  # 启动线程以处理日志和结果写入
 
 
 def main_loop(stop_tick: int | None = 10800):

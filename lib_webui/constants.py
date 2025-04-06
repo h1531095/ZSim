@@ -22,3 +22,7 @@ main_stat6_options = ['攻击力%', '生命值%', '防御力%', '异常掌控', 
 
 # 副词条最大值
 sc_max_value = 40
+
+# 计算结果缓存文件路径
+ID_CACHE_JSON = './results/id_cache.json'
+results_dir = './results'

@@ -163,7 +163,8 @@ def thread_result_writer(rid):
         result_queue.task_done()
 
 
-def start_thread():
+def start_report_threads():
+    """用于在开始模拟时启动线程以处理日志和结果写入。"""
     regen_result_id()
     log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
     log_writer_thread.start()
