@@ -30,7 +30,9 @@ class SwapCancelStrategy(BasePreloadStrategy):
         self.check_myself(enemy, tick)
 
         # 1、APL引擎抛出本tick的主动动作
-        apl_skill_tag, priority = self.apl_engine.run_myself(tick)
+        apl_skill_node = self.apl_engine.run_myself(tick)
+        apl_skill_tag = apl_skill_node.skill_tag
+        priority = apl_skill_node.apl_priority
         # print(apl_skill_tag, priority)
 
         # TODO：新增功能：Enemy进攻模块，以及角色的响应APL（即红黄光到底是释放闪反 还是招架）
@@ -42,12 +44,12 @@ class SwapCancelStrategy(BasePreloadStrategy):
         self.force_add_engine.run_myself(tick)
 
         #  3、SwapCancel引擎 判定当前tick和技能是否能够成功合轴
-        self.swap_cancel_engine.run_myself(apl_skill_tag, tick, apl_priority=priority)
+        self.swap_cancel_engine.run_myself(apl_skill_tag, tick, apl_priority=priority, apl_skill_node=apl_skill_node)
         if (self.swap_cancel_engine.active_signal or
                 self.force_add_engine.active_signal or
                 self.swap_cancel_engine.external_update_signal):
             #  4、Confirm引擎 清理data.preload_action_list_before_confirm，
-            self.confirm_engine.run_myself(tick)
+            self.confirm_engine.run_myself(tick, apl_skill_node=apl_skill_node)
 
     def check_myself(self, enemy, tick, *args, **kwargs):
         self.data.chek_myself_before_start_preload(enemy, tick)

@@ -77,6 +77,12 @@ class StatusSubUnit(BaseSubConditionUnit):
         def handler(cls, enemy):
             return enemy.qte_manager.qte_data.single_qte
 
+    class CharAvailableHandler(CheckHandler):
+        @classmethod
+        def handler(cls, char_cid, found_char_dict, game_state):
+            char = find_char(found_char_dict, game_state, char_cid)
+            return char.is_available(find_tick())
+
     HANDLE_MAP = {
         'stun': StunHandler,
         'QTE_triggerable_times': QTETriggerableHandler,
@@ -88,7 +94,8 @@ class StatusSubUnit(BaseSubConditionUnit):
         'QTE_activation_available': QTEActivationAvailableHandler,
         'single_qte': SingleQTEHandler,
         'repeat_times': CharRepeatTimesHandler,
-        'stun_pct': StunPctHandler
+        'stun_pct': StunPctHandler,
+        'char_available': CharAvailableHandler
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):

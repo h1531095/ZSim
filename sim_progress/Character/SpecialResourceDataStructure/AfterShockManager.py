@@ -15,7 +15,6 @@ class AfterShock:
     def is_ready(self, tick: int):
         # TODO：先写一个临时的
         if self.update_tick == 0:
-            self.update_tick = tick
             return True
         if tick - self.update_tick >= self.cd:
             return True

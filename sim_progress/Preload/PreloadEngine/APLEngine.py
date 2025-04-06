@@ -1,6 +1,7 @@
 from .BasePreloadEngine import BasePreloadEngine
 from sim_progress.Preload.APLModule import APLParser, APLClass
 from define import APL_PATH
+from sim_progress.Preload import SkillsQueue, SkillNode
 
 
 class APLEngine(BasePreloadEngine):
@@ -9,6 +10,8 @@ class APLEngine(BasePreloadEngine):
         super().__init__(data)
         self.apl = APLClass(APLParser(file_path=APL_PATH).parse(mode=0))
 
-    def run_myself(self, tick) -> tuple[str, int]:
+    def run_myself(self, tick) -> SkillNode:
         """APL模块运行的最终结果：技能名、最终通过的APL代码优先级"""
-        return self.apl.execute(tick, mode=0)
+        skill_tag, apl_priority = self.apl.execute(tick, mode=0)
+        node = SkillsQueue.spawn_node(skill_tag, tick, self.data.skills, active_generation=True, apl_priority=apl_priority)
+        return node
