@@ -188,6 +188,16 @@ class Buff:
             该buff虽然没有改变属性，但是无条件执行了update_to_buff_0，
             从而污染了源头数据。导致部分叠层、以及其他属性变更出现问题。
             """
+        def reset_myself(self):
+            """更新Buff.dynamic"""
+            self.active = False
+            self.count = 0
+            self.ready = True
+            self.startticks = 0
+            self.endticks = 0
+            self.settle_times = 0
+            self.built_in_buff_box = []
+            self.is_changed = False
 
     class BuffLogic:
         """
@@ -273,6 +283,17 @@ class Buff:
             self.last_update_resource = 0   # 部分复杂buff需要的上一次更新时的资源数量
             self.record = None
 
+        def reset_myself(self):
+            """重置Buff.history"""
+            self.last_end = 0
+            self.active_times = 0
+            self.last_duration = 0
+            self.end_times = 0
+            self.real_count = 0
+            self.last_update_tick = 0
+            self.last_update_resource = 0
+            self.record = None
+
     def __lookup_buff_effect(self, index: str) -> dict:
         """
         根据索引获取buff效果字典。
@@ -318,6 +339,11 @@ class Buff:
                     continue
             result[name] = value
         return result
+
+    def reset_myself(self):
+        """Buff的重置函数"""
+        self.dy.reset_myself()
+        self.history.reset_myself()
 
     def ready_judge(self, timenow):
         """

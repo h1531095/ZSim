@@ -12,3 +12,7 @@ class APLEngine(BasePreloadEngine):
     def run_myself(self, tick) -> tuple[str, int]:
         """APL模块运行的最终结果：技能名、最终通过的APL代码优先级"""
         return self.apl.execute(tick, mode=0)
+
+    def reset_myself(self):
+        """APL模块暂时没有任何需要Reset的地方！"""
+        pass

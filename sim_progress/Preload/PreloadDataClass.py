@@ -58,6 +58,17 @@ class PreloadData:
         skill_tag, active_generation = skill_tuple
         self.preload_action_list_before_confirm.append(skill_tuple)
 
+    def reset_myself(self, name_box):
+        """重置preload_data"""
+        self.preload_action = []    # 最终return返回给外部申请的数据结构
+        for cid, stack in self.personal_node_stack.items():
+            stack.reset()
+        self.current_node_stack.reset()
+        self.latest_active_generation_node = None
+        self.preload_action_list_before_confirm = []
+        self.name_box = name_box
+
+
 
 
 

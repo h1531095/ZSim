@@ -1,9 +1,11 @@
+from calendar import day_name
 from dataclasses import dataclass, field
 from define import APL_MODE, saved_char_config
 from sim_progress import Load, Preload, Buff, ScheduledEvent as ScE, Report
 from sim_progress.Character import Character, character_factory
 from sim_progress.Enemy import Enemy
 from sim_progress.data_struct import ActionStack
+import time
 
 
 @dataclass
@@ -15,6 +17,7 @@ class InitData:
         从配置文件中加载角色配置信息，并初始化相关数据结构。
         如果配置文件不存在或配置信息不完整，将抛出异常。
         """
+        self._init_fingerprint = time.time()
         config: dict = saved_char_config
         if not config:
             assert False, "No character init configuration found."
@@ -49,6 +52,7 @@ class InitData:
         pass
 
 
+
 @dataclass
 class CharacterData:
     char_obj_list: list[Character] = field(init=False)
@@ -63,6 +67,10 @@ class CharacterData:
                 char_obj: Character = character_factory(**char_dict)
                 self.char_obj_list.append(char_obj)
                 i += 1
+
+    def reset_myself(self):
+        for obj in self.char_obj_list:
+            obj.reset_myself()
 
 
 @dataclass
@@ -83,6 +91,25 @@ class LoadData:
         self.exist_buff_dict = Buff.buff_exist_judge(self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict)
         self.all_name_order_box = Buff.change_name_box(self.name_box)
 
+    def reset_exist_buff_dict(self):
+        """重置buff_exist_dict"""
+        for char_name, sub_exist_buff_dict in self.exist_buff_dict.items():
+            for buff_name, buff in sub_exist_buff_dict.items():
+                buff.reset_myself()
+
+    def reset_myself(self, name_box, Judge_list_set, weapon_dict, cinema_dict):
+        self.name_box = name_box
+        self.Judge_list_set = Judge_list_set
+        self.weapon_dict = weapon_dict
+        self.cinema_dict = cinema_dict
+        self.action_stack.reset_myself()
+        self.reset_exist_buff_dict()
+        self.load_mission_dict = {}
+        self. LOADING_BUFF_DICT = {}
+        self.name_dict = {}
+        self.all_name_order_box = Buff.change_name_box(self.name_box)
+        self.preload_tick_stamp = {}
+
 
 @dataclass
 class ScheduleData:
@@ -93,6 +120,15 @@ class ScheduleData:
     loading_buff: dict[str, list[Buff.Buff]] = field(default_factory=dict)
     dynamic_buff: dict[str, list[Buff.Buff]] = field(default_factory=dict)
 
+    def reset_myself(self):
+        """重置ScheduleData的动态数据！"""
+        self.enemy.reset_myself()
+        self.event_list = []
+        self.judge_required_info_dict = {'skill_node': None}
+        for char_name in self.loading_buff:
+            self.loading_buff[char_name] = []
+            self.dynamic_buff[char_name] = []
+
 
 @dataclass
 class GlobalStats:
@@ -100,5 +136,9 @@ class GlobalStats:
     DYNAMIC_BUFF_DICT: dict[str, list[Buff.Buff]] = field(default_factory=dict)
     
     def __post_init__(self):
+        for name in self.name_box + ['enemy']:
+            self.DYNAMIC_BUFF_DICT[name] = []
+
+    def reset_myself(self, name_box):
         for name in self.name_box + ['enemy']:
             self.DYNAMIC_BUFF_DICT[name] = []

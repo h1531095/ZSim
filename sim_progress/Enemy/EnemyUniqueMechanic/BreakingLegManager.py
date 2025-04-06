@@ -62,6 +62,11 @@ class BreakingLegManager:
             print(f'腿{index}的已损失HP为{legs.lost_leg_hp}')
         print('------------------')
 
+    def reset_myself(self):
+        self.major_target = 0
+        for index, leg in self.leg_group.items():
+            leg.reset_single_leg()
+
 
 class SingleLeg(BaseUniqueMechanic):
     """
@@ -125,6 +130,11 @@ class SingleLeg(BaseUniqueMechanic):
             self.event_active(single_hit, tick)
             decibel_manager_instance.update(single_hit=single_hit, key='part_break')
 
+    def reset_single_leg(self):
+        """重置单条腿"""
+        self.lost_leg_hp = 0
+        self.last_broken = 0
+
 
 class BreakingEvent:
     def __init__(self, enemy_instance):
@@ -178,3 +188,4 @@ class BreakingEvent:
             decibel_value=self.decibel_rewards
         )
         self.game_state['schedule_data'].event_list.append(refresh_data)
+

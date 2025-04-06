@@ -7,3 +7,6 @@ class QTEManager:
 
     def receive_hit(self, hit):
         self.qte_data.try_qte(hit)
+
+    def reset_myself(self):
+        self.qte_data.reset()

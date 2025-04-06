@@ -19,12 +19,34 @@ preload: PreloadClass | None = None
 game_state: dict[str: object] = None
 
 
+def check_state_reset():
+    """在main_loop开头调用"""
+    current_fingerprint = init_data._init_fingerprint
+
+    # 如果是第一次运行，记录指纹
+    if not hasattr(check_state_reset, 'last_fingerprint'):
+        check_state_reset.last_fingerprint = current_fingerprint
+        return
+
+    # 后续运行时检查指纹是否变化
+    if current_fingerprint == check_state_reset.last_fingerprint:
+        raise RuntimeError("状态重置失败！检测到相同的初始化指纹")
+
+    # 更新最新指纹
+    check_state_reset.last_fingerprint = current_fingerprint
+
+
 def reset_sim_data():
     """重置所有全局变量为初始状态。"""
-    global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, skills, preload, game_state
+    global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, skills, preload, game_state, first_run
+    old_objects = [init_data, char_data, load_data]  # 显式保存旧对象引用
+    del init_data, char_data, load_data, schedule_data, global_stats, skills, preload, game_state
+    gc.collect()  # 强制回收
+
     tick = 0
     crit_seed = 0
     init_data = InitData()
+
     char_data = CharacterData(init_data)
     load_data = LoadData(
         name_box=init_data.name_box,
@@ -34,9 +56,11 @@ def reset_sim_data():
         action_stack=ActionStack()
     )
     schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11412), char_obj_list=char_data.char_obj_list)
+
     global_stats = GlobalStats(name_box=init_data.name_box)
     skills = [char.skill_object for char in char_data.char_obj_list]
     preload = PreloadClass(skills)
+
     game_state = {
         "tick": tick,
         "init_data": init_data,
@@ -47,14 +71,16 @@ def reset_sim_data():
         "preload": preload
     }
 
+    assert id(init_data) not in [id(obj) for obj in old_objects], "init_data未完全重置"
+
 def reset_simulator():
     """重置程序为初始状态。"""
     reset_sim_data()    # 重置所有全局变量
     start_report_threads()  # 启动线程以处理日志和结果写入
 
-
 def main_loop(stop_tick: int | None = 10800):
     reset_simulator()
+    check_state_reset()
     global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, preload
     while True:
         # Tick Update

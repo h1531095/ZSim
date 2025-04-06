@@ -1,4 +1,4 @@
-name_box = [ "扳机", "丽娜", "零号·安比",]
+name_box = [ "零号·安比", "扳机", "丽娜",]
 
 ["露西"]
 name = "露西"
@@ -25,11 +25,11 @@ equip_set2_a = "自由蓝调"
 
 ["丽娜"]
 name = "丽娜"
-weapon = "逍遥游球"
+weapon = "啜泣摇篮"
 weapon_level = 5
-cinema = 0
+cinema = 1
 crit_balancing = false
-scATK_percent = 4
+scATK_percent = 6
 scATK = 0
 scHP_percent = 0
 scHP = 0
@@ -43,16 +43,16 @@ drive4 = "异常精通"
 drive5 = "穿透率"
 drive6 = "能量自动回复%"
 equip_style = "4+2"
-equip_set4 = "自由蓝调"
+equip_set4 = "静听嘉音"
 equip_set2_a = "摇摆爵士"
 
 ["零号·安比"]
 name = "零号·安比"
-weapon = "索魂影眸"
-weapon_level = 1
+weapon = "牺牲洁纯"
+weapon_level = 5
 cinema = 0
 crit_balancing = false
-scATK_percent = 0
+scATK_percent = 7
 scATK = 0
 scHP_percent = 0
 scHP = 0
@@ -60,10 +60,10 @@ scDEF_percent = 0
 scDEF = 0
 scAnomalyProficiency = 0
 scPEN = 0
-scCRIT = 0
-scCRIT_DMG = 0
-drive4 = "攻击力%"
-drive5 = "攻击力%"
+scCRIT = 7
+scCRIT_DMG = 10
+drive4 = "暴击率%"
+drive5 = "电属性伤害%"
 drive6 = "攻击力%"
 equip_style = "4+2"
 equip_set4 = "如影相随"
@@ -72,8 +72,8 @@ equip_set2_a = "啄木鸟电音"
 ["扳机"]
 name = "扳机"
 weapon = "索魂影眸"
-weapon_level = 1
-cinema = 0
+weapon_level = 5
+cinema = 1
 crit_balancing = false
 scATK_percent = 5
 scATK = 0
@@ -86,8 +86,8 @@ scPEN = 0
 scCRIT = 10
 scCRIT_DMG = 5
 drive4 = "暴击率%"
-drive5 = "攻击力%"
-drive6 = "攻击力%"
+drive5 = "电属性伤害%"
+drive6 = "冲击力%"
 equip_style = "4+2"
 equip_set4 = "如影相随"
 equip_set2_a = "震星迪斯科"

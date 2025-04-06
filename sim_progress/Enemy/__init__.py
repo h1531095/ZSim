@@ -460,6 +460,23 @@ class Enemy:
             updated_bar = self.anomaly_bars_dict[element_type_code]
             updated_bar.update_snap_shot(snapshot)
 
+    def reset_myself(self):
+        self.dynamic.reset_myself()
+        self.reset_anomaly_bars()
+        self.qte_manager.reset_myself()
+        self.attack_method.reset_myself()
+        if self.unique_machanic_manager is not None:
+            self.unique_machanic_manager.reset_myself()
+
+    def reset_anomaly_bars(self):
+        """重置异常条！"""
+        max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(self.able_to_get_anomaly, self.QTE_triggerable_times)
+        self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = self.max_anomaly_ELECTRIC = self.max_anomaly_FIREICE = max_element_anomaly
+        for element_type, anomaly_bar in self.anomaly_bars_dict.items():
+            anomaly_bar.reset_myself()
+            max_value = getattr(self, f'max_anomaly_{self.trans_element_number_to_str[element_type]}')
+            anomaly_bar.max_anomaly = max_value
+
     class EnemyDynamic:
         def __init__(self):
             self.stun = False  # 失衡状态
@@ -503,6 +520,29 @@ class Enemy:
                 '侵蚀': self.corruption,
                 '烈霜霜寒': self.frost_frostbite,
             }
+
+        def reset_myself(self):
+            self.stun = False
+            self.stun_update_tick = 0
+            self.frozen = False
+            self.frostbite = False
+            self.frost_frostbite = False
+            self.assault = False
+            self.shock = False
+            self.burn = False
+            self.corruption = False
+            self.dynamic_debuff_list = []
+            self.dynamic_dot_list = []
+            self.active_anomaly_bar_dict = {number: None for number in range(6)}
+            self.stun_bar = 0
+            self.lost_hp = 0
+            self.stun_tick = 0
+            self.frozen_tick = 0
+            self.frostbite_tick = 0
+            self.assault_tick = 0
+            self.shock_tick = 0
+            self.burn_tick = 0
+            self.corruption_tick = 0
 
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"

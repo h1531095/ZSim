@@ -374,6 +374,10 @@ class Character:
             self.lasting_node = LastingNode(self.character)
             self.on_field = False   # 角色是否在前台
 
+        def reset(self):
+            self.lasting_node.reset()
+            self.on_field = False
+
     def is_available(self, tick: int):
         """查询角色当前tick是否有空"""
         lasting_node = self.dynamic.lasting_node
@@ -654,6 +658,13 @@ class Character:
     def __str__(self) -> str:
         return f"{self.NAME} {self.level}级，能量{self.sp:.2f}，喧响{self.decibel:.2f}"
 
+    def reset_myself(self):
+        # 重置能量、喧响值
+        self.sp: float = 40.0
+        self.decibel: float = 1000.0
+        # 重置动态属性
+        self.dynamic.reset()
+
 
 class LastingNode:
     def __init__(self, char_instance: Character):
@@ -663,6 +674,13 @@ class LastingNode:
         self.start_tick = 0
         self.update_tick = 0
         self.is_spamming = False      # 是否处于连续释放技能的状态
+        self.repeat_times = 0
+
+    def reset(self):
+        self.node = None
+        self.start_tick = 0
+        self.update_tick = 0
+        self.is_spamming = False
         self.repeat_times = 0
 
     def update_node(self, node, tick: int):
