@@ -77,8 +77,21 @@ def check_preparation(buff_0, **kwargs):
                 if buff_index in _buff_founded.ft.index:
                     founded_list.append(_buff_founded)
             if len(founded_list) != 1:
-                raise ValueError(f'在{operator}的sub_exist_buff_dict中找到了{len(founded_list)}个{buff_index}')
-            record.trigger_buff_0 = founded_list[0]
+                '''说明提供的关键词筛选出了多个Buff，此时需要进一步筛选出正确结果'''
+                founded_buff_index_list = [founded_buff.ft.index for founded_buff in founded_list]
+
+                '''验错环节'''
+                if len(set(founded_buff_index_list)) != len(founded_list):
+                    raise ValueError(f'在{operator}的sub_exist_buff_dict中找到了2个以上的同名buff！')
+                trigger_index_length = len(buff_index)
+                for _buffs in founded_list:
+                    if _buffs.ft.index[-trigger_index_length:] == buff_index:
+                        record.trigger_buff_0 = _buffs
+                        break
+                else:
+                    raise ValueError(f'并未找到Buff名后缀为{buff_index}的触发器Buff，说明提供的用于寻找trigger_buff_0的关键词无法有效筛选出触发器，请调整关键词或者数据库Buff Index')
+            else:
+                record.trigger_buff_0 = founded_list[0]
     if preload_data:
         if record.preload_data is None:
             record.preload_data = find_preload_data()

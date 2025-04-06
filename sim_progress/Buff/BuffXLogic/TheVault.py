@@ -50,7 +50,7 @@ class TheVault(Buff.BuffLogic):
             self.buff_0.history.record = TheVaultRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         由于聚宝箱的buff是命中判定，且后台生效，但是只能自己触发。
         所以首先需要判定的是当前tick是否有hit事件。

@@ -12,7 +12,7 @@ class PreciousFossilizedCoreStunBonusOver75Hp(Buff.BuffLogic):
         # 初始化特定逻辑
         self.xjudge = self.special_judge_logic
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         enemy = JudgeTools.find_enemy()
         hp_pct = enemy.get_hp_percentage()
         if hp_pct >= 0.75:

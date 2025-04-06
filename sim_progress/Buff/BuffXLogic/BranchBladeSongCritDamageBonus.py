@@ -37,7 +37,7 @@ class BranchBladeSongCritDamageBonus(Buff.BuffLogic):
             self.buff_0.history.record = BranchBladeSongRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(equipper="折枝剑歌", enemy=1, dynamic_buff_list=1)
         mul_data = MultiplierData(self.record.enemy, self.record.dynamic_buff_list, self.record.char)

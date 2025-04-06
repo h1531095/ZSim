@@ -33,7 +33,7 @@ class QingYiAdditionalAbilityStunConvertToATK(Buff.BuffLogic):
             self.buff_0.history.record = QingYiAdditionalSkillRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         return True
 
     def special_hit_logic(self):

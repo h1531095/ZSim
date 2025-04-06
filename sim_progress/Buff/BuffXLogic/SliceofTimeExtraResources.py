@@ -59,7 +59,7 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
             self.buff_0.history.record = SliceofTimeExtraResourcesRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         第一层判定是trigger_buff_level的判定
         通过第一层判定后，再过内置CD检测。

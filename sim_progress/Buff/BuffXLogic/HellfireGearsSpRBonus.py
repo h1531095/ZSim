@@ -12,7 +12,7 @@ class HellfireGearsSpRBonus(Buff.BuffLogic):
         self.xexit = self.special_exit_logic
         self.equipper = None
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         if self.equipper is None:
             self.equipper = JudgeTools.find_equipper("燃狱齿轮")
         name_box = JudgeTools.find_init_data().name_box

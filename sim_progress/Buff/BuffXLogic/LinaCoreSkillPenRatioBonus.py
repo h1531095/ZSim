@@ -34,7 +34,7 @@ class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
             self.buff_0.history.record = LinaCoreSkillRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         只要不是重击，就都触发。
         """

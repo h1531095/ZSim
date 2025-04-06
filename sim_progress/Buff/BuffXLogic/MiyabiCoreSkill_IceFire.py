@@ -39,7 +39,7 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
             self.buff_0.history.record = MiyabiCoreSkillIF()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         这个复杂判断逻辑需要同时检索当前技能的element_type，
         以及enemy的debuff_list有没有霜灼，

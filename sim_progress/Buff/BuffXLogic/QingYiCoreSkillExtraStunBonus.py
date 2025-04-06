@@ -37,7 +37,7 @@ class QingYiCoreSkillExtraStunBonus(Buff.BuffLogic):
             self.buff_0.history.record = QintYiCoreSkillExtraStunRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         检测到SNA_1就为True，否则为False。
         这个模块优先于Buff的Start逻辑，所以可以前置更新电压。

@@ -42,7 +42,7 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
             self.buff_0.history.record = WeepingCradleDMGBRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         self.check_record_module()
         trigger_index = f'Buff-武器-精{int(self.buff_instance.ft.refinement)}啜泣摇篮-全队增伤'
         self.get_prepared(equipper='啜泣摇篮', trigger_buff_0=(self.buff_instance.ft.operator, trigger_index))
