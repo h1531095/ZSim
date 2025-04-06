@@ -202,16 +202,17 @@ def simulator():
 
     st.write(f"开始模拟，时长: {stop_tick} ticks")
     
-    # 执行模拟
-    elapsed_time = timeit.timeit(lambda: main_loop(stop_tick), number=1)
+    # 显示加载中的圈圈
+    with st.spinner('正在模拟中，请稍候...'):
+        # 执行模拟
+        elapsed_time = timeit.timeit(lambda: main_loop(stop_tick), number=1)
     
-    # 等待IO结束
-    st.write("正在等待IO结束...")
-    write_to_csv()
-    Report.log_queue.join()
-    Report.result_queue.join()
+    with st.spinner('正在等待IO结束...'):
+        write_to_csv()
+        Report.log_queue.join()
+        Report.result_queue.join()
     
-    st.success(f"模拟完成！耗时: {elapsed_time:.2f}秒")
+    st.success(f"模拟完成！耗时: {elapsed_time:.2f}秒，请前往数据分析查看结果。")
     
     # 保存stop_tick到config.json
     import json

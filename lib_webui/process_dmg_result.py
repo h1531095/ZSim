@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from sim_progress.Character.skill_class import lookup_name_or_cid
-from .constants import results_dir
+from .constants import results_dir, element_mapping
 import plotly.express as px
 
 def process_dmg_result(rid: int) -> None:
@@ -13,12 +13,12 @@ def process_dmg_result(rid: int) -> None:
     except FileNotFoundError:
         st.error(f'未找到文件：{csv_file_path}')
         return
-    with st.expander('原始数据：'):
-        st.dataframe(dmg_result_df)
+    # with st.expander('原始数据：'):
+    #     st.dataframe(dmg_result_df)
     draw_line_chart(dmg_result_df) # 绘制伤害与失衡的折线图
     uuid_df = sort_df_by_UUID(dmg_result_df) # 按UUID排序
-    with st.expander('按UUID排序后的数据：'):
-        st.dataframe(uuid_df)
+    # with st.expander('按UUID排序后的数据：'):
+    #     st.dataframe(uuid_df)
     draw_char_chart(uuid_df) # 绘制角色相关信息的图标
     
 def draw_line_chart(dmg_result_df: pd.DataFrame) -> None:
@@ -99,16 +99,42 @@ def sort_df_by_UUID(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(result_data)
 
 def draw_char_chart(df: pd.DataFrame) -> None:
-    with st.expander('角色-伤害分布'):
-        # 按角色分组并计算期望伤害总和
-        char_dmg_df = df.groupby('name')['dmg_expect_sum'].sum().reset_index()
-        # 绘制饼图
-        fig = px.pie(char_dmg_df, names='name', values='dmg_expect_sum', labels={'name': '角色', 'dmg_expect_sum': '期望伤害总和'})
-        st.plotly_chart(fig)
+    with st.expander('角色参与度分布情况：'):
+        cols = st.columns(2)
+        # 角色伤害占比分布
+        with cols[0]:
+            st.subheader('角色伤害占比')
+            char_dmg_df = df.groupby('name')['dmg_expect_sum'].sum().reset_index()
+            fig = px.pie(char_dmg_df, names='name', values='dmg_expect_sum', labels={'name': '角色', 'dmg_expect_sum': '期望伤害总和'})
+            st.plotly_chart(fig)
+        # 角色失衡占比分布
+        with cols[1]:
+            st.subheader('角色失衡占比')
+            char_stun_df = df.groupby('name')['stun_sum'].sum().reset_index()
+            fig = px.pie(char_stun_df, names='name', values='stun_sum', labels={'name': '角色', 'stun_sum': '失衡值总和'})
+            st.plotly_chart(fig)
+        
         # 每个角色的各技能输出占比分布-条形图
         char_skill_dmg_df = df.groupby(['name', 'skill_tag'])['dmg_expect_sum'].sum().reset_index()
-        # 为每个角色绘制饼图
+        # 创建一个新的Streamlit列布局
+        cols = st.columns(len(char_skill_dmg_df['name'].unique()))
+        col_index = 0
         for name, group in char_skill_dmg_df.groupby('name'):
-            st.subheader(f'{name} 各技能输出占比分布')
-            fig = px.pie(group, names='skill_tag', values='dmg_expect_sum', labels={'skill_tag': '技能标签', 'dmg_expect_sum': '期望伤害总和'})
-            st.plotly_chart(fig)
+            with cols[col_index]:
+                st.subheader(f'{name}各技能输出占比')
+                fig = px.pie(group, names='skill_tag', values='dmg_expect_sum', labels={'skill_tag': '技能标签', 'dmg_expect_sum': '期望伤害总和'})
+                st.plotly_chart(fig)
+            col_index += 1
+
+        # 每个角色各属性的积蓄占比
+        char_element_df = df.groupby(['name','element_type'])['buildup_sum'].sum().reset_index()
+        # 创建一个新的Streamlit列布局
+        cols = st.columns(len(char_element_df['element_type'].unique()))
+        col_index = 0
+        for element in char_element_df['element_type'].unique():
+            element_df = char_element_df[char_element_df['element_type'] == element]
+            with cols[col_index]:
+                st.subheader(f'{element_mapping[element]}积蓄来源占比')
+                fig = px.pie(element_df, names='name', values='buildup_sum', labels={'name': '角色', 'buildup_sum': '积蓄值总和'})
+                st.plotly_chart(fig)
+            col_index += 1

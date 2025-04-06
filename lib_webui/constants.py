@@ -26,3 +26,13 @@ sc_max_value = 40
 # 计算结果缓存文件路径
 ID_CACHE_JSON = './results/id_cache.json'
 results_dir = './results'
+
+# 六元素翻译对应表
+element_mapping: dict[int | str] = {
+    0: "物理",
+    1: "火",
+    2: "冰",
+    3: "电",
+    4: "以太",
+    5: "烈霜"
+}
