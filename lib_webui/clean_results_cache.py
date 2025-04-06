@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 try:
     from define import ID_CACHE_JSON
 except ModuleNotFoundError:

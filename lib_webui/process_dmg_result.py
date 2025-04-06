@@ -1,9 +1,10 @@
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 
 from sim_progress.Character.skill_class import lookup_name_or_cid
 from .constants import results_dir, element_mapping
-import plotly.express as px
+
 
 def process_dmg_result(rid: int) -> None:
     # 读取伤害数据 CSV 文件

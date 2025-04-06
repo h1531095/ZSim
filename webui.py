@@ -1,14 +1,13 @@
-from pathlib import Path
+import gc
+import timeit
 
 import pandas as pd
 import streamlit as st
 import toml
-import gc
 
 from sim_progress import Report
-from simulator.main_loop import main_loop
-import timeit
 from sim_progress.Report import write_to_csv
+from simulator.main_loop import main_loop
 
 # 页面导航
 PAGES = {
