@@ -86,9 +86,16 @@ class LoadData:
     name_dict: dict = field(default_factory=dict)
     all_name_order_box: dict = field(default_factory=dict)
     preload_tick_stamp: dict = field(default_factory=dict)
+    # exist_buff_dict = Buff.buff_exist_judge(name_box, Judge_list_set, weapon_dict, cinema_dict)
+    # all_name_order_box = Buff.change_name_box(name_box)
 
     def __post_init__(self):
-        self.exist_buff_dict = Buff.buff_exist_judge(self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict)
+        self.exist_buff_dict = Buff.buff_exist_judge(
+            self.name_box,
+            self.Judge_list_set,
+            self.weapon_dict,
+            self.cinema_dict
+        )
         self.all_name_order_box = Buff.change_name_box(self.name_box)
 
     def reset_exist_buff_dict(self):

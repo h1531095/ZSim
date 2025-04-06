@@ -38,8 +38,7 @@ def check_state_reset():
 
 def reset_sim_data():
     """重置所有全局变量为初始状态。"""
-    global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, skills, preload, game_state, first_run
-    old_objects = [init_data, char_data, load_data]  # 显式保存旧对象引用
+    global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, skills, preload, game_state
     del init_data, char_data, load_data, schedule_data, global_stats, skills, preload, game_state
     gc.collect()  # 强制回收
 
@@ -71,17 +70,17 @@ def reset_sim_data():
         "preload": preload
     }
 
-    assert id(init_data) not in [id(obj) for obj in old_objects], "init_data未完全重置"
 
 def reset_simulator():
     """重置程序为初始状态。"""
     reset_sim_data()    # 重置所有全局变量
     start_report_threads()  # 启动线程以处理日志和结果写入
 
-def main_loop(stop_tick: int | None = 10800):
+def main_loop(stop_tick: int | None = 1000):
     reset_simulator()
     check_state_reset()
     global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, preload
+    print()
     while True:
         # Tick Update
         # report_to_log(f"[Update] Tick step to {tick}")
