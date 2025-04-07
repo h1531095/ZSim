@@ -33,7 +33,7 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
             self.buff_0.history.record = LighterUniqueSkillStunBonusRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         调用这个方法的位置，应该是buff_0的xjudge，所以，有效的self.buff_count也是存在buff_0里面的。
         """

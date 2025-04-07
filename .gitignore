@@ -18,6 +18,9 @@ result.json
 .ipynb_checkpoints
 .run
 .mypy_cache
+.pytest_cache
+.hypothesis/
+.pytest_cache/
 
 # 测试文件
 test.py

@@ -32,7 +32,7 @@ class NicoleCoreSkillDefReduction(Buff.BuffLogic):
             self.buff_0.history.record = NicoleCoreSkillRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         目前这个buff的触发条件是简化过的。本来应该是检测“强化子弹”
         """

@@ -22,7 +22,6 @@ class ActionStack:
         self.length = length
         if SWAP_CANCEL:
             self.personal_stack = defaultdict(list)
-
             self._swap_cancel_warning_printed = False  # 标志变量，用于控制警告信息只打印一次
 
         self.stack = []
@@ -107,6 +106,12 @@ class ActionStack:
     def __ne__(self, value: object, /) -> bool:
         return not self.__eq__(value)
 
+    def reset_myself(self):
+        if SWAP_CANCEL:
+            self.personal_stack = defaultdict(list)
+            self._swap_cancel_warning_printed = False  # 标志变量，用于控制警告信息只打印一次
+        self.stack = []
+
 
 class NodeStack:
     def __init__(self, length: int = 3):
@@ -171,6 +176,8 @@ class NodeStack:
                 return max(
                     (x for x in _exist_node_list),
                     key=lambda x: x.preload_tick)
+    def reset(self):
+        self.stack = []
 
     def last_node_is_end(self, tick) -> bool:
         """判断上一个skillnode是否结束"""

@@ -18,6 +18,10 @@ class BasePreloadStrategy(ABC):
     def check_myself(self, *args, **kwargs):
         pass
 
+    @abstractmethod
+    def reset_myself(self):
+        pass
+
 
 class SwapCancelStrategy(BasePreloadStrategy):
     def __init__(self, data):
@@ -54,8 +58,11 @@ class SwapCancelStrategy(BasePreloadStrategy):
     def check_myself(self, enemy, tick, *args, **kwargs):
         self.data.chek_myself_before_start_preload(enemy, tick)
 
+    def reset_myself(self):
+        pass
 
-class SequenceStrategy(BasePreloadStrategy):
+
+class SequenceStrategy():
     def generate_actions(self):
         # 封装顺序生成逻辑
         pass

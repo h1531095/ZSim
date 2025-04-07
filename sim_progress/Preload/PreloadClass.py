@@ -19,3 +19,5 @@ class PreloadClass:
             self.preload_data.char_data = char_data
         self.strategy.generate_actions(enemy, tick)
 
+    def reset_myself(self, namebox):
+        self.preload_data.reset_myself(namebox)

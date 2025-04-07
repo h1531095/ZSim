@@ -66,6 +66,17 @@ class PreloadData:
         skill_tag, active_generation = skill_tuple
         self.preload_action_list_before_confirm.append(skill_tuple)
 
+    def reset_myself(self, name_box):
+        """重置preload_data"""
+        self.preload_action = []    # 最终return返回给外部申请的数据结构
+        for cid, stack in self.personal_node_stack.items():
+            stack.reset()
+        self.current_node_stack.reset()
+        self.latest_active_generation_node = None
+        self.preload_action_list_before_confirm = []
+        self.name_box = name_box
+
+
     def force_change_action(self, skill_node: SkillNode):
         """强制更新动作，用于技能强制顶替、被打断或是类似场合"""
         char_cid = int(skill_node.skill_tag.strip().split('_')[0])

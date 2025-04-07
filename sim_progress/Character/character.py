@@ -11,7 +11,7 @@ class Character:
     def __init__(self,
                  name: str = '', CID: int | None = None,  # 角色名字和CID-必填至少一个
                  weapon=None, weapon_level=1,  # 武器名字-选填项
-                 equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
+                 equip_style: str = '4+2', equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
                  drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
                  scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
                  scPEN=0, scCRIT=0, scCRIT_DMG=0,  # 副词条数量-选填项
@@ -88,6 +88,8 @@ class Character:
                     weapon_level = int(weapon_level)
                 except ValueError:
                     raise TypeError("weapon_level must be an integer")
+            if equip_style is not None and not isinstance(equip_style, str):
+                raise TypeError("equip_style must be a string")
             if equip_set4 is not None and not isinstance(equip_set4, str):
                 raise TypeError("equip_set4 must be a string")
             if equip_set2_a is not None and not isinstance(equip_set2_a, str):
@@ -242,7 +244,7 @@ class Character:
         # 初始化武器基础属性    .\data\weapon.csv
         self._init_weapon_primitive(weapon, weapon_level)
         # 初始化套装效果        .\data\equip_set_2pc.csv
-        self._init_equip_set(equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
+        self._init_equip_set(equip_style, equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
         self.equip_sets = [
             self.equip_set4,
             self.equip_set2_a,
@@ -372,6 +374,10 @@ class Character:
             self.lasting_node = LastingNode(self.character)
             self.on_field = False   # 角色是否在前台
 
+        def reset(self):
+            self.lasting_node.reset()
+            self.on_field = False
+
     def is_available(self, tick: int):
         """查询角色当前tick是否有空"""
         lasting_node = self.dynamic.lasting_node
@@ -476,10 +482,10 @@ class Character:
 
 
 
-    def _init_equip_set(self, equip_set4: str | None, equip_set2_a: str | None, equip_set2_b: str | None, equip_set2_c: str | None):
-        """
-        初始化套装效果，Character类仅计算二件套
-        """
+    def _init_equip_set(self, equip_style: str, equip_set4: str | None, equip_set2_a: str | None, equip_set2_b: str | None, equip_set2_c: str | None):
+        """初始化套装效果, Character类仅计算二件套"""
+        if equip_style not in ['4+2', '2+2+2']:
+            raise ValueError("请输入正确的套装格式")
         # 将自身套装效果抄录
         equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
         # 检查是否有相同套装
@@ -487,12 +493,15 @@ class Character:
         if len(set(unique_sets)) != len(unique_sets):
             raise ValueError("请勿输入重复的套装名称")
         self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = tuple(equip_set_all)
-        # 存在四件套则移出2b、2c
-        if bool(equip_set4):  # 非空判断
+        # 4+2格式则移出2b、2c
+        if equip_style == '4+2':  # 非空判断
             if equip_set2_b in equip_set_all:  # 别删这个if，否则输入None会报错
                 equip_set_all.remove(equip_set2_b)
             if equip_set2_c in equip_set_all:  # 别删这个if，否则输入None会报错
                 equip_set_all.remove(equip_set2_c)
+        else:
+            if equip_set4 in equip_set_all:  # 别删这个if，否则输入None会报错
+                equip_set_all.remove(equip_set4)
         if equip_set_all is not None:  # 全空则跳过
             df = pd.read_csv(EQUIP_2PC_DATA_PATH)
             for equip_2pc in equip_set_all:
@@ -649,6 +658,13 @@ class Character:
     def __str__(self) -> str:
         return f"{self.NAME} {self.level}级，能量{self.sp:.2f}，喧响{self.decibel:.2f}"
 
+    def reset_myself(self):
+        # 重置能量、喧响值
+        self.sp: float = 40.0
+        self.decibel: float = 1000.0
+        # 重置动态属性
+        self.dynamic.reset()
+
 
 class LastingNode:
     def __init__(self, char_instance: Character):
@@ -658,6 +674,13 @@ class LastingNode:
         self.start_tick = 0
         self.update_tick = 0
         self.is_spamming = False      # 是否处于连续释放技能的状态
+        self.repeat_times = 0
+
+    def reset(self):
+        self.node = None
+        self.start_tick = 0
+        self.update_tick = 0
+        self.is_spamming = False
         self.repeat_times = 0
 
     def update_node(self, node, tick: int):

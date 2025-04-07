@@ -15,3 +15,7 @@ class APLEngine(BasePreloadEngine):
         skill_tag, apl_priority = self.apl.execute(tick, mode=0)
         node = SkillsQueue.spawn_node(skill_tag, tick, self.data.skills, active_generation=True, apl_priority=apl_priority)
         return node
+
+    def reset_myself(self):
+        """APL模块暂时没有任何需要Reset的地方！"""
+        pass

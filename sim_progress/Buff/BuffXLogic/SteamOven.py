@@ -46,7 +46,7 @@ class SteamOven(Buff.BuffLogic):
             self.buff_0.history.record = SteamOvenRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         由于人为刀俎的Buff实际上是按照all_time的规格在生效的，
         但是因为要用复杂逻辑来更新它的实际层数，所以不能用alltime来粗暴处理，

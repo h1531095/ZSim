@@ -31,7 +31,7 @@ class SokakuAdditionalAbilityICEBonus(Buff.BuffLogic):
             self.buff_0.history.record = SokakuAdditionalAbilityIBRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(char_CID=1131, action_stack=1)
         action_now = self.record.action_stack.peek()

@@ -67,6 +67,12 @@ class EnemyAttackMethod:
             '''如果循环结束，还没有选中任何一个动作，说明无事发生，返回None'''
             return None
 
+    def reset_myself(self):
+        """重构EnemyAttack方法！"""
+        self.last_start_tick = 0
+        self.last_end_tick = 0
+        self.ready = False
+
 
 class EnemyAttackAction:
     """敌人的单个进攻动作"""

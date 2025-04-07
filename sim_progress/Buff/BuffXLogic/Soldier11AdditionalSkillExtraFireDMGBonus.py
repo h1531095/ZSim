@@ -27,7 +27,7 @@ class Soldier11AdditionalSkillExtraFireDMGBonus(Buff.BuffLogic):
             self.buff_0.history.record = Slodier11AdditionalSkillRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(enemy=1)
         if self.record.enemy.dynamic.stun:

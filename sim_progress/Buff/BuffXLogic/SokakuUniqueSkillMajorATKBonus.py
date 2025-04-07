@@ -34,7 +34,7 @@ class SokakuUniqueSkillMajorATKBonus(Buff.BuffLogic):
             self.buff_0.history.record = SokakuAdditionalAbilityATKRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         检测到展旗的TAG后，去查当前的资源数量。
         由于执行本代码的阶段是Load阶段，而资源消耗事件是发生在Preload阶段的。

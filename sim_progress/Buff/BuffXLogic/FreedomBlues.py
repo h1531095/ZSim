@@ -33,7 +33,7 @@ class FreedomBlues(Buff.BuffLogic):
             self.buff_0.history.record = FreedomBluesRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         只有装备者位于前台，并且当前的动作是强化E才会进入下一轮判断
         只有当强化E 属性与buff自身的refinement想同，才会输出True。

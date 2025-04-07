@@ -7,7 +7,7 @@ from define import *
 
 
 @lru_cache(maxsize=64)
-def lookup_name_or_cid(name: str = '', cid: int | None = None) -> tuple[str, int]:
+def lookup_name_or_cid(name: str = '', cid: int | str |None = None) -> tuple[str, int]:
     """
     初始化角色名称和CID（角色ID）。
 
@@ -40,7 +40,7 @@ def lookup_name_or_cid(name: str = '', cid: int | None = None) -> tuple[str, int
     if name != '':
         result = char_dataframe[char_dataframe['name'] == name].to_dict('records')
     elif cid is not None:
-        result = char_dataframe[char_dataframe['CID'] == cid].to_dict('records')
+        result = char_dataframe[char_dataframe['CID'] == int(cid)].to_dict('records')
     else:
         raise ValueError("角色名称与ID必须至少提供一个")
 
@@ -51,7 +51,7 @@ def lookup_name_or_cid(name: str = '', cid: int | None = None) -> tuple[str, int
 
     # 检查传入的name与CID是否匹配
     if name is not None and cid is not None:
-        if int(character_info['CID']) != cid:
+        if int(character_info['CID']) != int(cid):
             raise ValueError("传入的name与CID不匹配")
 
     return character_info['name'], int(character_info['CID'])

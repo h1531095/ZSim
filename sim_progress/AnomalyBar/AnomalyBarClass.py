@@ -102,3 +102,13 @@ class AnomalyBar:
             return 0
         pct = self.current_anomaly / self.max_anomaly
         return pct
+
+    def reset_myself(self):
+        self.is_full = False
+        self.current_ndarray = None
+        self.current_anomaly = None
+        self.anomaly_times = 0
+        self.last_active = 0
+        self.ready = True
+        self.active = False
+        self.max_anomaly = None

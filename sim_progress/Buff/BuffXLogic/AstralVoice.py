@@ -43,7 +43,7 @@ class AstralVoice(Buff.BuffLogic):
             self.buff_0.history.record = AstralVoiceRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self):
+    def special_judge_logic(self, **kwargs):
         """
         复杂判定逻辑：首先要检测触发器Buff的激活情况；
         即：trigger_buff_0.dy.active

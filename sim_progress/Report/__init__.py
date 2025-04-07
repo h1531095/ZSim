@@ -16,10 +16,12 @@ buffered_data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 log_queue: queue.Queue = queue.Queue()
 result_queue: queue.Queue = queue.Queue()
 
+__result_id: int | None = None
 
-def __get_result_id() -> int:
+def regen_result_id() -> None:
     from define import ID_CACHE_JSON
     cache_path = ID_CACHE_JSON
+    global __result_id
     if not os.path.exists(cache_path):
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
         with open(cache_path, 'w') as f:
@@ -38,11 +40,10 @@ def __get_result_id() -> int:
         f.seek(0)
         json.dump(id_cache_dict, f, indent=4)
         f.truncate()
-        return current_id
+        __result_id = current_id
 
-__result_id = __get_result_id() # 每次程序运行仅生成一次的 result_id
 
-def prepare_to_report(rid: int = __result_id):
+def prepare_to_report(rid: int):
     # 获取当前日期和时间
     report_file_path = f'./logs/{rid}.log'
     buff_report_file_path_pre = f'./results/{rid}/buff_log/'
@@ -88,7 +89,7 @@ def write_to_csv():
     for char_name in buffered_data:
         if char_name not in buffered_data:
             raise ValueError('你tmd函数写错了！')
-        report_file_path, buff_report_file_path_pre = prepare_to_report()
+        report_file_path, buff_report_file_path_pre = prepare_to_report(__result_id)
         buff_report_file_path = buff_report_file_path_pre + f'{char_name}.csv'
         df = pd.DataFrame.from_dict(buffered_data[char_name], orient='index').reset_index()
         df.rename(columns={'index': 'time_tick'}, inplace=True)
@@ -139,7 +140,7 @@ def report_dmg_result(
 
 
 def thread_log_writer():
-    report_file_path, _ = prepare_to_report()
+    report_file_path, _ = prepare_to_report(__result_id)
     while True:
         with open(report_file_path, 'a', encoding='utf-8') as file:
             content = log_queue.get()
@@ -147,7 +148,7 @@ def thread_log_writer():
         log_queue.task_done()
 
 
-def thread_result_writer(rid = __result_id):
+def thread_result_writer(rid):
     result_path = f'./results/{rid}/damage.csv'
     os.makedirs(os.path.dirname(result_path), exist_ok=True)
     new_file = not os.path.exists(result_path)
@@ -162,15 +163,11 @@ def thread_result_writer(rid = __result_id):
         result_queue.task_done()
 
 
+def start_report_threads():
+    """用于在开始模拟时启动线程以处理日志和结果写入。"""
+    regen_result_id()
+    log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
+    log_writer_thread.start()
 
-log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
-log_writer_thread.start()
-
-result_writer_thread = threading.Thread(target=thread_result_writer, daemon=True)
-result_writer_thread.start()
-
-if __name__ == '__main__':
-
-    for i in trange(10000):
-        report_dmg_result(tick=i, element_type=0, skill_tag='test', dmg_expect=MAX_SIGNED_INT64,
-                          dmg_crit=MAX_SIGNED_INT64)
+    result_writer_thread = threading.Thread(target=lambda: thread_result_writer(__result_id), daemon=True)
+    result_writer_thread.start()

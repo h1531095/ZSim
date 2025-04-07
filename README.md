@@ -5,6 +5,7 @@
 `ZZZ_Calculator` is a web-based damage calculator for Zenless Zone Zero. It provides a user-friendly interface to calculate the total damage output of a team composition, taking into account the characteristics of each character's weapon and equipments. Then, it simulates a combo sequence you entered to estimate the damage output.
 
 ## Features
+
 - Calculate total damage based on team composition
 - Incorporates weapon and skill characteristics of each character
 - Simulates a combo sequence to estimate damage output
@@ -13,20 +14,21 @@
 - Developing~
 
 ## Usage
-Clone the repository to your local directory.\
+
+Clone the repository to your local directory.
 `$ git clone https://github.com/Steinwaysj/ZZZ_Calculator.git`
 
-install the dependencies.\
+install the dependencies.
 `$ pip install -r requirements.txt`
 
-~~Then run the webui.~~\
+~~Then run the webui.~~
 ~~`$ streamlit run webui.py`~~
 
-Webui is not available yet. Try run with CLI.\
+Webui is not completely finished yet. Try run with CLI.
 `$ python main.py`
 
-If you want to compile the C/C++ Extension Module, you can use the following command.\
-Make sure you have a C compiler installed.\
+If you want to compile the C/C++ Extension Module, you can use the following command.
+Make sure you have a C compiler installed.
 `$ python setup.py build_ext --inplace`
 
 ## TODO LIST
