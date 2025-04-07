@@ -15,6 +15,8 @@ saved_char_config = {}
 if char_config_file.exists():
     with open(char_config_file, "r", encoding="utf-8") as f:
         saved_char_config = toml.load(f)
+else:
+    raise FileNotFoundError(f"Character config file {char_config_file} not found.")
 
 
 _config = json.load(open('config.json',encoding="utf-8-sig"))

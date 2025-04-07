@@ -36,3 +36,7 @@ element_mapping: dict[int | str] = {
     4: "以太",
     5: "烈霜"
 }
+
+# 定义ID重复错误
+class IDDuplicateError(Exception):
+    pass

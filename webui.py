@@ -169,9 +169,8 @@ def character_config():
     _config_to_save = {"name_box": name_box}
     for name in name_box:
         _config_to_save[name] = st.session_state[f"{name}_config"]
-
     # 更新 saved_char_config, 并将其写入文件
-    saved_char_config.update(_config_to_save) 
+    saved_char_config.update(_config_to_save)
     from define import char_config_file
     with open(char_config_file, "w", encoding="utf-8") as f:
         toml.dump(saved_char_config, f)
@@ -228,9 +227,10 @@ def simulator():
 
 def data_analysis():
     st.title("ZZZ Simulator - 数据分析")
-    from lib_webui.clean_results_cache import get_all_results
+    from lib_webui.clean_results_cache import get_all_results, rename_result
+    from lib_webui.constants import IDDuplicateError
     # 添加一个选择框来选择要查看的ID，以及一个按钮来刷新ID列表
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         id_cache: dict = get_all_results()
         options = list(id_cache.keys())[::-1]  # 使用切片反转列表
@@ -238,6 +238,21 @@ def data_analysis():
     with col2:
         st.markdown(f'备注信息')
         st.markdown(f'<span style="color:gray;">{id_cache[selected_key]}</span>', unsafe_allow_html=True)
+    with col3:
+        # 提供一个按钮，弹出一个窗口来重命名当前选中的ID与备注信息
+        with st.expander("重命名选中的结果"):
+            new_name = st.text_input("请输入新的ID", value=selected_key)
+            new_comment = st.text_input("请输入新的备注信息", value=id_cache[selected_key])
+            if st.button("保存"):
+                try:
+                    rename_result(selected_key, new_name, new_comment)
+                    st.success("重命名成功！")
+                    st.rerun()  # 刷新页面以更新显示
+                except FileNotFoundError:
+                    st.warning("请检查文件是否存在或ID是否正确。", icon="⚠️")
+                except IDDuplicateError:
+                    st.warning("新ID已存在，请设置其他ID。", icon="⚠️")
+        
     # 添加一个按钮来开始分析
     if not st.button("开始分析"):
         st.stop()
