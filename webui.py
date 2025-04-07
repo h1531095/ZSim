@@ -250,8 +250,8 @@ def data_analysis():
                     st.rerun()  # 刷新页面以更新显示
                 except FileNotFoundError:
                     st.warning("请检查文件是否存在或ID是否正确。", icon="⚠️")
-                except IDDuplicateError:
-                    st.warning("新ID已存在，请设置其他ID。", icon="⚠️")
+                except IDDuplicateError as e:
+                    st.warning(e, icon="⚠️")
         
     # 添加一个按钮来开始分析
     if not st.button("开始分析"):

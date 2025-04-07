@@ -7,7 +7,6 @@ except ModuleNotFoundError:
     from .constants import ID_CACHE_JSON
 
 from .constants import results_dir, IDDuplicateError
-id_cache_path = ID_CACHE_JSON
 
 # 获取合法的结果缓存
 def get_all_results(*, id_cache_path = ID_CACHE_JSON, results_dir = results_dir) -> dict[str: str|int|None]:
