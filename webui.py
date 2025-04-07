@@ -249,6 +249,9 @@ def data_analysis():
     # 处理伤害结果
     from lib_webui.process_dmg_result import process_dmg_result
     process_dmg_result(selected_key)
+    # 处理Buff结果
+    from lib_webui.process_buff_result import process_buff_result
+    process_buff_result(selected_key)
 
 
 if __name__ == "__main__":

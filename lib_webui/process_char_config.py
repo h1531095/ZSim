@@ -3,7 +3,7 @@ import streamlit as st
 from sim_progress import character_factory
 
 
-def display_character_panels(name_box: list):
+def display_character_panels(name_box: list[str]) -> None:
     from define import saved_char_config
     all_char_configs = [saved_char_config.get(name) for name in name_box if name in saved_char_config]
     characters = []
