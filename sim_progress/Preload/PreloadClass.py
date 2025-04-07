@@ -4,8 +4,9 @@ from .PreloadStrategy import SwapCancelStrategy
 
 
 class PreloadClass:
-    def __init__(self, args):
-        self.preload_data = PreloadData(args)
+    def __init__(self, args, **kwargs):
+        load_data = kwargs.get('load_data')
+        self.preload_data = PreloadData(args, load_data=load_data)
         if SWAP_CANCEL:
             self.strategy = SwapCancelStrategy(self.preload_data)
         else:

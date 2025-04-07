@@ -17,7 +17,7 @@
 # 维持E连续释放，直至白雷耗尽
 1381|action+=|1381_E_A|attribute.1381:special_resource>=1|attribute.1381:special_state→E连击>0|status.enemy:stun==True
 # 大招逻辑
-1381|action+=|1381_Q|attribute.1381:decibel>=3000|attribute.1381:special_resource<0.01|status.enemy:stun==True
+1381|action+=|1381_Q|attribute.1381:decibel>=3000|attribute.1381:special_resource<0.01|status.enemy:stun==True|status.1381:lasting_node_tag!=1381_E_A
 # 泄能逻辑
 1381|action+=|1381_E_EX|attribute.1381:energy>=60|attribute.1381:special_resource<0.01|status.enemy:stun==True
 
@@ -32,7 +32,7 @@
 # 维持E连续释放，直至白雷耗尽
 1381|action+=|1381_E_A|attribute.1381:special_resource>=1|attribute.1381:special_state→E连击>0
 
-1361|action+=|1361_Q|attribute.1361:decibel>=3000|status.enemy:stun==False|status.enemy:stun_pct<0.7
+1361|action+=|1361_Q|attribute.1361:decibel>=3000|status.enemy:stun==False|status.enemy:stun_pct<0.7|status.1361:char_available==True
 1361|action+=|1361_E_EX|attribute.1361:energy>=60|status.enemy:stun==False
 
 

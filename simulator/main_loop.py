@@ -52,6 +52,7 @@ def reset_sim_data():
         Judge_list_set=init_data.Judge_list_set,
         weapon_dict=init_data.weapon_dict,
         cinema_dict=init_data.cinema_dict,
+
         action_stack=ActionStack()
     )
     schedule_data = ScheduleData(enemy=Enemy(enemy_index_ID=11412), char_obj_list=char_data.char_obj_list)
@@ -80,7 +81,6 @@ def main_loop(stop_tick: int | None = 1000):
     reset_simulator()
     check_state_reset()
     global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, preload
-    print()
     while True:
         # Tick Update
         # report_to_log(f"[Update] Tick step to {tick}")
@@ -88,7 +88,6 @@ def main_loop(stop_tick: int | None = 1000):
 
         # Preload
         preload.do_preload(tick, schedule_data.enemy, init_data.name_box, char_data)
-        # preload_list = preload.preload_data.preloaded_action
         preload_list = preload.preload_data.preload_action
 
         if stop_tick is None:
