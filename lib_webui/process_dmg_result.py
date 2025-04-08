@@ -18,8 +18,8 @@ def process_dmg_result(rid: int) -> None:
         st.dataframe(dmg_result_df)
     draw_line_chart(dmg_result_df) # 绘制伤害与失衡的折线图
     uuid_df = sort_df_by_UUID(dmg_result_df) # 按UUID排序
-    # with st.expander('按UUID排序后的数据：'):
-    #     st.dataframe(uuid_df)
+    with st.expander('按UUID排序后的数据：'):
+        st.dataframe(uuid_df)
     draw_char_chart(uuid_df) # 绘制角色相关信息的图标
     draw_char_timeline(dmg_result_df) # 绘制技能相关信息的图标
     
