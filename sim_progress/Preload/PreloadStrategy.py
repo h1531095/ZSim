@@ -4,9 +4,9 @@ from sim_progress.Preload.PreloadEngine import APLEngine, ForceAddEngine, Confir
 
 class BasePreloadStrategy(ABC):
     """基础策略，无论是什么策略，都会包含 APL、强制添加技能以及最终技能确认三个引擎。"""
-    def __init__(self, data):
+    def __init__(self, data, apl_path):
         self.data = data
-        self.apl_engine = APLEngine(data)
+        self.apl_engine = APLEngine(data, apl_path=apl_path)
         self.force_add_engine = ForceAddEngine(data)
         self.confirm_engine = ConfirmEngine(data)
 
@@ -24,8 +24,8 @@ class BasePreloadStrategy(ABC):
 
 
 class SwapCancelStrategy(BasePreloadStrategy):
-    def __init__(self, data):
-        super().__init__(data)
+    def __init__(self, data, apl_path: str | None):
+        super().__init__(data, apl_path=apl_path)
         self.swap_cancel_engine = SwapCancelValidateEngine(data)
 
     def generate_actions(self, enemy, tick: int):
