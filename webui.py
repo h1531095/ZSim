@@ -175,19 +175,9 @@ def character_config():
     with open(char_config_file, "w", encoding="utf-8") as f:
         toml.dump(saved_char_config, f)
 
-    # 收集所有角色配置
-    all_char_configs = []
-    for name in name_box:
-        all_char_configs.append(st.session_state[f'{name}_config'])
-
-    # 转换为DataFrame展示
-    st.title("角色配置信息")
-    for i, config in enumerate(all_char_configs):
-        st.subheader(f"角色{i+1}: {config['name']}")
-        df = pd.DataFrame.from_dict(config, orient='index', columns=['值'])
-        # 确保所有值转换为字符串类型以避免Arrow序列化错误
-        df['值'] = df['值'].astype(str)
-        st.dataframe(df)
+    # 调用封装的函数
+    from lib_webui.process_char_config import display_character_panels
+    display_character_panels(name_box)
 
 def simulator():
     st.title("ZZZ Simulator - 模拟器")
@@ -259,6 +249,9 @@ def data_analysis():
     # 处理伤害结果
     from lib_webui.process_dmg_result import process_dmg_result
     process_dmg_result(selected_key)
+    # 处理Buff结果
+    from lib_webui.process_buff_result import process_buff_result
+    process_buff_result(selected_key)
 
 
 if __name__ == "__main__":

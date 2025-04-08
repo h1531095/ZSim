@@ -58,6 +58,14 @@ compare_methods_mapping = {
     '==': lambda a, b: a == b,
     '!=': lambda a, b: a != b
 }
+ANOMALY_MAPPING: dict[int:str] = {
+    0: '强击',
+    1: '灼烧',
+    2: '碎冰',
+    3: '感电',
+    4: '侵蚀',
+    5: '烈霜碎冰'
+}
 
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名
