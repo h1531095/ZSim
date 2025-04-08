@@ -3,8 +3,7 @@ import plotly.express as px
 import streamlit as st
 import os
 
-from sim_progress.Character.skill_class import lookup_name_or_cid
-from .constants import results_dir, element_mapping
+from .constants import results_dir
 
 def process_buff_result(rid: int) -> None:
     # 读取伤害数据 CSV 文件
@@ -16,9 +15,7 @@ def process_buff_result(rid: int) -> None:
         for filename in [f for f in os.listdir(buff_log_path) if f.endswith('.csv')]:
             csv_file_path = os.path.join(buff_log_path, filename)
             df = pd.read_csv(csv_file_path)
-            
-            # 保留原始数据
-            buff_logs[filename.split('.')[0]] = df
+            buff_logs[filename.replace('.csv', '')] = df
             
     except FileNotFoundError:
         st.error(f'未找到文件：{buff_log_path}')
@@ -42,6 +39,8 @@ def process_buff_result(rid: int) -> None:
                         current_level = row[buff]
                         if prev_level is None:
                             # 第一个数据点
+                            if pd.isna(current_level):
+                                continue
                             prev_level = current_level
                             start_tick = row['time_tick']
                         elif current_level != prev_level:

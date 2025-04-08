@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from tqdm import trange
 
-from define import DEBUG, DEBUG_LEVEL, ElementType
+from define import DEBUG, DEBUG_LEVEL, ElementType, ANOMALY_MAPPING
 from sim_progress.RandomNumberGenerator import MAX_SIGNED_INT64
 
 buffered_data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -138,19 +138,7 @@ def report_dmg_result(
         **kwargs
 ):
     if is_anomaly:
-        match element_type:
-            case 0:
-                skill_tag = '强击'
-            case 1:
-                skill_tag = '灼烧'
-            case 2:
-                skill_tag = '碎冰'
-            case 3:
-                skill_tag = '感电'
-            case 4:
-                skill_tag = '侵蚀'
-            case 5:
-                skill_tag = '烈霜碎冰'
+        skill_tag = ANOMALY_MAPPING.get(element_type, skill_tag)
     assert skill_tag is not None, '技能标签不能为空！'
     if is_disorder:
         skill_tag += '紊乱'
@@ -159,6 +147,7 @@ def report_dmg_result(
     result_dict = {
         'tick': tick,
         'element_type': element_type,
+        'is_anomaly': is_anomaly,
         'skill_tag': skill_tag,
         'dmg_expect': float(dmg_expect),
         'dmg_crit': float(dmg_crit),
