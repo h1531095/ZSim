@@ -29,7 +29,7 @@ class APLClass:
             self.get_game_state()
         if self.apl_operator is None:
             self.apl_operator = APLOperator(self.actions_list, self.game_state)
-        cid, skill_tag, apl_priority = self.apl_operator.spawn_next_action()
+        cid, skill_tag, apl_priority = self.apl_operator.spawn_next_action(tick)
         return self.perform_action(cid, skill_tag, tick), apl_priority
 
     def get_game_state(self) -> dict | None:

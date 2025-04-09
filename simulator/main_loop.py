@@ -22,7 +22,6 @@ game_state: dict[str: object] = None
 def check_state_reset():
     """在main_loop开头调用"""
     current_fingerprint = init_data._init_fingerprint
-
     # 如果是第一次运行，记录指纹
     if not hasattr(check_state_reset, 'last_fingerprint'):
         check_state_reset.last_fingerprint = current_fingerprint
@@ -77,7 +76,7 @@ def reset_simulator():
     reset_sim_data()    # 重置所有全局变量
     start_report_threads()  # 启动线程以处理日志和结果写入
 
-def main_loop(stop_tick: int | None = 1000):
+def main_loop(stop_tick: int | None = 10800):
     reset_simulator()
     check_state_reset()
     global tick, crit_seed, init_data, char_data, load_data, schedule_data, global_stats, preload
