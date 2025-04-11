@@ -28,5 +28,8 @@ test.py
 # 运行时生成的文件
 build
 
+# macOS系统文件
+.DS_Store
+
 # pytest相关
 .tests
