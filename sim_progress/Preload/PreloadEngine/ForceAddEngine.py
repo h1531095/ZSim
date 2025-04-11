@@ -25,7 +25,7 @@ class ForceAddEngine(BasePreloadEngine):
             if not follow_up:
                 continue
             conditions_unit: list = node.skill.force_add_condition_APL
-            should_force_add, index = self.prcoess_force_add_apl(conditions_unit, skill_tag=node.skill_tag)
+            should_force_add, index = self.prcoess_force_add_apl(conditions_unit, skill_tag=node.skill_tag, tick=tick)
             if should_force_add:
                 # print(f'强制添加判定通过！该强制添加来自于{node.skill_tag}，将要添加：{follow_up[index]}')
                 self.check_char(follow_up, index, node)     # 检验数据的正确性
@@ -50,12 +50,13 @@ class ForceAddEngine(BasePreloadEngine):
         should_force_add = True
         index = 0
         skill_tag = kwargs.get('skill_tag', None)
+        tick = kwargs.get('tick', None)
         if conditions_unit and self.game_state is None:
             self.game_state = get_game_state()
         if conditions_unit:
             """存在条件类APL判定"""
             for unit in conditions_unit:
-                _apl_result, result_box = unit.check_all_sub_units(self.found_char_dict, self.game_state)
+                _apl_result, result_box = unit.check_all_sub_units(self.found_char_dict, self.game_state, tick=tick)
                 if not _apl_result:
                     '''当apl单元的自运行结果为False时，意味着该条APL的条件中存在着不满足的项，所以应该continue，赶紧去检查下个Box'''
                     should_force_add = False

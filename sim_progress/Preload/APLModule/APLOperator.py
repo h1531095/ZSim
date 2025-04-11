@@ -10,11 +10,11 @@ class APLOperator:
         for unit_dict in all_apl_unit_list:
             self.apl_unit_inventory[unit_dict['priority']] = apl_unit_factory(unit_dict)
 
-    def spawn_next_action(self):
+    def spawn_next_action(self, tick):
         """APL执行器的核心功能函数——筛选出优先级最高的下一个动作"""
         for priority, apl_unit in self.apl_unit_inventory.items():
             if isinstance(apl_unit, ActionAPLUnit):
-                result, result_box = apl_unit.check_all_sub_units(self.found_char_dict, self.game_state)
+                result, result_box = apl_unit.check_all_sub_units(self.found_char_dict, self.game_state, tick=tick)
                 if not result:
                     # if priority in [3,4]:
                     #     print(f'这次不通过的APL优先级为{priority}， 判定结果为：{result_box}')

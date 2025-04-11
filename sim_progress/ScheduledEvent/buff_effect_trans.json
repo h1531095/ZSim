@@ -96,6 +96,8 @@
   "失衡增幅": "stun_bonus",
   "受失衡增加": "received_stun_increase",
   "失衡易伤增加": "stun_vulnerability_increase",
+  "全时段失衡易伤增加": "stun_vulnerability_increase_all_time",
+
 
   "普攻失衡值增加": "normal_attack_stun_bonus",
   "特殊技失衡值增加": "special_skill_stun_bonus",

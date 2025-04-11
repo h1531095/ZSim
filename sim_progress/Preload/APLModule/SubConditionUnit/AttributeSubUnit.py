@@ -1,4 +1,7 @@
 import re
+
+from pandas.core.window.doc import kwargs_scipy
+
 from sim_progress.Preload.APLModule.APLJudgeTools import get_nested_value, check_cid
 from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
 
@@ -35,7 +38,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
 
     class SpecialStateHandler(AttributeCheckHandler):
         @classmethod
-        def handler(cls, char, nested_stat_key_list: list = None):
+        def handler(cls, char, nested_stat_key_list: list = None, **kwargs):
             if nested_stat_key_list:
                 return get_nested_value(nested_stat_key_list, char.get_special_stats())
             else:
@@ -57,6 +60,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
 
     def check_myself(self, found_char_dict, game_state: dict, *args, **kwargs):
         """处理 属性判定类 的子条件"""
+        tick = kwargs.get('tick', None)
         check_cid(self.check_target)
         if self.char is None:
             from sim_progress.Preload import find_char

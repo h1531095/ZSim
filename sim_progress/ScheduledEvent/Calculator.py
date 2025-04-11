@@ -250,6 +250,7 @@ class MultiplierData:
             self.stun_bonus: float = 0.0
             self.received_stun_increase: float = 0.0
             self.stun_vulnerability_increase: float = 0.0
+            self.stun_vulnerability_increase_all_time: float = 0.0
 
             self.normal_attack_stun_bonus: float = 0.0
             self.special_skill_stun_bonus: float = 0.0
@@ -664,14 +665,14 @@ class Calculator:
         @staticmethod
         def cal_stun_vulnerability(data: MultiplierData) -> float:
             """
-            失衡时：失衡易伤区 = 1 + 怪物失衡易伤 + 失衡易伤增幅
-            非失衡时：失衡易伤区 = 1
+            失衡时：失衡易伤区 = 1 + 怪物失衡易伤 + 失衡易伤增幅 + 全时段失衡易伤（扳机核心被动那种）
+            非失衡时：失衡易伤区 = 1 + 全时段失衡易伤（扳机核心被动那种）
             """
             stun_status: bool = data.enemy_obj.dynamic.stun
             if stun_status:
-                stun_vulnerability = 1 + data.enemy_obj.stun_DMG_take_ratio + data.dynamic.stun_vulnerability_increase
+                stun_vulnerability = 1 + data.enemy_obj.stun_DMG_take_ratio + data.dynamic.stun_vulnerability_increase + data.dynamic.stun_vulnerability_increase_all_time
             else:
-                stun_vulnerability = 1
+                stun_vulnerability = 1 + data.dynamic.stun_vulnerability_increase_all_time
             return stun_vulnerability
 
         @staticmethod
