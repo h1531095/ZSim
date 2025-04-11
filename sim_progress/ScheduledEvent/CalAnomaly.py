@@ -124,6 +124,7 @@ class CalDisorder(CalAnomaly):
         super().__init__(disorder_obj, enemy_obj, dynamic_buff)
         self.final_multipliers[0] = self.cal_disorder_base_dmg(np.float64(self.final_multipliers[0]))
 
+    # TODO：后续需要添加紊乱基础倍率提升的计算
     def cal_disorder_base_dmg(self, base_mul: np.float64) -> np.float64:
         t_s = np.float64(self.anomaly_obj.remaining_tick() / 60)
         disorder_base_dmg: np.float64
