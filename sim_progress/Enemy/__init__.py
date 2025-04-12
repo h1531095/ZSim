@@ -363,7 +363,6 @@ class Enemy:
             elif element == 'FROST':
                 self.max_anomaly_FIREICE *= multiplier
 
-
     def update_stun(self, stun: np.float64) -> None:
         self.dynamic.stun_bar += stun
 
