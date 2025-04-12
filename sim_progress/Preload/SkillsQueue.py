@@ -25,6 +25,7 @@ class SkillNode:
             self.char_name: str = skill.char_name
             self.preload_tick: int = preload_tick
             self.hit_times: int = skill.hit_times
+            self.labels: dict | None = skill.labels
             self.skill: Skill.InitSkill = skill
             self.end_tick: int = self.preload_tick + self.skill.ticks
             self.active_generation: bool = active_generation            # 构造函数的调用来源是否是主动动作

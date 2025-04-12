@@ -14,7 +14,8 @@ __char_module_map = {
     '伊芙琳': 'Evelyn',
     '零号·安比': 'Soldier0_Anby',
     '扳机': 'Trigger',
-    '柳': 'Yanagi'
+    '柳': 'Yanagi',
+    '简': 'Jane',
 }
 
 def character_factory(

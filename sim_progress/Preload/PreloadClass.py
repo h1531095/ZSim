@@ -4,11 +4,11 @@ from .PreloadStrategy import SwapCancelStrategy
 
 
 class PreloadClass:
-    def __init__(self, args, **kwargs):
-        load_data = kwargs.get('load_data')
-        self.preload_data = PreloadData(args, load_data=load_data)
+    def __init__(self, skills, *, load_data, apl_path: str, **kwargs):
+        self.preload_data = PreloadData(skills, load_data=load_data)
         if SWAP_CANCEL:
-            self.strategy = SwapCancelStrategy(self.preload_data)
+            # 合轴模式，使用输入的APL路径
+            self.strategy = SwapCancelStrategy(self.preload_data, apl_path) 
         else:
             self.strategy = None
 

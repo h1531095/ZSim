@@ -16,9 +16,18 @@ class APLParser:
     def _read_apl_from_file(file_path: str) -> str:
         """从文件中读取APL代码。"""
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return f.read()
-        except Exception as e:
+            # 检查文件扩展名
+            if file_path.endswith('.toml'):
+                import toml
+                with open(file_path, 'rb') as f:
+                    toml_dict: dict = toml.load(f)
+                    # 如果存在apl_logic表的logic，返回其内容，否则返回空字符串
+                    return toml_dict.get('apl_logic', {}).get('logic', '')
+            else:
+                # 非toml文件按原有方式处理
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+        except FileNotFoundError as e:
             print(f"Error reading file {file_path}: {e}")
             return ""
 

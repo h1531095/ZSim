@@ -1,6 +1,6 @@
 from sim_progress.Preload import SkillNode
 from sim_progress.Report import report_to_log
-from .filters import _skill_node_filter
+from .utils.filters import _skill_node_filter
 from .character import Character
 
 

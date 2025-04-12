@@ -2,7 +2,7 @@ import pandas as pd
 
 from .skill_class import Skill, lookup_name_or_cid
 from sim_progress.Report import report_to_log
-from .filters import _skill_node_filter, _sp_update_data_filter
+from .utils.filters import _skill_node_filter, _sp_update_data_filter
 import logging
 from define import *
 
@@ -488,10 +488,16 @@ class Character:
             raise ValueError("请输入正确的套装格式")
         # 将自身套装效果抄录
         equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
-        # 检查是否有相同套装
-        unique_sets = [i for i in equip_set_all if bool(i)]
-        if len(set(unique_sets)) != len(unique_sets):
-            raise ValueError("请勿输入重复的套装名称")
+        # 检查四件套与三个二件套是否有相同的套装
+        used_sets = []
+        if equip_set4:
+            used_sets.append(equip_set4)
+        two_piece_sets = [equip_set2_a, equip_set2_b, equip_set2_c]
+        for set_name in two_piece_sets:
+            if set_name:
+                if set_name in used_sets:
+                    raise ValueError("四件套与二件套中请勿输入重复的套装名称")
+        del used_sets, two_piece_sets
         self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = tuple(equip_set_all)
         # 4+2格式则移出2b、2c
         if equip_style == '4+2':  # 非空判断
@@ -561,16 +567,14 @@ class Character:
                     self.sp_regen_percent += 0.6
                 case None:
                     continue
-                case 'None':
+                case 'None' | '-' | '' | '0':
                     continue
                 case _:
                     raise ValueError(f"提供的主词条名称 {drive} 不存在")
 
-    def _init_secondary_drive(self, scATK_percent: int, scATK: int, scHP_percent: int, scHP: int, scDEF_percent: int,
-                              scDEF: int, scAnomalyProficiency: int, scPEN: int, scCRIT: int, scCRIT_DMG: int):
-        """
-        初始化副词条
-        """
+    def _init_secondary_drive(self, scATK_percent: int | float, scATK: int | float, scHP_percent: int | float, scHP: int | float, scDEF_percent: int | float,
+                              scDEF: int | float, scAnomalyProficiency: int | float, scPEN: int | float, scCRIT: int | float, scCRIT_DMG: int | float):
+        """初始化副词条"""
         # 类型检查
         if not all(isinstance(x, (int, float)) for x in
                    [scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN,
