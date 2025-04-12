@@ -18,22 +18,22 @@ class AttributeSubUnit(BaseSubConditionUnit):
 
     class EnergyHandler(AttributeCheckHandler):
         @classmethod
-        def handler(cls, char):
+        def handler(cls, char, **kwargs):
             return char.sp
 
     class DecibelHandler(AttributeCheckHandler):
         @classmethod
-        def handler(cls, char):
+        def handler(cls, char, **kwargs):
             return char.decibel
 
     class SpecialResourceValueHandler(AttributeCheckHandler):
         @classmethod
-        def handler(cls, char):
+        def handler(cls, char, **kwargs):
             return char.get_resources()[1]
 
     class SpecialResourceTypeHandler(AttributeCheckHandler):
         @classmethod
-        def handler(cls, char):
+        def handler(cls, char, **kwargs):
             return char.get_resources()[0]
 
     class SpecialStateHandler(AttributeCheckHandler):
@@ -47,7 +47,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
 
     class CinemaHandler(AttributeCheckHandler):
         @classmethod
-        def handler(cls, char):
+        def handler(cls, char, **kwargs):
             return char.cinema
 
     AttributeHandlerMap = {

@@ -30,7 +30,7 @@ class BaseSubConditionUnit(ABC):
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
         pass
 
-    def spawn_result(self, value=None):
+    def spawn_result(self, value=None, **kwargs):
         """根据self.operation_type中的匿名函数来输出结果的函数"""
         # value = check_number_type(value)
         result = self.operation_type(value, self.check_value)
