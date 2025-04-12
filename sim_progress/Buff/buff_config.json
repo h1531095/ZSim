@@ -502,5 +502,13 @@
     "Buff-武器-精5索魂影眸-冲击力": {
         "module": ".BuffXLogic.SpectralGazeImpactBonus",
         "class": "SpectralGazeImpactBonus"
+    },
+    "Buff-角色-柳-架势-上弦": {
+        "module": ".BuffXLogic.YanagiStanceJougen",
+        "class": "YanagiStanceJougen"
+    },
+    "Buff-角色-柳-架势-下弦": {
+    "module": ".BuffXLogic.YanagiStanceKagen",
+    "class": "YanagiStanceKagen"
     }
 }

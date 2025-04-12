@@ -1,6 +1,6 @@
 # ZZZ_Calculator
 
-English | [文档](README_CN.md)
+English | [中文](README_CN.md)
 
 **Introduction**
 
