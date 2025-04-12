@@ -1,7 +1,7 @@
 import json
 import toml
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Callable
 
 # 属性类型：
 ElementType = Literal[0, 1, 2, 3, 4, 5]
@@ -51,7 +51,7 @@ BUFF_LOADING_CONDITION_TRANSLATION_DICT: dict = _config["translate"]
 ENABLE_WATCHDOG = _config["watchdog"]["enabled"]
 WATCHDOG_LEVEL = _config["watchdog"]["level"]
 INPUT_ACTION_LIST = './data/计算序列.csv'
-compare_methods_mapping = {
+compare_methods_mapping: dict[str, Callable[[float|int, float|int], bool]] = {
     '<': lambda a, b: a < b,
     '<=': lambda a, b: a <= b,
     '>': lambda a, b: a > b,
