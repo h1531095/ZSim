@@ -39,6 +39,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
     class SpecialStateHandler(AttributeCheckHandler):
         @classmethod
         def handler(cls, char, nested_stat_key_list: list = None, **kwargs):
+            tick = kwargs.get('tick', None)
             if nested_stat_key_list:
                 return get_nested_value(nested_stat_key_list, char.get_special_stats())
             else:
@@ -71,7 +72,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
             raise ValueError(
                 f'当前检查的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！')
         if self.check_stat != 'special_state':
-            return self.spawn_result(handler.handler(self.char))
+            return self.spawn_result(handler.handler(self.char, tick=tick))
         else:
-            return self.spawn_result(handler.handler(self.char, self.nested_stat_key_list))
+            return self.spawn_result(handler.handler(self.char, self.nested_stat_key_list, tick=tick))
 

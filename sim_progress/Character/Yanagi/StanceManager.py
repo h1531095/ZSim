@@ -14,8 +14,10 @@ class Shinrabanshou:
             return False
         return True
 
-    def active(self, tick: int):
+    def active(self):
         """更新森罗万象的时间！"""
+        from sim_progress.Buff import find_tick
+        tick = find_tick()
         self.update_tick = tick
 
 
@@ -25,7 +27,6 @@ class StanceManager:
         self.char = char_instance
         self.stance_jougen = True      # 上弦状态，初始化时就是上弦
         self.stance_kagen = False       # 下弦状态
-        self.active_signal: bool | None = None      # 上下弦更新信号, True代表上弦更新，False代表下弦更新
         self.last_update_node = None        # 上次导致更新的skill_node
         self.shinrabanshou = Shinrabanshou(self.char.cinema)        # 森罗万象管理器
 
@@ -55,16 +56,12 @@ class StanceManager:
         """更新架势"""
         if self.stance_jougen == self.stance_kagen:
             raise ValueError(f'上弦、下弦状态不能同时为True或False！')
-        if self.active_signal is not None:
-            raise ValueError(f'存在尚未处理的上下弦更新信号！雅在一个tick内不可能更新两次上下弦状态！')
         if self.stance_jougen:
             self.stance_jougen = False
             self.stance_kagen = True
-            self.active_signal = False
         else:
             self.stance_jougen = True
             self.stance_kagen = False
-            self.active_signal = True
 
     @property
     def stance_now(self):
