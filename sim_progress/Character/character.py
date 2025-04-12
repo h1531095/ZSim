@@ -572,8 +572,8 @@ class Character:
                 case _:
                     raise ValueError(f"提供的主词条名称 {drive} 不存在")
 
-    def _init_secondary_drive(self, scATK_percent: int, scATK: int, scHP_percent: int, scHP: int, scDEF_percent: int,
-                              scDEF: int, scAnomalyProficiency: int, scPEN: int, scCRIT: int, scCRIT_DMG: int):
+    def _init_secondary_drive(self, scATK_percent: int | float, scATK: int | float, scHP_percent: int | float, scHP: int | float, scDEF_percent: int | float,
+                              scDEF: int | float, scAnomalyProficiency: int | float, scPEN: int | float, scCRIT: int | float, scCRIT_DMG: int | float):
         """初始化副词条"""
         # 类型检查
         if not all(isinstance(x, (int, float)) for x in

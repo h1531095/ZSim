@@ -168,16 +168,17 @@ class Skill:
         for action, init in init_actions.items():
             # 如果某个动作未被初始化，则创建对应的 Skill 对象并添加到 skills_dict
             if init:
-                self.skills_dict[f'{self.CID}_{action}'] = Skill.InitSkill(default_actions_dataframe, key=action,
+                self.skills_dict[f'{self.CID}_{action}'] = Skill.InitSkill(default_actions_dataframe, 
+                                                                           key=action, 
+                                                                           char_name=self.name,
                                                                            CID=self.CID)
         return list(self.skills_dict.keys())
 
     class InitSkill:
-        def __init__(self, skill_dataframe, key,
+        def __init__(self, skill_dataframe, key, char_name: str,
                      normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
                      core_level=6,
                      CID=0,
-                     char_name=None
                      ):
             """
             初始化角色的单个技能。
@@ -196,7 +197,7 @@ class Skill:
             self.diff_multiplier = int(_raw_skill_data['diff_multiplier'])
             if _raw_skill_data['diff_multiplier'] not in [0, 1, 2, 3]:
                 raise ValueError("目前只支持 攻击力/生命值/防御力/精通 倍率")
-            self.char_name = char_name
+            self.char_name: str = char_name
             # 储存技能Tag
             self.cid = CID
             self.skill_tag = f'{CID}_{key}' if str(CID) not in key else key
