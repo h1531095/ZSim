@@ -118,7 +118,7 @@ def main():
     # 交互模式
     while True:
         print("\nCSV和Excel双向同步工具")
-        print("1. 从CSV导入到Excel")
+        print("1. 从CSV导入到Excel，会导致Excel的格式配置全部丢失")
         print("2. 从Excel导出到CSV")
         print("3. 退出")
         
