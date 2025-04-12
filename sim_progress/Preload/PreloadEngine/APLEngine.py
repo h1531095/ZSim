@@ -12,7 +12,7 @@ class APLEngine(BasePreloadEngine):
         
         if apl_path is None:
             apl_path = APL_PATH
-        elif not apl_path.endswith('.txt'):
+        elif not apl_path.endswith('.txt') or not apl_path.endswith('.toml'):
             # 如果提供的是APL名称而不是完整路径
             found_path = self.apl_manager.get_apl_path(apl_path)
             if found_path:
