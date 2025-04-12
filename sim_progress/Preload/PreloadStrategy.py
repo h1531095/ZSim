@@ -28,7 +28,7 @@ class SwapCancelStrategy(BasePreloadStrategy):
         super().__init__(data, apl_path=apl_path)
         self.swap_cancel_engine = SwapCancelValidateEngine(data)
 
-    def generate_actions(self, enemy, tick: int):
+    def generate_actions(self, enemy, tick: int) -> None:
         """合轴逻辑"""
         # 0、自检
         self.check_myself(enemy, tick)

@@ -1,5 +1,5 @@
 ID,tag,description,hit,duration,cd,hit_list,blockable_list,interruption_level_list,effect_radius_list,stoppable
 0,攻击的tag,攻击的描述,命中次数,动作时长,动作内置CD,各次攻击时间点,各次攻击能否被格挡,各次攻击的打断系数,各次攻击的作用范围,是否能被打断
-1,default_enemy_attack_mode_a,默认平A模式：1次攻击,1,30,300,None,None,None,None,True
-2,default_enemy_attack_mode_b,默认平A模式：2次攻击,2,50,500,None,None,None,None,True
-3,default_enemy_attack_mode_c,默认平A模式：3次攻击,3,80,700,None,None,None,None,True
+1,default_enemy_attack_mode_a,默认平A模式：1次攻击,1,30,300,,,,,True
+2,default_enemy_attack_mode_b,默认平A模式：2次攻击,2,50,500,,,,,True
+3,default_enemy_attack_mode_c,默认平A模式：3次攻击,3,80,700,,,,,True

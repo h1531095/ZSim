@@ -1,4 +1,5 @@
 import pandas as pd
+from define import ElementType
 
 
 # 角色配置常量
@@ -28,7 +29,7 @@ ID_CACHE_JSON = './results/id_cache.json'
 results_dir = './results'
 
 # 六元素翻译对应表
-element_mapping: dict[int | str] = {
+element_mapping: dict[ElementType | str] = {
     0: "物理",
     1: "火",
     2: "冰",

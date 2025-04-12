@@ -1,4 +1,4 @@
-﻿BuffName,id,OfficialName,From,SpConsumption,SpRecovery_hit,Sp_Threshold,FeverRecovery,ElementAbnormalAccumulation,SkillType,TriggerBuffLevel,ElementType,TimeCost,HitNumber,DmgRelated_Attributes,StunRelated_Attributes,Interruption_Resistance
+BuffName,id,OfficialName,From,SpConsumption,SpRecovery_hit,Sp_Threshold,FeverRecovery,ElementAbnormalAccumulation,SkillType,TriggerBuffLevel,ElementType,TimeCost,HitNumber,DmgRelated_Attributes,StunRelated_Attributes,Interruption_Resistance
 Buff-角色-艾莲-核心被动,,,,,,,,,,,2,,,,,
 Buff-角色-艾莲-额外能力,,,,,,,,,,0,2,,,,,
 Buff-武器-精1深海访客-冰伤,,,,,,,,,,,2,,,,,
@@ -117,7 +117,7 @@ Buff-角色-11号-核心被动,,,,,,,,,,0|3,1,,,,,
 Buff-角色-11号-组队被动-常驻,,,,,,,,,,,,,,,,
 Buff-角色-11号-组队被动-失衡,,,,,,,,,,,,,,,,
 Buff-角色-雅-终结技-冰伤,,,,,,,,,,6,,,,,,
-Buff-角色-雅-核心被动-冰焰,,,,,,,,5,,,,,,,,
+Buff-角色-雅-核心被动-冰焰,,,,,,,,5.0,,,,,,,,
 Buff-角色-雅-核心被动-霜灼,,,,,,,,,,,,,,,,
 Buff-角色-雅-组队被动-普攻增伤,1091_SNA_1|1091_SNA_2|1091_SNA_3,,,,,,,,,,,,,,,
 Buff-角色-雅-组队被动-无视冰抗,,,,,,,,,,,,,,,,
@@ -267,12 +267,15 @@ Buff-武器-精3防爆者Ⅵ型-普攻增伤,1241_SNA_1_A|1241_SNA_1_A_α|1241_S
 Buff-武器-精4防爆者Ⅵ型-普攻增伤,1241_SNA_1_A|1241_SNA_1_A_α|1241_SNA_1_A_β|1241_SNA_2_A|1241_SNA_3_A|1241_SNA_4_A|1241_SNA_5_A|1241_NA_8,,,,,,,,,,,,,,,
 Buff-武器-精5防爆者Ⅵ型-普攻增伤,1241_SNA_1_A|1241_SNA_1_A_α|1241_SNA_1_A_β|1241_SNA_2_A|1241_SNA_3_A|1241_SNA_4_A|1241_SNA_5_A|1241_NA_9,,,,,,,,,,,,,,,
 Buff-角色-朱鸢-核心被动-强化普攻增伤,"
+
 1241_SRA_F_ET|1241_SRA_B_ET|1241_SRA_S_ET|1241_SNA_1_A|1241_SNA_1_A_α|1241_SNA_1_A_β|1241_SNA_2_A|1241_SNA_3_A|1241_SNA_4_A|1241_SNA_10_A",,,,,,,,,,,,,,,
 Buff-角色-朱鸢-核心被动-失衡普攻增伤,,,,,,,,,,,,,,,,
 Buff-角色-朱鸢-额外能力-暴击率,,,,,,,,,,2|5|6,,,,,,
 Buff-角色-朱鸢-2画-强化普攻增伤,"
+
 1241_SRA_F_ET|1241_SRA_B_ET|1241_SRA_S_ET|1241_SNA_1_A|1241_SNA_1_A_α|1241_SNA_1_A_β|1241_SNA_2_A|1241_SNA_3_A|1241_SNA_4_A|1241_SNA_10_A",,,,,,,,,,,,,,,
 Buff-角色-朱鸢-4画-无视以太抗,"
+
 1241_SRA_F_ET|1241_SRA_B_ET|1241_SRA_S_ET|1241_SNA_1_A|1241_SNA_1_A_α|1241_SNA_1_A_β|1241_SNA_2_A|1241_SNA_3_A|1241_SNA_4_A|1241_SNA_10_A",,,,,,,,,,,,,,,
 Buff-角色-朱鸢-6画-降低能耗,,,,,,,,,,,,,,,,
 Buff-角色-格丽斯-4画-能量获取效率,,,,,,,,,,,,,,,,

@@ -7,7 +7,7 @@ from define import *
 
 
 @lru_cache(maxsize=64)
-def lookup_name_or_cid(name: str = '', cid: int | str |None = None) -> tuple[str, int]:
+def lookup_name_or_cid(name: str = '', cid: int | str | None = None) -> tuple[str, int]:
     """
     初始化角色名称和CID（角色ID）。
 
@@ -40,7 +40,9 @@ def lookup_name_or_cid(name: str = '', cid: int | str |None = None) -> tuple[str
     if name != '':
         result = char_dataframe[char_dataframe['name'] == name].to_dict('records')
     elif cid is not None:
-        result = char_dataframe[char_dataframe['CID'] == int(cid)].to_dict('records')
+        # 确保cid是整数
+        cid_int = int(cid) if cid is not None else None
+        result = char_dataframe[char_dataframe['CID'] == cid_int].to_dict('records')
     else:
         raise ValueError("角色名称与ID必须至少提供一个")
 
@@ -59,7 +61,7 @@ def lookup_name_or_cid(name: str = '', cid: int | str |None = None) -> tuple[str
 
 class Skill:
     def __init__(self,
-                 name: str = '', CID: int | None = None,
+                 name: str = '', CID: int | str | None = None,
                  normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
                  core_level=6
                  ):
@@ -94,8 +96,10 @@ class Skill:
         test_object.get_skill_info(skill_tag=action_list[0], attr_info='damage_ratio')  # 获取第一个动作的伤害倍率-方式2
         """
 
+        # 初始化时确保CID被转换为整数或None
+        cid_int = int(CID) if CID is not None else None
         # 初始化角色名称和CID
-        self.name, self.CID = lookup_name_or_cid(name, CID)
+        self.name, self.CID = lookup_name_or_cid(name, cid_int)
         # 核心技等级需要可读
         self.core_level = core_level
         # 最晚在这里创建DataFrame，优化不一点点，这玩意可大了
@@ -164,16 +168,17 @@ class Skill:
         for action, init in init_actions.items():
             # 如果某个动作未被初始化，则创建对应的 Skill 对象并添加到 skills_dict
             if init:
-                self.skills_dict[f'{self.CID}_{action}'] = Skill.InitSkill(default_actions_dataframe, key=action,
+                self.skills_dict[f'{self.CID}_{action}'] = Skill.InitSkill(default_actions_dataframe, 
+                                                                           key=action, 
+                                                                           char_name=self.name,
                                                                            CID=self.CID)
         return list(self.skills_dict.keys())
 
     class InitSkill:
-        def __init__(self, skill_dataframe, key,
+        def __init__(self, skill_dataframe, key, char_name: str,
                      normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
                      core_level=6,
                      CID=0,
-                     char_name=None
                      ):
             """
             初始化角色的单个技能。
@@ -192,7 +197,7 @@ class Skill:
             self.diff_multiplier = int(_raw_skill_data['diff_multiplier'])
             if _raw_skill_data['diff_multiplier'] not in [0, 1, 2, 3]:
                 raise ValueError("目前只支持 攻击力/生命值/防御力/精通 倍率")
-            self.char_name = char_name
+            self.char_name: str = char_name
             # 储存技能Tag
             self.cid = CID
             self.skill_tag = f'{CID}_{key}' if str(CID) not in key else key
@@ -225,10 +230,10 @@ class Skill:
             # TriggerBuffLevel
             self.trigger_buff_level: int = int(_raw_skill_data['trigger_buff_level'])
             # 元素相关
-            self.element_type: ElementType = ElementType(int(_raw_skill_data['element_type']))
+            self.element_type: ElementType = _raw_skill_data['element_type']
             self.element_damage_percent: float = float(_raw_skill_data['element_damage_percent'])
             # 动画相关
-            self.ticks: int = int(_raw_skill_data['ticks'])
+            self.ticks: int = int(_raw_skill_data['ticks']) 
             temp_hit_times = int(_raw_skill_data['hit_times'])
             self.hit_times: int = temp_hit_times if temp_hit_times > 0 else 1
             self.on_field: bool = bool(_raw_skill_data['on_field'])
@@ -251,15 +256,15 @@ class Skill:
             self.swap_cancel_ticks: int = int(_raw_skill_data['swap_cancel_ticks'])  # 可执行合轴操作的最短时间
             follow_up = _raw_skill_data['follow_up']
             if follow_up is np.nan or pd.isna(follow_up):
-                self.follow_up = []
+                self.follow_up: list = []
             else:
-                self.follow_up: list | None = _raw_skill_data['follow_up'].split('|')   # 技能发动后强制衔接的技能标签
+                self.follow_up: list = _raw_skill_data['follow_up'].split('|')   # 技能发动后强制衔接的技能标签
 
             follow_by = _raw_skill_data['follow_by']
             if follow_by is np.nan or pd.isna(follow_by):
-                self.follow_by = []
+                self.follow_by: list = []
             else:
-                self.follow_by = _raw_skill_data['follow_by'].split('|')   # 发动技能必须的前置技能标签
+                self.follow_by: list = _raw_skill_data['follow_by'].split('|')   # 发动技能必须的前置技能标签
             self.aid_direction: int = _raw_skill_data['aid_direction']  # 触发快速支援的方向
             aid_lag_ticks_value = _raw_skill_data['aid_lag_ticks']
             if aid_lag_ticks_value == 'inf':

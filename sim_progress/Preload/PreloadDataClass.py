@@ -4,10 +4,10 @@ from sim_progress.data_struct import NodeStack
 
 class PreloadData:
     """循环于Preload阶段内部的数据"""
-    def __init__(self, args, **kwargs):
+    def __init__(self, skills, **kwargs):
         load_data = kwargs.get('load_data')
         self.preload_action: list[SkillNode] = []    # 最终return返回给外部申请的数据结构
-        self.skills: list = args     # 用于创建SkillNode，是SkillNode构造函数的必要参数。
+        self.skills: list = skills     # 用于创建SkillNode，是SkillNode构造函数的必要参数。
         self.personal_node_stack: dict[int: NodeStack] = {}    # 个人的技能栈
         self.current_node_stack: NodeStack = NodeStack(length=5)      # Preload阶段的总技能栈
         self.latest_active_generation_node: SkillNode | None = None     # 最近一次主动生成的skillnode，#TODO：可能是无用参数！
