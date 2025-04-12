@@ -1,6 +1,6 @@
 from sim_progress.Preload import SkillNode
 from .character import Character
-from .filters import _skill_node_filter
+from .utils.filters import _skill_node_filter
 
 
 

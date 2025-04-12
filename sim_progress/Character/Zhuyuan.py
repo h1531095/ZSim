@@ -1,4 +1,4 @@
-from .filters import _skill_node_filter
+from .utils.filters import _skill_node_filter
 from .character import Character
 from ..Preload import SkillNode
 from ..Report import report_to_log

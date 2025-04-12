@@ -1,9 +1,11 @@
 import json
 import toml
 from pathlib import Path
-from typing import NewType
+from typing import Literal
 
-ElementType = NewType("ElementType", int)
+# 属性类型：
+ElementType = Literal[0, 1, 2, 3, 4, 5]
+
 INVALID_ELEMENT_ERROR = "Invalid element type"
 ID_CACHE_JSON = 'results/id_cache.json'
 
@@ -17,7 +19,6 @@ if char_config_file.exists():
         saved_char_config = toml.load(f)
 else:
     raise FileNotFoundError(f"Character config file {char_config_file} not found.")
-
 
 _config = json.load(open('config.json',encoding="utf-8-sig"))
 
@@ -58,7 +59,7 @@ compare_methods_mapping = {
     '==': lambda a, b: a == b,
     '!=': lambda a, b: a != b
 }
-ANOMALY_MAPPING: dict[int:str] = {
+ANOMALY_MAPPING: dict[ElementType, str] = {
     0: '强击',
     1: '灼烧',
     2: '碎冰',

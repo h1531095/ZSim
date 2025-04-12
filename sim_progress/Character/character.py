@@ -2,7 +2,7 @@ import pandas as pd
 
 from .skill_class import Skill, lookup_name_or_cid
 from sim_progress.Report import report_to_log
-from .filters import _skill_node_filter, _sp_update_data_filter
+from .utils.filters import _skill_node_filter, _sp_update_data_filter
 import logging
 from define import *
 
