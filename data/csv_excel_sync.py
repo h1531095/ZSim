@@ -118,16 +118,20 @@ def main():
     # 交互模式
     while True:
         print("\nCSV和Excel双向同步工具")
-        print("1. 从CSV导入到Excel，会导致Excel的格式配置全部丢失")
+        print("\033[91m1. 从CSV导入到Excel，会导致Excel的格式配置、表内公式全部丢失\033[0m")
         print("2. 从Excel导出到CSV")
         print("3. 退出")
         
         choice = input("请选择操作 [1-3]: ")
         
         if choice == "1":
-            csv_to_excel()
+            confirm = input("\033[91m警告: 此操作会导致Excel的格式配置、表内公式全部丢失，是否继续？[y/n]: \033[0m").lower()
+            if confirm == 'y':
+                csv_to_excel()
         elif choice == "2":
-            excel_to_csv()
+            confirm = input("确认要从Excel导出到CSV吗？[y/n]: ").lower()
+            if confirm == 'y':
+                excel_to_csv()
         elif choice == "3":
             print("程序已退出")
             break
