@@ -7,8 +7,8 @@ __pycache__
 
 # 日志和配置文件
 logs
-config.json
-result.json
+mypy.ini
+pytest.ini
 /results/
 
 # 开发工具和环境文件
@@ -21,6 +21,7 @@ result.json
 .pytest_cache
 .hypothesis/
 .pytest_cache/
+venv/
 
 # 测试文件
 test.py
@@ -33,3 +34,10 @@ build
 
 # pytest相关
 .tests
+
+# 临时文件
+*.tmp
+~*
+
+# uv相关
+zzz_simulator.egg-info/

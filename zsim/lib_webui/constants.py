@@ -4,16 +4,16 @@ from define import ElementType
 
 # 角色配置常量
 default_chars = ["扳机", "丽娜", "零号·安比"]   # 这个值其实没啥意义，但是必须是三个角色，否则可能会报错
-df = pd.read_csv('data/character.csv')
-char_options = df['name'].drop_duplicates().tolist()
+__df = pd.read_csv('./zsim/data/character.csv')
+char_options = __df['name'].drop_duplicates().tolist()
 
 # 武器选项
-df = pd.read_csv('data/weapon.csv')
-weapon_options = df['weapon_ID'].drop_duplicates().tolist()
+__df = pd.read_csv('./zsim/data/weapon.csv')
+weapon_options = __df['weapon_ID'].drop_duplicates().tolist()
 
 # 驱动盘套装选项
-df = pd.read_csv('data/equip_set_2pc.csv')
-equip_set_ids = df['set_ID'].drop_duplicates().dropna().tolist()
+__df = pd.read_csv('./zsim/data/equip_set_2pc.csv')
+equip_set_ids = __df['set_ID'].drop_duplicates().dropna().tolist()
 equip_set4_options = equip_set2_options = equip_set_ids
 
 # 主词条选项
@@ -38,6 +38,10 @@ element_mapping: dict[ElementType | str] = {
     5: "烈霜"
 }
 
-# 定义ID重复错误
+# ID重复时抛出的自定义异常类
 class IDDuplicateError(Exception):
+    """当检测到重复ID时抛出此异常"""
     pass
+
+
+del __df    # 确保在文件末尾删除临时变量

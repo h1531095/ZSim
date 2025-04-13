@@ -2,14 +2,15 @@ from typing import Optional
 import os
 from .APLParser import APLParser
 from .APLClass import APLClass
+from define import DEFAULT_APL_DIR, COSTOM_APL_DIR
 
 
 class APLManager:
     """APL管理器，用于管理和加载APL代码文件"""
     
     def __init__(self):
-        self.default_apl_dir = "./data/APLData"
-        self.custom_apl_dir = "./data/APLData/custom"
+        self.default_apl_dir = DEFAULT_APL_DIR
+        self.custom_apl_dir = COSTOM_APL_DIR
         self._ensure_directories()
     
     def _ensure_directories(self):

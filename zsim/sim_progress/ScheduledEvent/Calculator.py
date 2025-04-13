@@ -12,7 +12,7 @@ from sim_progress.Preload import SkillNode
 from sim_progress.Report import report_to_log
 from sim_progress.data_struct import cal_buff_total_bonus
 
-with open("./sim_progress/ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as f:
+with open("./zsim/sim_progress/ScheduledEvent/buff_effect_trans.json", 'r', encoding='utf-8-sig') as f:
     buff_effect_trans: dict = json.load(f)
 
 

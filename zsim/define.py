@@ -10,7 +10,7 @@ INVALID_ELEMENT_ERROR = "Invalid element type"
 ID_CACHE_JSON = 'results/id_cache.json'
 
 # 加载角色配置
-data_dir = Path("./data")
+data_dir = Path("./zsim/data")
 data_dir.mkdir(exist_ok=True)
 char_config_file = data_dir / "character_config.toml"
 saved_char_config = {}
@@ -20,7 +20,8 @@ if char_config_file.exists():
 else:
     raise FileNotFoundError(f"Character config file {char_config_file} not found.")
 
-_config = json.load(open('config.json',encoding="utf-8-sig"))
+CONFIG_PATH = 'zsim/config.json'
+_config = json.load(open(CONFIG_PATH, encoding="utf-8-sig"))
 
 APL_MODE: bool = _config['apl_mode']['enabled']
 SWAP_CANCEL: bool = _config['swap_cancel_mode']['enabled']
@@ -30,6 +31,9 @@ ENEMY_RANDOM_ATTACK: str = _config['apl_mode']['enemy_random_attack']
 ENEMY_ATTACK_RESPONSE: bool = _config['apl_mode']['enemy_attack_response']
 ENEMY_ATTACK_METHOD_CONFIG: str = _config['apl_mode']['enemy_attack_method_config']
 ENEMY_ATTACK_ACTION: str = _config['apl_mode']['enemy_attack_action_data']
+DEFAULT_APL_DIR: str = _config['apl_mode']['default_apl_dir']
+COSTOM_APL_DIR: str = _config['apl_mode']['custom_apl_dir']
+
 #: 合轴操作完成度系数->根据前一个技能帧数的某个比例来延后合轴
 SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT: float = _config['swap_cancel_mode']['completion_coefficient']
 
@@ -50,7 +54,9 @@ EXIST_FILE_PATH: str = _config["database"]["EXIST_FILE_PATH"]
 BUFF_LOADING_CONDITION_TRANSLATION_DICT: dict = _config["translate"]
 ENABLE_WATCHDOG = _config["watchdog"]["enabled"]
 WATCHDOG_LEVEL = _config["watchdog"]["level"]
-INPUT_ACTION_LIST = './data/计算序列.csv'
+INPUT_ACTION_LIST = ''      # 半废弃
+
+
 compare_methods_mapping: dict[str, Callable[[float|int, float|int], bool]] = {
     '<': lambda a, b: a < b,
     '<=': lambda a, b: a <= b,

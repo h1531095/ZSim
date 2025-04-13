@@ -181,9 +181,14 @@ def character_config():
 
 def simulator():
     st.title("ZZZ Simulator - 模拟器")
+    import json
+    from define import CONFIG_PATH
+    with open(CONFIG_PATH, "r", encoding='utf-8') as f:
+        config = json.load(f)
+        default_stop_tick = config["stop_tick"]
     
     # 添加stop_tick输入框
-    stop_tick = st.number_input("模拟时长（帧数，1秒=60帧）", min_value=1, max_value=65535, value=10800, key="stop_tick")
+    stop_tick = st.number_input("模拟时长（帧数，1秒=60帧）", min_value=1, max_value=65535, value=default_stop_tick, key="stop_tick")
     
     # 添加开始模拟按钮
     if not st.button("开始模拟"):
@@ -206,9 +211,7 @@ def simulator():
     st.error("注意，目前程序无法保证第二次模拟的准确性，请刷新网页再尝试")
     
     # 保存stop_tick到config.json
-    import json
-    config_path = "config.json"
-    with open(config_path, "r+", encoding='utf-8') as f:
+    with open(CONFIG_PATH, "r+", encoding='utf-8') as f:
         config = json.load(f)
         config["stop_tick"] = stop_tick
         f.seek(0)
@@ -227,12 +230,12 @@ def data_analysis():
         selected_key = st.selectbox("选择你要查看的结果", options)  # 反转后默认选第一个
     with col2:
         st.markdown(f'备注信息')
-        st.markdown(f'<span style="color:gray;">{id_cache[selected_key]}</span>', unsafe_allow_html=True)
+        st.markdown(f'<span style="color:gray;">{id_cache[selected_key] if id_cache else None}</span>', unsafe_allow_html=True)
     with col3:
         # 提供一个按钮，弹出一个窗口来重命名当前选中的ID与备注信息
         with st.expander("重命名选中的结果"):
             new_name = st.text_input("请输入新的ID", value=selected_key)
-            new_comment = st.text_input("请输入新的备注信息", value=id_cache[selected_key])
+            new_comment = st.text_input("请输入新的备注信息", value=id_cache[selected_key] if id_cache else None)
             if st.button("保存"):
                 try:
                     rename_result(selected_key, new_name, new_comment)
