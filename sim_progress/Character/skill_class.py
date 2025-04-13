@@ -318,10 +318,35 @@ class Skill:
                                     }
             self.heavy_attack: bool = bool(_raw_skill_data['heavy_attack'])
             self.max_repeat_times: int = int(_raw_skill_data['max_repeat_times'])       # 最大重复释放次数。
+            '''
+            技能是否立刻执行，大部分技能都是False，目前只有QTE和大招具有这种属性。
+            该属性会在APL部分的SwapCancelEngine中被用到，用于检测角色已有的动作是否会被新动作打断。
+            '''
             self.do_immediately: bool = bool(_raw_skill_data['do_immediately'])
+
+            self.anomaly_update_rule: list[int] | int | None = []        # 更新异常的模式，如果不填，那就是最后一跳，如果有填写，那就按照填写的跳数来更新。
+            # anomaly_update_list_str = _raw_skill_data['anomaly_update_list']
+            # self._process_anomaly_update_rule(anomaly_update_list_str)
 
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
 
+        def _process_anomaly_update_rule(self, anomaly_update_list_str):
+            """初始化异常更新规则"""
+            if anomaly_update_list_str is np.nan or pd.isna(anomaly_update_list_str):
+                self.anomaly_update_rule = None  # None代表更新节点是最后一跳
+            else:
+                try:
+                    anomaly_update_mode = int(anomaly_update_list_str)
+                    if anomaly_update_mode == -1:
+                        self.anomaly_update_rule = anomaly_update_mode
+                    else:
+                        if anomaly_update_mode > self.hit_times:
+                            raise ValueError(f'{self.skill_tag}的更新节点大于技能总帧数！请检查数据正确性')
+                        self.anomaly_update_rule = [anomaly_update_mode]
+                except ValueError:
+                    self.anomaly_update_rule = anomaly_update_list_str.split('&')
+            if len(self.anomaly_update_rule) > self.hit_times:
+                raise ValueError(f'{self.skill_tag}的更新节点总数大于技能总帧数！请检查数据正确性')
 
         @staticmethod
         def __init_skill_level(skill_type: int,

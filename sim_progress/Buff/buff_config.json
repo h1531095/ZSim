@@ -510,5 +510,17 @@
     "Buff-角色-柳-架势-下弦": {
     "module": ".BuffXLogic.YanagiStanceKagen",
     "class": "YanagiStanceKagen"
+    },
+    "Buff-角色-简-狂热状态触发器": {
+        "module": ".BuffXLogic.JanePassionStateTrigger",
+        "class": "JanePassionStateTrigger"
+    },
+    "Buff-角色-简-狂热-物理积蓄效率提升": {
+        "module": ".BuffXLogic.JanePassionStatePhyBuildupBonus",
+        "class": "JanePassionStatePhyBuildupBonus"
+    },
+    "Buff-角色-简-狂热-额外精通转攻击力": {
+        "module": ".BuffXLogic.JanePassionStateAPTransToATK",
+        "class": "JanePassionStateAPTransToATK"
     }
 }

@@ -32,7 +32,7 @@ class BreakingLegManager:
         """这是整个manager的对外总接口，负责接收SingleHit，并且分配伤害到对应的腿上"""
         leg_index_tuple = self.select_target()
         char_cid = int(single_hit.skill_tag.strip().split('_')[0])
-        major_ratio = FOCUS_RATIO_MAP[char_cid]
+        major_ratio = FOCUS_RATIO_MAP.get(char_cid, 0.7)
         minor_ratio = (1-major_ratio)/2
         ratio_tuple = (minor_ratio, major_ratio, minor_ratio)
         for i in range(len(leg_index_tuple)):
