@@ -1,7 +1,4 @@
 import pandas as pd
-
-from sim_progress.Preload.SkillsQueue import SkillNode
-
 from .skill_class import Skill, lookup_name_or_cid
 from sim_progress.Report import report_to_log
 from .utils.filters import _skill_node_filter, _sp_update_data_filter
@@ -704,7 +701,7 @@ class LastingNode:
         self.is_spamming = False
         self.repeat_times = 0
 
-    def update_node(self, node: SkillNode, tick: int):
+    def update_node(self, node, tick: int):
         """更新技能节点状态
 
         处理技能节点的更新逻辑，包括：
