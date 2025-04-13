@@ -38,3 +38,6 @@ build
 # 临时文件
 *.tmp
 ~*
+
+# uv相关
+zzz_simulator.egg-info/
