@@ -390,7 +390,7 @@ class Buff:
         no_start = kwargs.get('no_start', False)
         no_end = kwargs.get('no_end', False)
         no_count = kwargs.get('no_count', False)
-        buff_0 = sub_exist_buff_dict[self.ft.index]
+        _simple_start_buff_0 = sub_exist_buff_dict[self.ft.index]
 
         self.dy.active = True
         if not no_start:
@@ -401,9 +401,9 @@ class Buff:
             if self.ft.individual_settled:
                 self.dy.built_in_buff_box.append((self.dy.startticks, self.dy.endticks))
             else:
-                self.dy.count = min(buff_0.dy.count + self.ft.step, self.ft.maxcount)
+                self.dy.count = min(_simple_start_buff_0.dy.count + self.ft.step, self.ft.maxcount)
         self.dy.is_changed = True
-        self.update_to_buff_0(buff_0)
+        self.update_to_buff_0(_simple_start_buff_0)
 
     def individual_setteled_update(self, duration, timenow):
         """

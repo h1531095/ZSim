@@ -325,8 +325,8 @@ class Skill:
             self.do_immediately: bool = bool(_raw_skill_data['do_immediately'])
 
             self.anomaly_update_rule: list[int] | int | None = []        # 更新异常的模式，如果不填，那就是最后一跳，如果有填写，那就按照填写的跳数来更新。
-            anomaly_update_list_str = _raw_skill_data['anomaly_update_list']
-            self._process_anomaly_update_rule(anomaly_update_list_str)
+            # anomaly_update_list_str = _raw_skill_data['anomaly_update_list']
+            # self._process_anomaly_update_rule(anomaly_update_list_str)
 
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
 
