@@ -34,16 +34,16 @@ class Jane(Character):
     
     def __passion_core(self, passion_get: float, passion_consume: float, passion_direct_add: float) -> None:
         """狂热计算逻辑核心"""
-        self.passion_stream += passion_direct_add  # 直接添加的狂热值，闪反、QTE、大招
+        self.passion_stream += passion_direct_add  # 直接添加的狂热值，闪反、QTE、大招、萨霍夫跳等
         if not self.passion_state:
             # 非狂热心流状态下，结算狂热获得
             self.passion_stream += passion_get
-            if self.passion_stream >= 100:
+            if self.passion_stream >= 100-1e-6:
                 self.__get_into_passion_state()
         else:
             # 狂热心流状态下，结算狂热消耗
             self.passion_stream -= passion_consume
-            if self.passion_stream <= 0:
+            if self.passion_stream <= 1e-6:
                 self.__reset_passion()
     
     def special_resources(self, *args, **kwargs) -> None:
@@ -54,9 +54,8 @@ class Jane(Character):
             if node.char_name != '简':
                 continue
             if node.skill_tag == '1301_SNA_1':
-                if self.salchow_jump < 1:
-                    raise ValueError("萨霍夫跳次数不足")
                 self.salchow_jump -= 1
+                self.__check_salchow_jump()
             
             labels = node.labels if node.labels is not None else {}
             passion_get = labels.get('passion_get', 0)

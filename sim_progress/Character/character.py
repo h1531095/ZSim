@@ -1,5 +1,7 @@
 import pandas as pd
 
+from sim_progress.Preload.SkillsQueue import SkillNode
+
 from .skill_class import Skill, lookup_name_or_cid
 from sim_progress.Report import report_to_log
 from .utils.filters import _skill_node_filter, _sp_update_data_filter
@@ -369,7 +371,7 @@ class Character:
     class Dynamic:
         """用于记录角色各种动态信息的类，主要和APL模块进行互动。"""
 
-        def __init__(self, char_instantce):
+        def __init__(self, char_instantce: 'Character'):
             self.character = char_instantce
             self.lasting_node = LastingNode(self.character)
             self.on_field = False   # 角色是否在前台
@@ -672,7 +674,18 @@ class Character:
 
 class LastingNode:
     def __init__(self, char_instance: Character):
-        """用于记录角色持续释放某技能的Node"""
+        """用于记录和管理角色持续释放技能的状态节点
+
+        该类负责追踪角色的技能释放状态，包括连续释放同一技能的情况和技能被打断的处理。
+
+        属性:
+            char_instance (Character): 关联的角色实例
+            node (SkillNode): 当前正在执行的技能节点，初始为None
+            start_tick (int): 开始释放技能的时间点
+            update_tick (int): 最近一次更新状态的时间点
+            is_spamming (bool): 是否处于连续释放同一技能的状态
+            repeat_times (int): 连续释放同一技能的次数
+        """
         self.char_instance = char_instance
         self.node = None
         self.start_tick = 0
@@ -681,14 +694,32 @@ class LastingNode:
         self.repeat_times = 0
 
     def reset(self):
+        """重置所有状态参数到初始值
+
+        在需要清除当前技能状态时调用，比如切换角色或战斗结束时
+        """
         self.node = None
         self.start_tick = 0
         self.update_tick = 0
         self.is_spamming = False
         self.repeat_times = 0
 
-    def update_node(self, node, tick: int):
-        """更新char.dynamic中的node"""
+    def update_node(self, node: SkillNode, tick: int):
+        """更新技能节点状态
+
+        处理技能节点的更新逻辑，包括：
+        1. 处理与其他角色节点的交互
+        2. 处理技能被打断的情况
+        3. 处理连续释放同一技能的状态更新
+        4. 处理技能切换的逻辑
+
+        参数:
+            node (SkillNode): 新的技能节点
+            tick (int): 当前时间点
+
+        异常:
+            ValueError: 当尝试过早更新节点时抛出
+        """
         if node.char_name != self.char_instance.NAME:
             if self.node is None:
                 return
@@ -697,7 +728,6 @@ class LastingNode:
                 self.node = None
                 self.update_tick = tick
                 self.repeat_times = 0
-                # print(f'新的node{node.skill_tag}传入了！与{self.char_instance.NAME}无关，但是Ta自身的持续释放技能状态已经结束了，所以对状态进行更新！')
                 return
         else:
             if self.node is None:
@@ -705,7 +735,6 @@ class LastingNode:
                 self.start_tick = tick
                 self.update_tick = tick
                 self.repeat_times = 1
-                # print(f'第一个Node{node.char_name}传入！更新给{self.char_instance.NAME}')
                 return
             if node.skill_tag in ['被打断', '发呆']:
                 self.is_spamming = False
@@ -713,31 +742,34 @@ class LastingNode:
                 self.start_tick = tick
                 self.update_tick = tick
                 self.repeat_times = 0
-                # print(f'{self.char_instance.NAME}被打断了！')
                 return
             else:
                 if self.node.end_tick > tick and node.active_generation:
                     if not self.node.skill.do_immediately and node.skill.do_immediately:
-                        # print(f'{node.skill_tag}具备立刻执行的属性，并且顶替了自己的原有动作{self.node.skill_tag}')
                         pass
                     else:
                         raise ValueError(f'过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n'
                                          f'但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！')
 
                 if self.node.skill_tag == node.skill_tag:
-                    # print(f'{self.char_instance.NAME}正在持续释放技能{node.skill_tag}！已经持续了{self.spamming_info(tick)[2]}tick！')
                     self.is_spamming = True
                     self.repeat_times += 1
                 else:
                     self.is_spamming = False
                     self.start_tick = tick
                     self.repeat_times = 1
-                    # print(f'{self.char_instance.NAME}的持续释放技能被覆盖了！新的技能{node.skill_tag}传入')
                 self.node = node
                 self.update_tick = tick
 
     def spamming_info(self, tick: int):
-        """用于给外部调用，来获取目前角色的持续释放技能的情况"""
+        """获取当前技能持续释放的状态信息
+
+        参数:
+            tick (int): 当前时间点
+
+        返回:
+            tuple: (是否连续释放中, 技能标签, 持续时间, 重复次数)
+        """
         lasting_tick = tick - self.start_tick
         if self.node is None:
             skill_tag = None

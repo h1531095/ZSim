@@ -50,7 +50,10 @@ EXIST_FILE_PATH: str = _config["database"]["EXIST_FILE_PATH"]
 BUFF_LOADING_CONDITION_TRANSLATION_DICT: dict = _config["translate"]
 ENABLE_WATCHDOG = _config["watchdog"]["enabled"]
 WATCHDOG_LEVEL = _config["watchdog"]["level"]
-INPUT_ACTION_LIST = './data/计算序列.csv'
+INPUT_ACTION_LIST = ''      # 半废弃
+
+WEBUI_APL_DATA_PATH: str = _config["webui"]["apl_data_path"]
+
 compare_methods_mapping: dict[str, Callable[[float|int, float|int], bool]] = {
     '<': lambda a, b: a < b,
     '<=': lambda a, b: a <= b,

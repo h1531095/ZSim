@@ -53,5 +53,8 @@
         "DmgRelated_Attributes": "diff_multiplier",
         "StunRelated_Attributes": "",
         "Interruption_Resistance": "interruption_resistance"
+    },
+    "webui":{
+        "apl_data_path": "./data/APLData/"
     }
 }

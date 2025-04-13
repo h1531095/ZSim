@@ -23,6 +23,7 @@ pytest.ini
 .pytest_cache
 .hypothesis/
 .pytest_cache/
+venv/
 
 # 测试文件
 test.py
@@ -35,3 +36,7 @@ build
 
 # pytest相关
 .tests
+
+# 临时文件
+*.tmp
+~*
