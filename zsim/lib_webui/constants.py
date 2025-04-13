@@ -4,15 +4,15 @@ from define import ElementType
 
 # 角色配置常量
 default_chars = ["扳机", "丽娜", "零号·安比"]   # 这个值其实没啥意义，但是必须是三个角色，否则可能会报错
-__df = pd.read_csv('data/character.csv')
+__df = pd.read_csv('./zsim/data/character.csv')
 char_options = __df['name'].drop_duplicates().tolist()
 
 # 武器选项
-__df = pd.read_csv('data/weapon.csv')
+__df = pd.read_csv('./zsim/data/weapon.csv')
 weapon_options = __df['weapon_ID'].drop_duplicates().tolist()
 
 # 驱动盘套装选项
-__df = pd.read_csv('data/equip_set_2pc.csv')
+__df = pd.read_csv('./zsim/data/equip_set_2pc.csv')
 equip_set_ids = __df['set_ID'].drop_duplicates().dropna().tolist()
 equip_set4_options = equip_set2_options = equip_set_ids
 

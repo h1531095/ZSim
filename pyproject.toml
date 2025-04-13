@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=75.1.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "zzz-simulator"
 version = "0.1.0"
@@ -15,4 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
-zsim = "run:main"
+zsim = "zsim.run:main"
+
+[tool.setuptools]
+packages = ["zsim"]

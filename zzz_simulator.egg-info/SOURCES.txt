@@ -1,0 +1,17 @@
+LICENSE
+README.md
+pyproject.toml
+tests/test_character.py
+tests/test_report.py
+zsim/__init__.py
+zsim/define.py
+zsim/main.py
+zsim/run.py
+zsim/setup.py
+zsim/webui.py
+zzz_simulator.egg-info/PKG-INFO
+zzz_simulator.egg-info/SOURCES.txt
+zzz_simulator.egg-info/dependency_links.txt
+zzz_simulator.egg-info/entry_points.txt
+zzz_simulator.egg-info/requires.txt
+zzz_simulator.egg-info/top_level.txt

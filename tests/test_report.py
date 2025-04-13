@@ -1,5 +1,5 @@
 import unittest
-from sim_progress import Report
+from zsim.sim_progress import Report
 
 
 class TestReport(unittest.TestCase):

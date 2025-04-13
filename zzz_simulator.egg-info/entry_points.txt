@@ -1,0 +1,2 @@
+[console_scripts]
+zsim = zsim.run:main

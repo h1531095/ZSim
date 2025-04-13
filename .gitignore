@@ -7,8 +7,6 @@ __pycache__
 
 # 日志和配置文件
 logs
-config.json
-result.json
 mypy.ini
 pytest.ini
 /results/

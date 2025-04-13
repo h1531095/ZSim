@@ -3,14 +3,14 @@ import importlib
 from functools import lru_cache
 import numpy as np
 from sim_progress.Report import report_to_log
-from define import EFFECT_FILE_PATH, EXIST_FILE_PATH, JUDGE_FILE_PATH
+from define import EFFECT_FILE_PATH, EXIST_FILE_PATH, JUDGE_FILE_PATH, CONFIG_PATH
 import importlib.util
 import pandas as pd
 
-with open('./config.json', 'r', encoding='utf-8') as file:
+with open(CONFIG_PATH, 'r', encoding='utf-8') as file:
     config = json.load(file)
 debug = config.get('debug')
-with open('./sim_progress/Buff/buff_config.json', 'r', encoding='utf-8') as f:
+with open('./zsim/sim_progress/Buff/buff_config.json', 'r', encoding='utf-8') as f:
     _buff_load_config = json.load(f)
 # 如果禁用缓存，每次都创建新的实例
 

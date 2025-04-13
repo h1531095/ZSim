@@ -11,6 +11,12 @@ from .constants import results_dir, IDDuplicateError
 # 获取合法的结果缓存
 def get_all_results(*, id_cache_path = ID_CACHE_JSON, results_dir = results_dir) -> dict[str: str|int|None]:
     # 读取id_cache.json文件
+    # 如果文件不存在则创建空的id_cache
+    if not os.path.exists(id_cache_path):
+        os.makedirs(os.path.dirname(id_cache_path), exist_ok=True)
+        with open(id_cache_path, 'w') as f:
+            json.dump({}, f)
+    
     with open(id_cache_path, 'r') as f:
         id_cache = json.load(f)
 

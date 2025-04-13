@@ -1,4 +1,4 @@
-# ZZZ_Calculator
+# ZZZ_Simulator
 
 English | [中文](./docs/README_CN.md)
 
@@ -13,39 +13,22 @@ English | [中文](./docs/README_CN.md)
 - Generate visual charts
 - Provide detailed damage information for each character
 
-## Usage
+## Install
 
-Clone the repository to your local directory.
+Download the latest sourse code in release page or use `git clone`
+
+Open terminal in the directory of this project, then:
 
 ```bash
-git clone https://github.com/Steinwaysj/ZZZ_Calculator.git
+uv pip install .
 ```
 
-Install the dependencies. Project is compatible with Python 3.12 or later.
+## Run
+
+Open terminal anywhere in your device:
 
 ```bash
-pip install -r requirements.txt
-```
-
-Then run the webui.
-
-```bash
-run
-```
-
-CLI version is also available (yet at least).
-
-```bash
-python main.py
-```
-
-*Experimental:*
-
-*If you want to compile the C/C++ Extension Module, you can use the following command.
-Make sure you have a C compiler installed.*
-
-```bash
-python setup.py build_ext --inplace
+zsim run
 ```
 
 ## TODO LIST
