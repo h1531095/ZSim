@@ -9,6 +9,8 @@ __pycache__
 logs
 config.json
 result.json
+mypy.ini
+pytest.ini
 /results/
 
 # 开发工具和环境文件
