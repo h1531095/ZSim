@@ -71,11 +71,11 @@ class MultiplierData:
             enemy_buff: list = self.enemy_obj.dynamic.dynamic_debuff_list
             pass
         except AttributeError:
-            report_to_log(f"[WARNING] self.enemy_obj 中找不到动态buff列表", level=4)
+            report_to_log("[WARNING] self.enemy_obj 中找不到动态buff列表", level=4)
             try:
                 enemy_buff = dynamic_buff['enemy']
             except KeyError:
-                report_to_log(f"[WARNING] dynamic_buff 中依然找不到动态buff列表", level=4)
+                report_to_log("[WARNING] dynamic_buff 中依然找不到动态buff列表", level=4)
                 enemy_buff = []
         enabled_buff: tuple = tuple(char_buff + enemy_buff)
         dynamic_statement: dict = cal_buff_total_bonus(enabled_buff)

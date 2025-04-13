@@ -26,7 +26,7 @@ class SpecialSubUnit(BaseSubConditionUnit):
         if self.preload_data is None:
             preload = game_state.get('preload', None)
             if preload is None:
-                raise ValueError(f'为从gamestate中获取到preload数据，请检查game_state的preload数据是否正常！')
+                raise ValueError('为从gamestate中获取到preload数据，请检查game_state的preload数据是否正常！')
             self.preload_data = preload.preload_data
         handler_cls = self.SpecialHandlerMap.get(self.check_stat)
         handler = handler_cls() if handler_cls else None

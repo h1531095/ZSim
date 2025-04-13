@@ -429,14 +429,14 @@ class Enemy:
                 self.restore_stun()
             else:
                 if _tick - self.dynamic.stun_update_tick > 1:
-                    raise ValueError(f'状态更新间隔大于1！存在多个tick都未更新stun的情况！')
+                    raise ValueError('状态更新间隔大于1！存在多个tick都未更新stun的情况！')
                 self.dynamic.stun_bar = 0   # 避免 log 差错
                 self.dynamic.stun_update_tick = _tick
                 self.dynamic.stun_tick += 1
         elif self.dynamic.stun_bar >= self.max_stun:
             # 若是检测到失衡状态的上升沿，则应该开启彩色失衡状态。
             self.qte_manager.qte_data.reset()
-            print(f'怪物陷入失衡了！')
+            print('怪物陷入失衡了！')
             self.dynamic.stun = True
             self.dynamic.stun_bar = 0  # 避免 log 差错
             self.dynamic.stun_update_tick = _tick

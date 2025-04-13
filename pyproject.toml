@@ -22,4 +22,10 @@ dependencies = [
 zsim = "zsim.run:main"
 
 [tool.setuptools]
-packages = ["zsim"]
+packages = {find = {where = ["."], exclude = ["tests", "results", "logs"]}}
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.csv"] 
+
+[options]
+include_package_data = true

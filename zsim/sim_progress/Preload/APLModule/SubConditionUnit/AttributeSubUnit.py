@@ -1,6 +1,4 @@
-import re
 
-from pandas.core.window.doc import kwargs_scipy
 
 from sim_progress.Preload.APLModule.APLJudgeTools import get_nested_value, check_cid
 from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit

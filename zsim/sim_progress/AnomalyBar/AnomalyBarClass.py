@@ -35,9 +35,9 @@ class AnomalyBar:
     def duration(self, timetick: int):
         duration = timetick - self.last_active
         if self.max_duration is not None:
-            assert duration <= self.max_duration, f'该异常早就结束了！不应该触发紊乱！'
+            assert duration <= self.max_duration, '该异常早就结束了！不应该触发紊乱！'
         else:
-            assert False, f'该异常的max_duration为None，无法判断是否过期！'
+            assert False, '该异常的max_duration为None，无法判断是否过期！'
         return duration
 
     def update_snap_shot(self, new_snap_shot: tuple):
@@ -46,7 +46,7 @@ class AnomalyBar:
         所以需要在外部嵌套一个总函数，根据属性种类来执行不同属性的update函数。
         """
         if not isinstance(new_snap_shot[2], np.ndarray):
-            raise TypeError(f'所传入的快照元组的第3个元素应该是np.ndarray！')
+            raise TypeError('所传入的快照元组的第3个元素应该是np.ndarray！')
 
         new_ndarray = new_snap_shot[2].reshape(1, -1)  # 将数据重塑为一行多列的形式
         build_up_value = new_snap_shot[1]  # 获取积蓄值
@@ -74,7 +74,7 @@ class AnomalyBar:
             self.ready = True
 
     def check_myself(self, timenow: int):
-        assert self.max_duration is not None, f'该异常的max_duration为None，无法判断是否过期！'
+        assert self.max_duration is not None, '该异常的max_duration为None，无法判断是否过期！'
         if self.active and (self.last_active + self.max_duration < timenow):
             self.active = False
             return True

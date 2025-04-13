@@ -69,7 +69,7 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
 
     # 获取当前最大值。修改最大值的操作在确认内置CD转好后再执行。
     bar.max_anomaly = getattr(enemy, f'max_anomaly_{enemy.trans_element_number_to_str[element_type]}')
-    assert bar.max_anomaly is not None and bar.current_anomaly is not None, f'当前异常值或对打异常值为None！'
+    assert bar.max_anomaly is not None and bar.current_anomaly is not None, '当前异常值或对打异常值为None！'
 
     if bar.current_anomaly >= bar.max_anomaly:
         bar.is_full = True
@@ -188,7 +188,7 @@ def check_anomaly_bar(enemy):
             active_anomaly_check = len(anomaly_name_list_unique)
             active_anomaly_list.append(element_number)
         if active_anomaly_check >= 2:
-            raise ValueError(f'当前同时存在两种以上的异常状态！！！')
+            raise ValueError('当前同时存在两种以上的异常状态！！！')
     if len(active_anomaly_list) == 1:
         last_anomaly_element_type = active_anomaly_list[0]
     elif len(active_anomaly_list) == 2:

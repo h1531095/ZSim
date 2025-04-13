@@ -475,7 +475,7 @@ class Character:
                 row_0: dict = row[0]
                 self.__mapping_csv_to_attr(row_0)
             else:
-                raise ValueError(f"请输入正确的精炼等级")
+                raise ValueError("请输入正确的精炼等级")
         else:
             raise ValueError(f"请输入正确的武器名称，{weapon} 不存在！")
 
