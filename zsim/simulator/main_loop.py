@@ -60,7 +60,7 @@ def reset_sim_data():
     skills = [char.skill_object for char in char_data.char_obj_list]
     preload = PreloadClass(skills, load_data=load_data)
 
-    game_state = {
+    game_state = {  # noqa: F841
         "tick": tick,
         "init_data": init_data,
         "char_data": char_data,

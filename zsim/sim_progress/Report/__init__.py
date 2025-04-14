@@ -137,10 +137,10 @@ def report_dmg_result(
         is_disorder: bool = False,
         **kwargs
 ):
-    if is_anomaly:
+    if is_anomaly and skill_tag is None:
         skill_tag = ANOMALY_MAPPING.get(element_type, skill_tag)
     assert skill_tag is not None, '技能标签不能为空！'
-    if is_disorder:
+    if is_disorder and '紊乱' not in skill_tag:
         skill_tag += '紊乱'
     if dmg_crit is None:
         dmg_crit = np.nan
