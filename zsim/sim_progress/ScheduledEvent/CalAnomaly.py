@@ -155,9 +155,9 @@ class CalDisorder(CalAnomaly):
             case 0: # 强击紊乱
                 disorder_base_dmg = (base_mul / 7.13) * (np.floor(t_s) * 0.075 + 4.5)
             case 1: # 灼烧紊乱
-                disorder_base_dmg = (base_mul / 0.5) * (np.floor(t_s) * 0.5 + 4.5)
+                disorder_base_dmg = (base_mul / 0.5) * (np.floor(t_s/0.5) * 0.5 + 4.5)
             case 2: # 霜寒紊乱
-                disorder_base_dmg = (base_mul / 5) * (np.floor(t_s/0.5) * 0.075 + 4.5)
+                disorder_base_dmg = (base_mul / 5) * (np.floor(t_s) * 0.075 + 4.5)
             case 3: # 感电紊乱
                 disorder_base_dmg = (base_mul / 1.25) * (np.floor(t_s) * 1.25 + 4.5)
             case 4: # 侵蚀紊乱
