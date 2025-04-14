@@ -1,4 +1,3 @@
-import re
 
 from sim_progress.Preload.APLModule.APLJudgeTools import find_buff, find_buff_0, check_cid
 from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit

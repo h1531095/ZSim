@@ -66,7 +66,7 @@ class _DecibelManager:
         single_hit = kwargs.get('single_hit', None)
         loading_mission = kwargs.get('loading_mission', None)
         if not any([skill_node, single_hit, loading_mission]):
-            raise ValueError(f'DecibelManager的update函数中，必须传入skill_node、single_hit、loading_mission中的一个！')
+            raise ValueError('DecibelManager的update函数中，必须传入skill_node、single_hit、loading_mission中的一个！')
         if skill_node:
             node = skill_node
         elif single_hit:

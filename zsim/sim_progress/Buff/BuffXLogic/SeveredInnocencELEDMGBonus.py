@@ -1,4 +1,4 @@
-from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class SeveredInnocencELEDMGBonusRecord:

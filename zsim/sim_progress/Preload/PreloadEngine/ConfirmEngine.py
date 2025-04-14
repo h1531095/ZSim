@@ -1,5 +1,5 @@
 from sim_progress.Preload.PreloadEngine import BasePreloadEngine
-from sim_progress.Preload import SkillsQueue, watchdog, PreloadDataClass, SkillNode
+from sim_progress.Preload import SkillsQueue, PreloadDataClass, SkillNode
 from sim_progress.Report import report_to_log
 from sim_progress.data_struct import decibel_manager_instance
 

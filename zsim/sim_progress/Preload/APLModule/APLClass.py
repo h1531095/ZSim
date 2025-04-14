@@ -1,7 +1,7 @@
 from .APLOperator import APLOperator
 import json
 import sys
-from define import APL_NA_ORDER_PATH, SWAP_CANCEL
+from define import APL_NA_ORDER_PATH
 from sim_progress.Preload import SkillNode
 
 

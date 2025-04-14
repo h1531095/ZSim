@@ -81,7 +81,7 @@ class BasicCDManager:
                 self.start_myself(tick)
                 return True
             else:
-                print(f'由于层数耗尽且尚未到达刷新时间，扳机并未成功触发本次强化协同！！')
+                print('由于层数耗尽且尚未到达刷新时间，扳机并未成功触发本次强化协同！！')
         return False
 
 

@@ -28,6 +28,10 @@ test.py
 
 # 运行时生成的文件
 build
+dist
+*.egg-info/
+*.egg
+*.spec
 
 # macOS系统文件
 .DS_Store
@@ -37,7 +41,5 @@ build
 
 # 临时文件
 *.tmp
+*cache
 ~*
-
-# uv相关
-zzz_simulator.egg-info/

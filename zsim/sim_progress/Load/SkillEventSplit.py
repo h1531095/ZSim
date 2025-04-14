@@ -1,9 +1,7 @@
-from sim_progress.data_struct import LinkedList
 import tqdm
 from sim_progress.Report import report_to_log
 from sim_progress import Load, Preload
 from sim_progress.data_struct import ActionStack
-from define import SWAP_CANCEL
 
 
 def SkillEventSplit(preloaded_action_list: list, Load_mission_dict: dict, name_dict: dict, timenow, action_stack: ActionStack):

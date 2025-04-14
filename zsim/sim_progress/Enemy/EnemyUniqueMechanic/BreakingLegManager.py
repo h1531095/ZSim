@@ -114,7 +114,7 @@ class SingleLeg(BaseUniqueMechanic):
         if self.lost_leg_hp >= self.max_leg_hp:
             self.last_broken = tick
             self.restore_leg()
-            print(f'腿破了！！！')
+            print('腿破了！！！')
             return True
         else:
             return False

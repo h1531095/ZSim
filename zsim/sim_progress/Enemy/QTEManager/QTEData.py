@@ -4,7 +4,7 @@ from sim_progress.data_struct import SingleHit
 class QETDataUpdater:
     @classmethod
     def apply(cls, qte_data, single_qte, attr_name):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class SumStrategy(QETDataUpdater):
@@ -135,7 +135,7 @@ class QTEData:
             self.preload_data = main_module.game_state['preload'].preload_data
         from sim_progress.Preload.PreloadDataClass import PreloadData
         if not isinstance(self.preload_data, PreloadData):
-            raise TypeError(f'QTEData的preload_data属性不是PreloadData类！')
+            raise TypeError('QTEData的preload_data属性不是PreloadData类！')
         if self.preload_data.operating_now is None:
             '''说明目前没有任何角色在前台'''
             return False
@@ -166,7 +166,7 @@ class SingleQTE:
         self.qte_triggered_times += 1  # 无论传进来的是哪一个hit的第一跳，都意味着响应了QTE
         if 'QTE' not in _single_hit.skill_tag:
             '''说明QTE被取消了'''
-            print(f'取消QTE！')
+            print('取消QTE！')
         else:
             self.qte_received_box.append(_single_hit.skill_tag)
         self.__is_hitted = True

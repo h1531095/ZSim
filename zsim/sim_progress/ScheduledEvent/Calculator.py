@@ -71,11 +71,11 @@ class MultiplierData:
             enemy_buff: list = self.enemy_obj.dynamic.dynamic_debuff_list
             pass
         except AttributeError:
-            report_to_log(f"[WARNING] self.enemy_obj 中找不到动态buff列表", level=4)
+            report_to_log("[WARNING] self.enemy_obj 中找不到动态buff列表", level=4)
             try:
                 enemy_buff = dynamic_buff['enemy']
             except KeyError:
-                report_to_log(f"[WARNING] dynamic_buff 中依然找不到动态buff列表", level=4)
+                report_to_log("[WARNING] dynamic_buff 中依然找不到动态buff列表", level=4)
                 enemy_buff = []
         enabled_buff: tuple = tuple(char_buff + enemy_buff)
         dynamic_statement: dict = cal_buff_total_bonus(enabled_buff)
@@ -288,6 +288,18 @@ class MultiplierData:
             self.shock_dmg_mul: float = 0.0
             self.chaos_dmg_mul: float = 0.0
             self.disorder_dmg_mul: float = 0.0
+            self.all_anomaly_dmg_mul: float = 0.0
+            
+            self.anomaly_bonus: dict[ElementType|str, float] = {
+                0: self.assault_dmg_mul,
+                1: self.burn_dmg_mul,
+                2: self.freeze_dmg_mul,
+                3: self.shock_dmg_mul,
+                4: self.chaos_dmg_mul,
+                5: self.freeze_dmg_mul,
+                -1: self.disorder_dmg_mul,
+                'all': self.all_anomaly_dmg_mul,
+            }
 
             self.special_multiplier_zone: float = 0.0
 
@@ -299,6 +311,41 @@ class MultiplierData:
             self.aftershock_attack_dmg_bonus: float = 0.0
             self.aftershock_attack_crit_dmg_bonus: float = 0.0
             self.aftershock_attack_stun_bonus: float = 0.0
+            
+            self.assault_time_increase: float = 0.0
+            self.assault_time_increase_percentage: float = 0.0
+            self.burn_time_increase: float = 0.0
+            self.burn_time_increase_percentage: float = 0.0
+            self.shock_time_increase: float = 0.0
+            self.shock_time_increase_percentage: float = 0.0
+            self.corruption_time_increase: float = 0.0
+            self.corruption_time_increase_percentage: float = 0.0
+            self.frostbite_time_increase: float = 0.0
+            self.frostbite_time_increase_percentage: float = 0.0
+            self.frost_frostbite_time_increase: float = 0.0
+            self.frost_frostbite_time_increase_percentage: float = 0.0
+            self.all_anomaly_time_increase: float = 0.0
+            self.all_anomaly_time_increase_percentage: float = 0.0
+            
+            self.anomaly_time_increase: dict[ElementType | str, float] = {
+                0: self.assault_time_increase,
+                1: self.burn_time_increase,
+                2: self.shock_time_increase,
+                3: self.frostbite_time_increase,
+                4: self.corruption_time_increase,
+                5: self.frost_frostbite_time_increase,
+                'all': self.all_anomaly_time_increase
+            }
+            
+            self.anomaly_time_increase_percentage: dict[ElementType | str, float] = {
+                0: self.assault_time_increase_percentage,
+                1: self.burn_time_increase_percentage,
+                2: self.shock_time_increase_percentage, 
+                3: self.frostbite_time_increase_percentage,
+                4: self.corruption_time_increase_percentage,
+                5: self.frost_frostbite_time_increase_percentage,
+                'all': self.all_anomaly_time_increase_percentage
+            }
 
             self.__read_dynamic_statement(dynamic_statement)
 
@@ -850,18 +897,8 @@ class Calculator:
         def cal_ano_dmg_mul(data: MultiplierData) -> float:
             """异常额外增伤区 = 1 + 对应属性异常额外增伤"""
             element_type = data.skill_node.skill.element_type
-            if element_type == 0:
-                ano_dmg_mul = 1 + data.dynamic.assault_dmg_mul
-            elif element_type == 1:
-                ano_dmg_mul = 1 + data.dynamic.burn_dmg_mul
-            elif element_type == 2 or element_type == 5:
-                ano_dmg_mul = 1 + data.dynamic.freeze_dmg_mul
-            elif element_type == 3:
-                ano_dmg_mul = 1 + data.dynamic.shock_dmg_mul
-            elif element_type == 4:
-                ano_dmg_mul = 1 + data.dynamic.chaos_dmg_mul
-            else:
-                assert False, INVALID_ELEMENT_ERROR
+            map = data.dynamic.anomaly_bonus
+            ano_dmg_mul = map.get(element_type, 0) + map['all']
             return ano_dmg_mul
 
         def cal_anomaly_crit(self, data: MultiplierData) -> float:
