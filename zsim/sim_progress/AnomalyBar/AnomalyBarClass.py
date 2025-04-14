@@ -125,7 +125,7 @@ class AnomalyBar:
         """通过Buff计算当前异常的最大持续时间"""
         if self.duration_buff_list is None:
             self.max_duration = self.basic_max_duration
-            print(f'属性类型为{self.element_type}的异常不存在影响持续时间的Buff，所以直接使用基础值{self.basic_max_duration}')
+            # print(f'属性类型为{self.element_type}的异常不存在影响持续时间的Buff，所以直接使用基础值{self.basic_max_duration}')
             return
         max_duration_delta_fix = 0
         max_duration_delta_pct = 0
@@ -140,4 +140,4 @@ class AnomalyBar:
                             else:
                                 max_duration_delta_fix += buffs.dy.count * buffs.effect_dct.get(keys)
         self.max_duration = max(self.basic_max_duration * (1+max_duration_delta_pct) + max_duration_delta_fix, 0)
-        print(f'属性类型为{self.element_type}的异常激活了，本次激活的最大时长为{self.max_duration}')
+        # print(f'属性类型为{self.element_type}的异常激活了，本次激活的最大时长为{self.max_duration}')
