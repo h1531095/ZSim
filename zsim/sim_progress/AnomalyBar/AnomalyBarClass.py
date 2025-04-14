@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import numpy as np
 import sys
 
+
 @dataclass
 class AnomalyBar:
     """
@@ -21,6 +22,9 @@ class AnomalyBar:
     accompany_dot: str | None = None  # 是否在激活时伴生dot的index
     active: bool | None = None    # 当前异常条是否激活，这一属性和enemy下面的异常开关同步。
     max_duration: int | None = None
+    duration_buff_list: list | None = None       # 影响当前异常状态最大时长的buff名
+    duration_buff_key_list: list | None = None      # 影响当前异常状态最大时长的buff效果关键字
+    basic_max_duration: int = 0          # 基础最大时间
 
     def __post_init__(self):
         self.current_ndarray: np.ndarray = np.zeros((1, 1), dtype=np.float64)
@@ -79,14 +83,18 @@ class AnomalyBar:
             self.active = False
             return True
 
-    def change_info_cause_active(self, timenow: int):
+    def change_info_cause_active(self, timenow: int, **kwargs):
         """
         属性异常激活时，必要的信息更新
         """
+        dynamic_buff_dict = kwargs.get('dynamic_buff_dict')
+        skill_node = kwargs.get('skill_node')
+        char_cid = int(skill_node.skill_tag.strip().split('_')[0])
         self.ready = False
         self.anomaly_times += 1
         self.last_active = timenow
         self.active = True
+        self.__get_max_duration(dynamic_buff_dict, char_cid)
 
     def reset_current_info_cause_output(self):
         """
@@ -112,3 +120,29 @@ class AnomalyBar:
         self.ready = True
         self.active = False
         self.max_anomaly = None
+
+    def __get_max_duration(self, dynamic_buff_list, anomaly_from: int | str) -> None:
+        """通过Buff计算当前异常的最大持续时间"""
+        if self.duration_buff_list is None:
+            self.max_duration = self.basic_max_duration
+            print(f'属性类型为{self.element_type}的异常不存在影响持续时间的Buff，所以直接使用基础值{self.basic_max_duration}')
+            return
+        if isinstance(anomaly_from, int):
+            from sim_progress.Buff import find_char_from_CID
+            _index = find_char_from_CID(anomaly_from).NAME
+        elif anomaly_from == 'enemy':
+            _index = anomaly_from
+        else:
+            raise ValueError(f'无法解析的异常来源！{anomaly_from}')
+        _index_list = set(['enemy'] + [_index])
+        max_duration_delta = 0
+        for _buff_index in self.duration_buff_list:
+            for _index in _index_list:
+                personal_buff_list = dynamic_buff_list.get(_index)
+                for buffs in personal_buff_list:
+                    if _buff_index == buffs.ft.index and buffs.dy.active:
+                        for keys in self.duration_buff_key_list:
+                            if keys in buffs.effect_dct.keys():
+                                max_duration_delta += buffs.dy.count * buffs.effect_dct.get(keys)
+        self.max_duration = max(self.basic_max_duration + max_duration_delta, 0)
+        print(f'属性类型为{self.element_type}的异常激活了，本次激活的最大时长为{self.max_duration}')

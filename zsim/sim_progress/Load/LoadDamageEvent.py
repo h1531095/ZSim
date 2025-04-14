@@ -76,7 +76,7 @@ def ProcessFreezLikeDots(timetick: int, enemy, event_list: list):
                 return True
 
 
-def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: list, char_obj_list: list):
+def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: list, char_obj_list: list, **kwargs):
     """
     DamageEvent的Judge函数：轮询load_mission_dict以及enemy.dynamic_dot_list，判断是否应生成Hit事件。
     并且当Hit时间生成时，将对应的实例添加到event_list中。
@@ -91,6 +91,7 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: 
     同时，本函数还会在子任务是end的时候检查enemy的积蓄值。如果积蓄值满，则会触发异常（update_anomaly函数）
     """
     # 处理 Load.Mission 任务
+    dynamic_buff_dict = kwargs.get('dynamic_buff_dict', None)
     for mission in load_mission_dict.values():
         if not isinstance(mission, LoadingMission | Dot.Dot):
             raise TypeError(f'{mission}不是LoadingMission或是Dot类！')
@@ -104,7 +105,7 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: 
                 # 在end处进行属性异常检查。
                 # TODO：新增重攻击 判定的接口
                 freez_deal = ProcessFreezLikeDots(timetick, enemy, event_list)
-                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, char_obj_list, skill_node=mission.mission_node)
+                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, char_obj_list, skill_node=mission.mission_node, dynamic_buff_dict=dynamic_buff_dict)
 
     # 始终检查 effect_rules == 1 的 Dot
     ProcessTimeUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)
