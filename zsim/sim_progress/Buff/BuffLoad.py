@@ -33,7 +33,7 @@ class BuffJudgeCache(BuffInitCache):
         super().__init__()
 
 
-def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT):
+def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT, exist_buff_dict: dict):
     """
     该函数是公用的buff逻辑处理函数，主要是通过BuffJudge来判断Buff是否应该触发。
     注意，此处的buff_0是operator的buff_0，哪怕buff是要加给别的角色，这里也是operator的buff_0
@@ -61,6 +61,15 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
                     buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
                     if buff_new.dy.is_changed:
                         LOADING_BUFF_DICT[char].append(buff_new)
+                        '''
+                        这里要注意：process_buff函数中传入的buff_0，只会来自于角色，
+                        所以，如果有上个Enemy的debuff，那么角色自身作为触发源头，正常更新以外，
+                        需要向Enemy的buff_0同步广播。否则，record就无法记录enemy身上Buff的正常层数。
+                        '''
+                        if char == 'enemy':
+                            enemy_buff_0 = exist_buff_dict['enemy'][buff_0.ft.index]
+                            buff_new.update_to_buff_0(enemy_buff_0)
+
         else:
             """
             这个分支主要是为了处理复杂的effect类的buff的
@@ -71,6 +80,9 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
             buff_new.logic.xeffect()
             if buff_new.dy.is_changed:
                 LOADING_BUFF_DICT[char].append(buff_new)
+                if char == 'enemy':
+                    enemy_buff_0 = exist_buff_dict['enemy'][buff_0.ft.index]
+                    buff_new.update_to_buff_0(enemy_buff_0)
 
 
 def BuffLoadLoop(
@@ -102,13 +114,13 @@ def BuffLoadLoop(
         for char_name in character_name_box:
             sub_exist_buff_dict = existbuff_dict[char_name]
             if char_name == actor_name:
-                process_on_field_buff(sub_exist_buff_dict, mission, time_now, LOADING_BUFF_DICT, all_name_order_box)
+                process_on_field_buff(sub_exist_buff_dict, mission, time_now, LOADING_BUFF_DICT, all_name_order_box, existbuff_dict)
             else:
-                process_backend_buff(sub_exist_buff_dict, all_name_order_box, mission, time_now, LOADING_BUFF_DICT)
+                process_backend_buff(sub_exist_buff_dict, all_name_order_box, mission, time_now, LOADING_BUFF_DICT, existbuff_dict)
     return LOADING_BUFF_DICT
 
 
-def process_on_field_buff(sub_exist_buff_dict: dict, mission: Load.LoadingMission, time_now: int, LOADING_BUFF_DICT: dict, all_name_order_box):
+def process_on_field_buff(sub_exist_buff_dict: dict, mission: Load.LoadingMission, time_now: int, LOADING_BUFF_DICT: dict, all_name_order_box: dict, exist_buff_dict: dict):
     """
     处理前台Buff的逻辑模块
         注意，这部分的分支，指的是以当前的前台角色为第一视角来给自己或是其他人添加Buff。
@@ -125,14 +137,15 @@ def process_on_field_buff(sub_exist_buff_dict: dict, mission: Load.LoadingMissio
             # 目前正是前台角色触发前台buff，而passively_updating为True时，
             # 意味着“当前buff的触发我说了不算，别人说了算”，那么本函数自然无法处理，要直接跳过。
             continue
+
         # 提前计算添加Buff的角色列表
         main_char = buff_0.ft.operator
         all_name_box = all_name_order_box[main_char]
         selected_characters = buff_go_to(buff_0, all_name_box)
-        process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT)
+        process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT, exist_buff_dict)
 
 
-def process_backend_buff(sub_exist_buff_dict: dict, all_name_order_box: dict, mission: Load.LoadingMission, time_now: int, LOADING_BUFF_DICT: dict):
+def process_backend_buff(sub_exist_buff_dict: dict, all_name_order_box: dict, mission: Load.LoadingMission, time_now: int, LOADING_BUFF_DICT: dict, exist_buff_dict: dict):
     """
     处理后台Buff的逻辑，
     尽管当前的动作是别的角色（actor ≠ char_name），但是，两位后台角色身上，依旧存在着可能发生更新的Buff
@@ -157,7 +170,7 @@ def process_backend_buff(sub_exist_buff_dict: dict, all_name_order_box: dict, mi
         main_char = other_buff_0.ft.operator
         name_order_box = all_name_order_box[main_char]
         selected_characters_back = buff_go_to(other_buff_0, name_order_box)
-        process_buff(other_buff_0, sub_exist_buff_dict, mission, time_now, selected_characters_back, LOADING_BUFF_DICT)
+        process_buff(other_buff_0, sub_exist_buff_dict, mission, time_now, selected_characters_back, LOADING_BUFF_DICT, exist_buff_dict)
 
 
 def buff_go_to(buff_0, all_name_box):

@@ -347,6 +347,10 @@ class MultiplierData:
                 'all': self.all_anomaly_time_increase_percentage
             }
 
+            self.strike_crit_rate_increase: float = 0.0
+            self.strike_crit_dmg_increase: float = 0.0
+            self.strike_ignore_defense: float = 0.0
+
             self.__read_dynamic_statement(dynamic_statement)
 
         def __read_dynamic_statement(self, dynamic_statement: dict) -> None:
@@ -769,6 +773,7 @@ class Calculator:
             ],
                 dtype=np.float64)
 
+
         @staticmethod
         def cal_am(data: MultiplierData) -> np.float64:
             am = np.float64(data.static.am * (1 + data.dynamic.field_anomaly_mastery) + data.dynamic.anomaly_mastery)
@@ -898,7 +903,7 @@ class Calculator:
             """异常额外增伤区 = 1 + 对应属性异常额外增伤"""
             element_type = data.skill_node.skill.element_type
             map = data.dynamic.anomaly_bonus
-            ano_dmg_mul = map.get(element_type, 0) + map['all']
+            ano_dmg_mul = map.get(element_type, 0) + map['all'] + 1
             return ano_dmg_mul
 
         def cal_anomaly_crit(self, data: MultiplierData) -> float:

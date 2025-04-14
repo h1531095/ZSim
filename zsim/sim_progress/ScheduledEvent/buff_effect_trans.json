@@ -159,5 +159,8 @@
   "烈霜霜寒时间延长": "frost_frostbite_time_increase",
   "烈霜霜寒时间延长百分比": "frost_frostbite_time_increase_percentage",
   "所有异常时间延长": "all_anomaly_time_increase",
-  "所有异常时间延长百分比": "all_anomaly_time_increase_percentage"
+  "所有异常时间延长百分比": "all_anomaly_time_increase_percentage",
+  "强击暴击率增加": "strike_crit_rate_increase",
+  "强击暴击伤害增加": "strike_crit_dmg_increase",
+  "强击无视防御": "strike_ignore_defense"
 }
