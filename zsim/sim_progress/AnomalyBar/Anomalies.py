@@ -11,7 +11,7 @@ class PhysicalAnomaly(AnomalyBar):
         self.max_duration = 0
         self.duration_buff_list = ['Buff-角色-简-核心被动-啮咬触发器']
         self.basic_max_duration = 600
-        self.duration_buff_key_list = ['畏缩时间延长']
+        self.duration_buff_key_list = ['畏缩时间延长', '所有异常时间延长', '畏缩时间延长百分比', '所有异常时间延长百分比']
 
 
 @dataclass
@@ -23,7 +23,7 @@ class FireAnomaly(AnomalyBar):
         self.basic_max_duration = 600
         self.duration_buff_list = ['Buff-角色-柏妮思-组队被动-延长灼烧']
         self.max_duration = 0
-        self.duration_buff_key_list = ['灼烧时间延长']
+        self.duration_buff_key_list = ['灼烧时间延长', '所有异常时间延长', '灼烧时间延长百分比', '所有异常时间延长百分比']
 
 
 @dataclass
@@ -35,7 +35,7 @@ class IceAnomaly(AnomalyBar):
         self.accompany_dot = '冻结'
         self.basic_max_duration = 600
         self.max_duration = 0
-        self.duration_buff_key_list = ['霜寒时间延长']
+        self.duration_buff_key_list = ['霜寒时间延长', '所有异常时间延长', '霜寒时间延长百分比', '所有异常时间延长百分比']
         # 冻结时间可以延长失衡
 
 
@@ -48,7 +48,7 @@ class ElectricAnomaly(AnomalyBar):
         self.basic_max_duration = 600
         self.duration_buff_list = ['Buff-角色-丽娜-组队被动-延长感电']
         self.max_duration = 0
-        self.duration_buff_key_list = ['感电时间延长']
+        self.duration_buff_key_list = ['感电时间延长', '所有异常时间延长', '感电时间延长百分比', '所有异常时间延长百分比']
 
 @dataclass
 class EtherAnomaly(AnomalyBar):
@@ -58,7 +58,7 @@ class EtherAnomaly(AnomalyBar):
         self.accompany_dot = '侵蚀'
         self.basic_max_duration = 600
         self.max_duration = 0
-        self.duration_buff_key_list = ['侵蚀时间延长']
+        self.duration_buff_key_list = ['侵蚀时间延长', '所有异常时间延长', '侵蚀时间延长百分比', '所有异常时间延长百分比']
 
 
 @dataclass
@@ -70,4 +70,4 @@ class FrostAnomaly(AnomalyBar):
         self.basic_max_duration = 1200
         self.accompany_debuff = ['Buff-异常-烈霜霜寒', 'Buff-角色-雅-核心被动-霜灼']
         self.max_duration = 0
-        self.duration_buff_key_list = ['烈霜霜寒时间延长']
+        self.duration_buff_key_list = ['烈霜霜寒时间延长', '所有异常时间延长', '烈霜霜寒时间延长百分比', '所有异常时间延长百分比']
