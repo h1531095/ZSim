@@ -1,13 +1,13 @@
 from sim_progress import Preload, Buff, Report
 from sim_progress.AnomalyBar import AnomalyBar as AnB
 from sim_progress.AnomalyBar import Disorder
+from sim_progress.AnomalyBar.CopyAnomalyForOutput import PolarityDisorder
 from sim_progress.Buff import ScheduleBuffSettle
 from sim_progress.Character import Character
 from sim_progress.data_struct import SingleHit, SPUpdateData, ActionStack, ScheduleRefreshData
 from sim_progress.Load.loading_mission import LoadingMission
-from .CalAnomaly import CalAnomaly, CalDisorder
-from .Calculator import Calculator, MultiplierData
-
+from .CalAnomaly import CalAnomaly, CalDisorder, CalPolarityDisorder
+from .Calculator import Calculator
 
 class ScConditionData:
     """
@@ -43,8 +43,6 @@ class ScheduledEvent:
         self.data.dynamic_buff = dynamic_buff
         self.judge_required_info_dict = data.judge_required_info_dict
         self.action_stack = action_stack
-        if isinstance(judging_buff, dict):
-            judge_condition = ScConditionData()
 
         if loading_buff is None:
             loading_buff = {}
@@ -81,6 +79,8 @@ class ScheduledEvent:
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
                         self.judge_required_info_dict['skill_node'] = event
+                elif isinstance(event, PolarityDisorder):
+                    self.polarity_disorder_event(event)
                 elif isinstance(event, Disorder):
                     self.disorder_event(event)
                     self.judge_required_info_dict['disorder'] = event
@@ -208,9 +208,24 @@ class ScheduledEvent:
                                  **self.data.enemy.dynamic.get_status()
                                  )
 
+    def polarity_disorder_event(self, event: PolarityDisorder):
+        """极性紊乱处理分支逻辑"""
+        cal_obj = CalPolarityDisorder(disorder_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
+        dmg_disorder = cal_obj.cal_anomaly_dmg()
+        Report.report_dmg_result(tick=self.tick,
+                                 element_type=event.element_type,
+                                 skill_tag = '极性紊乱',
+                                 dmg_expect=round(dmg_disorder, 2),
+                                 is_anomaly=True,
+                                 is_disorder=True,
+                                 stun=0,
+                                 buildup=0,
+                                 **self.data.enemy.dynamic.get_status()
+                                 )
+    
+    
     def refresh_event(self, event: ScheduleRefreshData):
         """强制更新角色数据"""
-        character: Character
         char_mapping = {character.NAME: character for character in self.data.char_obj_list}
         target: str = ''
         try:

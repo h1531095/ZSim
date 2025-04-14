@@ -378,33 +378,11 @@ class Enemy:
 
     def hit_received(self, single_hit: SingleHit, tick: int) -> None:
         """实现怪物的QTE次数计算、扣血计算等受击时的对象结算，与伤害计算器对接"""
-        """
-        在20250325的更新中，更新了receive_hit中处理数据的顺序。并且在receive_hit中增加了重复的stun_judge。
-        进行这一更新的原因有些复杂，详细描述如下：
-        原有逻辑：在preload的第一个步骤：自检阶段 进行失衡检查（即运行enemy.stun_judge()）——这也是整个程序中唯一进行stun_judge的地方，这样起码可以保证每个tick执行一次。
-        导致问题：如果一个tick中含有多个Hit，且其中某个hit打满了失衡值，且当前后续的hit中含有重攻击，错误的数据更新顺序就会让QTE管理器失效，
-        从而影响到下个Tick的APL的判断，使其输出错误动作：比如QTE后置，甚至整个失衡阶段被完全跳过。
-        以实际发现的问题为例：
-            上一个动作为重攻击，且最后一个hit恰好打满了失衡条，那么就会导致一个顺序错误：
-            在第n tick:
-                receive_hit中的qte_manager先执行，然后再更新stun_bar，然后在下个tick更新stun状态
-                qte_manager虽然成功接收到了足以激发连携的重攻击，但是此时无论是stun_bar还是stun状态都不足以让连携成功激发
-            在第n+1 tick:
-                preload的自检阶段，stun_judge执行，确实将stun状态更改为True，但是本应该在上个hit因为重攻击而激发的连携技，却错过了窗口，
-            导致：
-                连携技只能等待下一个重攻击才能被激发了——这种情况会严重误导APL的判断，让它一直认为：怪物正处于彩色失衡、且连携技尚未激发的状态，
-            如果我针对这一状态设置的APL策略为 "等待"：
-                [APL Code]: 0000|action+=|wait|status.enemy:stun==True|status.enemy.status.enemy:QTE_activation_available==True|status.enemy:single_qte==None
-            那么角色就会一直等待下去，一直到enemy.stun为False——具体表现为整个连携技阶段被完全跳过。
-        最终解决方案：只有让qte_manager最后一个执行，并且stun_judge必须在stun_bar更新后立刻执行，才能够让连携技成功激发。
-        显然，这会导致一个tick中多次执行stun_judge，会导致一部分的性能开销，但是实际影响估计很小，影响不大。
-        """
         # 更新失衡，为减少函数调用
         self.dynamic.stun_bar += single_hit.stun
         self.stun_judge(tick, single_hit=single_hit)
         # 怪物的扣血逻辑。
         self.__HP_update(single_hit.dmg_expect)
-
         # 更新异常值
         self.__anomaly_prod(single_hit.snapshot)
 

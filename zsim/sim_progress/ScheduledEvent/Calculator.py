@@ -17,7 +17,7 @@ with open("./zsim/sim_progress/ScheduledEvent/buff_effect_trans.json", 'r', enco
 
 
 class MultiplierData:
-    mul_data_cache: dict[tuple, Any] = {}
+    mul_data_cache: dict[tuple, 'MultiplierData'] = {}
     max_size = 128
 
     def __new__(cls, enemy_obj: Enemy, dynamic_buff: dict, character_obj: Character | None = None):

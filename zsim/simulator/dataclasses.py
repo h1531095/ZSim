@@ -66,6 +66,10 @@ class CharacterData:
                 char_obj: Character = character_factory(**char_dict)
                 self.char_obj_list.append(char_obj)
                 i += 1
+        self.char_obj_dict = {
+            char_obj.NAME: char_obj
+            for char_obj in self.char_obj_list
+        }
 
     def reset_myself(self):
         for obj in self.char_obj_list:
