@@ -7,10 +7,8 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from tqdm import trange
 
 from define import DEBUG, DEBUG_LEVEL, ElementType, ANOMALY_MAPPING
-from sim_progress.RandomNumberGenerator import MAX_SIGNED_INT64
 
 buffered_data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 log_queue: queue.Queue = queue.Queue()
