@@ -8,7 +8,7 @@ class Disorder(AnomalyBar):
     Disorder会打开自身的is_disorder
     """
 
-    def __init__(self, Output_bar: AnomalyBar):
+    def __init__(self, Output_bar: AnomalyBar, **kwargs):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
         self.is_disorder = True
@@ -33,13 +33,10 @@ class PolarityDisorder(AnomalyBar):
     构造时，不仅需要提供被复制的异常条，还需要提供连击次数（用来计算极性紊乱比例），还需要提供触发者ID（CID或者enemy）
     """
 
-    def __init__(self, Output_bar: AnomalyBar, _polarity_disorder_ratio: float, active_from: int | str):
+    def __init__(self, Output_bar: AnomalyBar, _polarity_disorder_ratio):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
-        if not any([active_from == 'enemy',
-                    isinstance(active_from, int) and len(str(active_from)) == 4]):
-            raise ValueError("极性紊乱的触发者ID必须是角色的CID或者enemy")
         self.is_disorder = True
-        self.polarity_disorder_ratio = _polarity_disorder_ratio  # 极性紊乱对比紊乱的缩放比例
-        self.active_from = active_from      # 极性紊乱的触发者ID
+        self.polarity_disorder_ratio = _polarity_disorder_ratio  # 极性紊乱对比紊乱的缩放比例（已经考虑连击次数）
+        self.additional_dmg_ap_ratio = 32     # 精通附加伤害的倍率！
 
