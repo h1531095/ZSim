@@ -543,6 +543,17 @@ class Enemy:
             self.burn_tick = 0
             self.corruption_tick = 0
 
+        def is_under_anomaly(self) -> bool:
+            """若敌人正处于任意一种异常状态下，都会返回True"""
+            return any([
+                self.frostbite,
+                self.frost_frostbite,
+                self.assault,
+                self.burn,
+                self.corruption,
+                self.shock
+            ] )
+
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"
 

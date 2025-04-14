@@ -127,26 +127,17 @@ class AnomalyBar:
             self.max_duration = self.basic_max_duration
             # print(f'属性类型为{self.element_type}的异常不存在影响持续时间的Buff，所以直接使用基础值{self.basic_max_duration}')
             return
-        if isinstance(anomaly_from, int):
-            from sim_progress.Buff import find_char_from_CID
-            _index = find_char_from_CID(anomaly_from).NAME
-        elif anomaly_from == 'enemy':
-            _index = anomaly_from
-        else:
-            raise ValueError(f'无法解析的异常来源！{anomaly_from}')
-        _index_list = set(['enemy'] + [_index])
         max_duration_delta_fix = 0
         max_duration_delta_pct = 0
         for _buff_index in self.duration_buff_list:
-            for _index in _index_list:
-                personal_buff_list = dynamic_buff_list.get(_index)
-                for buffs in personal_buff_list:
-                    if _buff_index == buffs.ft.index and buffs.dy.active:
-                        for keys in self.duration_buff_key_list:
-                            if keys in buffs.effect_dct.keys():
-                                if '百分比' in keys:
-                                    max_duration_delta_pct += buffs.dy.count * buffs.effect_dct.get(keys)
-                                else:
-                                    max_duration_delta_fix += buffs.dy.count * buffs.effect_dct.get(keys)
+            enemy_buff_list = dynamic_buff_list.get('enemy')
+            for buffs in enemy_buff_list:
+                if _buff_index == buffs.ft.index and buffs.dy.active:
+                    for keys in self.duration_buff_key_list:
+                        if keys in buffs.effect_dct.keys():
+                            if '百分比' in keys:
+                                max_duration_delta_pct += buffs.dy.count * buffs.effect_dct.get(keys)
+                            else:
+                                max_duration_delta_fix += buffs.dy.count * buffs.effect_dct.get(keys)
         self.max_duration = max(self.basic_max_duration * (1+max_duration_delta_pct) + max_duration_delta_fix, 0)
         # print(f'属性类型为{self.element_type}的异常激活了，本次激活的最大时长为{self.max_duration}')
