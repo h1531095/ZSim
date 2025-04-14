@@ -299,6 +299,41 @@ class MultiplierData:
             self.aftershock_attack_dmg_bonus: float = 0.0
             self.aftershock_attack_crit_dmg_bonus: float = 0.0
             self.aftershock_attack_stun_bonus: float = 0.0
+            
+            self.assault_time_increase: float = 0.0
+            self.assault_time_increase_percentage: float = 0.0
+            self.burn_time_increase: float = 0.0
+            self.burn_time_increase_percentage: float = 0.0
+            self.shock_time_increase: float = 0.0
+            self.shock_time_increase_percentage: float = 0.0
+            self.corruption_time_increase: float = 0.0
+            self.corruption_time_increase_percentage: float = 0.0
+            self.frostbite_time_increase: float = 0.0
+            self.frostbite_time_increase_percentage: float = 0.0
+            self.frost_frostbite_time_increase: float = 0.0
+            self.frost_frostbite_time_increase_percentage: float = 0.0
+            self.all_anomaly_time_increase: float = 0.0
+            self.all_anomaly_time_increase_percentage: float = 0.0
+            
+            self.anomaly_time_increase: dict[ElementType | str, float] = {
+                0: self.assault_time_increase,
+                1: self.burn_time_increase,
+                2: self.shock_time_increase,
+                3: self.frostbite_time_increase,
+                4: self.corruption_time_increase,
+                5: self.frost_frostbite_time_increase,
+                'all': self.all_anomaly_time_increase
+            }
+            
+            self.anomaly_time_increase_percentage: dict[ElementType | str, float] = {
+                0: self.assault_time_increase_percentage,
+                1: self.burn_time_increase_percentage,
+                2: self.shock_time_increase_percentage, 
+                3: self.frostbite_time_increase_percentage,
+                4: self.corruption_time_increase_percentage,
+                5: self.frost_frostbite_time_increase_percentage,
+                'all': self.all_anomaly_time_increase_percentage
+            }
 
             self.__read_dynamic_statement(dynamic_statement)
 
