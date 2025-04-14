@@ -1,5 +1,5 @@
 from sim_progress.Preload.PreloadDataClass import PreloadData
-from define import APL_MODE, SWAP_CANCEL
+from define import SWAP_CANCEL
 from .PreloadStrategy import SwapCancelStrategy
 
 

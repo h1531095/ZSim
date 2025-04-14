@@ -91,19 +91,19 @@ class Soldier0_Anby(Character):
             self.silver_star -= self.silver_star_basic_cost
         self.white_thunder_answer = True
         if self.silver_star < 0:
-            print(f'银星扣过头了！')
+            print('银星扣过头了！')
             self.silver_star = 0
 
     def __thunder_smite_processor(self):
         """处理雷殛的函数。"""
         if not self.thunder_smite_answer:
-            print(f'非法雷殛！在雷殛响应状态未开启的情况下，触发了雷殛！')
+            print('非法雷殛！在雷殛响应状态未开启的情况下，触发了雷殛！')
         self.thunder_smite_answer = False
 
     def __white_thunder_processor(self, tick):
         """针对白雷进行更新，包括来源判断、计数器更新、以及响应器更新。"""
         if not self.white_thunder_answer and not self.c1_answer:
-            print(f'非法白雷！在零号·安比白雷响应状态未开启、1画的强化E状态也未开启 的情况下，触发了白雷！')
+            print('非法白雷！在零号·安比白雷响应状态未开启、1画的强化E状态也未开启 的情况下，触发了白雷！')
         if self.cinema >= 1 and self.c1_answer:
             self.c1_filter()
         else:
@@ -155,22 +155,22 @@ class Soldier0_Anby(Character):
         """在白雷计数器更新后，尝试对雷殛激活状态进行更新。"""
         if self.continuing_white_thunder_counter >= 3:
             if self.thunder_smite_answer:
-                print(f'在未结算上一次雷殛的情况下，再次触发了雷殛！')
+                print('在未结算上一次雷殛的情况下，再次触发了雷殛！')
             self.thunder_smite_answer = True
             self.continuing_white_thunder_counter = 0
 
     def __check_myself(self):
         """自检"""
         if self.silver_star < self.silver_star_basic_cost and self.c2_counter == 0:
-            print(f'当前可用的银星层数不够，传入的操作企图触发白雷，请检查APL！')
+            print('当前可用的银星层数不够，传入的操作企图触发白雷，请检查APL！')
         if self.white_thunder_answer:
-            print(f'白雷响应状态仍保持开启的情况下，再次企图触发了白雷！ 当前存在未结算的白雷！！')
+            print('白雷响应状态仍保持开启的情况下，再次企图触发了白雷！ 当前存在未结算的白雷！！')
 
     def __cinema_6_filter(self):
         if self.cinema != 6:
-            raise ValueError(f'在未激活6画的情况下，触发了6画的追加攻击！')
+            raise ValueError('在未激活6画的情况下，触发了6画的追加攻击！')
         if not self.c6_answer:
-            print(f'在6画的追加攻击响应器未开启的情况下，触发了6画的追加攻击！')
+            print('在6画的追加攻击响应器未开启的情况下，触发了6画的追加攻击！')
         self.c6_answer = False
 
     def get_resources(self) -> tuple[str|None, int|float|bool|None]:

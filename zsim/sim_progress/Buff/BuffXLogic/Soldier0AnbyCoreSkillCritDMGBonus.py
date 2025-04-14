@@ -1,4 +1,3 @@
-from logging import critical
 
 from sim_progress.Buff import Buff, JudgeTools, check_preparation
 from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calculator as Cal

@@ -11,7 +11,7 @@ def check_preparation(buff_0, **kwargs):
     """
     # 先决条件检查
     if buff_0.history.record is None:
-        raise ValueError(f'buff_0的record模块尚未初始化！！！')
+        raise ValueError('buff_0的record模块尚未初始化！！！')
     record = buff_0.history.record
 
     # 参数获取
@@ -28,7 +28,7 @@ def check_preparation(buff_0, **kwargs):
 
     # 参数正确性检查
     if sub_exist_buff_dict and char_NAME is None and char_CID is None and equipper is None:
-        raise ValueError(f'在查询sub_exist_buff_dict的同时，应保证传入char_CID/char_NAME/equipper中的一个参数')
+        raise ValueError('在查询sub_exist_buff_dict的同时，应保证传入char_CID/char_NAME/equipper中的一个参数')
 
     # 函数主体部分
     if equipper:
@@ -45,7 +45,7 @@ def check_preparation(buff_0, **kwargs):
 
     if sub_exist_buff_dict:
         if record.char is None:
-            raise ValueError(f'在buff_0.history.record 中并未读取到对应的char')
+            raise ValueError('在buff_0.history.record 中并未读取到对应的char')
         if record.sub_exist_buff_dict is None:
             record.sub_exist_buff_dict = find_exist_buff_dict()[record.char.NAME]
     if enemy:
@@ -63,7 +63,7 @@ def check_preparation(buff_0, **kwargs):
             record.event_list = find_event_list()
     if trigger_buff_0:
         if not isinstance(trigger_buff_0, tuple):
-            raise TypeError(f'输入的参数必须是tuple！')
+            raise TypeError('输入的参数必须是tuple！')
         if record.trigger_buff_0 is None:
             operator = trigger_buff_0[0]
             buff_index = trigger_buff_0[1]

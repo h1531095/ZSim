@@ -55,7 +55,7 @@ class StanceManager:
     def change_stance(self):
         """更新架势"""
         if self.stance_jougen == self.stance_kagen:
-            raise ValueError(f'上弦、下弦状态不能同时为True或False！')
+            raise ValueError('上弦、下弦状态不能同时为True或False！')
         if self.stance_jougen:
             self.stance_jougen = False
             self.stance_kagen = True
@@ -71,4 +71,4 @@ class StanceManager:
         elif self.stance_kagen:
             return False
         else:
-            raise ValueError(f'上弦、下弦状态不能同时为True或False！')
+            raise ValueError('上弦、下弦状态不能同时为True或False！')

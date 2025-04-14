@@ -37,7 +37,7 @@ class ActionAPLUnit(APLUnit):
             return True, result_box
         for sub_units in self.sub_conditions_unit_list:
             if not isinstance(sub_units, BaseSubConditionUnit):
-                raise TypeError(f'ActionAPLUnit类的sub_conditions_unit_list中的对象构建不正确！')
+                raise TypeError('ActionAPLUnit类的sub_conditions_unit_list中的对象构建不正确！')
             result = sub_units.check_myself(found_char_dict, game_state, tick=tick)
             result_box.append(result)
             if not result:
@@ -104,7 +104,7 @@ class SimpleUnitForForceAdd(APLUnit):
             return True, result_box
         for sub_units in self.sub_conditions_unit_list:
             if not isinstance(sub_units, BaseSubConditionUnit):
-                raise TypeError(f'ActionAPLUnit类的sub_conditions_unit_list中的对象构建不正确！')
+                raise TypeError('ActionAPLUnit类的sub_conditions_unit_list中的对象构建不正确！')
             result = sub_units.check_myself(found_char_dict, game_state, tick=tick)
             result_box.append(result)
             if not result:

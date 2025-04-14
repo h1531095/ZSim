@@ -95,7 +95,7 @@ def BuffLoadLoop(
             raise TypeError(f"当前{mission}不是SkillNode类！")
         actor_name = mission.mission_character
         if actor_name not in existbuff_dict:
-            raise ValueError(f'当前角色的Buff源并未创建！')
+            raise ValueError('当前角色的Buff源并未创建！')
         # 提取当前角色的 Buff 列表
         # sub_exist_debuff_dict = existbuff_dict['enemy']
 

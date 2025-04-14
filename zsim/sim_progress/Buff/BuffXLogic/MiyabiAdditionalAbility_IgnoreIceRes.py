@@ -63,7 +63,7 @@ class MiyabiAdditionalAbility_IgnoreIceRes(Buff.BuffLogic):
         # 计算两个list中的True的数量
 
         if last_count >= 2 or current_count >= 2:
-            raise ValueError(f'当前ticks总异常数量为2！')
+            raise ValueError('当前ticks总异常数量为2！')
 
         self.record.disorder = (
             current_count == 1 and last_count == 1 and

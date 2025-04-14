@@ -42,11 +42,11 @@ class Trigger(Character):
                     self.purge = self.max_purge
             elif nodes.skill_tag == '1361_SNA_0':
                 if self.sniper_stance:
-                    raise ValueError(f'在狙击姿态已经开启的情况下传入了1361_SNA_0')
+                    raise ValueError('在狙击姿态已经开启的情况下传入了1361_SNA_0')
                 self.sniper_stance = True
             elif nodes.skill_tag == '1361_SNA_3':
                 if not self.sniper_stance:
-                    raise ValueError(f'在狙击姿态已经关闭的情况下传入了1361_SNA_3')
+                    raise ValueError('在狙击姿态已经关闭的情况下传入了1361_SNA_3')
                 self.sniper_stance = False
 
     def update_purge(self, skill_tag):

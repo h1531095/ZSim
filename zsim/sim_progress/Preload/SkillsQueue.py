@@ -84,7 +84,7 @@ def get_skills_queue(preload_table: pd.DataFrame,
     try:
         preload_skills: pd.Series = preload_table['skill_tag']  # 传入的数据必须包含 skill_tag 列
     except KeyError:
-        print(f"提供错误的预加载序列表，请检查输入")
+        print("提供错误的预加载序列表，请检查输入")
 
     # 确保技能列表不为空
     if not preload_skills.empty:

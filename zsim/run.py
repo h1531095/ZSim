@@ -30,7 +30,6 @@ def confirm_launch():
         sys.exit(0)
 
 def main():
-    import argparse
     parser = argparse.ArgumentParser(description='ZZZ Simulator')
     parser.add_argument('command', nargs='?', default=None, help='子命令（例如：run）')
     args = parser.parse_args()
