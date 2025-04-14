@@ -27,5 +27,10 @@ packages = {find = {where = ["."], exclude = ["tests", "results", "logs"]}}
 [tool.setuptools.package-data]
 "*" = ["*.json", "*.csv", "*.toml"] 
 
+[tool.pytest.ini_options]
+pythonpath = [
+    "./zsim/"
+]
+
 [options]
 include_package_data = true
