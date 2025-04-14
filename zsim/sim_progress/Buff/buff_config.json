@@ -522,5 +522,33 @@
     "Buff-角色-简-狂热-额外精通转攻击力": {
         "module": ".BuffXLogic.JanePassionStateAPTransToATK",
         "class": "JanePassionStateAPTransToATK"
+    },
+    "Buff-角色-简-核心被动-啮咬-强击暴击率提升": {
+        "module": ".BuffXLogic.JaneCoreSkillStrikeCritRateBonus",
+        "class": "JaneCoreSkillStrikeCritRateBonus"
+    },
+    "Buff-角色-简-核心被动-啮咬-强击暴击伤害提升": {
+        "module": ".BuffXLogic.JaneCoreSkillStrikeCritDmgBonus",
+        "class": "JaneCoreSkillStrikeCritDmgBonus"
+    },
+    "Buff-角色-简-额外能力-物理异常积蓄效率额外提升": {
+        "module": ".BuffXLogic.JaneAdditionalAbilityPhyBuildupBonus",
+        "class": "JaneAdditionalAbilityPhyBuildupBonus"
+    },
+    "Buff-角色-简-1画-狂热物理异常积蓄效率额外提升": {
+        "module": ".BuffXLogic.JanePassionStatePhyBuildupBonus",
+        "class": "JanePassionStatePhyBuildupBonus"
+    },
+    "Buff-角色-简-1画-精通转增伤": {
+        "module": ".BuffXLogic.JaneCinema1APTransToDmgBonus",
+        "class": "JaneCinema1APTransToDmgBonus"
+    },
+    "Buff-角色-简-2画-啮咬-强击无视防御与暴击伤害提升" : {
+        "module": ".BuffXLogic.JaneCoreSkillStrikeCritDmgBonus",
+        "class": "JaneCoreSkillStrikeCritDmgBonus"
+    },
+    "Buff-角色-简-2画-啮咬-攻击无视防御" : {
+        "module": ".BuffXLogic.JaneCoreSkillStrikeCritDmgBonus",
+        "class": "JaneCoreSkillStrikeCritDmgBonus"
     }
 }
