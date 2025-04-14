@@ -1,9 +1,17 @@
+from build.lib.zsim.sim_progress.Buff import find_tick
 from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class YanagiPolarityDisorderTriggerRecord:
     def __init__(self):
         self.char = None
+        self.enemy = None
+        self.polarity_disorder_update_signal = False     # 极性紊乱更新信号：理论上生命周期只有0个tick，本tick放行，本tick处理后重置
+        self.e_counter = {'update_from': '', 'count': 0}      # 突刺攻击的计数器
+        self.e_max_count = None        # 突刺攻击的最大次数
+        self.polarity_disorder_basic_dmg_ratio = None       # 极性紊乱的基础倍率
+        self.polarity_disorder_ap_ratio = 32        # 固定的3200%精通倍率
+        self.event_list = None
 
 
 class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
@@ -19,6 +27,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
+        self.xhit = self.special_hit_logic
         self.buff_0 = None
         self.record = None
 
@@ -32,10 +41,73 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
             self.buff_0.history.record = YanagiPolarityDisorderTriggerRecord()
         self.record = self.buff_0.history.record
 
-    def special_judge_logic(self, **kwargs):
+    def special_judge_logic(self, **kwargs) -> bool:
         """
+        柳的极性紊乱的触发器判断机制，即Enemy身上存在属性异常，就放行，并且向record释放更新信号。
         """
         self.check_record_module()
-        self.get_prepared(char_CID=1221)
+        self.get_prepared(char_CID=1221, enemy=1)
+        loading_mission = kwargs['loading_mission']
+        skill_node = loading_mission.mission_node
+
+        # 筛选出能够和极性紊乱系统互动的三种技能
+        if skill_node.skill_tag not in ['1221_E_EX_1', '1221_E_EX_2', '1221_Q']:
+            return False
+
+        # 正确性判断
+        if self.record.polarity_disorder_update_signal:
+            raise ValueError(f'上一次极性紊乱的更新信号仍旧存在，请检查代码')
+
+        # 如果检测到穿刺攻击，则进入对应分支——更新连击次数，但是最后要返回False——因为穿刺攻击无法结算极性紊乱；
+        if skill_node.skill_tag == '1221_E_EX_1' and skill_node.UUID != self.record.e_counter['update_from']:
+            if self.record.char.cinema >= 2:
+                if self.record.e_max_count is None:
+                    self.record.e_max_count = 2 if self.record.char.cinema < 6 else 4
+                self.record.e_counter['count'] += 1
+                if self.record.e_counter['count'] >= self.record.e_max_count:
+                    self.record.e_counter['count'] = self.record.e_max_count
+                self.record.e_counter['update_from'] = skill_node.UUID
+            return False
+
+        # 若是另外两个攻击，则应该检查是否是最后一跳，放行前，打开更新信号。
+        else:
+            tick = find_tick()
+            if tick - 1 < loading_mission.get_last_hit() <= tick:       # 此时就是最后一跳
+                if self.record.enemy.dynamic.is_under_anomaly():        # 并且存在激活的属性异常
+                    self.record.polarity_disorder_update_signal = True
+                    return True
+            return False
+
+    def special_hit_logic(self, **kwargs):
+        self.check_record_module()
+        self.get_prepared(char_CID=1221, enemy=1, event_list=1)
+        if not self.record.polarity_disorder_update_signal:
+            raise ValueError(f'在极性紊乱触发信号未激活时，执行了触发函数！')
+
+        # 根据角色命座，初始化基础倍率
+        if self.record.polarity_disorder_basic_dmg_ratio is None:
+            self.record.polarity_disorder_basic_dmg_ratio = 0.15 if self.record.char.cinema < 2 else 0.2
+
+        # 根据连击次数，计算最终缩放倍率
+        final_ratio = self.record.polarity_disorder_basic_dmg_ratio + 0.15 * self.record.e_counter['count']
+
+        # 获取当前正在激活的属性异常条
+        active_anomaly_bar = self.record.enemy.get_active_anomaly_bar()
+
+        # 构造极性紊乱对象
+        from sim_progress.Update import spawn_output
+        # polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=2, polarity_ratio=final_ratio)
+        polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=1)
+
+        # 置入event_list
+        self.record.event_list.append(polarity_disorder_output)
+
+        # 清空记录，回收更新信号
+        self.record.e_counter = {'update_from': '', 'count': 0}
+        self.record.polarity_disorder_update_signal = False
+
+
+
+
 
 

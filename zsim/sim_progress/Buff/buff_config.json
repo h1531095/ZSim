@@ -511,6 +511,10 @@
     "module": ".BuffXLogic.YanagiStanceKagen",
     "class": "YanagiStanceKagen"
     },
+    "Buff-角色-柳-极性紊乱触发器": {
+    "module": ".BuffXLogic.YanagiPolarityDisorderTrigger",
+    "class": "YanagiPolarityDisorderTrigger"
+},
     "Buff-角色-简-狂热状态触发器": {
         "module": ".BuffXLogic.JanePassionStateTrigger",
         "class": "JanePassionStateTrigger"

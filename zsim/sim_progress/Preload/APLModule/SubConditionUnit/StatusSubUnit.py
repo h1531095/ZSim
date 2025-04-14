@@ -83,6 +83,11 @@ class StatusSubUnit(BaseSubConditionUnit):
             char = find_char(found_char_dict, game_state, char_cid)
             return char.is_available(find_tick())
 
+    class ActiveAnomalyHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy, *args, **kwargs):
+            return enemy.dynamic.is_under_anomaly()
+
     HANDLE_MAP = {
         'stun': StunHandler,
         'QTE_triggerable_times': QTETriggerableHandler,
@@ -95,7 +100,8 @@ class StatusSubUnit(BaseSubConditionUnit):
         'single_qte': SingleQTEHandler,
         'repeat_times': CharRepeatTimesHandler,
         'stun_pct': StunPctHandler,
-        'char_available': CharAvailableHandler
+        'char_available': CharAvailableHandler,
+        'is_under_anomaly': ActiveAnomalyHandler,
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
