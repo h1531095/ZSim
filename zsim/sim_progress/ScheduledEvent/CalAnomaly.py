@@ -24,12 +24,14 @@ class CalAnomaly:
         self.dmg_sp: np.ndarray = snapshot[1]
 
         # 根据动态buff读取怪物面板
-        self.data = MulData(enemy_obj = self.enemy_obj, dynamic_buff = self.dynamic_buff)
+        self.data: MulData = MulData(enemy_obj = self.enemy_obj, dynamic_buff = self.dynamic_buff)
 
         # 虚拟角色等级
         v_char_level: int = int(np.floor(self.dmg_sp[0,3] + 0.0000001))  # 加一个极小的数避免精度向下丢失导致的误差
         # 等级系数
         k_level = self.cal_k_level(v_char_level)
+        # 激活型暴击区（目前仅简的核心被动）
+        active_crit: float = self.cal_active_crit(self.data)
         # 防御区
         def_mul: np.float64 = self.cal_def_mul(self.data, v_char_level)
         # 抗性区
@@ -46,7 +48,7 @@ class CalAnomaly:
         special_mul: float = Cal.RegularMul.cal_special_mul(self.data)
 
         self.final_multipliers: np.ndarray = self.set_final_multipliers(
-                k_level, def_mul, res_mul, vulnerability_mul, stun_vulnerability, special_mul)
+                k_level, active_crit, def_mul, res_mul, vulnerability_mul, stun_vulnerability, special_mul)
 
     @staticmethod
     def cal_k_level(v_char_level: int) ->np.float64:
@@ -69,15 +71,35 @@ class CalAnomaly:
         ]
         return np.float64(values[v_char_level])
 
-    def cal_def_mul(self, data, v_char_level) -> np.float64:
+    def cal_active_crit(self, data: MulData) -> float:
+        """激活型异常暴击区
+        
+        目前仅简的核心被动
+        """
+        if self.element_type == 0:
+            crit_rate = data.dynamic.strike_crit_rate_increase
+            crit_dmg = data.dynamic.strike_crit_dmg_increase
+            return 1 + crit_rate * crit_dmg
+        else:
+            return 1
+
+
+    def cal_def_mul(self, data: MulData, v_char_level) -> np.float64:
         """防御区 = 攻击方等级基数 / (受击方有效防御 + 攻击方等级基数)"""
         # 攻击方等级系数
         k_attacker: int = Cal.RegularMul.cal_k_attacker(v_char_level)
+        # 计算属性/类型的穿透
+        if self.element_type == 0:
+            # 穿透率
+            addon_pen_ratio = float(self.dmg_sp[0,6]) + self.data.dynamic.strike_ignore_defense
+            # 受击方有效防御
+        else:
+            addon_pen_ratio = float(self.dmg_sp[0,6])
         # 受击方有效防御
         recipient_def: float = Cal.RegularMul.cal_recipient_def(
                 data,
                 Cal.RegularMul.cal_pen_ratio(data),
-                addon_pen_ratio=float(self.dmg_sp[0,6]),
+                addon_pen_ratio=addon_pen_ratio,
                 addon_pen_numeric=float(self.dmg_sp[0,7])
         )
         # 计算防御区
@@ -86,6 +108,7 @@ class CalAnomaly:
 
     def set_final_multipliers(self,
                               k_level,
+                              active_crit,
                               def_mul,
                               res_mul,
                               vulnerability_mul,
@@ -97,7 +120,7 @@ class CalAnomaly:
         dmg_bonus = self.dmg_sp[0,1]
         am_mul = self.dmg_sp[0,2]
         anomaly_bonus = self.dmg_sp[0,4]
-        anomaly_crit = self.dmg_sp[0,5]
+        active_crit = active_crit
         # 将所有乘数放入一个数组
         results = np.array([
             base_dmg,
@@ -105,7 +128,7 @@ class CalAnomaly:
             am_mul,
             k_level,
             anomaly_bonus,
-            anomaly_crit,
+            active_crit,
             def_mul,
             res_mul,
             vulnerability_mul,
@@ -132,9 +155,9 @@ class CalDisorder(CalAnomaly):
             case 0: # 强击紊乱
                 disorder_base_dmg = (base_mul / 7.13) * (np.floor(t_s) * 0.075 + 4.5)
             case 1: # 灼烧紊乱
-                disorder_base_dmg = (base_mul / 0.5) * (np.floor(t_s) * 0.5 + 4.5)
+                disorder_base_dmg = (base_mul / 0.5) * (np.floor(t_s/0.5) * 0.5 + 4.5)
             case 2: # 霜寒紊乱
-                disorder_base_dmg = (base_mul / 5) * (np.floor(t_s/0.5) * 0.075 + 4.5)
+                disorder_base_dmg = (base_mul / 5) * (np.floor(t_s) * 0.075 + 4.5)
             case 3: # 感电紊乱
                 disorder_base_dmg = (base_mul / 1.25) * (np.floor(t_s) * 1.25 + 4.5)
             case 4: # 侵蚀紊乱
