@@ -60,7 +60,7 @@ def check_preparation(buff_0, **kwargs):
         if record.action_stack is None:
             record.action_stack = find_stack()
     if event_list:
-        print('event_list放在record中很有可能不会随动！！注意！')
+        # print('event_list放在record中很有可能不会随动！！注意！')
         if record.event_list is None:
             record.event_list = find_event_list()
     if trigger_buff_0:

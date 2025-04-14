@@ -2,7 +2,7 @@ import importlib
 from copy import deepcopy
 from sim_progress.data_struct import decibel_manager_instance
 from sim_progress.AnomalyBar import AnomalyBar
-from sim_progress.AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly
+from sim_progress.AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly, PolarityDisorder
 from sim_progress.Buff.BuffAddStrategy import BuffAddStrategy
 from sim_progress.Dot.BaseDot import Dot
 
@@ -15,7 +15,7 @@ anomlay_dot_dict = {
 }
 
 
-def spawn_output(anomaly_bar, mode_number):
+def spawn_output(anomaly_bar, mode_number, **kwargs):
     """
     该函数用于抛出一个新的属性异常类
     """
@@ -29,6 +29,11 @@ def spawn_output(anomaly_bar, mode_number):
         output = NewAnomaly(anomaly_bar)
     elif mode_number == 1:
         output = Disorder(anomaly_bar)
+    elif mode_number ==2:
+        polarity_ratio = kwargs.get('polarity_ratio', None)
+        if polarity_ratio is None:
+            raise ValueError(f'在调用spawn_output函数的模式二（mode_number=2）、企图生成一个极性紊乱对象时，并未传入必须的参数polarity_ratio！')
+        output = PolarityDisorder(anomaly_bar, polarity_ratio)
     return output
 
 

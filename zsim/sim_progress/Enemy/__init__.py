@@ -188,6 +188,16 @@ class Enemy:
                 self.__restore_stun_recovery_time()
                 self.stun_recovery_time += increase_tick
 
+    def get_active_anomaly_bar(self) -> AnomalyBar:
+        """用于外部获取当前正在激活的属性异常条对象"""
+        output_list = []
+        for element_type, anomaly_bar in self.anomaly_bars_dict.items():
+            if anomaly_bar.active:
+                output_list.append(anomaly_bar)
+        if len(output_list) == 0 or len(output_list) > 1:
+            raise ValueError(f'状态错误！找到了{len(output_list)}种正在激活的属性异常条！')
+        return output_list[0]
+
 
     @staticmethod
     def __lookup_enemy(enemy_data: pd.DataFrame,
@@ -552,7 +562,8 @@ class Enemy:
                 self.burn,
                 self.corruption,
                 self.shock
-            ] )
+            ])
+
 
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"
