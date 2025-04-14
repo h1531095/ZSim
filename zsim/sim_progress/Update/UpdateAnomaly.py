@@ -62,6 +62,7 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
     如果判断通过触发，则会立刻实例化一个对应的属性异常实例（自带复制父类的状态与属性），
     """
     skill_node = kwargs.get('skill_node', None)
+    dynamic_buff_dict = kwargs.get('dynamic_buff_dict', None)
     bar: AnomalyBar = enemy.anomaly_bars_dict[element_type]
     if not isinstance(bar, AnomalyBar):
         raise TypeError(f'{type(bar)}不是Anomaly类！')
@@ -78,7 +79,7 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
         if bar.ready:
             # 内置CD检测也通过之后，属性异常正式触发。现将需要更新的信息更新一下。
             decibel_manager_instance.update(skill_node=skill_node, key='anomaly')
-            bar.change_info_cause_active(time_now)
+            bar.change_info_cause_active(time_now, dynamic_buff_dict=dynamic_buff_dict, skill_node=skill_node)
             enemy.update_anomaly(element_type)
             active_bar = deepcopy(bar)
             enemy.dynamic.active_anomaly_bar_dict[element_type] = active_bar
