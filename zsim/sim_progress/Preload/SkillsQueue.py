@@ -35,6 +35,14 @@ class SkillNode:
             # 生成 UUID
             self.UUID = uuid.uuid4()
 
+            self.loading_mission = None
+            '''
+            初始化为None，构造成loading_mission之后，该参数用于存放loading_mission，
+            可以在这个属性访问loading_mission的一些方法。
+            但是有循环访问的风险，目前只服务于Schedule阶段。
+            '''
+
+
     def __str__(self) -> str:
         return f"SkillNode: {self.skill_tag}"
 

@@ -1,3 +1,5 @@
+from Character import Skill
+from build.lib.zsim.sim_progress.Preload import SkillNode
 from sim_progress import Preload, Buff, Report
 from sim_progress.AnomalyBar import AnomalyBar as AnB
 from sim_progress.AnomalyBar import Disorder
@@ -7,12 +9,14 @@ from sim_progress.data_struct import SingleHit, SPUpdateData, ActionStack, Sched
 from sim_progress.Load.loading_mission import LoadingMission
 from .CalAnomaly import CalAnomaly, CalDisorder
 from .Calculator import Calculator, MultiplierData
+from sim_progress.Update import update_anomaly
 
 
 class ScConditionData:
     """
     用于记录在本tick可能的判断 buff 数据，以方便后续计算伤害
     """
+
     def __init__(self):
         self.buff_list: list = []
         self.when_crit: bool = False
@@ -28,18 +32,18 @@ class ScheduledEvent:
     """
 
     def __init__(
-        self, 
-        dynamic_buff: dict, 
-        data, 
-        tick: int, 
-        exist_buff_dict: dict, 
-        action_stack: ActionStack, 
-        *, 
-        loading_buff: dict | None = None, 
-        judging_buff: dict | None = None
-        ):
+            self,
+            dynamic_buff: dict,
+            data,
+            tick: int,
+            exist_buff_dict: dict,
+            action_stack: ActionStack,
+            *,
+            loading_buff: dict | None = None,
+            judging_buff: dict | None = None
+    ):
 
-        self.data = data    # ScheduleData in __main__
+        self.data = data  # ScheduleData in __main__
         self.data.dynamic_buff = dynamic_buff
         self.judge_required_info_dict = data.judge_required_info_dict
         self.action_stack = action_stack
@@ -81,6 +85,12 @@ class ScheduledEvent:
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
                         self.judge_required_info_dict['skill_node'] = event
+                        '''
+                        在2025.4.14的更新中，在skill_event分支新增了下面这个函数，
+                        这是经过改良后的新的更新异常条的节点。
+                        具体原因见函数内部，这里不过多赘述。
+                        '''
+                        self.update_anomaly_bar_after_skill_event(event)
                 elif isinstance(event, Disorder):
                     self.disorder_event(event)
                     self.judge_required_info_dict['disorder'] = event
@@ -114,6 +124,53 @@ class ScheduledEvent:
         本“Bug”是在今晚我给啜泣摇篮的自增伤部分debug的时候想到的，仔细思考了结构后我认为可能会出现这个问题。
         或许我想的有问题，索性留言一下，你看到了也考虑考虑这个地方到底会不会出bug
         """
+
+    def update_anomaly_bar_after_skill_event(self, event):
+        """在Schedule阶段，处理完一个SkillEvent后，都要进行一次异常条更新。"""
+        '''
+        将异常值更新移动到Schedule阶段的主要原因：原有的Buff更新、异常/紊乱结算的顺序不合理；
+        原有顺序：
+        Preload -> Load -> update_anomaly() -> Buff(第一轮) ->  Schedule -> Buff(第二轮)
+        现有顺序：
+        Preload -> Load -> Buff(第一轮) ->  Schedule -> update_anomaly() -> Buff(第二轮)
+        
+        由于update_anomaly()函数是根据现有积蓄值来判断是否触发属性异常的，
+        所以在运行过程中，只有先把积蓄值打满的下一次update_anomaly()才会触发属性异常，
+        无论是哪种结构，enemy的receive_hit()函数都会在Schedule阶段执行，
+        故任何早于Schedule阶段的update_anomaly都只能更新到上个tick的属性异常，
+        所以，原有结构中，第Ntick打满的异常条，会在第N+1 tick被激活，
+        
+        一般情况下，这种迟滞1tick的激活行为不会对模拟的结果造成影响，
+        (长难句警告！！)--但若是某个Buff事件的激活 依赖于发生在 技能last_hit标签处的属性异常更新--
+        那么在老的结构下，事件的更新顺序为
+            --(第N Tick)-- 
+                -> update_anomaly(此时的异常条还没打满[来自于上个tick]所以第Ntick的运行无结果)
+                -> Buff事件触发器检测（异常条更新状态没有改变，所以触发器不触发） 
+                -> Schedule，AnomalyBar满，
+            --(第N+1 Tick)--
+                -> update_anomaly(异常条满，更新异常)
+                -> Buff事件触发器检测（已经错过了触发窗口，所以触发器不触发）
+            
+        而在新的结构下，事件更新顺序为：
+            --(第N Tick)-- 
+                -> Schedule，AnomalyBar满，
+                -> update_anomaly(异常条满，更新异常)
+                -> Buff事件触发器检测（将该Buff改为Schedule处理类型）
+        
+        上述结构的改变就能够彻底规避来自于结构的触发误差——来自柳极性紊乱触发器的启发
+        '''
+        if isinstance(event, SkillNode):
+            _node = event
+        elif isinstance(event, LoadingMission):
+            _node = event.mission_node
+        else:
+            raise TypeError(f'无法解析的事件类型')
+
+        update_anomaly(
+            event.skill.element_type, self.enemy, self.tick, self.data.event_list,
+            self.data.char_obj_list, skill_node=event,
+            dynamic_buff_dict=self.data.dynamic_buff
+        )
 
     def solve_buff(self) -> None:
         """提前处理Buff实例"""
