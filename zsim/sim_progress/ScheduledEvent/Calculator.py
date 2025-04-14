@@ -288,6 +288,18 @@ class MultiplierData:
             self.shock_dmg_mul: float = 0.0
             self.chaos_dmg_mul: float = 0.0
             self.disorder_dmg_mul: float = 0.0
+            self.all_anomaly_dmg_mul: float = 0.0
+            
+            self.anomaly_bonus: dict[ElementType|str, float] = {
+                0: self.assault_dmg_mul,
+                1: self.burn_dmg_mul,
+                2: self.freeze_dmg_mul,
+                3: self.shock_dmg_mul,
+                4: self.chaos_dmg_mul,
+                5: self.freeze_dmg_mul,
+                -1: self.disorder_dmg_mul,
+                'all': self.all_anomaly_dmg_mul,
+            }
 
             self.special_multiplier_zone: float = 0.0
 
@@ -885,18 +897,8 @@ class Calculator:
         def cal_ano_dmg_mul(data: MultiplierData) -> float:
             """异常额外增伤区 = 1 + 对应属性异常额外增伤"""
             element_type = data.skill_node.skill.element_type
-            if element_type == 0:
-                ano_dmg_mul = 1 + data.dynamic.assault_dmg_mul
-            elif element_type == 1:
-                ano_dmg_mul = 1 + data.dynamic.burn_dmg_mul
-            elif element_type == 2 or element_type == 5:
-                ano_dmg_mul = 1 + data.dynamic.freeze_dmg_mul
-            elif element_type == 3:
-                ano_dmg_mul = 1 + data.dynamic.shock_dmg_mul
-            elif element_type == 4:
-                ano_dmg_mul = 1 + data.dynamic.chaos_dmg_mul
-            else:
-                assert False, INVALID_ELEMENT_ERROR
+            map = data.dynamic.anomaly_bonus
+            ano_dmg_mul = map.get(element_type, 0) + map['all']
             return ano_dmg_mul
 
         def cal_anomaly_crit(self, data: MultiplierData) -> float:
