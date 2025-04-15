@@ -63,7 +63,7 @@ class Skill:
     def __init__(self,
                  name: str = '', CID: int | str | None = None,
                  normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
-                 core_level=6
+                 core_level=6, char_obj = None
                  ):
         """
         根据提供的角色、各技能等级，创建一个角色的技能对象。
@@ -126,7 +126,7 @@ class Skill:
         for key in __keys:
             skill = self.InitSkill(skill_dataframe=self.skill_dataframe, key=key, normal_level=normal_level,
                                    special_level=special_level, dodge_level=dodge_level, chain_level=chain_level,
-                                   assist_level=assist_level, core_level=core_level, CID=self.CID, char_name=self.name)
+                                   assist_level=assist_level, core_level=core_level, CID=self.CID, char_name=self.name, char_obj=char_obj)
             self.skills_dict[key] = skill
         self.action_list = self.__create_action_list()
 
@@ -178,7 +178,7 @@ class Skill:
         def __init__(self, skill_dataframe, key, char_name: str,
                      normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
                      core_level=6,
-                     CID=0,
+                     CID=0, char_obj = None,
                      ):
             """
             初始化角色的单个技能。
@@ -186,6 +186,8 @@ class Skill:
             会在执行class Skill的时候自动调用，不用手动创建此类的对象
             继承自此类的对象会包含输入的技能（key）的全部属性
             """
+            self.char_obj = char_obj
+
             # 提取数据库内，该技能的数据
             _raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
             _raw_skill_data = _raw_skill_data.to_dict('records')
