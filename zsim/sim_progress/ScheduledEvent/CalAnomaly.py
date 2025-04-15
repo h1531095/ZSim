@@ -4,7 +4,7 @@ import sys
 from define import ElementType
 from sim_progress.Enemy import Enemy
 from sim_progress.Report import report_to_log
-from zsim.sim_progress.Character import Yanagi
+from zsim.sim_progress.Character.Yanagi import Yanagi
 from .Calculator import Calculator as Cal
 from .Calculator import MultiplierData as MulData
 
