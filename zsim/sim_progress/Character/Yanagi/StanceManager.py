@@ -55,7 +55,7 @@ class StanceManager:
                 if self.ex_chain:
                     raise ValueError(f'检测到首段强化E的突刺攻击时，架势管理器的ex_chain正处于打开状态！')
                 self.ex_chain = True
-                print(f'强化E连段开始')
+                # print(f'强化E连段开始')
                 self.shinrabanshou.active()
                 self.last_update_node = skill_node
                 self.change_stance()
@@ -66,7 +66,7 @@ class StanceManager:
                 raise ValueError(f'检测到强化E下落攻击传入，但是架势管理器的ex_chain未处于打开状态！')
             self.ex_chain = False
             self.last_update_node = skill_node
-            print(f'强化E连段结束')
+            # print(f'强化E连段结束')
         else:
             '''其余情况全部都执行一次架势切换'''
             self.change_stance()

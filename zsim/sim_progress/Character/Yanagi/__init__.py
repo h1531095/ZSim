@@ -1,7 +1,7 @@
 from .StanceManager import StanceManager
 from sim_progress.Preload import SkillNode
 from sim_progress.Character.utils.filters import _skill_node_filter
-from sim_progress import Character
+from sim_progress.Character import Character
 
 
 class Yanagi(Character):
