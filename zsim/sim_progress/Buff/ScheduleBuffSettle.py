@@ -4,13 +4,20 @@ from sim_progress.Buff.BuffAdd import add_debuff_to_enemy
 from sim_progress.Buff import JudgeTools
 
 
-def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy, DYNAMIC_BUFF_DICT: dict, action_stack):
+def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy, DYNAMIC_BUFF_DICT: dict, action_stack, **kwargs):
     """
     专门用于处理Schedule阶段才能处理的Buff（buff.ft.schedule_judge = True）
     此类Buff往往需要当前Tick的结果出来之后再判定触发与否；
     """
-    action_now = action_stack.peek()
-    char_on_field = action_now.mission_character
+    skill_node_input = kwargs['skill_node']
+    from sim_progress.Preload import SkillNode
+    if not isinstance(skill_node_input, SkillNode):
+        skill_node = skill_node_input.mission_node
+    else:
+        skill_node = skill_node_input
+    preload_data = JudgeTools.find_preload_data()
+    action_now = preload_data.get_on_field_node(time_tick)
+    char_on_field = action_now.char_name
     all_name_order_box = JudgeTools.find_all_name_order_box()
     name_box_on_field = all_name_order_box[char_on_field]
     for char_name in name_box_on_field:
@@ -18,16 +25,16 @@ def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy, DYNAMIC_BUF
         if char_name == 'enemy':
             continue
         elif char_name == char_on_field:
-            process_schedule_on_field_buff(sub_exist_buff_dict, name_box_on_field, time_tick, DYNAMIC_BUFF_DICT, enemy)
+            process_schedule_on_field_buff(sub_exist_buff_dict, name_box_on_field, time_tick, DYNAMIC_BUFF_DICT, enemy, skill_node=skill_node)
         else:
-            process_schedule_backend_buff(sub_exist_buff_dict, all_name_order_box, time_tick, DYNAMIC_BUFF_DICT, enemy)
+            process_schedule_backend_buff(sub_exist_buff_dict, all_name_order_box, time_tick, DYNAMIC_BUFF_DICT, enemy, skill_node=skill_node)
 
 
 def process_schedule_on_field_buff(sub_exist_buff_dict: dict,
                                    name_box_now: list,
                                    time_tick: int,
                                    DYNAMIC_BUFF_DICT: dict,
-                                   enemy):
+                                   enemy, skill_node):
     """
     用来处理schedule阶段的前台buff。这里特殊说明一下name_box_now的情况
     这个list取自当前的init_data下的namebox，是经过顺序变化的、只适用于前台角色第一视角的name_box
@@ -41,7 +48,7 @@ def process_schedule_on_field_buff(sub_exist_buff_dict: dict,
         if buff.ft.passively_updating:
             continue
         # Buff判定
-        all_match = buff.logic.xjudge()
+        all_match = buff.logic.xjudge(skill_node=skill_node)
         if not all_match:
             continue
         # Buff 激活
@@ -56,7 +63,7 @@ def process_schedule_backend_buff(sub_exist_buff_dict: dict,
                                   all_name_order_box: dict,
                                   time_tick: int,
                                   DYNAMIC_BUFF_DICT: dict,
-                                  enemy):
+                                  enemy, skill_node=None):
     """
     用来处理schedule阶段的后台buff。
     """
@@ -68,7 +75,7 @@ def process_schedule_backend_buff(sub_exist_buff_dict: dict,
             continue
         if buff.ft.passively_updating:
             continue
-        all_match = buff.logic.xjudge()
+        all_match = buff.logic.xjudge(skill_node=skill_node)
         if not all_match:
             continue
         main_char = buff.ft.operator

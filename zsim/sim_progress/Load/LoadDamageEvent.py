@@ -100,12 +100,12 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: 
                 SpawnDamageEvent(mission, event_list)
             # 当Mission触发时，检查 effect_rules == 2 的 Dot
                 ProcessHitUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)
-            elif timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'end':
-                # and mission.mission_node.skill.anomaly_attack
-                # 在end处进行属性异常检查。
-                # TODO：新增重攻击 判定的接口
-                freez_deal = ProcessFreezLikeDots(timetick, enemy, event_list)
-                UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, char_obj_list, skill_node=mission.mission_node, dynamic_buff_dict=dynamic_buff_dict)
+            # elif timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'end':
+            #     # and mission.mission_node.skill.anomaly_attack
+            #     # 在end处进行属性异常检查。
+            #     # TODO：新增重攻击 判定的接口
+            #     freez_deal = ProcessFreezLikeDots(timetick, enemy, event_list)
+            #     UpdateAnomaly.update_anomaly(mission.mission_node.skill.element_type, enemy, timetick, event_list, char_obj_list, skill_node=mission.mission_node, dynamic_buff_dict=dynamic_buff_dict)
 
     # 始终检查 effect_rules == 1 的 Dot
     ProcessTimeUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)

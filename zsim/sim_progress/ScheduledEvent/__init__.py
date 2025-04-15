@@ -91,6 +91,13 @@ class ScheduledEvent:
                         具体原因见函数内部，这里不过多赘述。
                         '''
                         self.update_anomaly_bar_after_skill_event(event)
+                        ScheduleBuffSettle(
+                            self.tick,
+                            self.exist_buff_dict,
+                            self.enemy,
+                            self.data.dynamic_buff,
+                            self.action_stack,
+                            skill_node=event)
                 elif isinstance(event, Disorder):
                     self.disorder_event(event)
                     self.judge_required_info_dict['disorder'] = event
@@ -102,28 +109,12 @@ class ScheduledEvent:
                     self.judge_required_info_dict['refresh'] = event
                 else:
                     raise NotImplementedError(f"{type(event)}，目前不应存在于 event_list")
-                ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff, self.action_stack)
 
             # 计算过程中如果又有新的事件生成，则继续循环
             if self.data.event_list:
                 self.event_start()
 
         # FIXME: ScheduleBuffSettle函数如果内置在eventstart内，似乎会引发如下问题：
-        """
-        如果当前的tick的eventlist内的事件个数>1，就会导致ScheduleBuffSettle函数被多次执行。
-        比如，在霜灼破触发的tick，eventlist中就可能会出现两个skill_node。然后导致该函数被执行两次。
-        亦或是属性异常、紊乱等情况，也会导致该函数重复执行。
-        
-        几乎所有在Schedule阶段处理的Buff，都拥有复杂逻辑special_judge函数，而该函数的判定依据大概率来自于skill_node、部分main中变量等元素
-        所以在某个tick，如果该buff能够通过判定，那么无论在这个tick判定多少次，大概率都是能够通过的。反之亦然。
-        每次判定通过，都会导致buff的special_effect被运行一次，其中或许就包括了buff的叠层、或者是重启逻辑，最后导致buff的层数或是其他属性异常。
-        
-        在以往的测试中，ScheduleBuffSettle大概率不会用到，因为以前只有啄木鸟电音的套装效果需要Schedule来判断。
-        只要不佩戴这个套装，那么该函数就是完全空跑。所以这个问题一直没观察到。
-        
-        本“Bug”是在今晚我给啜泣摇篮的自增伤部分debug的时候想到的，仔细思考了结构后我认为可能会出现这个问题。
-        或许我想的有问题，索性留言一下，你看到了也考虑考虑这个地方到底会不会出bug
-        """
 
     def update_anomaly_bar_after_skill_event(self, event):
         """在Schedule阶段，处理完一个SkillEvent后，都要进行一次异常条更新。"""
@@ -166,11 +157,25 @@ class ScheduledEvent:
         else:
             raise TypeError(f'无法解析的事件类型')
 
-        update_anomaly(
-            event.skill.element_type, self.enemy, self.tick, self.data.event_list,
-            self.data.char_obj_list, skill_node=event,
-            dynamic_buff_dict=self.data.dynamic_buff
-        )
+        '''接下来要通过技能的异常更新特性，判断当前Tick的技能是否能够更新异常
+        由于调用函数的位置是ScheduleEvent，所以一定是Hit事件发生时，
+        所以，直接调用loading_mission.hitted_count数量就可以获得当前正在被结算的Hit次数。'''
+        should_update = False
+        if not _node.skill.anomaly_update_rule:
+            if self.tick - 1 < _node.loading_mission.get_last_hit() <= self.tick:
+                should_update = True
+        else:
+            if _node.skill.anomaly_update_rule == -1:
+                should_update = True
+            else:
+                if _node.loading_mission.hitted_count in _node.skill.anomaly_update_rule:
+                    should_update = True
+        if should_update:
+            update_anomaly(
+                _node.skill.element_type, self.enemy, self.tick, self.data.event_list,
+                self.data.char_obj_list, skill_node=_node,
+                dynamic_buff_dict=self.data.dynamic_buff
+            )
 
     def solve_buff(self) -> None:
         """提前处理Buff实例"""

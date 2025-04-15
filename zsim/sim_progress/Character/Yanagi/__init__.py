@@ -1,5 +1,7 @@
-from sim_progress import Character
 from .StanceManager import StanceManager
+from sim_progress.Preload import SkillNode
+from sim_progress.Character.utils.filters import _skill_node_filter
+from sim_progress import Character
 
 
 class Yanagi(Character):
@@ -9,7 +11,10 @@ class Yanagi(Character):
         self.stance_manager = StanceManager(self)
 
     def special_resources(self, *args, **kwargs) -> None:
-        pass
+        skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
+        # tick = kwargs.get('tick', 0)
+        for nodes in skill_nodes:
+            self.stance_manager.update_myself(nodes)
 
     def get_resources(self) -> tuple[str|None, int|float|bool|None]:
         """柳的get_resource不返回内容！因为柳没有特殊资源，只有特殊状态"""
