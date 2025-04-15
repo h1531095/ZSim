@@ -1,4 +1,5 @@
-
+# 柳平A逻辑——不是感电就A
+1221|action+=|auto_NA|status.enemy:is_shock==False
 
 # 柳强化E释放逻辑
 # 终结一击逻辑：

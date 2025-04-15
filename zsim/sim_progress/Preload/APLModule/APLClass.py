@@ -3,6 +3,7 @@ import json
 import sys
 from define import APL_NA_ORDER_PATH
 from sim_progress.Preload import SkillNode
+from sim_progress.data_struct.NormalAttackManager import na_manager_factory, BaseNAManager
 
 
 class APLClass:
@@ -14,6 +15,7 @@ class APLClass:
         self.game_state: dict | None = None
         self.preload_data = None
         self.actions_list = all_apl_unit_list
+        self.na_manager_dict: dict[int, BaseNAManager] = {}
         try:
             json_path = APL_NA_ORDER_PATH
             with open(json_path, "r", encoding="utf-8") as file:
@@ -57,6 +59,14 @@ class APLClass:
         """用于生成动作"""
         last_action: SkillNode | None
         if action == 'auto_NA':
+            if CID not in self.na_manager_dict:
+                for _char_obj in self.preload_data.char_data.char_obj_list:
+                    if _char_obj.CID == CID:
+                        self.na_manager_dict[CID] = na_manager_factory(_char_obj)
+                        break
+                else:
+                    raise ValueError(f'在构造普攻管理器时，未找到CID为{CID}的角色！')
+            current_na_manager = self.na_manager_dict[CID]
             stack = self.preload_data.personal_node_stack.get(CID, None)
             if stack is None:
                 last_action = None
@@ -65,11 +75,9 @@ class APLClass:
             if (last_action is None or
                     CID != self.preload_data.operating_now):
                 '''没有第一个动作时，直接派生第一段普攻'''
-                output = self.spawn_default_action(CID)
-            elif last_action.skill_tag in self.NA_action_dict[str(CID)]:
-                output = self.NA_action_dict[str(CID)][last_action.skill_tag]
+                output = current_na_manager.first_hit
             else:
-                output = self.spawn_default_action(CID)
+                output = current_na_manager.spawn_out_na(last_action)
         else:
             output = action
         return output
@@ -82,6 +90,11 @@ class APLClass:
         else:
             return f'{cid}_NA_1'
 
+
+class NaManager:
+    """普攻管理器，用于生成普攻"""
+    def __init__(self):
+        pass
 
 
 

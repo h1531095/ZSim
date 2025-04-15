@@ -33,6 +33,7 @@ ENEMY_ATTACK_METHOD_CONFIG: str = _config['apl_mode']['enemy_attack_method_confi
 ENEMY_ATTACK_ACTION: str = _config['apl_mode']['enemy_attack_action_data']
 DEFAULT_APL_DIR: str = _config['apl_mode']['default_apl_dir']
 COSTOM_APL_DIR: str = _config['apl_mode']['custom_apl_dir']
+YANAGI_NA_ORDER: str = _config['apl_mode']['Yanagi']
 
 #: 合轴操作完成度系数->根据前一个技能帧数的某个比例来延后合轴
 SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT: float = _config['swap_cancel_mode']['completion_coefficient']
