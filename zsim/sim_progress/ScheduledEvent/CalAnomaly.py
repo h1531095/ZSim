@@ -183,11 +183,11 @@ class CalPolarityDisorder(CalDisorder):
     def __init__(self, polarity_disorder_obj, enemy_obj: Enemy, dynamic_buff: dict):
         super().__init__(polarity_disorder_obj, enemy_obj, dynamic_buff)
         yanagi_obj = self.__find_yanagi()
-        yanagi_mul = MulData(enemy_obj = enemy_obj, dynamic_buff = dynamic_buff, char_obj = yanagi_obj)
+        yanagi_mul = MulData(enemy_obj=enemy_obj, dynamic_buff=dynamic_buff, character_obj=yanagi_obj)
         ap = Cal.AnomalyMul.cal_ap(yanagi_mul) 
         
         self.final_multipliers[0] = (
-            self.final_multipliers[0] * \
+            self.final_multipliers[0] *
             polarity_disorder_obj.polarity_disorder_ratio) + \
         (ap * polarity_disorder_obj.additional_dmg_ap_ratio)
         

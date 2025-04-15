@@ -88,6 +88,36 @@ class StatusSubUnit(BaseSubConditionUnit):
         def handler(cls, enemy, *args, **kwargs):
             return enemy.dynamic.is_under_anomaly()
 
+    class ShockHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.dynamic.shock
+
+    class BurnHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.dynamic.burn
+
+    class AssultHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.dynamic.assult
+
+    class FrostbiteHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.dynamic.frostbite
+
+    class FrostFrostbiteHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.dynamic.frost_frostbite
+
+    class CorruptionHandler(CheckHandler):
+        @classmethod
+        def handler(cls, enemy):
+            return enemy.dynamic.corruption
+
     HANDLE_MAP = {
         'stun': StunHandler,
         'QTE_triggerable_times': QTETriggerableHandler,
@@ -102,6 +132,12 @@ class StatusSubUnit(BaseSubConditionUnit):
         'stun_pct': StunPctHandler,
         'char_available': CharAvailableHandler,
         'is_under_anomaly': ActiveAnomalyHandler,
+        'is_shock': ShockHandler,
+        'is_burn': BurnHandler,
+        'is_assult': AssultHandler,
+        'is_frostbite': FrostbiteHandler,
+        'is_frost_frostbite': FrostFrostbiteHandler,
+        'is_corruption': CorruptionHandler,
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):

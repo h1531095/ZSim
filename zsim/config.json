@@ -13,13 +13,14 @@
     },
     "apl_mode": {
         "enabled": true,
-        "na_order": "./zsim/sim_progress/Preload/APLModule/DefaultConfig/NAOrder.json",
+        "na_order": "./zsim/data/DefaultConfig/NAOrder.json",
         "enemy_random_attack": true,
         "enemy_attack_response": true,
         "enemy_attack_method_config": "./zsim/data/enemy_attack_method.csv",
         "enemy_attack_action_data": "./zsim/data/enemy_attack_action.csv",
         "default_apl_dir": "./zsim/data/APLData",
-        "custom_apl_dir": "./zsim/data/APLData/custom"
+        "custom_apl_dir": "./zsim/data/APLData/custom",
+        "Yanagi": "./zsim/data/DefaultConfig/1221.json"
     },
     "swap_cancel_mode": {
         "enabled": true,

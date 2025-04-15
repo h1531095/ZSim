@@ -11,7 +11,6 @@ class YanagiPolarityDisorderTriggerRecord:
         self.e_max_count = None        # 突刺攻击的最大次数
         self.polarity_disorder_basic_dmg_ratio = None       # 极性紊乱的基础倍率
         self.polarity_disorder_ap_ratio = 32        # 固定的3200%精通倍率
-        self.event_list = None
 
 
 class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
@@ -57,7 +56,15 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
             raise ValueError(f'上一次极性紊乱的更新信号仍旧存在，请检查代码')
 
         # 如果检测到穿刺攻击，则进入对应分支——更新连击次数，但是最后要返回False——因为穿刺攻击无法结算极性紊乱；
-        if skill_node.skill_tag == '1221_E_EX_1' and skill_node.UUID != self.record.e_counter['update_from']:
+        if skill_node.skill_tag == '1221_E_EX_1':
+            # 如果上一次更新的UUID是空，则说明是第一个动作，或者是一个全新的强化E的开始，则直接跳过第一轮分支，进入连击次数更新环节。
+            if self.record.e_counter['update_from'] != '':
+                pass
+            else:
+                # 如果UUID相同，说明是同一个技能的不同hit，直接返回False
+                if skill_node.UUID == self.record.e_counter['update_from']:
+                    return False
+
             if self.record.char.cinema >= 2:
                 if self.record.e_max_count is None:
                     self.record.e_max_count = 2 if self.record.char.cinema < 6 else 4
@@ -77,7 +84,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
 
     def special_effect_logic(self, **kwargs):
         self.check_record_module()
-        self.get_prepared(char_CID=1221, enemy=1, event_list=1)
+        self.get_prepared(char_CID=1221, enemy=1)
         if not self.record.polarity_disorder_update_signal:
             raise ValueError(f'在极性紊乱触发信号未激活时，执行了触发函数！')
 
@@ -93,11 +100,12 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
 
         # 构造极性紊乱对象
         from sim_progress.Update import spawn_output
-        # polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=2, polarity_ratio=final_ratio)
-        polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=1)
+        polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=2, polarity_ratio=final_ratio)
+        # polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=1)
 
         # 置入event_list
-        self.record.event_list.append(polarity_disorder_output)
+        event_list = JudgeTools.find_event_list()
+        event_list.append(polarity_disorder_output)
 
         # 清空记录，回收更新信号
         self.record.e_counter = {'update_from': '', 'count': 0}

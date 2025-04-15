@@ -29,7 +29,7 @@ def spawn_output(anomaly_bar, mode_number, **kwargs):
         output = NewAnomaly(anomaly_bar)
     elif mode_number == 1:
         output = Disorder(anomaly_bar)
-    elif mode_number ==2:
+    elif mode_number == 2:
         polarity_ratio = kwargs.get('polarity_ratio', None)
         if polarity_ratio is None:
             raise ValueError(f'在调用spawn_output函数的模式二（mode_number=2）、企图生成一个极性紊乱对象时，并未传入必须的参数polarity_ratio！')

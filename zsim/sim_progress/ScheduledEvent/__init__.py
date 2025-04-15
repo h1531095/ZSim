@@ -1,5 +1,4 @@
-from Character import Skill
-from build.lib.zsim.sim_progress.Preload import SkillNode
+from sim_progress.Preload import SkillNode
 from sim_progress import Preload, Buff, Report
 from sim_progress.AnomalyBar import AnomalyBar as AnB
 from sim_progress.AnomalyBar import Disorder
@@ -8,7 +7,7 @@ from sim_progress.Buff import ScheduleBuffSettle
 from sim_progress.Character import Character
 from sim_progress.data_struct import SingleHit, SPUpdateData, ActionStack, ScheduleRefreshData
 from sim_progress.Load.loading_mission import LoadingMission
-from .CalAnomaly import CalAnomaly, CalDisorder
+from .CalAnomaly import CalAnomaly, CalDisorder, CalPolarityDisorder
 from .Calculator import Calculator, MultiplierData
 from sim_progress.Update import update_anomaly
 
@@ -40,8 +39,7 @@ class ScheduledEvent:
             exist_buff_dict: dict,
             action_stack: ActionStack,
             *,
-            loading_buff: dict | None = None,
-            judging_buff: dict | None = None
+            loading_buff: dict | None = None
     ):
 
         self.data = data  # ScheduleData in __main__
@@ -97,7 +95,9 @@ class ScheduledEvent:
                             self.data.dynamic_buff,
                             self.action_stack,
                             skill_node=event)
-
+                elif isinstance(event, PolarityDisorder):
+                    self.polarity_disorder_event(event)
+                    self.judge_required_info_dict['polarity_disorder'] = event
                 elif isinstance(event, Disorder):
                     self.disorder_event(event)
                     self.judge_required_info_dict['disorder'] = event
@@ -113,8 +113,6 @@ class ScheduledEvent:
             # 计算过程中如果又有新的事件生成，则继续循环
             if self.data.event_list:
                 self.event_start()
-
-        # FIXME: ScheduleBuffSettle函数如果内置在eventstart内，似乎会引发如下问题：
 
     def update_anomaly_bar_after_skill_event(self, event):
         """在Schedule阶段，处理完一个SkillEvent后，都要进行一次异常条更新。"""
@@ -272,7 +270,7 @@ class ScheduledEvent:
 
     def polarity_disorder_event(self, event: PolarityDisorder):
         """极性紊乱处理分支逻辑"""
-        cal_obj = CalPolarityDisorder(disorder_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
+        cal_obj = CalPolarityDisorder(polarity_disorder_obj=event, enemy_obj=self.data.enemy, dynamic_buff=self.data.dynamic_buff)
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         Report.report_dmg_result(tick=self.tick,
                                  element_type=event.element_type,
