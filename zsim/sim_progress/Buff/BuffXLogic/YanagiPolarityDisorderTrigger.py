@@ -97,7 +97,6 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
 
         # 根据连击次数，计算最终缩放倍率
         final_ratio = self.record.polarity_disorder_basic_dmg_ratio + 0.15 * self.record.e_counter['count']
-        print(f'连击了{self.record.e_counter['count']}次，最终倍率为{final_ratio}')
 
         # 获取当前正在激活的属性异常条
         active_anomaly_bar = self.record.enemy.get_active_anomaly_bar()
