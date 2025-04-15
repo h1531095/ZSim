@@ -7,10 +7,8 @@ from datetime import datetime
 
 import numpy as np
 import pandas as pd
-from tqdm import trange
 
 from define import DEBUG, DEBUG_LEVEL, ElementType, ANOMALY_MAPPING
-from sim_progress.RandomNumberGenerator import MAX_SIGNED_INT64
 
 buffered_data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 log_queue: queue.Queue = queue.Queue()
@@ -137,10 +135,10 @@ def report_dmg_result(
         is_disorder: bool = False,
         **kwargs
 ):
-    if is_anomaly:
+    if is_anomaly and skill_tag is None:
         skill_tag = ANOMALY_MAPPING.get(element_type, skill_tag)
     assert skill_tag is not None, '技能标签不能为空！'
-    if is_disorder:
+    if is_disorder and '紊乱' not in skill_tag:
         skill_tag += '紊乱'
     if dmg_crit is None:
         dmg_crit = np.nan

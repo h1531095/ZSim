@@ -1,5 +1,5 @@
 import unittest
-from zsim.sim_progress.Character import Character
+from sim_progress.Character import Character
 
 
 class TestCharacter(unittest.TestCase):

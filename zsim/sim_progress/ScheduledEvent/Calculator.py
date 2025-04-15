@@ -17,7 +17,7 @@ with open("./zsim/sim_progress/ScheduledEvent/buff_effect_trans.json", 'r', enco
 
 
 class MultiplierData:
-    mul_data_cache: dict[tuple, Any] = {}
+    mul_data_cache: dict[tuple, 'MultiplierData'] = {}
     max_size = 128
 
     def __new__(cls, enemy_obj: Enemy, dynamic_buff: dict, character_obj: Character | None = None):
@@ -347,6 +347,11 @@ class MultiplierData:
                 'all': self.all_anomaly_time_increase_percentage
             }
 
+            self.strike_crit_rate_increase: float = 0.0
+            self.strike_crit_dmg_increase: float = 0.0
+            self.strike_ignore_defense: float = 0.0
+            
+            # 异常其他属性
             self.strike_crit_rate_increase: float = 0.0
             self.strike_crit_dmg_increase: float = 0.0
             self.strike_ignore_defense: float = 0.0
@@ -907,15 +912,8 @@ class Calculator:
             return ano_dmg_mul
 
         def cal_anomaly_crit(self, data: MultiplierData) -> float:
-            """目前只有简有这个被动"""
-            main_module = sys.modules['simulator.main_loop']
-            if '简' in main_module.init_data.name_box and data.skill_node.skill.element_type == 0:
-                ap = self.cal_ap(data)
-                crit_dmg = 1 + 0.5  # Magic 技能介绍 Number
-                crit_rate = min((0.4 + ap * 0.0016), 1)
-                return 1 + crit_dmg * crit_rate
-            else:
-                return 1
+            """已弃用，避免大范围重构数据类型，保留一个1"""
+            return 1
 
         def cal_res_pen(self, data: MultiplierData) -> float:
             if self.element_type == 0:
