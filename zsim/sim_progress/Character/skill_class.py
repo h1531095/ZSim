@@ -325,15 +325,20 @@ class Skill:
             self.do_immediately: bool = bool(_raw_skill_data['do_immediately'])
 
             self.anomaly_update_rule: list[int] | int | None = []        # 更新异常的模式，如果不填，那就是最后一跳，如果有填写，那就按照填写的跳数来更新。
-            # anomaly_update_list_str = _raw_skill_data['anomaly_update_list']
-            # self._process_anomaly_update_rule(anomaly_update_list_str)
+            anomaly_update_list_str = _raw_skill_data['anomaly_update_list']
+            self._process_anomaly_update_rule(anomaly_update_list_str)
 
             Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
 
         def _process_anomaly_update_rule(self, anomaly_update_list_str):
-            """初始化异常更新规则"""
+            """
+            初始化 异常更新规则 ：
+                1、不填，则就返回[]，那就按照最后一跳处理；
+                2、-1，则返回-1，那就按照每一跳处理；
+                3、a&b&c&d， 则返回[a, b, c, d]，那就按照这些跳数处理
+            """
             if anomaly_update_list_str is np.nan or pd.isna(anomaly_update_list_str):
-                self.anomaly_update_rule = None  # None代表更新节点是最后一跳
+                self.anomaly_update_rule = []  # None代表更新节点是最后一跳
             else:
                 try:
                     anomaly_update_mode = int(anomaly_update_list_str)

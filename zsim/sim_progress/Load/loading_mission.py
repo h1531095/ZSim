@@ -14,6 +14,8 @@ class LoadingMission:
         self.mission_character = mission.char_name
         self.preload_tick = mission.preload_tick
 
+        self.mission_node.loading_mission = self
+
     def mission_start(self, timenow):
         self.mission_active_state = True
         timecost = self.mission_node.skill.ticks

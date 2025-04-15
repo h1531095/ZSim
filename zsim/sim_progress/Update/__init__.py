@@ -1,1 +1,1 @@
-from .UpdateAnomaly import spawn_output
+from .UpdateAnomaly import spawn_output, update_anomaly
