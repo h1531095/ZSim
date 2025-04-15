@@ -82,15 +82,6 @@ class APLClass:
             output = action
         return output
 
-    @staticmethod
-    def spawn_default_action(cid: int) -> str:
-        """用来生成第一段普攻。"""
-        if cid in [1141]:
-            return f'{cid}_SNA_1'
-        else:
-            return f'{cid}_NA_1'
-
-
 class NaManager:
     """普攻管理器，用于生成普攻"""
     def __init__(self):
