@@ -21,7 +21,6 @@ class CalAnomaly:
         self.dynamic_buff = dynamic_buff
         snapshot: tuple[ElementType, np.ndarray] = (self.anomaly_obj.element_type, self.anomaly_obj.current_ndarray)
         self.element_type: ElementType = snapshot[0]
-
         # self.dmg_sp 以 array 形式储存，顺序为：基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透
         self.dmg_sp: np.ndarray = snapshot[1]
 
@@ -32,6 +31,7 @@ class CalAnomaly:
         v_char_level: int = int(np.floor(self.dmg_sp[0,3] + 0.0000001))  # 加一个极小的数避免精度向下丢失导致的误差
         # 等级系数
         k_level = self.cal_k_level(v_char_level)
+
         # 激活型暴击区（目前仅简的核心被动）
         active_crit: float = self.cal_active_crit(self.data)
         # 防御区
@@ -40,7 +40,7 @@ class CalAnomaly:
         res_mul: float = Cal.RegularMul.cal_res_mul(
                 self.data,
                 element_type=self.element_type,
-                snapshot_res_pen = self.dmg_sp[0,8])
+                snapshot_res_pen=self.dmg_sp[0,8])
         # 减易伤区
         vulnerability_mul: float = Cal.RegularMul.cal_dmg_vulnerability(
                 self.data, element_type=self.element_type)
@@ -149,6 +149,7 @@ class CalDisorder(CalAnomaly):
         super().__init__(disorder_obj, enemy_obj, dynamic_buff)
         self.final_multipliers[0] = self.cal_disorder_base_dmg(np.float64(self.final_multipliers[0]))
 
+
     # TODO：后续需要添加紊乱基础倍率提升的计算
     def cal_disorder_base_dmg(self, base_mul: np.float64) -> np.float64:
         t_s = np.float64(self.anomaly_obj.remaining_tick() / 60)
@@ -184,8 +185,7 @@ class CalPolarityDisorder(CalDisorder):
         super().__init__(polarity_disorder_obj, enemy_obj, dynamic_buff)
         yanagi_obj = self.__find_yanagi()
         yanagi_mul = MulData(enemy_obj=enemy_obj, dynamic_buff=dynamic_buff, character_obj=yanagi_obj)
-        ap = Cal.AnomalyMul.cal_ap(yanagi_mul) 
-        
+        ap = Cal.AnomalyMul.cal_ap(yanagi_mul)
         self.final_multipliers[0] = (
             self.final_multipliers[0] *
             polarity_disorder_obj.polarity_disorder_ratio) + \

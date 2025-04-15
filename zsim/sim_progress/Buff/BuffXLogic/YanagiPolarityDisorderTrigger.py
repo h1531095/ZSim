@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from build.lib.zsim.sim_progress.Buff import find_tick
 from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
@@ -58,7 +60,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
         # 如果检测到穿刺攻击，则进入对应分支——更新连击次数，但是最后要返回False——因为穿刺攻击无法结算极性紊乱；
         if skill_node.skill_tag == '1221_E_EX_1':
             # 如果上一次更新的UUID是空，则说明是第一个动作，或者是一个全新的强化E的开始，则直接跳过第一轮分支，进入连击次数更新环节。
-            if self.record.e_counter['update_from'] != '':
+            if self.record.e_counter['update_from'] == '':
                 pass
             else:
                 # 如果UUID相同，说明是同一个技能的不同hit，直接返回False
@@ -80,6 +82,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
                 if self.record.enemy.dynamic.is_under_anomaly():        # 并且存在激活的属性异常
                     self.record.polarity_disorder_update_signal = True
                     return True
+                self.record.e_counter = {'update_from': '', 'count': 0}
             return False
 
     def special_effect_logic(self, **kwargs):
@@ -94,15 +97,16 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
 
         # 根据连击次数，计算最终缩放倍率
         final_ratio = self.record.polarity_disorder_basic_dmg_ratio + 0.15 * self.record.e_counter['count']
+        print(f'连击了{self.record.e_counter['count']}次，最终倍率为{final_ratio}')
 
         # 获取当前正在激活的属性异常条
         active_anomaly_bar = self.record.enemy.get_active_anomaly_bar()
+        active_bar_deep_copy = deepcopy(active_anomaly_bar)
 
         # 构造极性紊乱对象
         from sim_progress.Update import spawn_output
-        polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=2, polarity_ratio=final_ratio)
+        polarity_disorder_output = spawn_output(active_bar_deep_copy, mode_number=2, polarity_ratio=final_ratio, skill_node=kwargs['skill_node'])
         # polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=1)
-
         # 置入event_list
         event_list = JudgeTools.find_event_list()
         event_list.append(polarity_disorder_output)

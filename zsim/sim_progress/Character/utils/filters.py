@@ -33,3 +33,16 @@ def _sp_update_data_filter(*args, **kwargs):
         if isinstance(value, SPUpdateData):
             sp_update_data.append(value)
     return sp_update_data
+
+
+def _anomaly_filter(*args, **kwargs):
+    """过滤出输入的异常类！并作为列表返回"""
+    from sim_progress.AnomalyBar.CopyAnomalyForOutput import NewAnomaly
+    anomaly_bar_list: list[NewAnomaly] = []
+    for arg in args:
+        if isinstance(arg, NewAnomaly):
+            anomaly_bar_list.append(arg)
+    for value in kwargs.values():
+        if isinstance(value, NewAnomaly):
+            anomaly_bar_list.append(value)
+    return anomaly_bar_list

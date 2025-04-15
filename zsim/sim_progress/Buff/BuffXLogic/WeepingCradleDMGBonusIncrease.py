@@ -55,7 +55,7 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
         else:
             return False
 
-    def special_effect_logic(self):
+    def special_effect_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(equipper='啜泣摇篮', sub_exist_buff_dict=1)
         tick_now = JudgeTools.find_tick()

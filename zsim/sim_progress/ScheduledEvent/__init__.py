@@ -99,6 +99,7 @@ class ScheduledEvent:
                     self.polarity_disorder_event(event)
                     self.judge_required_info_dict['polarity_disorder'] = event
                 elif isinstance(event, Disorder):
+                    # print(f'检测到{event.element_type}属性的紊乱，快照为：{event.current_ndarray}')
                     self.disorder_event(event)
                     self.judge_required_info_dict['disorder'] = event
                 elif isinstance(event, AnB):
