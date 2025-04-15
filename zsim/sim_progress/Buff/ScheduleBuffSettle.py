@@ -56,7 +56,7 @@ def process_schedule_on_field_buff(sub_exist_buff_dict: dict,
         selected_characters = [name_box_now[i] for i in range(len(name_box_now)) if adding_buff_code[i] == '1']
         # if buff.ft.index == 'Buff-武器-精1啜泣摇篮-全队增伤自增长':
         #     print(f'onfield函数处理了这个buff！当前的namebox是：{name_box_now}')
-        add_schedule_buff(selected_characters, buff, time_tick, sub_exist_buff_dict, DYNAMIC_BUFF_DICT, enemy)
+        add_schedule_buff(selected_characters, buff, time_tick, sub_exist_buff_dict, DYNAMIC_BUFF_DICT, enemy, skill_node)
 
 
 def process_schedule_backend_buff(sub_exist_buff_dict: dict,
@@ -84,7 +84,7 @@ def process_schedule_backend_buff(sub_exist_buff_dict: dict,
         selected_characters = [name_box_now[i] for i in range(len(name_box_now)) if adding_buff_code[i] == '1']
         # if buff.ft.index == 'Buff-武器-精1啜泣摇篮-全队增伤自增长':
         #     print(f'backend函数处理了这个buff！当前的namebox是：{name_box_now}')
-        add_schedule_buff(selected_characters, buff, time_tick, sub_exist_buff_dict, DYNAMIC_BUFF_DICT, enemy)
+        add_schedule_buff(selected_characters, buff, time_tick, sub_exist_buff_dict, DYNAMIC_BUFF_DICT, enemy, skill_node)
 
 
 def add_schedule_buff(selected_characters: list,
@@ -92,7 +92,8 @@ def add_schedule_buff(selected_characters: list,
                       time_tick: int,
                       sub_exist_buff_dict: dict,
                       DYNAMIC_BUFF_DICT: dict,
-                      enemy):
+                      enemy,
+                      skill_node):
     """
     Schedule阶段用来直接添加buff的函数
     """
@@ -105,7 +106,7 @@ def add_schedule_buff(selected_characters: list,
             if buff.ft.simple_effect_logic:
                 buff_new.simple_start(time_tick, sub_exist_buff_dict)
             else:
-                buff_new.logic.xeffect()
+                buff_new.logic.xeffect(skill_node=skill_node)
         # Buff加载
         buff_existing_check = next((existing_buff for existing_buff in DYNAMIC_BUFF_DICT[characters] if
                                     existing_buff.ft.index == buff.ft.index), None)

@@ -17,7 +17,7 @@ def _buff_filter(*args, **kwargs):
     return buff_name_list
 
 
-def BuffAddStrategy(*args, **kwargs):
+def buff_add_strategy(*args, **kwargs):
     """
     这个函数是暴力添加buff用的，比如霜寒、畏缩等debuff，
     又比如核心被动强行添加buff的行为，都可以通过这个函数来实现。

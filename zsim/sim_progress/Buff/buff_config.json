@@ -554,5 +554,13 @@
     "Buff-角色-简-2画-啮咬-攻击无视防御" : {
         "module": ".BuffXLogic.JaneCoreSkillStrikeCritDmgBonus",
         "class": "JaneCoreSkillStrikeCritDmgBonus"
+    },
+    "Buff-角色-柳-1画-精通增幅": {
+        "module": ".BuffXLogic.YangiCinema1ApBonus",
+        "class": "YangiCinema1ApBonus"
+    },
+    "Buff-角色-柳-6画-特殊技伤害提升": {
+        "module": ".BuffXLogic.YanagiCinema6EXDmgBonus",
+        "class": "YanagiCinema6EXDmgBonus"
     }
 }
