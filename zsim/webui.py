@@ -238,7 +238,7 @@ def data_analysis():
             new_comment = st.text_input("请输入新的备注信息", value=id_cache[selected_key] if id_cache else None)
             if st.button("保存"):
                 try:
-                    rename_result(selected_key, new_name, new_comment)
+                    rename_result(selected_key, new_name or "", new_comment or "")
                     st.success("重命名成功！")
                     st.rerun()  # 刷新页面以更新显示
                 except FileNotFoundError:
