@@ -1,5 +1,4 @@
 import json
-import sys
 from functools import lru_cache
 from typing import Any
 

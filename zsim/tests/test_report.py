@@ -1,5 +1,3 @@
-import unittest
-from sim_progress import Report
 
 
 # class TestReport(unittest.TestCase):
