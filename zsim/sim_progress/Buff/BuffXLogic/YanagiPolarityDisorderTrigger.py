@@ -1,7 +1,7 @@
+from sim_progress.Buff import find_tick
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
 from copy import deepcopy
 
-from build.lib.zsim.sim_progress.Buff import find_tick
-from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class YanagiPolarityDisorderTriggerRecord:
