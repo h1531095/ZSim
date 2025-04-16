@@ -1,129 +1,26 @@
-# APL限制配置必须字面匹配才能生效，不支持模糊匹配/别名，
-# 可以去网页复制粘贴名字
-# APL configuration must match exactly in ID / number / Chinese character name,
-# fuzzy matching/aliases are not supported,
-# you can copy and paste names from the webpage
-
 [general]
-title = 'APL配置示例'
-comment = '这是一个APL配置示例，你可以据此新建新模板'
-author = 'Yuki Aro'
-create_time = '2025-04-15T23:00:00.000+08:00'
-latest_change_time = '2025-04-15T23:00:00.000+08:00'
+title = "APL配置示例"
+comment = "这是一个APL配置示例，你可以据此新建新模板"
+author = "Yuki Aro"
+create_time = "2025-04-15T23:00:00.000+08:00"
+latest_change_time = "2025-04-15T23:00:00.000+08:00"
 
-# 角色要求
-# Character Requirements
-# 角色要求是必须填写的，APL代码中出现了的CID都必须出现在必选角色中
-# Character requirements must be filled in,
-# all CIDs appearing in APL code must be included in required characters
 [characters]
-# 必选角色，可用CID或角色名
-# Required characters, can use CID or Chinese character name
-required = ["零号·安比", "扳机",]
+required = [ "零号·安比", "扳机",]
+optional = [ "丽娜",]
 
-# 可选角色，可用CID或角色名
-# Optional characters, can use CID or Chinese character name
-optional = ["丽娜",]
+[apl_logic]
+logic = "# 扳机逻辑\n# 扳机补充决意值逻辑：\n# 连击逻辑：\n1361|action+=|1361_SNA_1|attribute.1361:special_state→狙击姿态==True|attribute.1361:special_resource<100|status.enemy:stun_pct<=0.7\n# 启动逻辑\n1361|action+=|1361_SNA_0|attribute.1361:special_resource<5|status.enemy:stun==False|status.enemy:stun==False\n\n\n# 失衡期逻辑：\n#连携技释放逻辑\n1361|action+=|1361_QTE|status.enemy:QTE_triggered_times==0|status.enemy:single_qte!=None|special.preload_data:operating_char!=1361\n1381|action+=|1381_QTE|status.enemy:single_qte!=None|special.preload_data:operating_char!=1381\n\n\n# 3E启动逻辑\n1381|action+=|1381_E_A|attribute.1381:special_state→满层==True|status.enemy:stun==True\n# 维持E连续释放，直至白雷耗尽\n1381|action+=|1381_E_A|attribute.1381:special_resource>=1|attribute.1381:special_state→E连击>0|status.enemy:stun==True\n# 大招逻辑\n1381|action+=|1381_Q|attribute.1381:decibel>=3000|attribute.1381:special_resource<0.01|status.enemy:stun==True|status.1381:lasting_node_tag!=1381_E_A\n# 泄能逻辑\n1381|action+=|1381_E_EX|attribute.1381:energy>=60|attribute.1381:special_resource<0.01|status.enemy:stun==True\n\n\n# 零号·安比站场逻辑（临近爆发前）\n# 临近失衡时，一直持续平A直到连携技激发\n1381|action+=|auto_NA|status.enemy:stun_pct>=0.8|status.enemy:stun==False\n\n# 零号·安比站场逻辑（平时）\n# 3E启动逻辑\n1381|action+=|1381_E_A|attribute.1381:special_state→满层==True\n# 维持E连续释放，直至白雷耗尽\n1381|action+=|1381_E_A|attribute.1381:special_resource>=1|attribute.1381:special_state→E连击>0\n\n1361|action+=|1361_Q|attribute.1361:decibel>=3000|status.enemy:stun==False|status.enemy:stun_pct<0.7|status.1361:char_available==True\n1361|action+=|1361_E_EX|attribute.1361:energy>=60|status.enemy:stun==False\n\n\n# 平稳期，如果能量快要溢出且距离怪物失衡还有一段时间，那就可以放强化E\n1381|action+=|1381_E_EX|attribute.1381:energy>=100|attribute.1381:special_resource<0.01|status.enemy:stun_pct<=0.5\n\n\n\n# 第四段普攻重复最多5次\n1381|action+=|1381_NA_4|action.1381:strict_linked_after==1381_NA_4|status.1381:lasting_node_tag==1381_NA_4|status.1381:repeat_times<5\n1361|action+=|1361_SNA_3|action.1361:strict_linked_after==1361_SNA_1\n1381|action+=|auto_NA\n"
 
-# 角色配置强制要求，可用CID或角色名
-# Character Configuration Requirements, can use CID or Chinese character name
 [characters."零号·安比"]
-# 可用的影画等级，可以是列表或单个整数，必须字面匹配才能生效，
-# 例如只写0，那么影画1就不能用
-# Available cinema levels, can be a list or single integer,
-# must match exactly, e.g., if only 0 is specified, cinema 1 cannot be used
-# 表示全影画都能用可以写-1或者如下一个大列表
-# To indicate all cinema levels are available, write -1 or use the following large list
-cinema = [0, 1, 2, 3, 4, 5, 6]
-
-# 可用的武器，空/没有此参数表示不限制
-# Available weapons, empty/missing parameter means no restriction
+cinema = [ 0, 1, 2, 3, 4, 5, 6,]
 weapon = ""
-
-# 可用的装备套装
-# Available equipment sets
 equip_set4 = ""
-
-# 其他可用的配置要求：
-# Other available configuration requirements:
-# weapon_level = 1
-# cinema = 2
-# crit_balancing = false
-# scATK_percent = 9
-# scATK = 0     # 填0表示必须为0条，
-# 不过谁会没事限制副词条数量呢
-# scHP_percent = 0
-# scHP = 0
-# scDEF_percent = 0
-# scDEF = 0
-# scAnomalyProficiency = 15
-# scPEN = 0
-# scCRIT = 0
-# scCRIT_DMG = 0
-# drive4 = "异常精通"
-# drive5 = "物理属性伤害%"
-# drive6 = "异常掌控"
-# equip_style = "4+2"
-# equip_set4 = "自由蓝调"
-# equip_set2_a = "激素朋克"
 
 [characters."扳机"]
 cinema = 0
 weapon = ""
 
 [characters."丽娜"]
-cinema = [0]
+cinema = [ 0,]
 weapon = ""
-
-# APL逻辑代码，暂时使用这个傻逼的语法
-# APL logic code, temporarily using this stupid syntax
-[apl_logic]
-logic = """
-# 扳机逻辑
-# 扳机补充决意值逻辑：
-# 连击逻辑：
-1361|action+=|1361_SNA_1|attribute.1361:special_state→狙击姿态==True|attribute.1361:special_resource<100|status.enemy:stun_pct<=0.7
-# 启动逻辑
-1361|action+=|1361_SNA_0|attribute.1361:special_resource<5|status.enemy:stun==False|status.enemy:stun==False
-
-
-# 失衡期逻辑：
-#连携技释放逻辑
-1361|action+=|1361_QTE|status.enemy:QTE_triggered_times==0|status.enemy:single_qte!=None|special.preload_data:operating_char!=1361
-1381|action+=|1381_QTE|status.enemy:single_qte!=None|special.preload_data:operating_char!=1381
-
-
-# 3E启动逻辑
-1381|action+=|1381_E_A|attribute.1381:special_state→满层==True|status.enemy:stun==True
-# 维持E连续释放，直至白雷耗尽
-1381|action+=|1381_E_A|attribute.1381:special_resource>=1|attribute.1381:special_state→E连击>0|status.enemy:stun==True
-# 大招逻辑
-1381|action+=|1381_Q|attribute.1381:decibel>=3000|attribute.1381:special_resource<0.01|status.enemy:stun==True|status.1381:lasting_node_tag!=1381_E_A
-# 泄能逻辑
-1381|action+=|1381_E_EX|attribute.1381:energy>=60|attribute.1381:special_resource<0.01|status.enemy:stun==True
-
-
-# 零号·安比站场逻辑（临近爆发前）
-# 临近失衡时，一直持续平A直到连携技激发
-1381|action+=|auto_NA|status.enemy:stun_pct>=0.8|status.enemy:stun==False
-
-# 零号·安比站场逻辑（平时）
-# 3E启动逻辑
-1381|action+=|1381_E_A|attribute.1381:special_state→满层==True
-# 维持E连续释放，直至白雷耗尽
-1381|action+=|1381_E_A|attribute.1381:special_resource>=1|attribute.1381:special_state→E连击>0
-
-1361|action+=|1361_Q|attribute.1361:decibel>=3000|status.enemy:stun==False|status.enemy:stun_pct<0.7|status.1361:char_available==True
-1361|action+=|1361_E_EX|attribute.1361:energy>=60|status.enemy:stun==False
-
-
-# 平稳期，如果能量快要溢出且距离怪物失衡还有一段时间，那就可以放强化E
-1381|action+=|1381_E_EX|attribute.1381:energy>=100|attribute.1381:special_resource<0.01|status.enemy:stun_pct<=0.5
-
-
-
-# 第四段普攻重复最多5次
-1381|action+=|1381_NA_4|action.1381:strict_linked_after==1381_NA_4|status.1381:lasting_node_tag==1381_NA_4|status.1381:repeat_times<5
-1361|action+=|1361_SNA_3|action.1361:strict_linked_after==1361_SNA_1
-1381|action+=|auto_NA
-"""
