@@ -356,6 +356,8 @@ class MultiplierData:
             self.strike_crit_dmg_increase: float = 0.0
             self.strike_ignore_defense: float = 0.0
 
+            self.disorder_basic_mul: float = 0.0
+
             self.__read_dynamic_statement(dynamic_statement)
 
         def __read_dynamic_statement(self, dynamic_statement: dict) -> None:

@@ -1,4 +1,3 @@
-
 from sim_progress.Preload.APLModule.APLJudgeTools import find_buff, find_buff_0, check_cid
 from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
 
@@ -32,9 +31,20 @@ class BuffSubUnit(BaseSubConditionUnit):
             else:
                 return 0
 
+    class BuffDurationHandler(BuffCheckHandler):
+        @classmethod
+        def handler(cls, game_state, char, buff_0):
+            search_result = find_buff(game_state, char, buff_0.ft.index)
+            if search_result is None:
+                return 0
+            from zsim.sim_progress.Buff import find_tick
+            tick = find_tick()
+            return max(search_result.dy.endticks - tick, 0)
+
     BuffHandlerMap = {
         'exist': BuffExistHandler,
-        'count': BuffCountHandler
+        'count': BuffCountHandler,
+        'duration': BuffDurationHandler,
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):

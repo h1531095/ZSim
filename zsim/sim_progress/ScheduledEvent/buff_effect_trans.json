@@ -163,5 +163,7 @@
   
   "强击暴击率增加": "strike_crit_rate_increase",
   "强击暴击伤害增加": "strike_crit_dmg_increase",
-  "强击无视防御": "strike_ignore_defense"
+  "强击无视防御": "strike_ignore_defense",
+
+  "紊乱倍率增加": "disorder_basic_mul"
 }

@@ -3,7 +3,7 @@ from copy import deepcopy
 from sim_progress.data_struct import decibel_manager_instance
 from sim_progress.AnomalyBar import AnomalyBar
 from sim_progress.AnomalyBar.CopyAnomalyForOutput import Disorder, NewAnomaly, PolarityDisorder
-from sim_progress.Buff.BuffAddStrategy import BuffAddStrategy
+from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
 from sim_progress.Dot.BaseDot import Dot
 
 anomlay_dot_dict = {
@@ -21,19 +21,20 @@ def spawn_output(anomaly_bar, mode_number, **kwargs):
     """
     if not isinstance(anomaly_bar, AnomalyBar):
         raise TypeError(f'{anomaly_bar}不是AnomalyBar类！')
+    skill_node = kwargs.get('skill_node', None)
 
     # 先处理快照，使其除以总权值。
     anomaly_bar.current_ndarray = anomaly_bar.current_ndarray / anomaly_bar.current_anomaly
-    output = anomaly_bar.element_type, anomaly_bar.current_ndarray
+    # output = anomaly_bar.element_type, anomaly_bar.current_ndarray
     if mode_number == 0:
-        output = NewAnomaly(anomaly_bar)
+        output = NewAnomaly(anomaly_bar, active_by=skill_node)
     elif mode_number == 1:
-        output = Disorder(anomaly_bar)
+        output = Disorder(anomaly_bar, active_by=skill_node)
     elif mode_number == 2:
         polarity_ratio = kwargs.get('polarity_ratio', None)
         if polarity_ratio is None:
             raise ValueError(f'在调用spawn_output函数的模式二（mode_number=2）、企图生成一个极性紊乱对象时，并未传入必须的参数polarity_ratio！')
-        output = PolarityDisorder(anomaly_bar, polarity_ratio)
+        output = PolarityDisorder(anomaly_bar, polarity_ratio, active_by=skill_node)
     return output
 
 
@@ -47,7 +48,7 @@ def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy, new_anomaly, ele
     """
     if bar.accompany_debuff:
         for debuff in bar.accompany_debuff:
-            BuffAddStrategy(debuff)
+            buff_add_strategy(debuff)
     if bar.accompany_dot:
         new_dot = spawn_anomaly_dot(element_type, timenow, new_anomaly)
         if new_dot:
@@ -61,21 +62,20 @@ def anomaly_effect_active(bar: AnomalyBar, timenow: int, enemy, new_anomaly, ele
 
 def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, char_obj_list: list, **kwargs):
     """
-    该函数需要在Loading阶段，submission是End的时候运行。
+    该函数需要在Schedule阶段的SkillEvent分支内运行。
     用于判断该次属性异常触发应该是新建、替换还是触发紊乱。
     第一个参数是属性种类，第二个参数是Enemy类的实例，第三个参数是当前时间
     如果判断通过触发，则会立刻实例化一个对应的属性异常实例（自带复制父类的状态与属性），
     """
-    skill_node = kwargs.get('skill_node', None)
+    skill_node = kwargs.get('skill_node')
     dynamic_buff_dict = kwargs.get('dynamic_buff_dict', None)
-    bar: AnomalyBar = enemy.anomaly_bars_dict[element_type]
+    bar: AnomalyBar = enemy.anomaly_bars_dict[skill_node.skill.element_type]
     if not isinstance(bar, AnomalyBar):
         raise TypeError(f'{type(bar)}不是Anomaly类！')
     active_anomaly_check, active_anomaly_list, last_anomaly_element_type = check_anomaly_bar(enemy)
-
     # 获取当前最大值。修改最大值的操作在确认内置CD转好后再执行。
     bar.max_anomaly = getattr(enemy, f'max_anomaly_{enemy.trans_element_number_to_str[element_type]}')
-    assert bar.max_anomaly is not None and bar.current_anomaly is not None, '当前异常值或对打异常值为None！'
+    assert bar.max_anomaly is not None and bar.current_anomaly is not None, '当前异常值或最大异常值为None！'
 
     if bar.current_anomaly >= bar.max_anomaly:
         bar.is_full = True
@@ -99,7 +99,9 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
                 该策略下，只需要抛出一个新的属性异常给dot，不需要改变enemy的信息，只需要更新enemy的dot和debuff 两个list即可。
                 """
                 mode_number = 0
-                new_anomaly = spawn_output(bar, mode_number)
+                new_anomaly = spawn_output(bar, mode_number, skill_node=skill_node)
+                for _char in char_obj_list:
+                    _char.special_resources(new_anomaly)
                 anomaly_effect_active(active_bar, time_now, enemy, new_anomaly, element_type)
                 if element_type in [2, 5]:
                     """
@@ -132,12 +134,13 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
                     enemy.dynamic.frozen = True
 
                 # 旧的激活异常拿出来复制，变成disorder后，从enemy身上清空。
-                disorder = spawn_output(last_anomaly_bar, mode_number)
+                disorder = spawn_output(last_anomaly_bar, mode_number, skill_node=skill_node)
                 enemy.dynamic.active_anomaly_bar_dict[last_anomaly_element_type] = None
+                enemy.anomaly_bars_dict[last_anomaly_element_type].active = False
                 remove_dots_cause_disorder(disorder, enemy, event_list, time_now)
 
                 # 新的激活异常根据原来的Bar进行复制，并且添加到enemy身上。
-                new_anomaly = spawn_output(bar, 0)
+                new_anomaly = spawn_output(bar, 0, skill_node=skill_node)
                 anomaly_effect_active(active_bar, time_now, enemy, new_anomaly, element_type)
                 enemy.dynamic.active_anomaly_bar_dict[element_type] = active_bar
 
@@ -150,6 +153,8 @@ def update_anomaly(element_type: int, enemy, time_now: int, event_list: list, ch
                 decibel_manager_instance.update(skill_node=skill_node, key='disorder')
                 # print(f'触发紊乱！')
             # 在异常与紊乱两个分支的最后，清空bar的异常积蓄和快照。
+            else:
+                raise ValueError('无法解析的异常/紊乱分支')
             bar.reset_current_info_cause_output()
 
 

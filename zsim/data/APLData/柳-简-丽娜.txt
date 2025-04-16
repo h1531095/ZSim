@@ -11,11 +11,11 @@
 
 # 柳强化E释放逻辑
 # 强化E终结一击逻辑（0~1命），1直接接2
-1221|action+=|1221_E_EX_2|action.1221:strict_linked_after==1221_E_EX_1|attribute.1221:cinema<2
+#1221|action+=|1221_E_EX_2|action.1221:strict_linked_after==1221_E_EX_1|attribute.1221:cinema<2
 # 强化E终结一击逻辑（2~5命），1穿刺达到2次上限后再接2
 #1221|action+=|1221_E_EX_2|action.1221:strict_linked_after==1221_E_EX_1|attribute.1221:cinema>=2|attribute.1221:cinema<6|status.1221:lasting_node_tag==1221_E_EX_1|status.1221:repeat_times>1
 # 强化E终结一击逻辑（6命），1穿刺达到4次上限后再接2
-# 1221|action+=|1221_E_EX_2|action.1221:strict_linked_after==1221_E_EX_1|attribute.1221:cinema<=6|status.1221:lasting_node_tag==1221_E_EX_1|status.1221:repeat_times>3
+1221|action+=|1221_E_EX_2|action.1221:strict_linked_after==1221_E_EX_1|attribute.1221:cinema<=6|status.1221:lasting_node_tag==1221_E_EX_1|status.1221:repeat_times>3
 
 # 连击逻辑
 1221|action+=|1221_E_EX_1|attribute.1221:cinema>1|attribute.1221:energy>=40|action.1221:strict_linked_after==1221_E_EX_1|status.enemy:is_under_anomaly==True
