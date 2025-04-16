@@ -1,4 +1,4 @@
-name_box = [ "零号·安比", "扳机", "丽娜",]
+name_box = [ "柳", "简", "丽娜",]
 
 ["露西"]
 name = "露西"
@@ -26,7 +26,7 @@ equip_set2_a = "自由蓝调"
 ["丽娜"]
 name = "丽娜"
 weapon = "啜泣摇篮"
-weapon_level = 1
+weapon_level = 5
 cinema = 1
 crit_balancing = false
 scATK_percent = 6
@@ -140,9 +140,9 @@ equip_set2_a = "啄木鸟电音"
 
 ["柳"]
 name = "柳"
-weapon = "时流贤者"
+weapon = "淬锋钳刺"
 weapon_level = 1
-cinema = 6
+cinema = 2
 crit_balancing = false
 scATK_percent = 5
 scATK = 0
