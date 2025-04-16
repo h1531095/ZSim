@@ -2,7 +2,8 @@ import gc
 from sim_progress.Character.skill_class import Skill
 from simulator.dataclasses import InitData, CharacterData, LoadData, ScheduleData, GlobalStats
 from define import APL_MODE
-from sim_progress import Load, Buff, ScheduledEvent as ScE, Enemy, update_dynamic_bufflist
+from sim_progress import Load, Buff, ScheduledEvent as ScE, update_dynamic_bufflist
+from sim_progress.Enemy import Enemy
 from sim_progress.data_struct import ActionStack
 from sim_progress.Preload import PreloadClass
 from sim_progress.Report import start_report_threads
