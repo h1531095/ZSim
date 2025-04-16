@@ -1,4 +1,3 @@
-from ..Update import UpdateAnomaly
 from .. import Dot
 # import Enemy
 from .loading_mission import LoadingMission

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Sequence
-from narwhals import col
 import streamlit as st
 import toml
 import os

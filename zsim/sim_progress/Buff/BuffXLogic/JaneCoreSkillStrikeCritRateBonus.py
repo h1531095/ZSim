@@ -1,4 +1,3 @@
-from math import floor
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calculator as Cal
 

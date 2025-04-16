@@ -51,13 +51,13 @@ class StanceManager:
             if self.last_update_node is not None and self.last_update_node.skill_tag == '1221_E_EX_1':
                 '''当检测到上一个使架势管理器发生更新的技能是穿刺攻击时，直接返回'''
                 if not self.ex_chain:
-                    raise ValueError(f'检测到中间段强化E的突刺攻击时，架势管理器的ex_chain未处于打开状态！')
+                    raise ValueError('检测到中间段强化E的突刺攻击时，架势管理器的ex_chain未处于打开状态！')
                 return
             else:
                 '''其余情况，穿刺攻击的上一个技能都不会是穿刺攻击，所以可以放行。改变架势 + 启动森罗万象'''
                 if self.ex_chain:
                     # raise ValueError(f'检测到首段强化E的突刺攻击时，架势管理器的ex_chain正处于打开状态！')
-                    print(f'检测到首段强化E的突刺攻击时，架势管理器的ex_chain正处于打开状态！')
+                    print('检测到首段强化E的突刺攻击时，架势管理器的ex_chain正处于打开状态！')
                 self.ex_chain = True
                 # print(f'强化E连段开始')
                 tick = find_tick()
@@ -68,7 +68,7 @@ class StanceManager:
         elif skill_tag == '1221_E_EX_2':
             '''检测到强化E的下落攻击分支'''
             if not self.ex_chain:
-                raise ValueError(f'检测到强化E下落攻击传入，但是架势管理器的ex_chain未处于打开状态！')
+                raise ValueError('检测到强化E下落攻击传入，但是架势管理器的ex_chain未处于打开状态！')
             self.ex_chain = False
             self.last_update_node = skill_node
             # print(f'强化E连段结束')
