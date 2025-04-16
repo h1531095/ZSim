@@ -193,7 +193,7 @@ class Enemy:
         output_list = []
         for element_type, anomaly_bar in self.anomaly_bars_dict.items():
             if anomaly_bar.active:
-                output_list.append(anomaly_bar)
+                output_list.append(self.dynamic.active_anomaly_bar_dict[element_type])
         if len(output_list) == 0 or len(output_list) > 1:
             raise ValueError(f'状态错误！找到了{len(output_list)}种正在激活的属性异常条！')
         return output_list[0]
@@ -478,7 +478,7 @@ class Enemy:
 
             self.dynamic_debuff_list = []   # 用来装debuff的list
             self.dynamic_dot_list = []      # 用来装dot的list
-            self.active_anomaly_bar_dict = {number: None for number in range(6)}    # 用来装激活属性异常的字典。
+            self.active_anomaly_bar_dict = {number: AnomalyBar for number in range(6)}    # 用来装激活属性异常的字典。
 
             self.stun_bar = 0   # 累计失衡条
             self.lost_hp = 0    # 已损生命值

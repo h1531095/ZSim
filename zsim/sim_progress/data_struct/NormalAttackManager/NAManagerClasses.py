@@ -8,9 +8,9 @@ class YanagiNAManager(BaseNAManager):
         self.na_rule_inventory = rule_inventory_dict
         self.RULE_MAP = {
             "default": lambda: self.char.get_special_stats()['当前架势'] and not self.char.get_special_stats()['森罗万象状态'],
-            "normal_kagen": lambda: not self.char.get_special_stats()['当前架势'] and not self.char.get_special_stats()['森罗万象状态'],
+            "normal_kagen": lambda: (not self.char.get_special_stats()['当前架势']) and not self.char.get_special_stats()['森罗万象状态'],
             "shinra_jougen": lambda: self.char.get_special_stats()['当前架势'] and self.char.get_special_stats()['森罗万象状态'],
-            "shinra_kagen": lambda: not self.char.get_special_stats()['当前架势'] and self.char.get_special_stats()['森罗万象状态']
+            "shinra_kagen": lambda: (not self.char.get_special_stats()['当前架势']) and self.char.get_special_stats()['森罗万象状态']
         }
 
     @property

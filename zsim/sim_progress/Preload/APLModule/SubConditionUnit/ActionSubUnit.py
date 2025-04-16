@@ -37,10 +37,23 @@ class ActionSubUnit(BaseSubConditionUnit):
                 return None
             return char_stack.peek().skill_tag
 
+    class FirstActionHandler(ActionCheckHandler):
+        @classmethod
+        def handler(cls, char_cid: int, game_state, tick: int) -> bool:
+            char_stack = get_personal_node_stack(game_state).get(char_cid, None)
+            if char_stack is None:
+                return True
+            else:
+                current_node = char_stack.peek()
+                if current_node is None:
+                    return True
+            return False
+
     ActionHandlerMap = {
         'skill_tag': LatestActionTagHandler,
         'strict_linked_after': StrictLinkedHandler,
-        'lenient_linked_after': LenientLinkedHandler
+        'lenient_linked_after': LenientLinkedHandler,
+        'first_action': FirstActionHandler
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
