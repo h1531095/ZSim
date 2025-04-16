@@ -56,7 +56,8 @@ class StanceManager:
             else:
                 '''其余情况，穿刺攻击的上一个技能都不会是穿刺攻击，所以可以放行。改变架势 + 启动森罗万象'''
                 if self.ex_chain:
-                    raise ValueError(f'检测到首段强化E的突刺攻击时，架势管理器的ex_chain正处于打开状态！')
+                    # raise ValueError(f'检测到首段强化E的突刺攻击时，架势管理器的ex_chain正处于打开状态！')
+                    print(f'检测到首段强化E的突刺攻击时，架势管理器的ex_chain正处于打开状态！')
                 self.ex_chain = True
                 # print(f'强化E连段开始')
                 tick = find_tick()
