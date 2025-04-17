@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
-from attr.validators import is_callable
 
 
 class BaseNAManager(ABC):

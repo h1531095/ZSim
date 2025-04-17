@@ -1,6 +1,22 @@
 import pandas as pd
 from define import ElementType
 
+# 角色与CID映射表
+def _init_char_mapping() -> dict:
+        """初始化角色CID和名称的映射关系"""
+        try:
+            df = pd.read_csv('./zsim/data/character.csv')
+            mapping = {}
+            for _, row in df.iterrows():
+                cid = str(row['CID'])
+                name = row['name']
+                mapping[cid] = name
+                mapping[name] = cid
+            return mapping
+        except Exception as e:
+            print(f"Warning: Failed to load character mapping: {e}")
+            return {}
+CHAR_CID_MAPPING = _init_char_mapping()
 
 # 角色配置常量
 default_chars = ["扳机", "丽娜", "零号·安比"]   # 这个值其实没啥意义，但是必须是三个角色，否则可能会报错
@@ -42,6 +58,7 @@ element_mapping: dict[ElementType | str] = {
 class IDDuplicateError(Exception):
     """当检测到重复ID时抛出此异常"""
     pass
+
 
 
 del __df    # 确保在文件末尾删除临时变量

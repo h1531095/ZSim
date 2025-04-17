@@ -38,7 +38,7 @@ class InitData:
                 char.get('equip_set2_a', '')
             ])
         
-        self.weapon_dict: dict[str: list[str, int]] = {
+        self.weapon_dict: dict[str, list[str|int]] = {
             name: [getattr(self, f'char_{self.name_box.index(name)}')['weapon'], 
                    getattr(self, f'char_{self.name_box.index(name)}')['weapon_level']]
             for name in self.name_box

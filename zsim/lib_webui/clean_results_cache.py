@@ -81,7 +81,7 @@ def rename_result(former_name: str, new_name: str, new_comment: str = None, *, i
         former_path = os.path.join(results_dir, former_name)
         os.rename(former_path, new_path)
 
-        # 更新id_cache.json文件
+        # 更新id_cache字典
         id_cache[new_name] = id_cache[former_name]
         del id_cache[former_name]
 
@@ -91,6 +91,34 @@ def rename_result(former_name: str, new_name: str, new_comment: str = None, *, i
     # 将更新后的id_cache写回id_cache.json文件
     with open(id_cache_path, 'w') as f:
         json.dump(id_cache, f, indent=4)
+        
+def delete_result(former_name: str, *, id_cache_path = ID_CACHE_JSON, results_dir = results_dir):
+    """
+    删除结果文件夹并更新id_cache.json文件中的对应条目。
+    参数:
+        former_name (str): 需要删除的结果文件夹名称
+        id_cache_path (str, optional, keyword only): id_cache.json文件路径，默认为ID_CACHE_JSON
+        results_dir (str, optional, keyword only): 结果文件夹路径，默认为results_dir
+    返回:
+        None
+    异常:
+        FileNotFoundError: 当目标文件夹不存在时抛出
+        JSONDecodeError: 当id_cache.json文件格式错误时抛出
+    """
+    import shutil
+    # 删除文件夹
+    folder_path = os.path.join(results_dir, former_name)
+    if not os.path.exists(folder_path):
+        raise FileNotFoundError(f"目标文件夹 {former_name} 不存在。")
+    shutil.rmtree(folder_path)
+    # 更新id_cache.json
+    with open(id_cache_path, 'r') as f:
+        id_cache = json.load(f)
+    if former_name in id_cache:
+        del id_cache[former_name]
+    with open(id_cache_path, 'w') as f:
+        json.dump(id_cache, f, indent=4)
+
 
 if __name__ == '__main__':
     get_all_results()

@@ -48,7 +48,7 @@ def draw_line_chart(dmg_result_df: pd.DataFrame) -> None:
         
         # 时间-失衡效率分布
         # 找到第一次失衡状态为True的索引
-        first_stun_index = filtered_df[filtered_df['失衡状态'] == True].index.min()
+        first_stun_index = filtered_df[filtered_df['失衡状态'] == True].index.min()  # noqa: E712
         if pd.notna(first_stun_index):
             # 只计算第一次失衡状态为True之前的失衡效率
             filtered_df.loc[:first_stun_index, 'stun_efficiency'] = filtered_df.loc[:first_stun_index, 'stun'].cumsum() / filtered_df.loc[:first_stun_index, 'tick'] * 60

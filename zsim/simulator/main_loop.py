@@ -15,14 +15,14 @@ char_data: CharacterData | None = None
 load_data: LoadData | None = None
 schedule_data: ScheduleData | None = None
 global_stats: GlobalStats | None = None
-skills: Skill | None = None
+skills: list[Skill] | None = None
 preload: PreloadClass | None = None
-game_state: dict[str: object] = None
+game_state: dict[str, object] | None = None
 
 
 def check_state_reset():
     """在main_loop开头调用"""
-    current_fingerprint = init_data._init_fingerprint
+    current_fingerprint = init_data._init_fingerprint if init_data else None
     # 如果是第一次运行，记录指纹
     if not hasattr(check_state_reset, 'last_fingerprint'):
         check_state_reset.last_fingerprint = current_fingerprint
@@ -85,27 +85,27 @@ def main_loop(stop_tick: int | None = 10800):
     while True:
         # Tick Update
         # report_to_log(f"[Update] Tick step to {tick}")
-        update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy)
+        update_dynamic_bufflist(global_stats.DYNAMIC_BUFF_DICT, tick, load_data.exist_buff_dict, schedule_data.enemy) # type: ignore
 
         # Preload
-        preload.do_preload(tick, schedule_data.enemy, init_data.name_box, char_data)
-        preload_list = preload.preload_data.preload_action
+        preload.do_preload(tick, schedule_data.enemy, init_data.name_box, char_data) # type: ignore
+        preload_list = preload.preload_data.preload_action # type: ignore
 
         if stop_tick is None:
-            if not APL_MODE and preload.preload_data.skills_queue.head is None:
+            if not APL_MODE and preload.preload_data.skills_queue.head is None: # type: ignore
                 stop_tick = tick + 120
         elif tick >= stop_tick:
             break
 
         # Load
         if preload_list:
-            Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick, load_data.action_stack)
-        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, char_data.char_obj_list, dynamic_buff_dict=global_stats.DYNAMIC_BUFF_DICT)
-        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT, load_data.all_name_order_box)
-        Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy)
+            Load.SkillEventSplit(preload_list, load_data.load_mission_dict, load_data.name_dict, tick, load_data.action_stack) # type: ignore
+        Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, char_data.char_obj_list, dynamic_buff_dict=global_stats.DYNAMIC_BUFF_DICT) # type: ignore
+        Buff.BuffLoadLoop(tick, load_data.load_mission_dict, load_data.exist_buff_dict, init_data.name_box, load_data.LOADING_BUFF_DICT, load_data.all_name_order_box) # type: ignore
+        Buff.buff_add(tick, load_data.LOADING_BUFF_DICT, global_stats.DYNAMIC_BUFF_DICT, schedule_data.enemy) # type: ignore
         # Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, char_data.char_obj_list)
         # ScheduledEvent
-        scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick, load_data.exist_buff_dict, load_data.action_stack)
+        scheduled = ScE.ScheduledEvent(global_stats.DYNAMIC_BUFF_DICT, schedule_data, tick, load_data.exist_buff_dict, load_data.action_stack) # type: ignore
         scheduled.event_start()
         tick += 1
         print(f"\r{tick} ", end='')

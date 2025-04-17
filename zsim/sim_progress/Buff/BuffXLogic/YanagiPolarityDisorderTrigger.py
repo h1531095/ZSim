@@ -61,7 +61,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
 
         # 正确性判断
         if self.record.polarity_disorder_update_signal:
-            raise ValueError(f'上一次极性紊乱的更新信号仍旧存在，请检查代码')
+            raise ValueError('上一次极性紊乱的更新信号仍旧存在，请检查代码')
 
         # 如果检测到穿刺攻击，则进入对应分支——更新连击次数，但是最后要返回False——因为穿刺攻击无法结算极性紊乱；
         if skill_node.skill_tag == '1221_E_EX_1':
@@ -95,7 +95,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(char_CID=1221, enemy=1)
         if not self.record.polarity_disorder_update_signal:
-            raise ValueError(f'在极性紊乱触发信号未激活时，执行了触发函数！')
+            raise ValueError('在极性紊乱触发信号未激活时，执行了触发函数！')
 
         # 根据角色命座，初始化基础倍率
         if self.record.polarity_disorder_basic_dmg_ratio is None:
