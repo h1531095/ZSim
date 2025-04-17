@@ -64,8 +64,7 @@ def process_all_csv_files(directory):
 if __name__ == '__main__':
     # path = './data'
     # process_all_csv_files(path)
-    path = 'F:\GithubProject\ZZZ_Calculator\zsim\data\skill.csv'
-    process_csv_file(path)
-    # process_csv_file('./data/skill.csv')
-    # process_csv_file('./data/character.csv')
-    # process_csv_file('./data/enemy.csv')
+    process_csv_file('./zsim/data/skill.csv')
+    process_csv_file('./zsim/data/character.csv')
+    process_csv_file('./zsim/data/enemy.csv')
+    process_csv_file('./zsim/data/enemy_adjustment.csv')

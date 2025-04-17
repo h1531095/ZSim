@@ -1,12 +1,15 @@
+from typing import Literal
+
 import numpy as np
 import pandas as pd
+from define import ENEMY_ADJUSTMENT_PATH, ENEMY_DATA_PATH
 from sim_progress import AnomalyBar
-from .EnemyAttack import EnemyAttackMethod
-from sim_progress.Report import report_to_log
 from sim_progress.data_struct import SingleHit, decibel_manager_instance
-from define import ENEMY_DATA_PATH
-from .QTEManager import QTEManager
+from sim_progress.Report import report_to_log
+
+from .EnemyAttack import EnemyAttackMethod
 from .EnemyUniqueMechanic import unique_mechanic_factory
+from .QTEManager import QTEManager
 
 
 class EnemySettings:
@@ -19,12 +22,15 @@ class EnemySettings:
 
 
 class Enemy:
-    def __init__(self, 
-                 *, 
-                 enemy_name: str | None = None, 
-                 enemy_index_ID: int | None = None, 
-                 enemy_sub_ID: int | None = None
-                 ):
+    def __init__(
+        self,
+        *,
+        name: str | None = None,
+        index_ID: int | None = None,
+        sub_ID: int | None = None,
+        adjust_ID: int | None = None,
+        difficulty: float = 1,
+    ):
         """
         根据数据库信息创建怪物属性对象。
 
@@ -45,51 +51,77 @@ class Enemy:
         # 读取敌人数据文件，初始化敌人信息
         self.__last_stun_increase_tick: int | None = None
         _raw_enemy_dataframe = pd.read_csv(ENEMY_DATA_PATH)
+        _raw_enemy_adjustment_dataframe = pd.read_csv(ENEMY_ADJUSTMENT_PATH)
         # !!!注意!!!因为可能存在重名敌人的问题，使用中文名称查找怪物时，只会返回ID更靠前的
-        enemy_info = self.__lookup_enemy(_raw_enemy_dataframe, enemy_name, enemy_index_ID, enemy_sub_ID)
+        enemy_info = self.__lookup_enemy(_raw_enemy_dataframe, name, index_ID, sub_ID)
         self.name, self.index_ID, self.sub_ID, self.data_dict = enemy_info
+        # 获取调整倍率
+        enemy_adjust: dict[
+            Literal["生命值", "攻击力", "失衡值上限", "防御力", "异常积蓄值上限"], float
+        ] = self.__lookup_enemy_adjustment(_raw_enemy_adjustment_dataframe, adjust_ID)
+        # 难度
+        self.difficulty: float = difficulty
         # 初始化动态属性
         self.dynamic = self.EnemyDynamic()
         # 初始化敌人基础属性
-        self.max_HP: float = float(self.data_dict['70级最大生命值'])
-        self.max_ATK: float = float(self.data_dict['70级最大攻击力'])
-        self.max_stun: float = float(self.data_dict['70级最大失衡值上限'])
-        self.max_DEF: float = float(self.data_dict['60级及以上防御力'])
-        self.CRIT_damage: float = float(self.data_dict['暴击伤害'])
-        self.able_to_be_stunned: bool = bool(self.data_dict['能否失衡'])
-        self.able_to_get_anomaly: bool = bool(self.data_dict['能否异常'])
-        self.stun_recovery_rate: float = float(self.data_dict['失衡恢复速度']) / 60
+        self.max_HP: float = (
+            float(self.data_dict["70级最大生命值"])
+            * (1 + enemy_adjust["生命值"])
+            * difficulty
+        )
+        self.max_ATK: float = (
+            float(self.data_dict["70级最大攻击力"])
+            * (1 + enemy_adjust["攻击力"])
+            * difficulty
+        )
+        self.max_stun: float = (
+            float(self.data_dict["70级最大失衡值上限"])
+            * (1 + enemy_adjust["失衡值上限"])
+            * difficulty
+        )
+        self.max_DEF: float = (
+            float(self.data_dict["60级及以上防御力"])
+            * (1 + enemy_adjust["防御力"])
+            * difficulty
+        )
+        self.CRIT_damage: float = float(self.data_dict["暴击伤害"])
+        self.able_to_be_stunned: bool = bool(self.data_dict["能否失衡"])
+        self.able_to_get_anomaly: bool = bool(self.data_dict["能否异常"])
+        self.stun_recovery_rate: float = float(self.data_dict["失衡恢复速度"]) / 60
         self.stun_recovery_time: float = 0.0
         self.qte_manager: QTEManager | None = None
-        self.stun_DMG_take_ratio: float = float(self.data_dict['失衡易伤值'])
-        self.QTE_triggerable_times: int = int(self.data_dict['可连携次数'])
+        self.stun_DMG_take_ratio: float = float(self.data_dict["失衡易伤值"])
+        self.QTE_triggerable_times: int = int(self.data_dict["可连携次数"])
         # 初始化敌人异常状态抗性
-        max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(self.able_to_get_anomaly,
-                                                                              self.QTE_triggerable_times)
+        max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(
+            self.able_to_get_anomaly, self.QTE_triggerable_times, difficulty
+        )
 
-        self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = self.max_anomaly_ELECTRIC = self.max_anomaly_FIREICE = max_element_anomaly
+        self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = (
+            self.max_anomaly_ELECTRIC
+        ) = self.max_anomaly_FIREICE = max_element_anomaly
 
         # 初始化敌人其他防御属性
-        self.interruption_resistance_level: int = int(self.data_dict['抗打断等级'])
-        self.freeze_resistance: float = float(self.data_dict['冻结抵抗'])
+        self.interruption_resistance_level: int = int(self.data_dict["抗打断等级"])
+        self.freeze_resistance: float = float(self.data_dict["冻结抵抗"])
         # 伤害抗性
-        self.ICE_damage_resistance: float = float(self.data_dict['冰伤害抗性'])
-        self.FIRE_damage_resistance: float = float(self.data_dict['火伤害抗性'])
-        self.ELECTRIC_damage_resistance: float = float(self.data_dict['电伤害抗性'])
-        self.ETHER_damage_resistance: float = float(self.data_dict['以太伤害抗性'])
-        self.PHY_damage_resistance: float = float(self.data_dict['物理伤害抗性'])
+        self.ICE_damage_resistance: float = float(self.data_dict["冰伤害抗性"])
+        self.FIRE_damage_resistance: float = float(self.data_dict["火伤害抗性"])
+        self.ELECTRIC_damage_resistance: float = float(self.data_dict["电伤害抗性"])
+        self.ETHER_damage_resistance: float = float(self.data_dict["以太伤害抗性"])
+        self.PHY_damage_resistance: float = float(self.data_dict["物理伤害抗性"])
         # 异常抗性
-        self.ICE_anomaly_resistance: float = float(self.data_dict['冰异常抗性'])
-        self.FIRE_anomaly_resistance: float = float(self.data_dict['火异常抗性'])
-        self.ELECTRIC_anomaly_resistance: float = float(self.data_dict['电异常抗性'])
-        self.ETHER_anomaly_resistance: float = float(self.data_dict['以太异常抗性'])
-        self.PHY_anomaly_resistance: float = float(self.data_dict['物理异常抗性'])
+        self.ICE_anomaly_resistance: float = float(self.data_dict["冰异常抗性"])
+        self.FIRE_anomaly_resistance: float = float(self.data_dict["火异常抗性"])
+        self.ELECTRIC_anomaly_resistance: float = float(self.data_dict["电异常抗性"])
+        self.ETHER_anomaly_resistance: float = float(self.data_dict["以太异常抗性"])
+        self.PHY_anomaly_resistance: float = float(self.data_dict["物理异常抗性"])
         # 失衡抗性
-        self.ICE_stun_resistance: float = float(self.data_dict['冰失衡抗性'])
-        self.FIRE_stun_resistance: float = float(self.data_dict['火失衡抗性'])
-        self.ELECTRIC_stun_resistance: float = float(self.data_dict['电失衡抗性'])
-        self.ETHER_stun_resistance: float = float(self.data_dict['以太失衡抗性'])
-        self.PHY_stun_resistance: float = float(self.data_dict['物理失衡抗性'])
+        self.ICE_stun_resistance: float = float(self.data_dict["冰失衡抗性"])
+        self.FIRE_stun_resistance: float = float(self.data_dict["火失衡抗性"])
+        self.ELECTRIC_stun_resistance: float = float(self.data_dict["电失衡抗性"])
+        self.ETHER_stun_resistance: float = float(self.data_dict["以太失衡抗性"])
+        self.PHY_stun_resistance: float = float(self.data_dict["物理失衡抗性"])
         # 各抗性对应字典
         self.damage_resistance_dict: dict[int, float] = {
             0: self.PHY_damage_resistance,
@@ -97,7 +129,7 @@ class Enemy:
             2: self.ICE_damage_resistance,
             3: self.ELECTRIC_damage_resistance,
             4: self.ETHER_damage_resistance,
-            5: self.ICE_damage_resistance
+            5: self.ICE_damage_resistance,
         }
         self.anomaly_resistance_dict: dict[int, float] = {
             0: self.PHY_anomaly_resistance,
@@ -105,7 +137,7 @@ class Enemy:
             2: self.ICE_anomaly_resistance,
             3: self.ELECTRIC_anomaly_resistance,
             4: self.ETHER_anomaly_resistance,
-            5: self.ICE_anomaly_resistance
+            5: self.ICE_anomaly_resistance,
         }
         self.stun_resistance_dict: dict[int, float] = {
             0: self.PHY_stun_resistance,
@@ -113,7 +145,7 @@ class Enemy:
             2: self.ICE_stun_resistance,
             3: self.ELECTRIC_stun_resistance,
             4: self.ETHER_stun_resistance,
-            5: self.ICE_stun_resistance
+            5: self.ICE_stun_resistance,
         }
 
         # 初始化敌人设置
@@ -121,8 +153,22 @@ class Enemy:
         self.__apply_settings(self.settings)
 
         # 下面的两个dict本来写在外面的，但是别的程序也要用这两个dict，所以索性写进来了。我是天才。
-        self.trans_element_number_to_str = {0: 'PHY', 1: 'FIRE', 2: 'ICE', 3: 'ELECTRIC', 4: 'ETHER', 5: 'FIREICE'}
-        self.trans_anomaly_effect_to_str = {0: 'assault', 1: 'burn', 2: 'frostbite', 3: 'shock', 4: 'corruption', 5: 'frost_frostbite'}
+        self.trans_element_number_to_str = {
+            0: "PHY",
+            1: "FIRE",
+            2: "ICE",
+            3: "ELECTRIC",
+            4: "ETHER",
+            5: "FIREICE",
+        }
+        self.trans_anomaly_effect_to_str = {
+            0: "assault",
+            1: "burn",
+            2: "frostbite",
+            3: "shock",
+            4: "corruption",
+            5: "frost_frostbite",
+        }
 
         # enemy实例化的时候，6种异常积蓄条也随着一起实例化
         self.frost_anomaly_bar = AnomalyBar.FrostAnomaly()
@@ -151,22 +197,26 @@ class Enemy:
         # 在初始化阶段更新属性异常条最大值。
         for element_type in self.anomaly_bars_dict:
             anomaly_bar = self.anomaly_bars_dict[element_type]
-            max_value = getattr(self, f'max_anomaly_{self.trans_element_number_to_str[element_type]}')
+            max_value = getattr(
+                self, f"max_anomaly_{self.trans_element_number_to_str[element_type]}"
+            )
             anomaly_bar.max_anomaly = max_value
 
-        if self.data_dict['进攻策略'] is None or self.data_dict['进攻策略'] is np.nan:
+        if self.data_dict["进攻策略"] is None or self.data_dict["进攻策略"] is np.nan:
             attack_method_code = 0
         else:
-            attack_method_code = int(self.data_dict['进攻策略'])
+            attack_method_code = int(self.data_dict["进攻策略"])
         self.attack_method = EnemyAttackMethod(attack_method_code)
         self.restore_stun()
 
-        self.unique_machanic_manager = unique_mechanic_factory(self)        # 特殊机制管理器
+        self.unique_machanic_manager = unique_mechanic_factory(self)  # 特殊机制管理器
 
-        report_to_log(f'[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}', level=4)
+        report_to_log(
+            f"[ENEMY]: 怪物对象 {self.name} 已创建，怪物ID {self.index_ID}", level=4
+        )
 
     def __restore_stun_recovery_time(self):
-        self.stun_recovery_time = float(self.data_dict['失衡恢复时间']) * 60
+        self.stun_recovery_time = float(self.data_dict["失衡恢复时间"]) * 60
 
     def restore_stun(self):
         """还原 Enemy 本身的失衡恢复时间，与QTE计数"""
@@ -195,15 +245,18 @@ class Enemy:
             if anomaly_bar.active:
                 output_list.append(self.dynamic.active_anomaly_bar_dict[element_type])
         if len(output_list) == 0 or len(output_list) > 1:
-            raise ValueError(f'状态错误！找到了{len(output_list)}种正在激活的属性异常条！')
+            raise ValueError(
+                f"状态错误！找到了{len(output_list)}种正在激活的属性异常条！"
+            )
         return output_list[0]
 
-
     @staticmethod
-    def __lookup_enemy(enemy_data: pd.DataFrame,
-                       enemy_name: str | None = None,
-                       enemy_index_ID: int | None = None,
-                       enemy_sub_ID: int | None = None) -> tuple[str, int, int, dict]:
+    def __lookup_enemy(
+        enemy_df: pd.DataFrame,
+        enemy_name: str | None = None,
+        enemy_index_ID: int | None = None,
+        enemy_sub_ID: int | None = None,
+    ) -> tuple[str, int, int, dict]:
         """
         根据敌人名称或ID查找敌人信息，并返回敌人名称、IndexID和SubID。
 
@@ -212,7 +265,7 @@ class Enemy:
         因此，在已经输入了ID的情况下，函数不会优先根据中文名查找
 
         参数:
-        - enemy_data: pd.DataFrame, 敌人数据 DataFrame，包含敌人信息。
+        - enemy_df: pd.DataFrame, 敌人数据 DataFrame，包含敌人信息。
         - enemy_name: str, 可选，敌人名称。
         - enemy_index_ID: int, 可选，敌人IndexID。
         - enemy_sub_ID: int, 可选，敌人SubID。
@@ -221,22 +274,24 @@ class Enemy:
         - 有传入参数时，返回对应怪物的数据
         - 无传入参数时，返回尼尼微的数据
         """
+        # fmt: off
         try:
             if enemy_index_ID is not None:
-                row = enemy_data[enemy_data["IndexID"] == enemy_index_ID].to_dict('records')
+                row = enemy_df[enemy_df["IndexID"] == enemy_index_ID].to_dict("records")
             elif enemy_sub_ID is not None:
-                row = enemy_data[enemy_data["SubID"] == enemy_sub_ID].to_dict('records')
+                row = enemy_df[enemy_df["SubID"] == enemy_sub_ID].to_dict("records")
             elif enemy_name is not None:
-                row = enemy_data[enemy_data["CN_enemy_ID"] == enemy_name].to_dict('records')
+                row = enemy_df[enemy_df["CN_enemy_ID"] == enemy_name].to_dict("records")
             else:
-                row = enemy_data[enemy_data["IndexID"] == 11531].to_dict('records')  # 默认打尼尼微（因为全部0抗）
+                row = enemy_df[enemy_df["IndexID"] == 11531].to_dict("records")  # 默认打尼尼微（因为全部0抗）
         except IndexError:
             raise ValueError("找不到对应的敌人")
+        # fmt: on
 
         row_0: dict = row[0]
-        name: str = row_0['CN_enemy_ID']
-        index_ID: int = int(row_0['IndexID'])
-        sub_ID: int = int(row_0['SubID'])
+        name: str = row_0["CN_enemy_ID"]
+        index_ID: int = int(row_0["IndexID"])
+        sub_ID: int = int(row_0["SubID"])
 
         # 检查输入的变量与查到的变量是否一致
         if enemy_name is not None:
@@ -251,8 +306,25 @@ class Enemy:
 
         return name, index_ID, sub_ID, row_0
 
+    def __lookup_enemy_adjustment(
+        adjust_df: pd.DataFrame, adjust_ID: int
+    ) -> dict[
+        Literal["生命值", "攻击力", "失衡值上限", "防御力", "异常积蓄值上限"], float
+    ]:
+        """根据调整ID查找敌人调整数据，并返回调整数据字典。"""
+        try:
+            row = adjust_df[adjust_df["ID"] == adjust_ID].to_dict("records")
+        except IndexError:
+            raise ValueError(f"找不到属性调整ID：{adjust_ID}")
+        row_0: dict[
+            Literal["生命值", "攻击力", "失衡值上限", "防御力", "异常积蓄值上限"], float
+        ] = dict(row[0])
+        return row_0
+
     @staticmethod
-    def __init_enemy_anomaly(able_to_get_anomaly: bool, QTE_triggerable_times: int) -> tuple[int | float, int | float]:
+    def __init_enemy_anomaly(
+        able_to_get_anomaly: bool, QTE_triggerable_times: int, difficulty: float
+    ) -> tuple[int | float, int | float]:
         """
         根据敌人的异常能力和QTE触发次数(怪物等阶)初始化敌人的异常值。
 
@@ -265,7 +337,7 @@ class Enemy:
         """
         if able_to_get_anomaly:
             # 定义基础异常值
-            base_anomaly = 150
+            base_anomaly = 150 * difficulty
             # 定义物理异常值的乘数
             physical_anomaly_mul = 1.2
             # 计算物理异常值
@@ -296,7 +368,7 @@ class Enemy:
     def __qte_tag_filter(self, tag: str) -> list[str]:
         """判断输入的标签是否为QTE，并作为列表返回"""
         result = []
-        if 'QTE' in tag:
+        if "QTE" in tag:
             result.append(tag)
         return result
 
@@ -305,7 +377,9 @@ class Enemy:
 
         # 参数类型检查
         if not isinstance(element, (str, int)):
-            raise TypeError(f"element参数类型错误，必须是整数或字符串，实际类型为{type(element)}")
+            raise TypeError(
+                f"element参数类型错误，必须是整数或字符串，实际类型为{type(element)}"
+            )
         if not isinstance(times, int):
             raise TypeError(f"times参数必须是整数，实际类型为{type(times)}")
         if times <= 0:
@@ -313,13 +387,13 @@ class Enemy:
 
         # 属性类型映射表
         element_mapping: dict[str, tuple] = {
-            'PHY': ('物理', 0),
-            'FIRE': ('火', 1),
-            'ICE': ('冰', 2),
-            'ELECTRIC': ('电', 3),
-            'ETHER': ('以太', 4),
-            'FROST': ('烈霜', 'FIREICE', 5),
-            'ALL': ('全部', '所有')
+            "PHY": ("物理", 0),
+            "FIRE": ("火", 1),
+            "ICE": ("冰", 2),
+            "ELECTRIC": ("电", 3),
+            "ETHER": ("以太", 4),
+            "FROST": ("烈霜", "FIREICE", 5),
+            "ALL": ("全部", "所有"),
         }
         # 检查并标准化元素
         if isinstance(element, str):
@@ -348,10 +422,10 @@ class Enemy:
             raise ValueError(f"times参数过大，可能导致性能问题，实际值为{times}")
 
         # 计算最终更新比例
-        multiplier = update_ratio ** times
+        multiplier = update_ratio**times
 
         # 批量更新异常值
-        if element == 'ALL':
+        if element == "ALL":
             self.max_anomaly_ICE *= multiplier
             self.max_anomaly_FIRE *= multiplier
             self.max_anomaly_ETHER *= multiplier
@@ -360,17 +434,17 @@ class Enemy:
             self.max_anomaly_FIREICE *= multiplier
         else:
             # 单个元素更新
-            if element == 'ICE':
+            if element == "ICE":
                 self.max_anomaly_ICE *= multiplier
-            elif element == 'FIRE':
+            elif element == "FIRE":
                 self.max_anomaly_FIRE *= multiplier
-            elif element == 'ETHER':
+            elif element == "ETHER":
                 self.max_anomaly_ETHER *= multiplier
-            elif element == 'ELECTRIC':
+            elif element == "ELECTRIC":
                 self.max_anomaly_ELECTRIC *= multiplier
-            elif element == 'PHY':
+            elif element == "PHY":
                 self.max_anomaly_PHY *= multiplier
-            elif element == 'FROST':
+            elif element == "FROST":
                 self.max_anomaly_FIREICE *= multiplier
 
     def update_stun(self, stun: np.float64) -> None:
@@ -405,7 +479,7 @@ class Enemy:
 
     def stun_judge(self, _tick: int, **kwargs) -> bool:
         """判断敌人是否处于 失衡 状态，并更新 失衡 状态"""
-        single_hit = kwargs.get('single_hit', None)
+        single_hit = kwargs.get("single_hit", None)
         if not self.able_to_be_stunned:
             self.dynamic.stun_update_tick = _tick
             return False
@@ -417,19 +491,21 @@ class Enemy:
                 self.restore_stun()
             else:
                 if _tick - self.dynamic.stun_update_tick > 1:
-                    raise ValueError('状态更新间隔大于1！存在多个tick都未更新stun的情况！')
-                self.dynamic.stun_bar = 0   # 避免 log 差错
+                    raise ValueError(
+                        "状态更新间隔大于1！存在多个tick都未更新stun的情况！"
+                    )
+                self.dynamic.stun_bar = 0  # 避免 log 差错
                 self.dynamic.stun_update_tick = _tick
                 self.dynamic.stun_tick += 1
         elif self.dynamic.stun_bar >= self.max_stun:
             # 若是检测到失衡状态的上升沿，则应该开启彩色失衡状态。
             self.qte_manager.qte_data.reset()
-            print('怪物陷入失衡了！')
+            print("怪物陷入失衡了！")
             self.dynamic.stun = True
             self.dynamic.stun_bar = 0  # 避免 log 差错
             self.dynamic.stun_update_tick = _tick
             if single_hit:
-                decibel_manager_instance.update(single_hit=single_hit, key='stun')
+                decibel_manager_instance.update(single_hit=single_hit, key="stun")
 
         return self.dynamic.stun
 
@@ -438,11 +514,11 @@ class Enemy:
         self.dynamic.lost_hp += dmg_expect
         if (minus := self.max_HP - self.dynamic.lost_hp) <= 0:
             self.dynamic.lost_hp = -1 * minus
-            report_to_log(f'怪物{self.name}死亡！')
+            report_to_log(f"怪物{self.name}死亡！")
 
     def __anomaly_prod(self, snapshot: tuple[int, np.float64, np.ndarray]) -> None:
         """用于更新异常条的角色面板快照"""
-        if snapshot[1] >= 1e-6: # 确保非零异常值才更新
+        if snapshot[1] >= 1e-6:  # 确保非零异常值才更新
             element_type_code = snapshot[0]
             updated_bar = self.anomaly_bars_dict[element_type_code]
             updated_bar.update_snap_shot(snapshot)
@@ -457,17 +533,23 @@ class Enemy:
 
     def reset_anomaly_bars(self):
         """重置异常条！"""
-        max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(self.able_to_get_anomaly, self.QTE_triggerable_times)
-        self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = self.max_anomaly_ELECTRIC = self.max_anomaly_FIREICE = max_element_anomaly
+        max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(
+            self.able_to_get_anomaly, self.QTE_triggerable_times, self.difficulty
+        )
+        self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = (
+            self.max_anomaly_ELECTRIC
+        ) = self.max_anomaly_FIREICE = max_element_anomaly
         for element_type, anomaly_bar in self.anomaly_bars_dict.items():
             anomaly_bar.reset_myself()
-            max_value = getattr(self, f'max_anomaly_{self.trans_element_number_to_str[element_type]}')
+            max_value = getattr(
+                self, f"max_anomaly_{self.trans_element_number_to_str[element_type]}"
+            )
             anomaly_bar.max_anomaly = max_value
 
     class EnemyDynamic:
         def __init__(self):
             self.stun = False  # 失衡状态
-            self.stun_update_tick = 0   # 上次更新失衡状态的时间
+            self.stun_update_tick = 0  # 上次更新失衡状态的时间
             self.frozen = False  # 冻结状态
             self.frostbite = False  # 霜寒状态
             self.frost_frostbite = False  # 烈霜霜寒状态
@@ -476,12 +558,14 @@ class Enemy:
             self.burn = False  # 灼烧状态
             self.corruption = False  # 侵蚀状态
 
-            self.dynamic_debuff_list = []   # 用来装debuff的list
-            self.dynamic_dot_list = []      # 用来装dot的list
-            self.active_anomaly_bar_dict = {number: AnomalyBar for number in range(6)}    # 用来装激活属性异常的字典。
+            self.dynamic_debuff_list = []  # 用来装debuff的list
+            self.dynamic_dot_list = []  # 用来装dot的list
+            self.active_anomaly_bar_dict = {
+                number: AnomalyBar for number in range(6)
+            }  # 用来装激活属性异常的字典。
 
-            self.stun_bar = 0   # 累计失衡条
-            self.lost_hp = 0    # 已损生命值
+            self.stun_bar = 0  # 累计失衡条
+            self.lost_hp = 0  # 已损生命值
             self.stun_tick = 0  # 失衡已进行时间
 
             self.frozen_tick = 0
@@ -496,16 +580,16 @@ class Enemy:
 
         def get_status(self) -> dict:
             return {
-                '失衡状态': self.stun,
-                '失衡条': self.stun_bar,
-                '已损生命值': self.lost_hp,
-                '冻结': self.frozen,
-                '霜寒': self.frostbite,
-                '畏缩': self.assault,
-                '感电': self.shock,
-                '灼烧': self.burn,
-                '侵蚀': self.corruption,
-                '烈霜霜寒': self.frost_frostbite,
+                "失衡状态": self.stun,
+                "失衡条": self.stun_bar,
+                "已损生命值": self.lost_hp,
+                "冻结": self.frozen,
+                "霜寒": self.frostbite,
+                "畏缩": self.assault,
+                "感电": self.shock,
+                "灼烧": self.burn,
+                "侵蚀": self.corruption,
+                "烈霜霜寒": self.frost_frostbite,
             }
 
         def reset_myself(self):
@@ -533,23 +617,21 @@ class Enemy:
 
         def is_under_anomaly(self) -> bool:
             """若敌人正处于任意一种异常状态下，都会返回True"""
-            return any([
-                self.frostbite,
-                self.frost_frostbite,
-                self.assault,
-                self.burn,
-                self.corruption,
-                self.shock
-            ])
-
+            return any(
+                [
+                    self.frostbite,
+                    self.frost_frostbite,
+                    self.assault,
+                    self.burn,
+                    self.corruption,
+                    self.shock,
+                ]
+            )
 
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"
 
 
-
-if __name__ == '__main__':
-    test = Enemy(enemy_index_ID=11432, enemy_sub_ID=900011432)
+if __name__ == "__main__":
+    test = Enemy(index_ID=11432, sub_ID=900011432)
     print(test.ice_anomaly_bar.max_anomaly)
-
-

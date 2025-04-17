@@ -1,13 +1,14 @@
 import json
-import toml
 from pathlib import Path
-from typing import Literal, Callable
+from typing import Callable, Literal
+
+import toml
 
 # 属性类型：
 ElementType = Literal[0, 1, 2, 3, 4, 5]
 
 INVALID_ELEMENT_ERROR = "Invalid element type"
-ID_CACHE_JSON = 'results/id_cache.json'
+ID_CACHE_JSON = "results/id_cache.json"
 
 # 加载角色配置
 data_dir = Path("./zsim/data")
@@ -20,31 +21,40 @@ if char_config_file.exists():
 else:
     raise FileNotFoundError(f"Character config file {char_config_file} not found.")
 
-CONFIG_PATH = 'zsim/config.json'
+CONFIG_PATH = "zsim/config.json"
 _config = json.load(open(CONFIG_PATH, encoding="utf-8-sig"))
 
-APL_MODE: bool = _config['apl_mode']['enabled']
-SWAP_CANCEL: bool = _config['swap_cancel_mode']['enabled']
-APL_PATH: str = _config['database']['APL_FILE_PATH']
-APL_NA_ORDER_PATH: str = _config['apl_mode']['na_order']
-ENEMY_RANDOM_ATTACK: str = _config['apl_mode']['enemy_random_attack']
-ENEMY_ATTACK_RESPONSE: bool = _config['apl_mode']['enemy_attack_response']
-ENEMY_ATTACK_METHOD_CONFIG: str = _config['apl_mode']['enemy_attack_method_config']
-ENEMY_ATTACK_ACTION: str = _config['apl_mode']['enemy_attack_action_data']
-DEFAULT_APL_DIR: str = _config['apl_mode']['default_apl_dir']
-COSTOM_APL_DIR: str = _config['apl_mode']['custom_apl_dir']
-YANAGI_NA_ORDER: str = _config['apl_mode']['Yanagi']
+# 敌人配置
+ENEMY_INDEX_ID: int = _config["enemy"]["sub_ID"]
+ENEMY_ADJUST_ID: int = _config["enemy"]["adjust_ID"]
+ENEMY_DIFFICULTY: float = _config["enemy"]["difficulty"]
+
+# APL模式配置
+APL_MODE: bool = _config["apl_mode"]["enabled"]
+SWAP_CANCEL: bool = _config["swap_cancel_mode"]["enabled"]
+APL_PATH: str = _config["database"]["APL_FILE_PATH"]
+APL_NA_ORDER_PATH: str = _config["apl_mode"]["na_order"]
+ENEMY_RANDOM_ATTACK: str = _config["apl_mode"]["enemy_random_attack"]
+ENEMY_ATTACK_RESPONSE: bool = _config["apl_mode"]["enemy_attack_response"]
+ENEMY_ATTACK_METHOD_CONFIG: str = _config["apl_mode"]["enemy_attack_method_config"]
+ENEMY_ATTACK_ACTION: str = _config["apl_mode"]["enemy_attack_action_data"]
+DEFAULT_APL_DIR: str = _config["apl_mode"]["default_apl_dir"]
+COSTOM_APL_DIR: str = _config["apl_mode"]["custom_apl_dir"]
+YANAGI_NA_ORDER: str = _config["apl_mode"]["Yanagi"]
 
 #: 合轴操作完成度系数->根据前一个技能帧数的某个比例来延后合轴
-SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT: float = _config['swap_cancel_mode']['completion_coefficient']
+SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT: float = _config["swap_cancel_mode"][
+    "completion_coefficient"
+]
 
 #: 操作滞后系数->合轴操作延后的另一种迟滞方案，即固定值延后。
-SWAP_CANCEL_MODE_LAG_TIME: float = _config['swap_cancel_mode']['lag_time']
+SWAP_CANCEL_MODE_LAG_TIME: float = _config["swap_cancel_mode"]["lag_time"]
 CHARACTER_DATA_PATH: str = _config["database"]["CHARACTER_DATA_PATH"]
 WEAPON_DATA_PATH: str = _config["database"]["WEAPON_DATA_PATH"]
 EQUIP_2PC_DATA_PATH: str = _config["database"]["EQUIP_2PC_DATA_PATH"]
 SKILL_DATA_PATH: str = _config["database"]["SKILL_DATA_PATH"]
 ENEMY_DATA_PATH: str = _config["database"]["ENEMY_DATA_PATH"]
+ENEMY_ADJUSTMENT_PATH: str = _config["database"]["ENEMY_ADJUSTMENT_PATH"]
 DEFAULT_SKILL_PATH: str = _config["database"]["DEFAULT_SKILL_PATH"]
 CRIT_BALANCING: bool = _config["character"]["crit_balancing"]
 DEBUG: bool = _config["debug"]["enabled"]
@@ -55,24 +65,24 @@ EXIST_FILE_PATH: str = _config["database"]["EXIST_FILE_PATH"]
 BUFF_LOADING_CONDITION_TRANSLATION_DICT: dict = _config["translate"]
 ENABLE_WATCHDOG = _config["watchdog"]["enabled"]
 WATCHDOG_LEVEL = _config["watchdog"]["level"]
-INPUT_ACTION_LIST = ''      # 半废弃
+INPUT_ACTION_LIST = ""  # 半废弃
 
 
-compare_methods_mapping: dict[str, Callable[[float|int, float|int], bool]] = {
-    '<': lambda a, b: a < b,
-    '<=': lambda a, b: a <= b,
-    '>': lambda a, b: a > b,
-    '>=': lambda a, b: a >= b,
-    '==': lambda a, b: a == b,
-    '!=': lambda a, b: a != b
+compare_methods_mapping: dict[str, Callable[[float | int, float | int], bool]] = {
+    "<": lambda a, b: a < b,
+    "<=": lambda a, b: a <= b,
+    ">": lambda a, b: a > b,
+    ">=": lambda a, b: a >= b,
+    "==": lambda a, b: a == b,
+    "!=": lambda a, b: a != b,
 }
 ANOMALY_MAPPING: dict[ElementType, str] = {
-    0: '强击',
-    1: '灼烧',
-    2: '碎冰',
-    3: '感电',
-    4: '侵蚀',
-    5: '烈霜碎冰'
+    0: "强击",
+    1: "灼烧",
+    2: "碎冰",
+    3: "感电",
+    4: "侵蚀",
+    5: "烈霜碎冰",
 }
 
 if __name__ == "__main__":
@@ -81,7 +91,9 @@ if __name__ == "__main__":
         # 获取当前全局命名空间
         global_vars = globals()
         # 筛选出所有全大写的变量名及其值
-        constant_names_and_values = {name: value for name, value in global_vars.items() if name.isupper()}
+        constant_names_and_values = {
+            name: value for name, value in global_vars.items() if name.isupper()
+        }
         # 打印这些变量名及其值
         for name, value in constant_names_and_values.items():
             print(f"{name}: {value}")
