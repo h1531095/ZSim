@@ -24,8 +24,8 @@ class Yanagi(Character):
             buff_add_strategy(self.cinme_1_buff_index)
             if self.cinema >= 4:
                 for _anomaly in anomalies:
-                    if isinstance(_anomaly.actived_by, SkillNode):
-                        if str(self.CID) in _anomaly.actived_by.skill_tag:
+                    if isinstance(_anomaly.activate_by, SkillNode):
+                        if str(self.CID) in _anomaly.activate_by.skill_tag:
                             buff_add_strategy(self.cinema_4_buff_index)
                             break
 
