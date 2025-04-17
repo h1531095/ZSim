@@ -10,7 +10,6 @@ class Vivian(Character):
         super().__init__(**kwargs)
         self.feather_manager = FeatherManager(self)     # 羽毛管理器（飞羽、护羽的获取、切换）
 
-
     def special_resources(self, *args, **kwargs) -> None:
         # 输入类型检查
         skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)

@@ -9,6 +9,7 @@ class FeatherManager:
         self.flight_feather = 2                     # 飞羽，进场初始化为4层
         self.guard_feather = 0                    # 护羽，初始化为0层
         self.feather_max_count = 5            # 最大飞羽/护羽层数，默认为6层
+        self.co_attack_index = '1331_CoAttack_A'
 
     def trans_feather(self):
         """将现有的飞羽全部转化成护羽：注意，飞羽转化为护羽的时间点为SNA_2的最后一跳，所以这里不能走特殊资源，只能从触发器走。"""
@@ -24,3 +25,7 @@ class FeatherManager:
             return
         flight_feather_count = skill_node.labels['flight_feather']
         self.flight_feather = min(self.flight_feather + flight_feather_count, self.feather_max_count)
+
+    def spawn_coattack(self):
+
+        return self.co_attack_index

@@ -21,7 +21,6 @@ class NewAnomaly(AnomalyBar):
     """
     普通的异常类，仅用于非紊乱的属性异常更新。
     """
-
     def __init__(self, Output_bar: AnomalyBar, active_by):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
@@ -35,7 +34,6 @@ class PolarityDisorder(AnomalyBar):
     极性紊乱伤害 = 紊乱伤害 * 本次极性紊乱倍率（解锁2命后可变）+ 附加3200% * 精通的伤害
     构造时，不仅需要提供被复制的异常条，还需要提供连击次数（用来计算极性紊乱比例），还需要提供触发者ID（CID或者enemy）
     """
-
     def __init__(self, Output_bar: AnomalyBar, _polarity_disorder_ratio, active_by):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
