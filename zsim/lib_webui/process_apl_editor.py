@@ -41,14 +41,65 @@ class APLArchive:
         return self.title_apl_map.get(title, {}).get('general', {})
     
     def change_title(self, former_title: str, new_title: str, new_comment: str = None):
-        raise NotImplementedError()
-        """
-        Step 1：检查原名称是否存在
-        Step 2：检查新名称是否存在
-        Step 3：检查新名称是否与原名称相同
-        Step 4：查询老名称对应的toml文件路径
-        Step 5：更新toml的title和comment
-        """
+        # Step 1: Check if the former title exists
+        if former_title not in self.title_apl_map.keys():
+            st.error(f"错误：原标题 '{former_title}' 不存在。")
+            return
+
+        # Step 2: Check if the new title already exists (and is not the same as the former title)
+        if new_title != former_title and new_title in self.title_apl_map.keys():
+            st.error(f"错误：新标题 '{new_title}' 已被其他APL使用。")
+            return
+
+        # Step 3: Check if the new title is the same as the former title
+        if new_title == former_title and new_comment == self.title_apl_map.get(former_title).get('general', {}).get('comment', None):
+            st.warning("新旧标题相同，且未提供新注释，无需更改。")
+            return
+
+        # Step 4: Get the relative path for the former title
+        relative_path = self.title_path_map.get(former_title)
+        if not relative_path:
+            st.error(f"内部错误：找不到标题 '{former_title}' 对应的文件路径。") # Should not happen if step 1 passed
+            return
+
+        # Determine the absolute path
+        if relative_path in self.default_apl_map:
+            base_dir = DEFAULT_APL_DIR
+        elif relative_path in self.custom_apl_map:
+            base_dir = COSTOM_APL_DIR
+        else:
+             st.error(f"内部错误：无法确定文件 '{relative_path}' 的所属目录。") # Should not happen
+             return
+        
+        absolute_path = os.path.abspath(os.path.join(base_dir, relative_path))
+
+        # Step 5 & 6: Update the title and comment in the TOML file and save
+        try:
+            with open(absolute_path, 'r', encoding='utf-8') as f:
+                apl_data = toml.load(f)
+            
+            if 'general' not in apl_data:
+                apl_data['general'] = {}
+                
+            apl_data['general']['title'] = new_title
+            if new_comment is not None:
+                apl_data['general']['comment'] = new_comment
+            # Optionally update latest_change_time
+            # from datetime import datetime
+            # apl_data['general']['latest_change_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            with open(absolute_path, 'w', encoding='utf-8') as f:
+                toml.dump(apl_data, f)
+                
+            st.success(f"APL '{former_title}' 已成功重命名为 '{new_title}'。")
+
+            # Step 7: Refresh the APL archive
+            self.refresh()
+
+        except FileNotFoundError:
+            st.error(f"错误：找不到文件 '{absolute_path}'。")
+        except Exception as e:
+            st.error(f"保存APL文件时出错：{e}")
         
     def __get_apl_toml(self, apl_path: str) -> dict[str, dict]:
         """根据APL地址获取APL toml的内容
@@ -174,7 +225,7 @@ def listed_alp_options():
         def show_apl_detail():
             general = apl_archive.get_general(selected_title)
             st.markdown(f"""
-                <div style='background-color: var(--background-color); padding: 20px; border-radius: 10px; 
+                <div style='background-color: var(--secondary-background-color); padding: 20px; border-radius: 10px;
                      border: 1px solid var(--primary-color);'>
                     <h3 style='color: var(--primary-color); margin-bottom: 15px;'>{general.get('title', '无标题')}</h3>
                     <div style='margin-left: 10px;'>
@@ -190,6 +241,17 @@ def listed_alp_options():
         if st.button("更多", use_container_width=True):
             show_apl_detail()
     with col3:
-        st.button("重命名", use_container_width=True)
+        @st.dialog("APL重命名")
+        def rename_apl():
+            relative_path = apl_archive.title_path_map.get(selected_title)
+            if relative_path in apl_archive.default_apl_map:
+                st.warning("警告：正在修改默认APL，这通常不被推荐。", icon="⚠️")
+            new_title = st.text_input("新标题", value=selected_title)
+            new_comment = st.text_input("新注释", value=apl_archive.get_general(selected_title).get('comment', ''))
+            if st.button("确定", use_container_width=True):
+                apl_archive.change_title(selected_title, new_title, new_comment)
+                st.stop()
+        if st.button("重命名", use_container_width=True):
+            rename_apl()
     with col4:
         st.button("新建", use_container_width=True)

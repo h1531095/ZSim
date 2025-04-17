@@ -24,8 +24,8 @@ class Yanagi(Character):
             buff_add_strategy(self.cinme_1_buff_index)
             if self.cinema >= 4:
                 for _anomaly in anomalies:
-                    if isinstance(_anomaly.active_by, SkillNode):
-                        if str(self.CID) in _anomaly.active_by.skill_tag:
+                    if isinstance(_anomaly.activate_by, SkillNode):
+                        if str(self.CID) in _anomaly.activate_by.skill_tag:
                             buff_add_strategy(self.cinema_4_buff_index)
                             break
 
@@ -49,7 +49,7 @@ class Yanagi(Character):
             # Decibel
             if self.NAME == node.char_name and node.skill_tag.split('_')[1] == 'Q':
                 if self.decibel - 3000 <= -1e-5:
-                    print(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
+                    raise ValueError(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
                 self.decibel = 0
             else:
                 # 计算喧响变化值
