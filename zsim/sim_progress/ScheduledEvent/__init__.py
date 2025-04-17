@@ -108,6 +108,9 @@ class ScheduledEvent:
                             self.action_stack,
                             skill_node=event,
                         )
+                elif isinstance(event, DirgeOfDestinyAnomaly):
+                    self.abloom_event(event)
+                    self.judge_required_info_dict["abloom"] = event
                 elif isinstance(event, PolarityDisorder):
                     self.polarity_disorder_event(event)
                     self.judge_required_info_dict["polarity_disorder"] = event
