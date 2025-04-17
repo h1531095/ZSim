@@ -16,7 +16,9 @@ __char_module_map = {
     '扳机': 'Trigger',
     '柳': 'Yanagi',
     '简': 'Jane',
+    '薇薇安': 'Vivian'
 }
+
 
 def character_factory(
             name: str = '', CID: int | None = None,  # 角色名字和CID-必填至少一个

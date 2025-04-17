@@ -9,12 +9,6 @@ def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy, DYNAMIC_BUF
     专门用于处理Schedule阶段才能处理的Buff（buff.ft.schedule_judge = True）
     此类Buff往往需要当前Tick的结果出来之后再判定触发与否；
     """
-    skill_node_input = kwargs['skill_node']
-    from sim_progress.Preload import SkillNode
-    if not isinstance(skill_node_input, SkillNode):
-        skill_node = skill_node_input.mission_node
-    else:
-        skill_node = skill_node_input
     preload_data = JudgeTools.find_preload_data()
     action_now = preload_data.get_on_field_node(time_tick)
     char_on_field = action_now.char_name
@@ -25,16 +19,16 @@ def ScheduleBuffSettle(time_tick: int, exist_buff_dict: dict, enemy, DYNAMIC_BUF
         if char_name == 'enemy':
             continue
         elif char_name == char_on_field:
-            process_schedule_on_field_buff(sub_exist_buff_dict, name_box_on_field, time_tick, DYNAMIC_BUFF_DICT, enemy, skill_node=skill_node)
+            process_schedule_on_field_buff(sub_exist_buff_dict, name_box_on_field, time_tick, DYNAMIC_BUFF_DICT, enemy, **kwargs)
         else:
-            process_schedule_backend_buff(sub_exist_buff_dict, all_name_order_box, time_tick, DYNAMIC_BUFF_DICT, enemy, skill_node=skill_node)
+            process_schedule_backend_buff(sub_exist_buff_dict, all_name_order_box, time_tick, DYNAMIC_BUFF_DICT, enemy, **kwargs)
 
 
 def process_schedule_on_field_buff(sub_exist_buff_dict: dict,
                                    name_box_now: list,
                                    time_tick: int,
                                    DYNAMIC_BUFF_DICT: dict,
-                                   enemy, skill_node):
+                                   enemy, **kwargs):
     """
     用来处理schedule阶段的前台buff。这里特殊说明一下name_box_now的情况
     这个list取自当前的init_data下的namebox，是经过顺序变化的、只适用于前台角色第一视角的name_box
@@ -48,7 +42,7 @@ def process_schedule_on_field_buff(sub_exist_buff_dict: dict,
         if buff.ft.passively_updating:
             continue
         # Buff判定
-        all_match = buff.logic.xjudge(skill_node=skill_node)
+        all_match = buff.logic.xjudge(**kwargs)
         if not all_match:
             continue
         # Buff 激活
@@ -56,14 +50,14 @@ def process_schedule_on_field_buff(sub_exist_buff_dict: dict,
         selected_characters = [name_box_now[i] for i in range(len(name_box_now)) if adding_buff_code[i] == '1']
         # if buff.ft.index == 'Buff-武器-精1啜泣摇篮-全队增伤自增长':
         #     print(f'onfield函数处理了这个buff！当前的namebox是：{name_box_now}')
-        add_schedule_buff(selected_characters, buff, time_tick, sub_exist_buff_dict, DYNAMIC_BUFF_DICT, enemy, skill_node)
+        add_schedule_buff(selected_characters, buff, time_tick, sub_exist_buff_dict, DYNAMIC_BUFF_DICT, enemy, **kwargs)
 
 
 def process_schedule_backend_buff(sub_exist_buff_dict: dict,
                                   all_name_order_box: dict,
                                   time_tick: int,
                                   DYNAMIC_BUFF_DICT: dict,
-                                  enemy, skill_node=None):
+                                  enemy, **kwargs):
     """
     用来处理schedule阶段的后台buff。
     """
@@ -75,7 +69,7 @@ def process_schedule_backend_buff(sub_exist_buff_dict: dict,
             continue
         if buff.ft.passively_updating:
             continue
-        all_match = buff.logic.xjudge(skill_node=skill_node)
+        all_match = buff.logic.xjudge(**kwargs)
         if not all_match:
             continue
         main_char = buff.ft.operator
@@ -84,7 +78,7 @@ def process_schedule_backend_buff(sub_exist_buff_dict: dict,
         selected_characters = [name_box_now[i] for i in range(len(name_box_now)) if adding_buff_code[i] == '1']
         # if buff.ft.index == 'Buff-武器-精1啜泣摇篮-全队增伤自增长':
         #     print(f'backend函数处理了这个buff！当前的namebox是：{name_box_now}')
-        add_schedule_buff(selected_characters, buff, time_tick, sub_exist_buff_dict, DYNAMIC_BUFF_DICT, enemy, skill_node)
+        add_schedule_buff(selected_characters, buff, time_tick, sub_exist_buff_dict, DYNAMIC_BUFF_DICT, enemy, **kwargs)
 
 
 def add_schedule_buff(selected_characters: list,
@@ -93,7 +87,7 @@ def add_schedule_buff(selected_characters: list,
                       sub_exist_buff_dict: dict,
                       DYNAMIC_BUFF_DICT: dict,
                       enemy,
-                      skill_node):
+                      **kwargs):
     """
     Schedule阶段用来直接添加buff的函数
     """
@@ -106,7 +100,7 @@ def add_schedule_buff(selected_characters: list,
             if buff.ft.simple_effect_logic:
                 buff_new.simple_start(time_tick, sub_exist_buff_dict)
             else:
-                buff_new.logic.xeffect(skill_node=skill_node)
+                buff_new.logic.xeffect(**kwargs)
         # Buff加载
         buff_existing_check = next((existing_buff for existing_buff in DYNAMIC_BUFF_DICT[characters] if
                                     existing_buff.ft.index == buff.ft.index), None)
