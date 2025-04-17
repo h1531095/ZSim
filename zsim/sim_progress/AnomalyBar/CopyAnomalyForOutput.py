@@ -13,7 +13,7 @@ class Disorder(AnomalyBar):
         self.__dict__.update(Output_bar.__dict__)
         self.is_disorder = True
         active_by = kwargs.get('active_by', None)
-        self.active_by = active_by
+        self.actived_by = active_by
         # 复制父类的所有属性，主要是快照、积蓄总值、属性类型。
 
 
@@ -25,7 +25,7 @@ class NewAnomaly(AnomalyBar):
     def __init__(self, Output_bar: AnomalyBar, active_by):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
-        self.active_by = active_by
+        self.actived_by = active_by
 
 
 class PolarityDisorder(AnomalyBar):
@@ -42,7 +42,7 @@ class PolarityDisorder(AnomalyBar):
         self.is_disorder = True
         self.polarity_disorder_ratio = _polarity_disorder_ratio  # 极性紊乱对比紊乱的缩放比例（已经考虑连击次数）
         self.additional_dmg_ap_ratio = 32     # 精通附加伤害的倍率！
-        self.active_by = active_by
+        self.actived_by = active_by
 
 
 class DirgeOfDestinyAnomaly(AnomalyBar):
@@ -51,5 +51,5 @@ class DirgeOfDestinyAnomaly(AnomalyBar):
     def __init__(self, Output_bar: AnomalyBar, active_by):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
-        self.active_by = active_by
+        self.actived_by = active_by
         self.anomaly_dmg_ratio = 0      # 属性异常伤害的缩放倍率
