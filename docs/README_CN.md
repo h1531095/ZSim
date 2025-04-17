@@ -40,7 +40,7 @@ winget install --id=astral-sh.uv -e
 
 ```bash
 # 旧版Windows：
-powershell -c "irm https://astral.sh/uv/install.ps1 | more"
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 ```bash
@@ -48,7 +48,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | more"
 pip install uv
 ```
 
-或参考官方安装指南：[https://github.com/astral-sh/uv#installation](https://github.com/astral-sh/uv#installation)
+或参考官方安装指南：<https://docs.astral.sh/uv/getting-started/installation/>
 
 ### 安装ZZZ模拟器
 
