@@ -3,7 +3,6 @@ from sim_progress.Buff import Buff, JudgeTools, check_preparation
 from copy import deepcopy
 
 
-
 class YanagiPolarityDisorderTriggerRecord:
     def __init__(self):
         self.char = None
@@ -48,8 +47,15 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
         """
         self.check_record_module()
         self.get_prepared(char_CID=1221, enemy=1)
-        skill_node = kwargs['skill_node']
+        obj_input = kwargs.get('skill_node', None)
         # 筛选出能够和极性紊乱系统互动的三种技能
+        if obj_input is None:
+            raise ValueError(f'极性紊乱触发器判断逻辑中，未能正确获取到skill_node')
+        from sim_progress.Preload import SkillNode
+        from sim_progress.Load import LoadingMission
+        if not isinstance(obj_input, SkillNode | LoadingMission):
+            raise TypeError(f'{self.buff_instance.ft.index}的xjudge模块中获取到的{obj_input}不是SkillNode类也不是LoadingMission类！')
+        skill_node = obj_input if isinstance(obj_input, SkillNode) else obj_input.mission_node
         if skill_node.skill_tag not in ['1221_E_EX_1', '1221_E_EX_2', '1221_Q']:
             return False
 
