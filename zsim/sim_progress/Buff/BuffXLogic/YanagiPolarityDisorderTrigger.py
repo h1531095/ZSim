@@ -50,7 +50,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
         obj_input = kwargs.get('skill_node', None)
         # 筛选出能够和极性紊乱系统互动的三种技能
         if obj_input is None:
-            raise ValueError(f'极性紊乱触发器判断逻辑中，未能正确获取到skill_node')
+            return False
         from sim_progress.Preload import SkillNode
         from sim_progress.Load import LoadingMission
         if not isinstance(obj_input, SkillNode | LoadingMission):

@@ -4,7 +4,9 @@ from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 class VivianCoattackTriggerRecord:
     def __init__(self):
         self.char = None
+        self.preload_data = None
         self.last_update_node = None
+
 
 class VivianCoattackTrigger(Buff.BuffLogic):
     def __init__(self, buff_instance):
@@ -14,7 +16,7 @@ class VivianCoattackTrigger(Buff.BuffLogic):
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic
-        self.xhit = self.special_hit_logic
+        self.xeffect = self.special_effect_logic
 
     def get_prepared(self, **kwargs):
         return check_preparation(self.buff_0, **kwargs)
@@ -32,10 +34,10 @@ class VivianCoattackTrigger(Buff.BuffLogic):
         self.get_prepared(char_CID=1331, preload_data=1)
         skill_node = kwargs.get('skill_node', None)
         if skill_node is None:
-            raise ValueError(f'{self.buff_instance.ft.index}的Xjudge函数并未获取到skill_node！')
+            return
         from sim_progress.Preload import SkillNode
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f'{self.buff_instance.ft.index}的Xjudge函数获取的skill_node类型错误！')
+            return
 
         # 首先过滤所有非强化E标签的技能
         if skill_node.skill.trigger_buff_level != 2:
@@ -59,11 +61,18 @@ class VivianCoattackTrigger(Buff.BuffLogic):
                 self.record.last_update_node = skill_node
                 return True
 
-    def special_hit_logic(self, **kwargs):
+    def special_effect_logic(self, **kwargs):
         """执行后直接添加一次落雨生花到eventlist——该动作没有动画，所以直接进event_list即可"""
         self.check_record_module()
-        self.get_prepared(char_CID=1361)
+        self.get_prepared(char_CID=1361, preload_data=1)
+        coattack_skill_tag = self.record.char.feather_manager.spawn_coattack()
+        if coattack_skill_tag is None:
+            return
         event_list = JudgeTools.find_event_list()
+        from sim_progress.Preload.SkillsQueue import spawn_node
+        coattack_node = spawn_node(coattack_skill_tag, 0, self.record.preload_data.skills)
+        event_list.append(coattack_node)
+        print(f'监测到强化特殊技{self.record.last_update_node.skill_tag}，薇薇安触发了一次落雨生花！')
 
 
 

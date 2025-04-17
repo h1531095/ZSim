@@ -1,5 +1,5 @@
 from sim_progress.AnomalyBar.AnomalyBarClass import AnomalyBar
-
+from uuid import uuid4
 
 class Disorder(AnomalyBar):
     """
@@ -25,6 +25,7 @@ class NewAnomaly(AnomalyBar):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
         self.activate_by = active_by
+        self.UUID = uuid4()
 
 
 class PolarityDisorder(AnomalyBar):

@@ -37,14 +37,16 @@ class WoodpeckerElectroSet4_CA(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(equipper="啄木鸟电音", enemy=1, dynamic_buff_list=1, action_stack=1)
-        action_now = self.record.action_stack.peek()
-        if str(self.record.char.CID) not in action_now.mission_tag:
+        skill_node = kwargs.get('skill_node', None)
+        if skill_node is None:
+            return False
+        if str(self.record.char.CID) not in skill_node.skill_tag:
             return False
         rng = RNG()
         seed = rng.r
         seed = (seed/(2**63-1)+1)/2
         mul_data = MultiplierData(self.record.enemy,self.record. dynamic_buff_list, self.record.char)
-        if action_now.mission_node.skill.trigger_buff_level == 4:
+        if skill_node.skill.trigger_buff_level == 4:
             cric_rate = Calculator.RegularMul.cal_crit_rate(mul_data)
             if seed <= cric_rate:
                 return True

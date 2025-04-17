@@ -26,6 +26,10 @@ class FeatherManager:
         flight_feather_count = skill_node.labels['flight_feather']
         self.flight_feather = min(self.flight_feather + flight_feather_count, self.feather_max_count)
 
-    def spawn_coattack(self):
-
-        return self.co_attack_index
+    def spawn_coattack(self) -> str | None:
+        """尝试生成一次生化"""
+        if self.guard_feather > 0:
+            self.guard_feather -= 1
+            return self.co_attack_index
+        else:
+            return None
