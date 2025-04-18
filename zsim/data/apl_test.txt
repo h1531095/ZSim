@@ -1,3 +1,7 @@
+# VVA进场逻辑
+1331|action+=|auto_NA
+
+
 # 柳开场强化E
 1221|action+=|1221_E_EX_1|attribute.1221:energy>=40|action.1221:first_action==True
 # 丽娜开场摸一下（要不然感电延长的Buff挂不上）
@@ -22,7 +26,5 @@
 # 启动逻辑
 1221|action+=|1221_E_EX_1|attribute.1221:energy>=50|status.enemy:is_under_anomaly==True
 
-# 萨霍夫跳启动逻辑
-1301|action+=|1301_SNA_1|attribute.1301:special_state→狂热状态==True|attribute.1301:special_resource<=60|attribute.1301:special_state→萨霍夫跳剩余次数>=1
-1301|action+=|auto_NA
+
 

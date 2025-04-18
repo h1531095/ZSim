@@ -68,11 +68,9 @@ class VivianCoattackTrigger(Buff.BuffLogic):
         coattack_skill_tag = self.record.char.feather_manager.spawn_coattack()
         if coattack_skill_tag is None:
             return
-        event_list = JudgeTools.find_event_list()
-        from sim_progress.Preload.SkillsQueue import spawn_node
-        coattack_node = spawn_node(coattack_skill_tag, 0, self.record.preload_data.skills)
-        event_list.append(coattack_node)
-        print(f'监测到强化特殊技{self.record.last_update_node.skill_tag}，薇薇安触发了一次落雨生花！')
+        input_tuple = (coattack_skill_tag, False)
+        self.record.preload_data.external_add_skill(input_tuple)
+        print(f'监测到强化特殊技{self.record.last_update_node.skill_tag}，薇薇安触发了一次落雨生花！(迟滞1tick）')
 
 
 

@@ -257,7 +257,7 @@ def check_anomaly_bar(enemy):
     return active_anomaly_check, active_anomaly_list, last_anomaly_element_type
 
 
-def spawn_anomaly_dot(element_type, timenow, bar=None):
+def spawn_anomaly_dot(element_type, timenow, bar=None, skill_tag=None):
     if element_type in anomlay_dot_dict:
         class_name = anomlay_dot_dict[element_type]
         new_dot = create_dot_instance(class_name, bar)
@@ -268,6 +268,11 @@ def spawn_anomaly_dot(element_type, timenow, bar=None):
         return False
 
 
+def spawn_normal_dot(dot_index):
+    new_dot = create_dot_instance(dot_index)
+    return new_dot
+
+
 def create_dot_instance(class_name, bar=None):
     # 动态导入相应模块
     module_name = f"sim_progress.Dot.Dots.{class_name}"  # 假设你的类都在dot.DOTS模块中
@@ -275,7 +280,7 @@ def create_dot_instance(class_name, bar=None):
         module = importlib.import_module(module_name)  # 导入模块
         class_obj = getattr(module, class_name)  # 获取类对象
         if bar:
-            return class_obj(bar)
+            return class_obj(bar=bar)
         else:
             return class_obj()  # 创建并返回类实例
     except (ModuleNotFoundError, AttributeError) as e:

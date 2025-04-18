@@ -1,10 +1,15 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
+from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calculator as Cal
+import math
 
 
 class VivianCorePassiveTriggerRecord:
     def __init__(self):
         self.char = None
         self.last_update_anomaly = None
+        self.enemy = None
+        self.dynamic_buff_list = None
+        self.sub_exist_buff_dict = None
 
 
 class VivianCorePassiveTrigger(Buff.BuffLogic):
@@ -16,6 +21,14 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         self.record = None
         self.xjudge = self.special_judge_logic
         self.xeffect = self.special_effect_logic
+        self.ANOMALY_RATIO_MUL = {
+            0: 0.0075,
+            1: 0.08,
+            2: 0.0108,
+            3: 0.032,
+            4: 0.0615,
+            5: 0.0108
+        }
 
     def get_prepared(self, **kwargs):
         return check_preparation(self.buff_0, **kwargs)
@@ -35,27 +48,35 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(char_CID=1331)
         anomaly_obj = kwargs.get('anomaly_bar', None)
-        from sim_progress.AnomalyBar.CopyAnomalyForOutput import DirgeOfDestinyAnomaly
         from sim_progress.AnomalyBar import AnomalyBar
         if anomaly_obj is None:
             return False
         if isinstance(anomaly_obj, AnomalyBar):
-            return True
+            if self.record.last_update_anomaly is None:
+                self.record.last_update_anomaly = anomaly_obj
+                return True
+            if anomaly_obj.UUID == self.record.last_update_anomaly.UUID:
+                return False
+            else:
+                self.record.last_update_anomaly = anomaly_obj
+                return True
         else:
             return False
 
     def special_effect_logic(self, **kwargs):
-
+        """当Xjudge检测到AnomalyBar传入时通过判定，并且执行xeffect"""
         self.check_record_module()
-        self.get_prepared(char_CID=1361, preload_data=1)
+        self.get_prepared(char_CID=1361, preload_data=1, dynamic_buff_list=1, enemy=1, sub_exist_buff_dict=1)
         coattack_skill_tag = self.record.char.feather_manager.spawn_coattack()
         if coattack_skill_tag is None:
             return
+        copyed_anomaly = self.record.last_update_anomaly
         event_list = JudgeTools.find_event_list()
-
-
-
-
-
-
-
+        mul_data = Mul(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
+        ap = Cal.AnomalyMul.cal_ap(mul_data)
+        from sim_progress.AnomalyBar.CopyAnomalyForOutput import DirgeOfDestinyAnomaly
+        dirge_of_destiny_anomaly = DirgeOfDestinyAnomaly(copyed_anomaly, active_by='1331')
+        ratio = self.ANOMALY_RATIO_MUL.get(copyed_anomaly.element_type)
+        final_ratio = math.floor(ap/10) * ratio
+        dirge_of_destiny_anomaly.anomaly_dmg_ratio = final_ratio
+        event_list.append(dirge_of_destiny_anomaly)
