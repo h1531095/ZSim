@@ -62,19 +62,20 @@ class AstralVoice(Buff.BuffLogic):
             action_stack=1,
         )
         tick_now = JudgeTools.find_tick()
-        action_now = self.record.action_stack.peek()
-        if (
-            self.record.trigger_buff_0.dy.active
-            and action_now.mission_node.skill.trigger_buff_level == 7
-        ):
-            if action_now.mission_dict.get(tick_now, None) == "start":
+
+        skill_node = kwargs.get('skill_node', None)
+        if skill_node is None:
+            return False
+        if self.record.trigger_buff_0.dy.active and skill_node.skill.trigger_buff_level == 7:
+            if skill_node.loading_mission.mission_dict.get(tick_now, None) == 'start':
+
                 return True
             else:
                 return False
         else:
             return False
 
-    def special_effect_logic(self):
+    def special_effect_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(
             equipper="静听嘉音",

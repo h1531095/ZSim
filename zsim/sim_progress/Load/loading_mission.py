@@ -71,3 +71,11 @@ class LoadingMission:
                 return tick
             else:
                 tick_list.remove(tick)
+
+
+    def is_fist_hit(self, tick: int):
+        return tick - 1 < self.get_first_hit() <= tick
+
+    def is_last_hit(self, tick: int):
+        return tick - 1 < self.get_last_hit() <= tick
+

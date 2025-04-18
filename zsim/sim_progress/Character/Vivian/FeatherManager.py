@@ -7,9 +7,10 @@ class FeatherManager:
 
     def __init__(self, char_instance: Character):
         self.char = char_instance
-        self.flight_feather = 2  # 飞羽，进场初始化为4层
-        self.guard_feather = 0  # 护羽，初始化为0层
-        self.feather_max_count = 5  # 最大飞羽/护羽层数，默认为6层
+        self.flight_feather = 2                     # 飞羽，进场初始化为4层
+        self.guard_feather = 0                    # 护羽，初始化为0层
+        self.feather_max_count = 5            # 最大飞羽/护羽层数，默认为6层
+        self.co_attack_index = '1331_CoAttack_A'
 
     def trans_feather(self):
         """将现有的飞羽全部转化成护羽：注意，飞羽转化为护羽的时间点为SNA_2的最后一跳，所以这里不能走特殊资源，只能从触发器走。"""
@@ -25,7 +26,15 @@ class FeatherManager:
             return
         if "flight_feather" not in skill_node.skill.labels:
             return
-        flight_feather_count = skill_node.labels["flight_feather"]
-        self.flight_feather = min(
-            self.flight_feather + flight_feather_count, self.feather_max_count
-        )
+
+        flight_feather_count = skill_node.labels['flight_feather']
+        self.flight_feather = min(self.flight_feather + flight_feather_count, self.feather_max_count)
+
+    def spawn_coattack(self) -> str | None:
+        """尝试生成一次生化"""
+        if self.guard_feather > 0:
+            self.guard_feather -= 1
+            return self.co_attack_index
+        else:
+            return None
+

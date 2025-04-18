@@ -41,14 +41,14 @@ class ScheduledEvent:
     """
 
     def __init__(
-        self,
-        dynamic_buff: dict,
-        data,
-        tick: int,
-        exist_buff_dict: dict,
-        action_stack: ActionStack,
-        *,
-        loading_buff: dict | None = None,
+            self,
+            dynamic_buff: dict,
+            data,
+            tick: int,
+            exist_buff_dict: dict,
+            action_stack: ActionStack,
+            *,
+            loading_buff: dict | None = None,
     ):
         self.data = data  # ScheduleData in __main__
         self.data.dynamic_buff = dynamic_buff
@@ -100,20 +100,16 @@ class ScheduledEvent:
                         具体原因见函数内部，这里不过多赘述。
                         """
                         self.update_anomaly_bar_after_skill_event(event)
-                        ScheduleBuffSettle(
-                            self.tick,
-                            self.exist_buff_dict,
-                            self.enemy,
-                            self.data.dynamic_buff,
-                            self.action_stack,
-                            skill_node=event,
-                        )
+                        ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff,
+                                           self.action_stack, skill_node=event)
                 elif isinstance(event, DirgeOfDestinyAnomaly):
                     self.abloom_event(event)
                     self.judge_required_info_dict["abloom"] = event
                 elif isinstance(event, PolarityDisorder):
                     self.polarity_disorder_event(event)
                     self.judge_required_info_dict["polarity_disorder"] = event
+                    ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff,
+                                       self.action_stack, anomaly_bar=event)
                 elif isinstance(event, Disorder):
                     # print(f'检测到{event.element_type}属性的紊乱，快照为：{event.current_ndarray}')
                     self.disorder_event(event)
@@ -186,8 +182,8 @@ class ScheduledEvent:
                 should_update = True
             else:
                 if (
-                    _node.loading_mission.hitted_count
-                    in _node.skill.anomaly_update_rule
+                        _node.loading_mission.hitted_count
+                        in _node.skill.anomaly_update_rule
                 ):
                     should_update = True
         if should_update:
