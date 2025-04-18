@@ -562,5 +562,25 @@
     "Buff-角色-柳-6画-特殊技伤害提升": {
         "module": ".BuffXLogic.YanagiCinema6EXDmgBonus",
         "class": "YanagiCinema6EXDmgBonus"
+    },
+    "Buff-角色-薇薇安-协同攻击触发器": {
+        "module": ".BuffXLogic.VivianCoattackTrigger",
+        "class": "VivianCoattackTrigger"
+    },
+    "Buff-角色-薇薇安-羽毛结算触发器": {
+        "module": ".BuffXLogic.VivianFeatherTrigger",
+        "class": "VivianFeatherTrigger"
+    },
+    "Buff-角色-薇薇安-核心被动触发器": {
+        "module": ".BuffXLogic.VivianCorePassiveTrigger",
+        "class": "VivianCorePassiveTrigger"
+    },
+    "Buff-角色-薇薇安-预言触发器": {
+        "module": ".BuffXLogic.VivianDotTrigger",
+        "class": "VivianDotTrigger"
+    },
+    "Buff-角色-薇薇安-额外能力-协同攻击触发器": {
+        "module": ".BuffXLogic.VivianAdditionalAbilityCoAttackTrigger",
+        "class": "VivianAdditionalAbilityCoAttackTrigger"
     }
 }

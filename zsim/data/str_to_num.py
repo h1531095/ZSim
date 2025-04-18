@@ -65,6 +65,6 @@ if __name__ == "__main__":
     # path = './data'
     # process_all_csv_files(path)
     process_csv_file("./zsim/data/skill.csv")
-    process_csv_file("./zsim/data/character.csv")
-    process_csv_file("./zsim/data/enemy.csv")
-    process_csv_file("./zsim/data/enemy_adjustment.csv")
+    # process_csv_file("./zsim/data/character.csv")
+    # process_csv_file("./zsim/data/enemy.csv")
+    # process_csv_file("./zsim/data/enemy_adjustment.csv")
