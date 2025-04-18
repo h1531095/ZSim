@@ -3,13 +3,12 @@ from functools import lru_cache
 from typing import Any
 
 import numpy as np
-
-from define import ElementType, INVALID_ELEMENT_ERROR
+from define import INVALID_ELEMENT_ERROR, ElementType
 from sim_progress.Character import Character
+from sim_progress.data_struct import cal_buff_total_bonus
 from sim_progress.Enemy import Enemy
 from sim_progress.Preload import SkillNode
 from sim_progress.Report import report_to_log
-from sim_progress.data_struct import cal_buff_total_bonus
 
 with open(
     "./zsim/sim_progress/ScheduledEvent/buff_effect_trans.json",

@@ -2,8 +2,8 @@ from sim_progress import Buff, Preload, Report
 from sim_progress.AnomalyBar import AnomalyBar as AnB
 from sim_progress.AnomalyBar import Disorder
 from sim_progress.AnomalyBar.CopyAnomalyForOutput import (
-    PolarityDisorder,
     DirgeOfDestinyAnomaly,
+    PolarityDisorder,
 )
 from sim_progress.Buff import ScheduleBuffSettle
 from sim_progress.Character import Character
@@ -13,8 +13,8 @@ from sim_progress.data_struct import (
     SingleHit,
     SPUpdateData,
 )
-from sim_progress.Load.loading_mission import LoadingMission
 from sim_progress.Load.LoadDamageEvent import ProcessHitUpdateDots
+from sim_progress.Load.loading_mission import LoadingMission
 from sim_progress.Preload import SkillNode
 from sim_progress.Update import update_anomaly
 
@@ -42,14 +42,14 @@ class ScheduledEvent:
     """
 
     def __init__(
-            self,
-            dynamic_buff: dict,
-            data,
-            tick: int,
-            exist_buff_dict: dict,
-            action_stack: ActionStack,
-            *,
-            loading_buff: dict | None = None,
+        self,
+        dynamic_buff: dict,
+        data,
+        tick: int,
+        exist_buff_dict: dict,
+        action_stack: ActionStack,
+        *,
+        loading_buff: dict | None = None,
     ):
         self.data = data  # ScheduleData in __main__
         self.data.dynamic_buff = dynamic_buff
@@ -101,9 +101,19 @@ class ScheduledEvent:
                         具体原因见函数内部，这里不过多赘述。
                         """
                         self.update_anomaly_bar_after_skill_event(event)
-                        ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff,
-                                           self.action_stack, skill_node=event)
-                        ProcessHitUpdateDots(self.tick, self.enemy.dynamic.dynamic_dot_list, self.data.event_list)
+                        ScheduleBuffSettle(
+                            self.tick,
+                            self.exist_buff_dict,
+                            self.enemy,
+                            self.data.dynamic_buff,
+                            self.action_stack,
+                            skill_node=event,
+                        )
+                        ProcessHitUpdateDots(
+                            self.tick,
+                            self.enemy.dynamic.dynamic_dot_list,
+                            self.data.event_list,
+                        )
                 elif isinstance(event, DirgeOfDestinyAnomaly):
                     self.abloom_event(event)
                     self.judge_required_info_dict["abloom"] = event
@@ -117,8 +127,14 @@ class ScheduledEvent:
                 elif isinstance(event, AnB):
                     self.anomaly_event(event)
                     self.judge_required_info_dict["anb"] = event
-                    ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff,
-                                       self.action_stack, anomaly_bar=event)
+                    ScheduleBuffSettle(
+                        self.tick,
+                        self.exist_buff_dict,
+                        self.enemy,
+                        self.data.dynamic_buff,
+                        self.action_stack,
+                        anomaly_bar=event,
+                    )
                 elif isinstance(event, ScheduleRefreshData):
                     self.refresh_event(event)
                     self.judge_required_info_dict["refresh"] = event
@@ -184,8 +200,8 @@ class ScheduledEvent:
                 should_update = True
             else:
                 if (
-                        _node.loading_mission.hitted_count
-                        in _node.skill.anomaly_update_rule
+                    _node.loading_mission.hitted_count
+                    in _node.skill.anomaly_update_rule
                 ):
                     should_update = True
         if should_update:
@@ -285,6 +301,7 @@ class ScheduledEvent:
             stun=0,
             buildup=0,
             **self.data.enemy.dynamic.get_status(),
+            UUID=event.UUID,
         )
 
     def disorder_event(self, event: Disorder):
@@ -302,11 +319,13 @@ class ScheduledEvent:
             tick=self.tick,
             element_type=event.element_type,
             dmg_expect=round(dmg_disorder, 2),
+            dmg_crit=round(dmg_disorder, 2),
             is_anomaly=True,
             is_disorder=True,
             stun=round(stun, 2),
             buildup=0,
             **self.data.enemy.dynamic.get_status(),
+            UUID=event.UUID,
         )
 
     def polarity_disorder_event(self, event: PolarityDisorder):
@@ -322,11 +341,13 @@ class ScheduledEvent:
             element_type=event.element_type,
             skill_tag="极性紊乱",
             dmg_expect=round(dmg_disorder, 2),
+            dmg_crit=round(dmg_disorder, 2),
             is_anomaly=True,
             is_disorder=True,
             stun=0,
             buildup=0,
             **self.data.enemy.dynamic.get_status(),
+            UUID=event.UUID,
         )
 
     def abloom_event(self, event: DirgeOfDestinyAnomaly):
@@ -348,6 +369,7 @@ class ScheduledEvent:
             stun=0,
             buildup=0,
             **self.data.enemy.dynamic.get_status(),
+            UUID=event.UUID,
         )
 
     def refresh_event(self, event: ScheduleRefreshData):

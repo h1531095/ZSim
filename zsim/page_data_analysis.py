@@ -1,6 +1,5 @@
 import streamlit as st
-
-from lib_webui.clean_results_cache import get_all_results, rename_result, delete_result
+from lib_webui.clean_results_cache import delete_result, get_all_results, rename_result
 from lib_webui.constants import IDDuplicateError
 
 
@@ -65,6 +64,7 @@ def page_data_analysis():
     from lib_webui.process_dmg_result import process_dmg_result
 
     process_dmg_result(selected_key)
+
     from lib_webui.process_buff_result import process_buff_result
 
     process_buff_result(selected_key)

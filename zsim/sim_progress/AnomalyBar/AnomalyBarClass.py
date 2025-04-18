@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 import sys
-from uuid import uuid4
+import uuid
 
 
 @dataclass
@@ -26,11 +26,12 @@ class AnomalyBar:
     duration_buff_list: list | None = None       # 影响当前异常状态最大时长的buff名
     duration_buff_key_list: list | None = None      # 影响当前异常状态最大时长的buff效果关键字
     basic_max_duration: int = 0          # 基础最大时间
-    UUID = uuid4()      # UUID
+    UUID: uuid.UUID | None = None
 
     def __post_init__(self):
         self.current_ndarray: np.ndarray = np.zeros((1, 1), dtype=np.float64)
         self.current_anomaly: np.float64 = np.float64(0)
+        self.UUID = uuid.uuid4()
 
     def remaining_tick(self):
         main_module = sys.modules["simulator.main_loop"]
