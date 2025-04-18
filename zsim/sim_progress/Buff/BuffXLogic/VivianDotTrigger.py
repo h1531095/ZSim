@@ -47,7 +47,7 @@ class VivianDotTrigger(Buff.BuffLogic):
             return False
 
         # 如果敌人不处于异常状态，不放行
-        if not self.record.enemy.is_under_anomaly():
+        if not self.record.enemy.dynamic.is_under_anomaly():
             return False
 
         return True

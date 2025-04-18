@@ -3,6 +3,14 @@
 # 丽娜开场摸一下（要不然感电延长的Buff挂不上）
 1211|action+=|1211_NA_1|action.1211:first_action==True
 
+# VVA测试
+1331|action+=|1331_E_EX|attribute.1331:energy>=60
+
+# 强化E飘浮后，长按闪避回到开伞状态
+1331|action+=|1331_SNA_0|attribute.1331:special_state→裙裾浮游==True|action.1331:strict_linked_after==1331_E_EX
+# 开伞状态下打SNA1
+1331|action+=|1331_SNA_1|attribute.1331:special_state→淑女仪态==True
+
 # 柳切换架势逻辑
 1221|action+=|1221_E_A|buff.1221:duration→Buff-角色-柳-架势-下弦<=120|action.1221:strict_linked_after==1221_NA_5
 1221|action+=|1221_E_A|buff.1221:duration→Buff-角色-柳-架势-上弦<=120|action.1221:strict_linked_after==1221_SNA_5
@@ -22,7 +30,8 @@
 # 启动逻辑
 1221|action+=|1221_E_EX_1|attribute.1221:energy>=50|status.enemy:is_under_anomaly==True
 
-# 萨霍夫跳启动逻辑
-1301|action+=|1301_SNA_1|attribute.1301:special_state→狂热状态==True|attribute.1301:special_resource<=60|attribute.1301:special_state→萨霍夫跳剩余次数>=1
-1301|action+=|auto_NA
+# 手动释放SNA2——VVA的SNA_2大多会强制在技能后面自动释放，所以基本没有手动释放的时候。
+1331|action+=|1331_SNA_2|attribute.1331:special_state→裙裾浮游==True
+
+1221|action+=|auto_NA
 

@@ -111,7 +111,7 @@ def reset_simulator():
     start_report_threads()  # 启动线程以处理日志和结果写入
 
 
-def main_loop(stop_tick: int | None = 10800):
+def main_loop(stop_tick: int | None = 3000):
     reset_simulator()
     check_state_reset()
     global \

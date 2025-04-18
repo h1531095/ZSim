@@ -32,7 +32,9 @@ class FeatherManager:
         获得飞羽，飞羽的获得结算大多为技能的最后一跳，所以也需要从触发器走。
         该函数内部没有任何类型判断，所有的判断全部交给羽毛触发器的xjudge
         """
-        if 'flight_feather' not in skill_node.skill.labels:
+        if not skill_node.skill.labels:
+            return
+        if 'flight_feather' not in skill_node.skill.labels.keys():
             return
         flight_feather_count = skill_node.labels['flight_feather']
         self.flight_feather = min(self.flight_feather + flight_feather_count, self.feather_max_count)

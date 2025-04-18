@@ -6,6 +6,7 @@ import math
 class VivianCorePassiveTriggerRecord:
     def __init__(self):
         self.char = None
+        self.preload_data = None
         self.last_update_anomaly = None
         self.enemy = None
         self.dynamic_buff_list = None

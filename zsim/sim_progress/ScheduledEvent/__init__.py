@@ -332,7 +332,7 @@ class ScheduledEvent:
     def abloom_event(self, event: DirgeOfDestinyAnomaly):
         """薇薇安绽放处理分支逻辑"""
         cal_obj = CalAbloom(
-            anomaly_obj=event,
+            abloom_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
         )

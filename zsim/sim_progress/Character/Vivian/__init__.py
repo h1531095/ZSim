@@ -32,7 +32,7 @@ class Vivian(Character):
             if not self.noblewoman_state:
                 raise ValueError(f"薇薇安的SNA_1只能在开伞状态下释放，而当前状态等级为{self.state_level}，无法释放{skill_tag}")
         elif skill_tag == '1331_SNA_2':
-            if not self.noblewoman_state:
+            if not self.fluttering_frock_state:
                 raise ValueError(f'薇薇安的SNA_2只能在飘浮状态下释放，而当前状态等级为{self.state_level}，无法释放{skill_tag}')
 
     def special_resources(self, *args, **kwargs) -> None:
@@ -42,15 +42,12 @@ class Vivian(Character):
             if '1331' not in node.skill_tag:
                 continue
             self.__check_node(node)
-            if node.skill_tag == '1331_SNA_0':
-                # 从飘浮退回开伞
+            if node.skill_tag in ['1331_SNA_0',  '1331_BH_Aid', '1331_NA_4']:
+                # 进入开伞状态
                 self.state_level = 1
             elif node.skill_tag == '1331_SNA_2':
                 # 退回最初状态
                 self.state_level = 0
-            elif node.skill_tag == '1331_BH_Aid':
-                # 快支直接开伞
-                self.state_level = 1
             elif node.skill_tag in ['1331_SNA_1', '1331_E_EX', '1331_CA', '1331_QTE', '1331_Q', '1331_Assault_Aid']:
                 # 直接飘浮
                 self.state_level = 2
