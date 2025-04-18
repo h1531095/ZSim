@@ -11,7 +11,7 @@
     "character": {
         "crit_balancing": true
     },
-    "enemy":{
+    "enemy": {
         "index_ID": 11414,
         "adjust_ID": 22412,
         "difficulty": 8.74

@@ -1,12 +1,23 @@
 import timeit
+import argparse
 from sim_progress import Report
 from simulator.main_loop import main_loop
 from sim_progress.Report import write_to_csv
 
 
 if __name__ == '__main__':
-    print(f'\n主循环耗时: {timeit.timeit(main_loop, globals=globals(), number=1):.2f} s')
-    # main_loop(6000)
+    # 创建命令行参数解析器
+    parser = argparse.ArgumentParser(description='ZZZ模拟器')
+    parser.add_argument('--stop_tick', type=int, default=None, help='指定模拟的tick数量')
+    
+    # 解析命令行参数
+    args = parser.parse_args()
+    
+    if args.stop_tick is not None:
+        print(f'\n主循环耗时: {timeit.timeit(lambda: main_loop(args.stop_tick), globals=globals(), number=1):.2f} s')
+    else:
+        print(f'\n主循环耗时: {timeit.timeit(main_loop, globals=globals(), number=1):.2f} s')
+    
     print('\n正在等待IO结束···')
     write_to_csv()
     Report.log_queue.join()

@@ -25,7 +25,7 @@ CONFIG_PATH = "zsim/config.json"
 _config = json.load(open(CONFIG_PATH, encoding="utf-8-sig"))
 
 # 敌人配置
-ENEMY_INDEX_ID: int = _config["enemy"]["sub_ID"]
+ENEMY_INDEX_ID: int = _config["enemy"]["index_ID"]
 ENEMY_ADJUST_ID: int = _config["enemy"]["adjust_ID"]
 ENEMY_DIFFICULTY: float = _config["enemy"]["difficulty"]
 

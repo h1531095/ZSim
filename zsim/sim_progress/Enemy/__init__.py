@@ -306,6 +306,7 @@ class Enemy:
 
         return name, index_ID, sub_ID, row_0
 
+    @staticmethod
     def __lookup_enemy_adjustment(
         adjust_df: pd.DataFrame, adjust_ID: int
     ) -> dict[
