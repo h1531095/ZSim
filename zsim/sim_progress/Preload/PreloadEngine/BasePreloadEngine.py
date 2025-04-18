@@ -6,14 +6,14 @@ class BasePreloadEngine(ABC):
     @abstractmethod
     def __init__(self, data):
         self.data = data
-        self.active_signal = False      # 用于记录当前引擎在当前tick是否运行过。
+        self.active_signal = False  # 用于记录当前引擎在当前tick是否运行过。
 
     @abstractmethod
     def run_myself(self, *args, **kwargs):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     node_stack = NodeStack(3)
     a = 1
     b = 2
@@ -24,4 +24,4 @@ if __name__ == '__main__':
     print(node_stack)
     d = node_stack.peek()
     e = node_stack.pop()
-    print(d,e,node_stack)
+    print(d, e, node_stack)

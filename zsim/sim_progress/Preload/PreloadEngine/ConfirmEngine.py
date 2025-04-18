@@ -16,13 +16,11 @@ class ConfirmEngine(BasePreloadEngine):
         super().__init__(data)
         self.external_update_signal = False
         self.external_add_skill_list = []
-        self.validators = [
-            self._validate_timing
-        ]
+        self.validators = [self._validate_timing]
 
     def run_myself(self, tick: int, **kwargs):
         """依次执行 Node构造、验证、内外部数据交互"""
-        apl_skill_node: SkillNode | None = kwargs.get('apl_skill_node', None)
+        apl_skill_node: SkillNode | None = kwargs.get("apl_skill_node", None)
         if apl_skill_node is None:
             raise ValueError("ConfirmEngine 并未获取到 APL Skill Node，请检查输入")
         for i in range(len(self.data.preload_action_list_before_confirm)):
@@ -34,7 +32,9 @@ class ConfirmEngine(BasePreloadEngine):
                 # 3、内部数据交互
                 self.data.push_node_in_swap_cancel(node, tick)
 
-                report_to_log(f"[PRELOAD]:In tick: {tick}, {node.skill_tag} has been preloaded")
+                report_to_log(
+                    f"[PRELOAD]:In tick: {tick}, {node.skill_tag} has been preloaded"
+                )
                 # 4、外部数据交互
                 self.update_external_data(node, tick)
                 # print(f'{node.skill_tag}通过了可行性验证，该主动动作来自于优先级为{node.apl_priority}的APL代码')
@@ -45,7 +45,13 @@ class ConfirmEngine(BasePreloadEngine):
         """通过skill_tag构造Node"""
         skill_tag = tuples[0]
         active_generation = tuples[1] if tuples[1] else False
-        node = SkillsQueue.spawn_node(skill_tag, tick, self.data.skills, active_generation=active_generation, apl_priority=tuples[2])
+        node = SkillsQueue.spawn_node(
+            skill_tag,
+            tick,
+            self.data.skills,
+            active_generation=active_generation,
+            apl_priority=tuples[2],
+        )
         return node
 
     def update_external_data(self, node: SkillNode, tick: int):
@@ -56,9 +62,11 @@ class ConfirmEngine(BasePreloadEngine):
             char.dynamic.lasting_node.update_node(node, tick)
         # 切人逻辑
         name_box = self.data.name_box
-        if (isinstance(name_box, list)
-                and all(isinstance(name, str) for name in name_box)
-                and node.active_generation):
+        if (
+            isinstance(name_box, list)
+            and all(isinstance(name, str) for name in name_box)
+            and node.active_generation
+        ):
             self.switch_char(node, self.data.char_data)
         decibel_manager_instance.update(skill_node=node)
 
@@ -91,10 +99,7 @@ class ConfirmEngine(BasePreloadEngine):
         """检验preload_tick的封装是否有问题，"""
         results = node.preload_tick <= tick
         if not results:
-            print(f'Preload Tick的可行性验证未通过！应在{node.preload_tick}tick preload的{node.skill_tag}技能过早的在confirm引擎中出现！')
+            print(
+                f"Preload Tick的可行性验证未通过！应在{node.preload_tick}tick preload的{node.skill_tag}技能过早的在confirm引擎中出现！"
+            )
         return node.preload_tick <= tick
-
-
-
-
-

@@ -22,7 +22,9 @@ class TriggerCoreSkillStunDMGBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['扳机'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["扳机"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = TriggerCoreSkillStunDMGBonusRecord()
         self.record = self.buff_0.history.record
@@ -32,16 +34,15 @@ class TriggerCoreSkillStunDMGBonus(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(char_CID=1361)
         from sim_progress.Preload import SkillNode
+
         skill_node: SkillNode | None
-        skill_node = kwargs.get('skill_node', None)
+        skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
-            raise ValueError(f'{self.buff_instance.ft.index}的xjudge并未成功获取到skill_node！')
-        if '1361' not in skill_node.skill_tag or not skill_node.skill.labels:
+            raise ValueError(
+                f"{self.buff_instance.ft.index}的xjudge并未成功获取到skill_node！"
+            )
+        if "1361" not in skill_node.skill_tag or not skill_node.skill.labels:
             return False
-        if 'aftershock_attack' in skill_node.skill.labels.keys():
+        if "aftershock_attack" in skill_node.skill.labels.keys():
             return True
         return False
-
-
-
-

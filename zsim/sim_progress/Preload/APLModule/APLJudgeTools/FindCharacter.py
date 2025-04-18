@@ -10,4 +10,4 @@ def find_char(found_char_dict: dict, game_state: dict, CID: int):
             found_char_dict[char.CID] = char
             return char
     else:
-        raise ValueError(f'未找到CID为{CID}的角色！')
+        raise ValueError(f"未找到CID为{CID}的角色！")

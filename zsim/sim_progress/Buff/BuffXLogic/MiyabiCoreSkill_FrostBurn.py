@@ -26,7 +26,9 @@ class MiyabiCoreSkill_FrostBurn(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['雅'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["雅"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = MiyabiCoreSkillFB()
         self.record = self.buff_0.history.record
@@ -43,6 +45,3 @@ class MiyabiCoreSkill_FrostBurn(Buff.BuffLogic):
         result = JudgeTools.detect_edge(frostbite_statement, mode_func)
         self.record.last_frostbite = frostbite_now
         return result
-
-
-

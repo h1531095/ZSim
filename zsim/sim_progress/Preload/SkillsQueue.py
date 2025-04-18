@@ -11,7 +11,13 @@ class SkillNode:
     _instance_counter = 0
     _counter_lock = threading.Lock()
 
-    def __init__(self, skill: Skill.InitSkill, preload_tick: int, active_generation: bool = False, **kwargs):
+    def __init__(
+        self,
+        skill: Skill.InitSkill,
+        preload_tick: int,
+        active_generation: bool = False,
+        **kwargs,
+    ):
         """
         预加载技能节点
 
@@ -20,7 +26,7 @@ class SkillNode:
         2、整个 Skill.InitSkill 对象，包含了技能的全部信息，用于计算器调用
         """
         with SkillNode._counter_lock:
-            self.apl_priority: int = kwargs.get('apl_priority', 0)
+            self.apl_priority: int = kwargs.get("apl_priority", 0)
             self.skill_tag: str = skill.skill_tag
             self.char_name: str = skill.char_name
             self.preload_tick: int = preload_tick
@@ -28,7 +34,9 @@ class SkillNode:
             self.labels: dict | None = skill.labels
             self.skill: Skill.InitSkill = skill
             self.end_tick: int = self.preload_tick + self.skill.ticks
-            self.active_generation: bool = active_generation            # 构造函数的调用来源是否是主动动作
+            self.active_generation: bool = (
+                active_generation  # 构造函数的调用来源是否是主动动作
+            )
             # TODO：后续需用UUID替换skill_node实例ID
             self.instance_id = SkillNode._instance_counter
             SkillNode._instance_counter += 1
@@ -36,12 +44,11 @@ class SkillNode:
             self.UUID = uuid.uuid4()
 
             self.loading_mission = None
-            '''
+            """
             初始化为None，构造成loading_mission之后，该参数用于存放loading_mission，
             可以在这个属性访问loading_mission的一些方法。
             但是有循环访问的风险，目前只服务于Schedule阶段。
-            '''
-
+            """
 
     def __str__(self) -> str:
         return f"SkillNode: {self.skill_tag}"
@@ -56,19 +63,25 @@ def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:
     """
     通过输入的tag和preload_tick，直接创建SkillNode。
     """
-    active_generation = kwargs.get('active_generation', False)
-    apl_priority = kwargs.get('apl_priority', 0)
+    active_generation = kwargs.get("active_generation", False)
+    apl_priority = kwargs.get("apl_priority", 0)
     for obj in skills:
         if tag in obj.skills_dict.keys():
-            node = SkillNode(obj.skills_dict[tag], preload_tick, active_generation, apl_priority=apl_priority)
+            node = SkillNode(
+                obj.skills_dict[tag],
+                preload_tick,
+                active_generation,
+                apl_priority=apl_priority,
+            )
             return node
     else:
         raise ValueError(f"预加载技能 {tag} 不存在于输入的 Skill 类中，请检查输入")
 
 
-def get_skills_queue(preload_table: pd.DataFrame,
-                     *skills: Skill,
-                     ) -> tuple[int, LinkedList]:
+def get_skills_queue(
+    preload_table: pd.DataFrame,
+    *skills: Skill,
+) -> tuple[int, LinkedList]:
     """
     提取dataframe中，‘skill_tag’列的信息
     并将其与输入的 Skill 类比对
@@ -90,7 +103,9 @@ def get_skills_queue(preload_table: pd.DataFrame,
 
     skills_queue = LinkedList()  # 用于储存技能节点
     try:
-        preload_skills: pd.Series = preload_table['skill_tag']  # 传入的数据必须包含 skill_tag 列
+        preload_skills: pd.Series = preload_table[
+            "skill_tag"
+        ]  # 传入的数据必须包含 skill_tag 列
     except KeyError:
         print("提供错误的预加载序列表，请检查输入")
 
@@ -109,17 +124,24 @@ def get_skills_queue(preload_table: pd.DataFrame,
 
             try:
                 # 在__main__中寻找tick变量，并与preload_tick_stamp比较
-                tick = globals().get('tick', 0)
-                preload_tick_stamp = max(preload_tick_stamps[cid], tick)     # 取最大值作为preload_tick_stamp
+                tick = globals().get("tick", 0)
+                preload_tick_stamp = max(
+                    preload_tick_stamps[cid], tick
+                )  # 取最大值作为preload_tick_stamp
                 node = spawn_node(tag, preload_tick_stamp, skills)
                 skills_queue.add(node)
-                preload_tick_stamps[cid] = preload_tick_stamp + node.skill.ticks  # 更新preload_tick_stamp
-                report_to_log(f"[PRELOAD]:预加载节点 {tag} 已创建，将在 {preload_tick_stamps[cid]} 执行", level=2)
+                preload_tick_stamps[cid] = (
+                    preload_tick_stamp + node.skill.ticks
+                )  # 更新preload_tick_stamp
+                report_to_log(
+                    f"[PRELOAD]:预加载节点 {tag} 已创建，将在 {preload_tick_stamps[cid]} 执行",
+                    level=2,
+                )
             except ValueError as e:
                 raise ValueError(str(e))
 
     return max(preload_tick_stamps.values()), skills_queue
 
-if __name__ == '__main__':
-    pass
 
+if __name__ == "__main__":
+    pass

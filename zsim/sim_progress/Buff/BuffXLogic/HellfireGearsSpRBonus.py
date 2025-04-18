@@ -5,6 +5,7 @@ class HellfireGearsSpRBonus(Buff.BuffLogic):
     """
     燃狱齿轮的后台回能。需要在初始化的时候就获取角色和武器配置列表
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -29,8 +30,3 @@ class HellfireGearsSpRBonus(Buff.BuffLogic):
             return True
         else:
             return False
-
-
-
-
-

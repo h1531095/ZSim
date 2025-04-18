@@ -10,6 +10,7 @@ class YanagiStanceJougen(Buff.BuffLogic):
     """
     柳的上弦增幅，检测到上弦状态就通过判定
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -22,7 +23,9 @@ class YanagiStanceJougen(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['柳'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["柳"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = YanagiStanceJougenRecord()
         self.record = self.buff_0.history.record
@@ -37,4 +40,3 @@ class YanagiStanceJougen(Buff.BuffLogic):
             return True
         else:
             return False
-

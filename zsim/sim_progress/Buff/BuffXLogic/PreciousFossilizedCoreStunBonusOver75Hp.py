@@ -6,6 +6,7 @@ class PreciousFossilizedCoreStunBonusOver75Hp(Buff.BuffLogic):
     这段代码是贵重骨核的复杂判断逻辑，
     敌人生命值大于等于75%时返回True
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance

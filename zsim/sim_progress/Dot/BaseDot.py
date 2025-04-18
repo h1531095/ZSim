@@ -25,6 +25,7 @@ class Dot:
         3：缓存式更新——依赖内置CD，以及Dot.Dynamic中的动态记录模块，来记录伤害积累。
         4：碎冰——只有含有重攻击的技能在end标签处才能触发。
         """
+
         update_cd: int | float = 0
         index: str = None
         name: str = None
@@ -53,12 +54,10 @@ class Dot:
         last_end_ticks: int = 0
         last_duration: int = 0
 
-
     def ready_judge(self, timenow):
         if not self.dy.ready:
             if timenow - self.dy.last_effect_ticks >= self.ft.update_cd:
                 self.dy.ready = True
-
 
     def end(self, timenow):
         self.dy.active = False
@@ -77,10 +76,3 @@ class Dot:
         self.dy.count = 1
         self.dy.effect_times = 1
         self.dy.ready = False
-
-
-
-
-
-
-

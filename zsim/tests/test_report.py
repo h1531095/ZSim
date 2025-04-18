@@ -1,5 +1,3 @@
-
-
 # class TestReport(unittest.TestCase):
 #     def test_report_to_log(self):
 #         Report.report_to_log("test")

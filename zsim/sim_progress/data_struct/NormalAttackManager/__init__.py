@@ -3,13 +3,9 @@ from .BaseNAManager import BaseNAManager
 from zsim.define import YANAGI_NA_ORDER, APL_NA_ORDER_PATH
 import json
 
-NA_RULE_INVENTORY_PATH = {
-    1221: YANAGI_NA_ORDER
-}
+NA_RULE_INVENTORY_PATH = {1221: YANAGI_NA_ORDER}
 
-NA_MANAGER_MAP = {
-    1221: YanagiNAManager
-}
+NA_MANAGER_MAP = {1221: YanagiNAManager}
 
 
 def na_manager_factory(char_obj) -> BaseNAManager:
@@ -26,10 +22,10 @@ def na_manager_factory(char_obj) -> BaseNAManager:
         with open(path, "r", encoding="utf-8") as file:
             all_default_na_dict = json.load(file)
             char_na_dict = all_default_na_dict.get(str(char_cid))
-            dict_input = {'default': char_na_dict}
+            dict_input = {"default": char_na_dict}
             return BaseNAManager(char_obj, dict_input)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     na_manager = na_manager_factory(1300)
     print(na_manager.na_rule_selector())

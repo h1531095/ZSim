@@ -13,6 +13,7 @@ class SokakuUniqueSkillMinorATKBonus(Buff.BuffLogic):
     只要释放了展旗，就会判定通过。
     但是，具体的层数，却是要根据苍角的面板攻击力实时调取的。
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -25,7 +26,9 @@ class SokakuUniqueSkillMinorATKBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['苍角'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["苍角"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = SokakuUniqueSkillMinorATKRecord()
         self.record = self.buff_0.history.record
@@ -42,7 +45,3 @@ class SokakuUniqueSkillMinorATKBonus(Buff.BuffLogic):
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_instance.dy.count = count
         self.buff_instance.update_to_buff_0(self.buff_0)
-
-
-
-

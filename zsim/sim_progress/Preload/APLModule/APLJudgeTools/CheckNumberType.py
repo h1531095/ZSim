@@ -16,16 +16,16 @@ def check_number_type(text):
         except ValueError:
             pass
         # 尝试转化None
-        if text.lower() == 'none':
+        if text.lower() == "none":
             return None
         # 尝试转换为布尔值
-        if text.lower() in ['true', 'false']:
-            return text.lower() == 'true'
+        if text.lower() in ["true", "false"]:
+            return text.lower() == "true"
         # 尝试转换为元组
-        if text.startswith('(') and text.endswith(')'):
+        if text.startswith("(") and text.endswith(")"):
             try:
                 # 去除括号并分割元素
-                elements = text[1:-1].split(',')
+                elements = text[1:-1].split(",")
                 # 递归处理每个元素
                 return tuple(check_number_type(elem.strip()) for elem in elements)[1]
             except ValueError:

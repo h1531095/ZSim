@@ -8,4 +8,4 @@ def find_char_from_CID(CID: int):
         if char.CID == CID:
             return char
     else:
-        raise ValueError(f'并未找到CID为{CID}的角色！')
+        raise ValueError(f"并未找到CID为{CID}的角色！")

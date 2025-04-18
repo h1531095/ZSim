@@ -1,7 +1,11 @@
 import math
 from .BasePreloadEngine import BasePreloadEngine
 from sim_progress.Preload import SkillNode
-from define import SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT as SCK, SWAP_CANCEL_MODE_LAG_TIME as SCLT
+from define import (
+    SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT as SCK,
+    SWAP_CANCEL_MODE_LAG_TIME as SCLT,
+)
+
 # EXPLAIN：关于SCK和LT的作用：
 """
 以上两个系数分别是：
@@ -18,12 +22,13 @@ from define import SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT as SCK, SWAP_CANCEL_M
 
 class SwapCancelValidateEngine(BasePreloadEngine):
     """该引擎的作用是：判断当前传入的APL运行结果是否满足合轴的需求"""
+
     def __init__(self, data):
         super().__init__(data)
         self.validators = [
             self._validate_char_avaliable,
             self._validate_swap_tick,
-            self._validate_qte_activation
+            self._validate_qte_activation,
         ]
 
     @property
@@ -35,94 +40,110 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         1、当前涉及角色是否有空
         2、合轴时间是否符合
         3、确认合轴后，将skill_tag和主动参数 打包成tuple"""
-        apl_priority = kwargs.get('apl_priority', 0)
-        apl_skill_node = kwargs.get('apl_skill_node', None)
+        apl_priority = kwargs.get("apl_priority", 0)
+        apl_skill_node = kwargs.get("apl_skill_node", None)
         self.active_signal = False
-        if not self._validate_char_avaliable(skill_tag=skill_tag, tick=tick, apl_skill_node=apl_skill_node):
+        if not self._validate_char_avaliable(
+            skill_tag=skill_tag, tick=tick, apl_skill_node=apl_skill_node
+        ):
             return False
         if not self._validate_swap_tick(skill_tag=skill_tag, tick=tick):
             return False
         if self._validate_qte_activation(tick=tick):
             return False
-        self.data.preload_action_list_before_confirm.append((skill_tag, True, apl_priority))
+        self.data.preload_action_list_before_confirm.append(
+            (skill_tag, True, apl_priority)
+        )
         self.active_signal = True
         return True
 
     def _validate_char_avaliable(self, **kwargs) -> bool:
         """角色是否可以获取的判定"""
-        skill_tag = kwargs['skill_tag']
-        apl_skill_node: SkillNode = kwargs['apl_skill_node']
-        if skill_tag == 'wait':
+        skill_tag = kwargs["skill_tag"]
+        apl_skill_node: SkillNode = kwargs["apl_skill_node"]
+        if skill_tag == "wait":
             return False
-        tick = kwargs['tick']
-        cid = int(skill_tag.split('_')[0])
+        tick = kwargs["tick"]
+        cid = int(skill_tag.split("_")[0])
         char_stack = self.data.personal_node_stack.get(cid, None)
         if char_stack is None:
-            '''角色当前没有正在发生的Node，有空'''
+            """角色当前没有正在发生的Node，有空"""
             return True
         char_latest_node = char_stack.peek()
         # char_latest_active_node = char_stack.get_on_field_node(tick)
         # if char_latest_active_node is not None:
         #     print(char_latest_node.skill_tag, char_latest_active_node.skill_tag)
         if char_latest_node is None:
-            '''角色当前没有正在发生的Node，有空'''
+            """角色当前没有正在发生的Node，有空"""
             return True
 
-        '''角色当前有一个正在发生的Node'''
+        """角色当前有一个正在发生的Node"""
         if char_latest_node.end_tick > tick:
-            '''正在进行的技能并非立即执行类型，而新的技能是立即执行类型，则放行'''
-            if apl_skill_node.skill.do_immediately and not char_latest_node.skill.do_immediately:
+            """正在进行的技能并非立即执行类型，而新的技能是立即执行类型，则放行"""
+            if (
+                apl_skill_node.skill.do_immediately
+                and not char_latest_node.skill.do_immediately
+            ):
                 return True
             else:
                 return False
 
-        '''
+        """
         虽然角色目前有空，但是当前tick正好添加了一个Ta的动作，
         不管这个动作是主动的还是被动的，都意味着当前tick本角色没空
         ——但是，大招、QTE等技能，会导致本tick安排的强制动作被挤掉，
-        '''
+        """
         for _tuples in self.data.preload_action_list_before_confirm:
             _tag = _tuples[0]
-            if cid == int(_tag.split('_')[0]):
+            if cid == int(_tag.split("_")[0]):
                 if apl_skill_node.skill.do_immediately:
                     for obj in self.data.skills:
                         if not obj.CID == cid:
                             continue
-                        if obj.get_skill_info(skill_tag=_tag, attr_info='do_immediately'):
-                            '''如果当前tick被force_add添加的skill_tag本来就是do_immediately类型，那么就没法抢队了'''
+                        if obj.get_skill_info(
+                            skill_tag=_tag, attr_info="do_immediately"
+                        ):
+                            """如果当前tick被force_add添加的skill_tag本来就是do_immediately类型，那么就没法抢队了"""
                             return False
                         else:
-                            '''附加伤害additional_damage（类似于“白雷”）由于不需要占用角色，所以可以免于被挤掉的命运'''
-                            if 'additional_damage' not in obj.get_skill_info(skill_tag=_tag, attr_info='labels').keys():
-                                '''但若当前tick被force_add 添加的skill_tag只是个普通技能，那么就要执行顶替。'''
-                                self.data.preload_action_list_before_confirm.remove(_tuples)
+                            """附加伤害additional_damage（类似于“白雷”）由于不需要占用角色，所以可以免于被挤掉的命运"""
+                            if (
+                                "additional_damage"
+                                not in obj.get_skill_info(
+                                    skill_tag=_tag, attr_info="labels"
+                                ).keys()
+                            ):
+                                """但若当前tick被force_add 添加的skill_tag只是个普通技能，那么就要执行顶替。"""
+                                self.data.preload_action_list_before_confirm.remove(
+                                    _tuples
+                                )
                                 return True
                             break
                     else:
-                        raise ValueError(f'没找到{cid}对应的角色！')
+                        raise ValueError(f"没找到{cid}对应的角色！")
                 else:
                     return False
 
-        '''此时，角色有空，且没有强制任务，接下来要根据当前前台的技能情况来继续展开讨论'''
+        """此时，角色有空，且没有强制任务，接下来要根据当前前台的技能情况来继续展开讨论"""
         node_on_field = self.data.get_on_field_node(tick)
 
-        '''角色有空，并且当前前台技能是None，那么直接通过'''
+        """角色有空，并且当前前台技能是None，那么直接通过"""
         if node_on_field is None:
             return True
 
-        '''角色有空，当前场上虽然存在技能，但是技能并不需求前台释放，那么等同于当前角色可用。'''
+        """角色有空，当前场上虽然存在技能，但是技能并不需求前台释放，那么等同于当前角色可用。"""
         if not node_on_field.skill.on_field:
             return True
 
-        '''角色有空，当前前台技能是其他角色的，此时要针对切人CD和技能Tag进行检查'''
-        if int(node_on_field.skill_tag.split('_')[0]) != cid:
+        """角色有空，当前前台技能是其他角色的，此时要针对切人CD和技能Tag进行检查"""
+        if int(node_on_field.skill_tag.split("_")[0]) != cid:
             if tick - char_latest_node.end_tick < 60:
-                '''查了一下时间，竟然是1秒内刚切下去的'''
-                if 'Aid' not in skill_tag or 'QTE' not in skill_tag:
-                    '''如果不是支援类和连携技这种无视切人CD的技能，那么此时角色是切不出来的'''
+                """查了一下时间，竟然是1秒内刚切下去的"""
+                if "Aid" not in skill_tag or "QTE" not in skill_tag:
+                    """如果不是支援类和连携技这种无视切人CD的技能，那么此时角色是切不出来的"""
                     return False
 
-        '''其他剩下的所有情况，都返回True'''
+        """其他剩下的所有情况，都返回True"""
         return True
 
     @staticmethod
@@ -136,20 +157,25 @@ class SwapCancelValidateEngine(BasePreloadEngine):
 
     def _validate_swap_tick(self, **kwargs):
         """针对当前技能的合轴时间的检测"""
-        skill_tag = kwargs['skill_tag']
-        tick = kwargs['tick']
+        skill_tag = kwargs["skill_tag"]
+        tick = kwargs["tick"]
         current_node_on_field = self.data.get_on_field_node(tick)
         if current_node_on_field is None:
             return True
         swap_lag_tick = self.spawn_lag_time(current_node_on_field)
-        if swap_lag_tick + current_node_on_field.skill.swap_cancel_ticks + current_node_on_field.preload_tick > tick:
+        if (
+            swap_lag_tick
+            + current_node_on_field.skill.swap_cancel_ticks
+            + current_node_on_field.preload_tick
+            > tick
+        ):
             return False
         else:
             return True
 
     def _validate_qte_activation(self, **kwargs) -> bool:
         """针对当前技能的QTE是否处于激活状态的检测，当检查到有角色正在释放QTE时，返回True"""
-        tick = kwargs['tick']
+        tick = kwargs["tick"]
         for _cid, stack in self.data.personal_node_stack.items():
             if stack.peek() is None:
                 continue

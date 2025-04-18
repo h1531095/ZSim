@@ -7,6 +7,7 @@ class ActionStack:
     这个动作栈无法记录所有的动作，只能记录所有的前台角色的主动技能。
     功能类似于wow的插件TrufigGCD。但是长度只有2，因为只需要记录“上一个动作”和“当前动作”
     """
+
     def __init__(self, length: int = 2):
         # 初始化一个空的栈，用列表作为基础
         """
@@ -22,7 +23,9 @@ class ActionStack:
         self.length = length
         if SWAP_CANCEL:
             self.personal_stack = defaultdict(list)
-            self._swap_cancel_warning_printed = False  # 标志变量，用于控制警告信息只打印一次
+            self._swap_cancel_warning_printed = (
+                False  # 标志变量，用于控制警告信息只打印一次
+            )
 
         self.stack = []
 
@@ -42,7 +45,9 @@ class ActionStack:
         """从栈顶弹出一个元素"""
         if key:
             if not SWAP_CANCEL:
-                raise ValueError("往ActionStack的pop方法中传入key参数时，合轴模式必须开启！")
+                raise ValueError(
+                    "往ActionStack的pop方法中传入key参数时，合轴模式必须开启！"
+                )
             if key not in self.personal_stack or len(self.personal_stack[key]) == 0:
                 return None
             pop_item = self.personal_stack[key].pop()
@@ -57,13 +62,17 @@ class ActionStack:
         """查看栈顶元素"""
         if key:
             if not SWAP_CANCEL:
-                raise ValueError("往ActionStack的peek方法中传入key参数时，合轴模式必须开启！")
+                raise ValueError(
+                    "往ActionStack的peek方法中传入key参数时，合轴模式必须开启！"
+                )
             if key not in self.personal_stack or len(self.personal_stack[key]) == 0:
                 return None
             return self.personal_stack[key][-1]
         else:
             if SWAP_CANCEL and not self._swap_cancel_warning_printed:
-                print('Warning: 在开启合轴模式的情况下，在调用ActionStack的peek方法时并未传入key参数！\n这会导致在含有多个动作的tick，peek方法只会返回最后一个动作，从而让部分buff无法正常触发！')
+                print(
+                    "Warning: 在开启合轴模式的情况下，在调用ActionStack的peek方法时并未传入key参数！\n这会导致在含有多个动作的tick，peek方法只会返回最后一个动作，从而让部分buff无法正常触发！"
+                )
                 self._swap_cancel_warning_printed = True  # 标记为已打印
             if not self.is_empty():
                 return self.stack[-1]
@@ -78,7 +87,9 @@ class ActionStack:
         """查看栈底元素"""
         if key:
             if not SWAP_CANCEL:
-                raise ValueError("往ActionStack的peek_bottom方法中传入key参数时，合轴模式必须开启！")
+                raise ValueError(
+                    "往ActionStack的peek_bottom方法中传入key参数时，合轴模式必须开启！"
+                )
             if key not in self.personal_stack or len(self.personal_stack[key]) == 0:
                 return None
             return self.personal_stack[key][0]
@@ -88,28 +99,30 @@ class ActionStack:
             else:
                 return None
 
-    def __len__(self): 
+    def __len__(self):
         return len(self.stack)
-    
+
     def __str__(self):
         return str(self.stack)
-    
-    def __iter__(self): 
+
+    def __iter__(self):
         return iter(self.stack)
-    
+
     def __getitem__(self, index, /):
         return self.stack[index]
-    
+
     def __eq__(self, value: object, /) -> bool:
-        return self.stack == value or self.stack == getattr(value, 'stack', None)
-    
+        return self.stack == value or self.stack == getattr(value, "stack", None)
+
     def __ne__(self, value: object, /) -> bool:
         return not self.__eq__(value)
 
     def reset_myself(self):
         if SWAP_CANCEL:
             self.personal_stack = defaultdict(list)
-            self._swap_cancel_warning_printed = False  # 标志变量，用于控制警告信息只打印一次
+            self._swap_cancel_warning_printed = (
+                False  # 标志变量，用于控制警告信息只打印一次
+            )
         self.stack = []
 
 
@@ -170,12 +183,12 @@ class NodeStack:
             if _active_node_now:
                 return max(
                     (x for x in _exist_node_list if x.active_generation),
-                    key=lambda x: x.preload_tick)
+                    key=lambda x: x.preload_tick,
+                )
             else:
-                '''当场上的node全部都是被动动作时，只去其中最新的那个。'''
-                return max(
-                    (x for x in _exist_node_list),
-                    key=lambda x: x.preload_tick)
+                """当场上的node全部都是被动动作时，只去其中最新的那个。"""
+                return max((x for x in _exist_node_list), key=lambda x: x.preload_tick)
+
     def reset(self):
         self.stack = []
 
@@ -202,8 +215,7 @@ class NodeStack:
         return self.stack[index]
 
     def __eq__(self, value: object, /) -> bool:
-        return self.stack == value or self.stack == getattr(value, 'stack', None)
+        return self.stack == value or self.stack == getattr(value, "stack", None)
 
     def __ne__(self, value: object, /) -> bool:
         return not self.__eq__(value)
-

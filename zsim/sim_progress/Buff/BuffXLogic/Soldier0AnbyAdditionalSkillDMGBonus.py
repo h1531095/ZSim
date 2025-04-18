@@ -24,7 +24,9 @@ class Soldier0AnbyAdditionalSkillDMGBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['零号·安比'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["零号·安比"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = Soldier0AnbyAdditionalSkillDMGBonusRecord()
         self.record = self.buff_0.history.record
@@ -34,11 +36,12 @@ class Soldier0AnbyAdditionalSkillDMGBonus(Buff.BuffLogic):
         只要是检测到有银星，且正在操作安比，就返回True
         """
         self.check_record_module()
-        self.get_prepared(char_CID=1381, trigger_buff_0=("零号·安比", "Buff-角色-零号·安比-银星触发器"), preload_data=1)
+        self.get_prepared(
+            char_CID=1381,
+            trigger_buff_0=("零号·安比", "Buff-角色-零号·安比-银星触发器"),
+            preload_data=1,
+        )
         if self.record.trigger_buff_0.dy.active:
             if self.record.preload_data.operating_now == 1381:
                 return True
         return False
-
-
-

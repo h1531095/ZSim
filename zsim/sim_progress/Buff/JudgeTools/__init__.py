@@ -11,7 +11,7 @@ def check_preparation(buff_0, **kwargs):
     """
     # 先决条件检查
     if buff_0.history.record is None:
-        raise ValueError('buff_0的record模块尚未初始化！！！')
+        raise ValueError("buff_0的record模块尚未初始化！！！")
     record = buff_0.history.record
 
     # 参数获取
@@ -27,10 +27,23 @@ def check_preparation(buff_0, **kwargs):
     preload_data = kwargs.get("preload_data")
 
     # 参数正确性检查
-    if sub_exist_buff_dict and char_NAME is None and char_CID is None and equipper is None:
-        raise ValueError('在查询sub_exist_buff_dict的同时，应保证传入char_CID/char_NAME/equipper中的一个参数')
-    if trigger_buff_0 and trigger_buff_0[0] == 'enemy' and not any([char_CID, char_NAME, equipper]):
-        raise ValueError('在查询来自于enemy的trigger_buff_0的同时，应保证传入char_CID/char_NAME/equipper中的一个参数')
+    if (
+        sub_exist_buff_dict
+        and char_NAME is None
+        and char_CID is None
+        and equipper is None
+    ):
+        raise ValueError(
+            "在查询sub_exist_buff_dict的同时，应保证传入char_CID/char_NAME/equipper中的一个参数"
+        )
+    if (
+        trigger_buff_0
+        and trigger_buff_0[0] == "enemy"
+        and not any([char_CID, char_NAME, equipper])
+    ):
+        raise ValueError(
+            "在查询来自于enemy的trigger_buff_0的同时，应保证传入char_CID/char_NAME/equipper中的一个参数"
+        )
 
     # 函数主体部分
     if equipper:
@@ -47,7 +60,7 @@ def check_preparation(buff_0, **kwargs):
 
     if sub_exist_buff_dict:
         if record.char is None:
-            raise ValueError('在buff_0.history.record 中并未读取到对应的char')
+            raise ValueError("在buff_0.history.record 中并未读取到对应的char")
         if record.sub_exist_buff_dict is None:
             record.sub_exist_buff_dict = find_exist_buff_dict()[record.char.NAME]
     if enemy:
@@ -80,15 +93,15 @@ def trigger_buff_0_handler(record, trigger_buff_0):
         所以，应该直接找到活跃的Buff源——也就是Buff 的Operator的源头。
     """
     if not isinstance(trigger_buff_0, tuple):
-        raise TypeError('输入的参数必须是tuple！')
+        raise TypeError("输入的参数必须是tuple！")
     if record.trigger_buff_0 is None:
         operator = trigger_buff_0[0]
         buff_index = trigger_buff_0[1]
-        if operator == 'equipper':
+        if operator == "equipper":
             if record.equipper is None:
                 record.equipper = find_equipper(operator)
             operator = record.equipper
-        elif operator == 'enemy':
+        elif operator == "enemy":
             operator = record.char.NAME
         sub_exist_buff_dict = find_exist_buff_dict()[operator]
         founded_list = []
@@ -96,11 +109,15 @@ def trigger_buff_0_handler(record, trigger_buff_0):
             if buff_index in _buff_founded.ft.index:
                 founded_list.append(_buff_founded)
         if len(founded_list) != 1:
-            '''说明提供的关键词筛选出了多个Buff，此时需要进一步筛选出正确结果'''
-            founded_buff_index_list = [founded_buff.ft.index for founded_buff in founded_list]
-            '''验错环节'''
+            """说明提供的关键词筛选出了多个Buff，此时需要进一步筛选出正确结果"""
+            founded_buff_index_list = [
+                founded_buff.ft.index for founded_buff in founded_list
+            ]
+            """验错环节"""
             if len(set(founded_buff_index_list)) != len(founded_list):
-                raise ValueError(f'在{operator}的sub_exist_buff_dict中找到了2个以上的同名buff！')
+                raise ValueError(
+                    f"在{operator}的sub_exist_buff_dict中找到了2个以上的同名buff！"
+                )
             trigger_index_length = len(buff_index)
             for _buffs in founded_list:
                 if _buffs.ft.index[-trigger_index_length:] == buff_index:
@@ -108,10 +125,7 @@ def trigger_buff_0_handler(record, trigger_buff_0):
                     break
             else:
                 raise ValueError(
-                    f'并未找到Buff名后缀为{buff_index}的触发器Buff，说明提供的用于寻找trigger_buff_0的关键词无法有效筛选出触发器，请调整关键词或者数据库Buff Index')
+                    f"并未找到Buff名后缀为{buff_index}的触发器Buff，说明提供的用于寻找trigger_buff_0的关键词无法有效筛选出触发器，请调整关键词或者数据库Buff Index"
+                )
         else:
             record.trigger_buff_0 = founded_list[0]
-
-
-
-

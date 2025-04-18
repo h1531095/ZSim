@@ -3,10 +3,14 @@ import pandas as pd
 from sim_progress import Load
 from sim_progress.Character.skill_class import Skill
 from sim_progress.Buff.buff_class import Buff
-from define import BUFF_LOADING_CONDITION_TRANSLATION_DICT, JUDGE_FILE_PATH, EXIST_FILE_PATH
+from define import (
+    BUFF_LOADING_CONDITION_TRANSLATION_DICT,
+    JUDGE_FILE_PATH,
+    EXIST_FILE_PATH,
+)
 
-EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col='BuffName')
-JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col='BuffName')
+EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col="BuffName")
+JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col="BuffName")
 JUDGE_FILE = JUDGE_FILE.replace({np.nan: None})
 EXIST_FILE = EXIST_FILE.replace({np.nan: None})
 
@@ -33,12 +37,22 @@ class BuffJudgeCache(BuffInitCache):
         super().__init__()
 
 
-def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT, exist_buff_dict: dict):
+def process_buff(
+    buff_0,
+    sub_exist_buff_dict,
+    mission,
+    time_now,
+    selected_characters,
+    LOADING_BUFF_DICT,
+    exist_buff_dict: dict,
+):
     """
     该函数是公用的buff逻辑处理函数，主要是通过BuffJudge来判断Buff是否应该触发。
     注意，此处的buff_0是operator的buff_0，哪怕buff是要加给别的角色，这里也是operator的buff_0
     """
-    all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
+    all_match, judge_condition_dict, active_condition_dict = BuffInitialize(
+        buff_0.ft.index, sub_exist_buff_dict
+    )
     all_match = BuffJudge(buff_0, judge_condition_dict, mission)
     if not all_match:
         return
@@ -58,16 +72,22 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
                     并且触发对应的分支（start、hit、end），完成符合buff属性的时间、层数更新。
                     """
                     buff_new = Buff(active_condition_dict, judge_condition_dict)
-                    buff_new.update(char, time_now, mission.mission_node.skill.ticks, sub_exist_buff_dict, sub_mission)
+                    buff_new.update(
+                        char,
+                        time_now,
+                        mission.mission_node.skill.ticks,
+                        sub_exist_buff_dict,
+                        sub_mission,
+                    )
                     if buff_new.dy.is_changed:
                         LOADING_BUFF_DICT[char].append(buff_new)
-                        '''
+                        """
                         这里要注意：process_buff函数中传入的buff_0，只会来自于角色，
                         所以，如果有上个Enemy的debuff，那么角色自身作为触发源头，正常更新以外，
                         需要向Enemy的buff_0同步广播。否则，record就无法记录enemy身上Buff的正常层数。
-                        '''
-                        if char == 'enemy':
-                            enemy_buff_0 = exist_buff_dict['enemy'][buff_0.ft.index]
+                        """
+                        if char == "enemy":
+                            enemy_buff_0 = exist_buff_dict["enemy"][buff_0.ft.index]
                             buff_new.update_to_buff_0(enemy_buff_0)
 
         else:
@@ -80,25 +100,26 @@ def process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_charac
             buff_new.logic.xeffect()
             if buff_new.dy.is_changed:
                 LOADING_BUFF_DICT[char].append(buff_new)
-                if char == 'enemy':
-                    enemy_buff_0 = exist_buff_dict['enemy'][buff_0.ft.index]
+                if char == "enemy":
+                    enemy_buff_0 = exist_buff_dict["enemy"][buff_0.ft.index]
                     buff_new.update_to_buff_0(enemy_buff_0)
 
 
 def BuffLoadLoop(
-        time_now: int,
-        load_mission_dict: dict,
-        existbuff_dict: dict,
-        character_name_box: list,
-        LOADING_BUFF_DICT: dict,
-        all_name_order_box: dict):
+    time_now: int,
+    load_mission_dict: dict,
+    existbuff_dict: dict,
+    character_name_box: list,
+    LOADING_BUFF_DICT: dict,
+    all_name_order_box: dict,
+):
     """
     这是buff修改三部曲的第二步,也是最核心的一个步骤，
     该函数会向外抛出LOADING_BUFF_DICT——本tick触发了多少BUFF/DEBUFF，并且移交给BuffAdd函数，执行buff的添加。
     本函数的核心调用函数是ProcessBuff函数。
     """
     # 初始化LOADING_BUFF_DICT
-    all_name_box = character_name_box + ['enemy']
+    all_name_box = character_name_box + ["enemy"]
     for character in all_name_box:
         LOADING_BUFF_DICT[character] = []
     # 遍历load_mission_dict中的任务
@@ -107,20 +128,41 @@ def BuffLoadLoop(
             raise TypeError(f"当前{mission}不是SkillNode类！")
         actor_name = mission.mission_character
         if actor_name not in existbuff_dict:
-            raise ValueError('当前角色的Buff源并未创建！')
+            raise ValueError("当前角色的Buff源并未创建！")
         # 提取当前角色的 Buff 列表
         # sub_exist_debuff_dict = existbuff_dict['enemy']
 
         for char_name in character_name_box:
             sub_exist_buff_dict = existbuff_dict[char_name]
             if char_name == actor_name:
-                process_on_field_buff(sub_exist_buff_dict, mission, time_now, LOADING_BUFF_DICT, all_name_order_box, existbuff_dict)
+                process_on_field_buff(
+                    sub_exist_buff_dict,
+                    mission,
+                    time_now,
+                    LOADING_BUFF_DICT,
+                    all_name_order_box,
+                    existbuff_dict,
+                )
             else:
-                process_backend_buff(sub_exist_buff_dict, all_name_order_box, mission, time_now, LOADING_BUFF_DICT, existbuff_dict)
+                process_backend_buff(
+                    sub_exist_buff_dict,
+                    all_name_order_box,
+                    mission,
+                    time_now,
+                    LOADING_BUFF_DICT,
+                    existbuff_dict,
+                )
     return LOADING_BUFF_DICT
 
 
-def process_on_field_buff(sub_exist_buff_dict: dict, mission: Load.LoadingMission, time_now: int, LOADING_BUFF_DICT: dict, all_name_order_box: dict, exist_buff_dict: dict):
+def process_on_field_buff(
+    sub_exist_buff_dict: dict,
+    mission: Load.LoadingMission,
+    time_now: int,
+    LOADING_BUFF_DICT: dict,
+    all_name_order_box: dict,
+    exist_buff_dict: dict,
+):
     """
     处理前台Buff的逻辑模块
         注意，这部分的分支，指的是以当前的前台角色为第一视角来给自己或是其他人添加Buff。
@@ -142,10 +184,25 @@ def process_on_field_buff(sub_exist_buff_dict: dict, mission: Load.LoadingMissio
         main_char = buff_0.ft.operator
         all_name_box = all_name_order_box[main_char]
         selected_characters = buff_go_to(buff_0, all_name_box)
-        process_buff(buff_0, sub_exist_buff_dict, mission, time_now, selected_characters, LOADING_BUFF_DICT, exist_buff_dict)
+        process_buff(
+            buff_0,
+            sub_exist_buff_dict,
+            mission,
+            time_now,
+            selected_characters,
+            LOADING_BUFF_DICT,
+            exist_buff_dict,
+        )
 
 
-def process_backend_buff(sub_exist_buff_dict: dict, all_name_order_box: dict, mission: Load.LoadingMission, time_now: int, LOADING_BUFF_DICT: dict, exist_buff_dict: dict):
+def process_backend_buff(
+    sub_exist_buff_dict: dict,
+    all_name_order_box: dict,
+    mission: Load.LoadingMission,
+    time_now: int,
+    LOADING_BUFF_DICT: dict,
+    exist_buff_dict: dict,
+):
     """
     处理后台Buff的逻辑，
     尽管当前的动作是别的角色（actor ≠ char_name），但是，两位后台角色身上，依旧存在着可能发生更新的Buff
@@ -170,7 +227,15 @@ def process_backend_buff(sub_exist_buff_dict: dict, all_name_order_box: dict, mi
         main_char = other_buff_0.ft.operator
         name_order_box = all_name_order_box[main_char]
         selected_characters_back = buff_go_to(other_buff_0, name_order_box)
-        process_buff(other_buff_0, sub_exist_buff_dict, mission, time_now, selected_characters_back, LOADING_BUFF_DICT, exist_buff_dict)
+        process_buff(
+            other_buff_0,
+            sub_exist_buff_dict,
+            mission,
+            time_now,
+            selected_characters_back,
+            LOADING_BUFF_DICT,
+            exist_buff_dict,
+        )
 
 
 def buff_go_to(buff_0, all_name_box):
@@ -182,11 +247,15 @@ def buff_go_to(buff_0, all_name_box):
     如果字段内容是1010（加给自己和上一位），那么新的selected_characters就会输出[艾莲，苍角]
     """
     adding_code = str(int(buff_0.ft.add_buff_to)).zfill(4)
-    selected_characters = [all_name_box[i] for i in range(len(all_name_box)) if adding_code[i] == '1']
+    selected_characters = [
+        all_name_box[i] for i in range(len(all_name_box)) if adding_code[i] == "1"
+    ]
     return selected_characters
 
 
-def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache()) -> tuple[bool, dict, dict]:
+def BuffInitialize(
+    buff_name: str, existbuff_dict: dict, *, cache=BuffInitCache()
+) -> tuple[bool, dict, dict]:
     cache_key = (buff_name, tuple(existbuff_dict.items()))
     if cache_key in cache.cache:
         return cache.get(cache_key)
@@ -194,12 +263,12 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache
     all_match = False
     buff_now = existbuff_dict[buff_name]
     if not isinstance(buff_now, Buff):
-        raise ValueError(f'当前正在检索的Buff：{buff_name}并不是Buff类！')
+        raise ValueError(f"当前正在检索的Buff：{buff_name}并不是Buff类！")
     if buff_name not in JUDGE_FILE.index:
-        raise ValueError(f'Buff{buff_name}不在JUDGE_FILE中！')
+        raise ValueError(f"Buff{buff_name}不在JUDGE_FILE中！")
     judge_condition_dict = dict(JUDGE_FILE.loc[buff_name])
     active_condition_dict = dict(EXIST_FILE.loc[buff_name])
-    active_condition_dict['BuffName'] = buff_name
+    active_condition_dict["BuffName"] = buff_name
     # 根据buff名称，直接把判断信息从JUDGE_FILE中提出来并且转化成dict。
 
     results = (all_match, judge_condition_dict, active_condition_dict)
@@ -207,37 +276,52 @@ def BuffInitialize(buff_name: str, existbuff_dict: dict, *,cache = BuffInitCache
     return results
 
 
-def BuffJudge(buff_now: Buff, judge_condition_dict: dict, mission: Load.LoadingMission, *, cache=BuffJudgeCache()) -> bool:
+def BuffJudge(
+    buff_now: Buff,
+    judge_condition_dict: dict,
+    mission: Load.LoadingMission,
+    *,
+    cache=BuffJudgeCache(),
+) -> bool:
     """
-        如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
-        说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
+    如果judge_condition_dict的全部内容是None，同时buff还是简单判断逻辑
+    说明是环境或是战斗系统自带的debuff，则直接返回False，跳过判断。
     """
     # 以下为缓存逻辑
     simple_logic: bool = buff_now.ft.simple_judge_logic
-    all_simple = [buff_now.ft.simple_judge_logic,
-                  buff_now.ft.simple_start_logic,
-                  buff_now.ft.simple_hit_logic,
-                  buff_now.ft.simple_end_logic,
-                  buff_now.ft.simple_effect_logic,
-                  buff_now.ft.simple_exit_logic]
+    all_simple = [
+        buff_now.ft.simple_judge_logic,
+        buff_now.ft.simple_start_logic,
+        buff_now.ft.simple_hit_logic,
+        buff_now.ft.simple_end_logic,
+        buff_now.ft.simple_effect_logic,
+        buff_now.ft.simple_exit_logic,
+    ]
     if all(all_simple):
-        cache_key = hash((id(buff_now), tuple(judge_condition_dict.items()), id(mission)))
+        cache_key = hash(
+            (id(buff_now), tuple(judge_condition_dict.items()), id(mission))
+        )
         if cache_key in cache.cache:
             return cache[cache_key]
     result: bool
 
-    def save_cache_and_return(result: bool, *,cache=cache):
+    def save_cache_and_return(result: bool, *, cache=cache):
         """由于本函数有多个return中断，所以写了个这玩意，把直接return换成return这个函数就行"""
         if all(all_simple):
             cache.add(cache_key, result)
         return result
+
     # ——————缓存逻辑结束————————
 
     if buff_now.ft.alltime:
         result = True
         return save_cache_and_return(result)
-    if not any(value if value is None else True for value in judge_condition_dict.values())\
-        and buff_now.ft.simple_judge_logic:
+    if (
+        not any(
+            value if value is None else True for value in judge_condition_dict.values()
+        )
+        and buff_now.ft.simple_judge_logic
+    ):
         # EXPLAIN：全部数据都是None并且是简单判断逻辑
         #   这通常意味着Buff的判断不在Load阶段，而是通过某种方式在其他阶段暴力添加。
         #   但是部分alltime的buff也会进入这一分支，所以需要在判断alltime之后再进行全空判断。
@@ -252,8 +336,9 @@ def BuffJudge(buff_now: Buff, judge_condition_dict: dict, mission: Load.LoadingM
     if simple_logic:
         all_match = simple_string_judge(judge_condition_dict, skill_now)
     else:
-        all_match = buff_now.logic.xjudge(loading_mission=mission,
-                                          skill_node=mission.mission_node)
+        all_match = buff_now.logic.xjudge(
+            loading_mission=mission, skill_node=mission.mission_node
+        )
     result = all_match
     return save_cache_and_return(result)
 
@@ -281,7 +366,7 @@ def simple_string_judge(judge_condition_dict: dict, skill_now) -> bool:
     return all_match
 
 
-def process_string(source: str) -> list[int|float|str]:
+def process_string(source: str) -> list[int | float | str]:
     """
     在2024.11.13的更新中，从csv中读取的数据从单个数值变成了字符串，但是数据类型有点复杂。
     如果单元格内没有分隔符，那么就会被转化为单元素列表，且会自动转换其中的数字为python数字，
@@ -290,8 +375,8 @@ def process_string(source: str) -> list[int|float|str]:
     这样就可以实现“或”逻辑。
     """
     if isinstance(source, str):
-        if '|' in source:
-            split_list = source.split('|')
+        if "|" in source:
+            split_list = source.split("|")
             return [eval(item) if item.isdigit() else item for item in split_list]
         else:
             return [eval(source) if source.isdigit() else source]
@@ -303,7 +388,8 @@ def process_buff_for_test(buff_0, sub_exist_buff_dict, mission):
     """
     本函数截取了process_buff函数的头部，专为Pytest服务，正常程序请勿调用！
     """
-    all_match, judge_condition_dict, active_condition_dict = BuffInitialize(buff_0.ft.index, sub_exist_buff_dict)
+    all_match, judge_condition_dict, active_condition_dict = BuffInitialize(
+        buff_0.ft.index, sub_exist_buff_dict
+    )
     all_match = BuffJudge(buff_0, judge_condition_dict, mission)
     return all_match
-

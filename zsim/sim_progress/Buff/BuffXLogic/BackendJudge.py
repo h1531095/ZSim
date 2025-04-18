@@ -5,6 +5,7 @@ class BackendJudge(Buff.BuffLogic):
     """
     后台判定的通用逻辑模块
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance

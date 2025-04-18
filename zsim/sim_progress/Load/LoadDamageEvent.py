@@ -1,4 +1,5 @@
 from .. import Dot
+
 # import Enemy
 from .loading_mission import LoadingMission
 
@@ -10,12 +11,14 @@ def SpawnDamageEvent(mission: LoadingMission | Dot.Dot, event_list: list):
     """
     if isinstance(mission, LoadingMission):
         if mission.hitted_count > mission.mission_node.hit_times:
-            raise ValueError(f'{mission.mission_tag}目前是第{mission.hitted_count}，最多{mission.mission_node.hit_times}')
+            raise ValueError(
+                f"{mission.mission_tag}目前是第{mission.hitted_count}，最多{mission.mission_node.hit_times}"
+            )
         mission.hitted_count += 1
         event_list.append(mission)
     elif isinstance(mission, Dot.Dot):
         if mission.dy.effect_times > mission.ft.max_effect_times:
-            raise ValueError('该Dot任务已经完成，应当被删除！')
+            raise ValueError("该Dot任务已经完成，应当被删除！")
         event_list.append(mission.anomaly_data)
 
 
@@ -25,7 +28,7 @@ def ProcessTimeUpdateDots(timetick: int, dot_list: list, event_list: list):
     """
     for dot in dot_list:
         if not isinstance(dot, Dot.Dot):
-            raise TypeError(f'{dot}不是Dot类！')
+            raise TypeError(f"{dot}不是Dot类！")
 
         # 只处理 effect_rules == 1 的 Dot
         if dot.ft.effect_rules == 1:
@@ -43,7 +46,7 @@ def ProcessHitUpdateDots(timetick: int, dot_list: list, event_list: list):
     """
     for dot in dot_list:
         if not isinstance(dot, Dot.Dot):
-            raise TypeError(f'{dot}不是Dot类！')
+            raise TypeError(f"{dot}不是Dot类！")
 
         # 只处理 effect_rules == 2 的 Dot
         if dot.ft.effect_rules == 2:
@@ -62,7 +65,7 @@ def ProcessFreezLikeDots(timetick: int, enemy, event_list: list):
     dot_list = enemy.dynamic.dynamic_dot_list
     for dot in dot_list[:]:
         if not isinstance(dot, Dot.Dot):
-            raise TypeError(f'{dot}不是Dot类！')
+            raise TypeError(f"{dot}不是Dot类！")
         if dot.ft.effect_rules == 4:
             dot.ready_judge(timetick)
             if dot.dy.ready:
@@ -75,7 +78,14 @@ def ProcessFreezLikeDots(timetick: int, enemy, event_list: list):
                 return True
 
 
-def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: list, char_obj_list: list, **kwargs):
+def DamageEventJudge(
+    timetick: int,
+    load_mission_dict: dict,
+    enemy,
+    event_list: list,
+    char_obj_list: list,
+    **kwargs,
+):
     """
     DamageEvent的Judge函数：轮询load_mission_dict以及enemy.dynamic_dot_list，判断是否应生成Hit事件。
     并且当Hit时间生成时，将对应的实例添加到event_list中。
@@ -90,15 +100,20 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: 
     同时，本函数还会在子任务是end的时候检查enemy的积蓄值。如果积蓄值满，则会触发异常（update_anomaly函数）
     """
     # 处理 Load.Mission 任务
-    dynamic_buff_dict = kwargs.get('dynamic_buff_dict', None)
+    dynamic_buff_dict = kwargs.get("dynamic_buff_dict", None)
     for mission in load_mission_dict.values():
         if not isinstance(mission, LoadingMission | Dot.Dot):
-            raise TypeError(f'{mission}不是LoadingMission或是Dot类！')
+            raise TypeError(f"{mission}不是LoadingMission或是Dot类！")
         for sub_mission_tick in mission.mission_dict:
-            if timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'hit':
+            if (
+                timetick - 1 < sub_mission_tick <= timetick
+                and mission.mission_dict[sub_mission_tick] == "hit"
+            ):
                 SpawnDamageEvent(mission, event_list)
-            # 当Mission触发时，检查 effect_rules == 2 的 Dot
-                ProcessHitUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)
+                # 当Mission触发时，检查 effect_rules == 2 的 Dot
+                ProcessHitUpdateDots(
+                    timetick, enemy.dynamic.dynamic_dot_list, event_list
+                )
             # elif timetick-1 < sub_mission_tick <= timetick and mission.mission_dict[sub_mission_tick] == 'end':
             #     # and mission.mission_node.skill.anomaly_attack
             #     # 在end处进行属性异常检查。

@@ -3,6 +3,7 @@ from .TriggerCoordinatedSupportTrigger import CoordinatedSupportManager
 
 class AfterShock:
     """协同攻击基类"""
+
     def __init__(self, skill_tag: str, cd: int, mode: int = 0):
         self.update_tick = 0
         self.cd = cd
@@ -27,15 +28,12 @@ class AfterShock:
 
     class ComplexCDManager:
         """这是强化协同攻击的复杂CD管理器"""
+
         def __init__(self):
             self.cdm_e = BasicCDManager()
             self.cdm_q = BasicCDManager()
             self.cdm_aid = BasicCDManager()
-            self.cdm_map = {
-                2: self.cdm_e,
-                6: self.cdm_q,
-                9: self.cdm_aid
-            }
+            self.cdm_map = {2: self.cdm_e, 6: self.cdm_q, 9: self.cdm_aid}
 
         def is_available(self, skill_node, tick: int) -> bool:
             """整个CD管理器的对外接口，用来更新、判断此次触发信号能否成功激发一次协同攻击。"""
@@ -81,17 +79,22 @@ class BasicCDManager:
                 self.start_myself(tick)
                 return True
             else:
-                print('由于层数耗尽且尚未到达刷新时间，扳机并未成功触发本次强化协同！！')
+                print(
+                    "由于层数耗尽且尚未到达刷新时间，扳机并未成功触发本次强化协同！！"
+                )
         return False
 
 
 class AfterShockManager:
     """协同攻击管理器， 服务于角色——扳机"""
+
     def __init__(self, char_instance):
         self.char = char_instance
         normal_after_shock_cd = 180 if self.char.cinema < 1 else 120
-        self.normal_after_shock = AfterShock('1361_CoAttack_A', normal_after_shock_cd, mode=0)
-        self.strong_after_shock = AfterShock('1361_CoAttack_1', 300, mode=1)
+        self.normal_after_shock = AfterShock(
+            "1361_CoAttack_A", normal_after_shock_cd, mode=0
+        )
+        self.strong_after_shock = AfterShock("1361_CoAttack_1", 300, mode=1)
         self.coordinated_support_manager = CoordinatedSupportManager()
 
     def spawn_after_shock(self, tick: int, loading_mission) -> str | None:
@@ -102,35 +105,40 @@ class AfterShockManager:
         if not self.char.is_available(tick):
             return None
         skill_node = loading_mission.mission_node
-        '''优先判断强协同攻击: 只有重击的最后一跳才能触发！'''
-        if tick - 1 < loading_mission.get_last_hit() <= tick and skill_node.skill.heavy_attack:
+        """优先判断强协同攻击: 只有重击的最后一跳才能触发！"""
+        if (
+            tick - 1 < loading_mission.get_last_hit() <= tick
+            and skill_node.skill.heavy_attack
+        ):
             if skill_node.skill.trigger_buff_level in [2, 6, 9]:
                 if self.strong_after_shock.is_ready(tick):
                     if self.char.get_resources()[1] >= 5:
-                        if self.strong_after_shock.complex_cd_manager.is_available(skill_node, tick):
-                            strong_after_shock_tag = self.strong_after_shock.after_shock_happend(tick)
+                        if self.strong_after_shock.complex_cd_manager.is_available(
+                            skill_node, tick
+                        ):
+                            strong_after_shock_tag = (
+                                self.strong_after_shock.after_shock_happend(tick)
+                            )
                             self.char.update_purge(strong_after_shock_tag)
                             return strong_after_shock_tag
                     # else:
                     #     print(f'决意值为{self.char.get_resources()[1]}，无法触发强化协同攻击！')
 
-        '''其次判断协战状态的免费协同'''
+        """其次判断协战状态的免费协同"""
         free_after_shock = self.coordinated_support_manager.spawn_after_shock(tick)
         if free_after_shock is not None:
             return free_after_shock
 
-        '''最后，判断消耗决意值的普通协同'''
+        """最后，判断消耗决意值的普通协同"""
         if skill_node.skill.trigger_buff_level in [0, 1, 3, 4, 7]:
             if self.normal_after_shock.is_ready(tick):
                 if self.char.get_resources()[1] >= 3:
-                    normal_after_shock_tag = self.normal_after_shock.after_shock_happend(tick)
+                    normal_after_shock_tag = (
+                        self.normal_after_shock.after_shock_happend(tick)
+                    )
                     self.char.update_purge(normal_after_shock_tag)
                     return normal_after_shock_tag
                 # else:
                 #     print(f'决意值为{self.char.get_resources()[1]}，无法触发普通协同攻击！')
 
         return None
-
-
-
-

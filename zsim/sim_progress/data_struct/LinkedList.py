@@ -18,6 +18,7 @@ class NodeIterator:
     def __iter__(self):
         return self
 
+
 class LinkedList:
     def __init__(self):
         self.head = None
