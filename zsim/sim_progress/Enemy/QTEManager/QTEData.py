@@ -9,6 +9,7 @@ class QETDataUpdater:
 
 class SumStrategy(QETDataUpdater):
     """数值累加策略"""
+
     @classmethod
     def apply(cls, qte_data, single_qte, attr_name):
         single_qte_value = getattr(single_qte, attr_name, 0) or 0
@@ -18,6 +19,7 @@ class SumStrategy(QETDataUpdater):
 
 class ListMergeStrategy(QETDataUpdater):
     """列表合并策略"""
+
     @classmethod
     def apply(cls, qte_data, single_qte, attr_name):
         single_qte_value = getattr(single_qte, attr_name, []) or []
@@ -32,25 +34,36 @@ class QTEData:
         self.enemy_instance = enemy_instance  # 在初始化时，传入Enemy实例；
         self.qte_received_box: list[str] = []  # 用于接受QTE阶段输入的QTE skill_tag
         self.qte_triggered_times: int = 0  # 已经触发过几次QTE了
-        self.qte_triggerable_times: int | None = enemy_instance.QTE_triggerable_times  # 最多可以触发几次QTE
+        self.qte_triggerable_times: int | None = (
+            enemy_instance.QTE_triggerable_times
+        )  # 最多可以触发几次QTE
         self.qte_activation_available = False  # 彩色失衡阶段——在StunJudge中被打开，在SingeQTE的merge方法中被关闭，当然，失衡阶段的结束也会关闭该参数（依旧是StunJudge）。
         self.single_qte = None  # 单次QTE的实例
-        self.__single_hit_check = lambda hit: all([
-            hit.hitted_count == 1 or hit.heavy_hit  # 第一跳、重击（通常为重攻击标签的最后一跳）均能通过判定，
-            # hit.proactive or (not hit.proactive and 'QTE' in hit.skill_tag),  # 筛选出主动技能，所有的被动释放的技能都不能和QTE的激活行为进行互动。
-        ])
+        self.__single_hit_check = (
+            lambda hit: all(
+                [
+                    hit.hitted_count == 1
+                    or hit.heavy_hit  # 第一跳、重击（通常为重攻击标签的最后一跳）均能通过判定，
+                    # hit.proactive or (not hit.proactive and 'QTE' in hit.skill_tag),  # 筛选出主动技能，所有的被动释放的技能都不能和QTE的激活行为进行互动。
+                ]
+            )
+        )
         self.strategies_map = {
-            'qte_received_box': ListMergeStrategy,
-            'qte_triggered_times': SumStrategy
+            "qte_received_box": ListMergeStrategy,
+            "qte_triggered_times": SumStrategy,
         }
         self.preload_data = None
 
     def check_myself(self) -> bool:
         """该函数用于检查自身目前的状态，即当前是彩色失衡还是灰色失衡；"""
         if self.qte_triggered_times > self.qte_triggerable_times:
-            raise ValueError(f'QTE的实际响应总次数为{self.qte_triggered_times}次，大于其最大次数{self.qte_triggerable_times}次！')
+            raise ValueError(
+                f"QTE的实际响应总次数为{self.qte_triggered_times}次，大于其最大次数{self.qte_triggerable_times}次！"
+            )
         if len(self.qte_received_box) > self.qte_triggered_times:
-            raise ValueError(f'QTE总计包含了{len(self.qte_received_box)}个skill_tag，而实际的响应次数为{self.qte_triggered_times}次！')
+            raise ValueError(
+                f"QTE总计包含了{len(self.qte_received_box)}个skill_tag，而实际的响应次数为{self.qte_triggered_times}次！"
+            )
         if self.enemy_instance.dynamic.stun:
             if self.qte_triggered_times < self.qte_triggerable_times:
                 return True
@@ -76,7 +89,9 @@ class QTEData:
         # 2、是否存在已经激活的SingleQTE实例——连携阶段已经因重攻击而激发、SingleQTE实例也已经创建，但是尚未传入SingleHit的状态
         if self.single_qte is not None:
             if not isinstance(self.single_qte, SingleQTE):
-                raise TypeError(f'QTEData的single_qte属性不是SingleQTE类！你往里放入了{type(self.single_qte)}！')
+                raise TypeError(
+                    f"QTEData的single_qte属性不是SingleQTE类！你往里放入了{type(self.single_qte)}！"
+                )
             # 2.1、尝试将已经通过可行性检查的SingleHit传入到SingleQTE中，进行数据更新，
             self.single_qte.receive_hit(hit)
             # print(f'{hit.skill_tag}响应了本次连携技触发！')
@@ -87,12 +102,12 @@ class QTEData:
                 self.single_qte = SingleQTE(self)
                 # print(f'{hit.skill_tag}激发了连携技！')
             else:
-                '''
+                """
                 如果不是重攻击，那就只能是某技能的第一跳。
                 很明显，在SingleHit并未被创建的时候，技能的第一跳并不能激发连携状态。所以这个分支什么都不做（暂时）
                 这个分枝往往发生在：怪物已经失衡，但是重攻击标签还未传入时，可能是前台切人合轴了，也可能是角色的APL本来就不打连携技。
                 此时，下一个循环，函数就会触发隔壁分枝，因为有一个SingleQTE是待传入状态，
-                '''
+                """
                 # print(f'虽然是彩色失衡状态，但是没有进行响应')
                 return
 
@@ -126,47 +141,56 @@ class QTEData:
             （解释一下，这里为什么不用“前台”属性来进行判断：因为绝区零已经存在多名角色同时处于前台的情况，
             所以这个“前台”的说法并不准确，但是无论如何，玩家操纵的角色始终只有一名，
             所以“角色正处于被操作状态下”才是更准确的描述。）
-            """
+        """
         if not _hit.heavy_hit:
             return False
         if self.preload_data is None:
             import sys
+
             main_module = sys.modules["simulator.main_loop"]
-            self.preload_data = main_module.game_state['preload'].preload_data
+            self.preload_data = main_module.game_state["preload"].preload_data
         from sim_progress.Preload.PreloadDataClass import PreloadData
+
         if not isinstance(self.preload_data, PreloadData):
-            raise TypeError('QTEData的preload_data属性不是PreloadData类！')
+            raise TypeError("QTEData的preload_data属性不是PreloadData类！")
         if self.preload_data.operating_now is None:
-            '''说明目前没有任何角色在前台'''
+            """说明目前没有任何角色在前台"""
             return False
         else:
-            return int(_hit.skill_tag.split('_')[0]) == self.preload_data.operating_now
+            return int(_hit.skill_tag.split("_")[0]) == self.preload_data.operating_now
 
 
 class SingleQTE:
     def __init__(self, qte_data: QTEData):
         self.qte_data = qte_data
-        self.qte_received_box: list[str] = []           # 用于接受QTE阶段输入的QTE skill_tag
-        self.qte_triggerable_times: int = self.qte_data.qte_triggerable_times  # 最多可以触发几次QTE
-        self.qte_triggered_times: int = 0       # 已经响应了几次QTE
-        self.qte_activation_available = False       # 彩色失衡阶段
-        self.__is_hitted = False             # 每个SingleHit都只会被响应一次，所以这里用一个bool变量来标记是否已经被响应过。
+        self.qte_received_box: list[str] = []  # 用于接受QTE阶段输入的QTE skill_tag
+        self.qte_triggerable_times: int = (
+            self.qte_data.qte_triggerable_times
+        )  # 最多可以触发几次QTE
+        self.qte_triggered_times: int = 0  # 已经响应了几次QTE
+        self.qte_activation_available = False  # 彩色失衡阶段
+        self.__is_hitted = False  # 每个SingleHit都只会被响应一次，所以这里用一个bool变量来标记是否已经被响应过。
 
     def receive_hit(self, _single_hit: SingleHit):
         """SingleQTE接收SingleHit的方法"""
         if self.__is_hitted:
             raise ValueError(
-                'SingleQTE实例已经响应过一次了！请检查函数逻辑，查找为何处会多次调用同一个SingleQTE的_receive_hit函数！')
+                "SingleQTE实例已经响应过一次了！请检查函数逻辑，查找为何处会多次调用同一个SingleQTE的_receive_hit函数！"
+            )
         if not isinstance(_single_hit, SingleHit):
-            raise TypeError( f'SingleQTE实例的_receive_hit函数被调用时，传入的single_hit参数不是SingleHit类！而是{type(_single_hit)}！')
-        if _single_hit.hitted_count != 1:   # 如果传进来的不是第一跳，那直接return
+            raise TypeError(
+                f"SingleQTE实例的_receive_hit函数被调用时，传入的single_hit参数不是SingleHit类！而是{type(_single_hit)}！"
+            )
+        if _single_hit.hitted_count != 1:  # 如果传进来的不是第一跳，那直接return
             return
-        if not _single_hit.proactive:       # 如果传进来的是一个非主动动作，也直接return
+        if not _single_hit.proactive:  # 如果传进来的是一个非主动动作，也直接return
             return
-        self.qte_triggered_times += 1  # 无论传进来的是哪一个hit的第一跳，都意味着响应了QTE
-        if 'QTE' not in _single_hit.skill_tag:
-            '''说明QTE被取消了'''
-            print('取消QTE！')
+        self.qte_triggered_times += (
+            1  # 无论传进来的是哪一个hit的第一跳，都意味着响应了QTE
+        )
+        if "QTE" not in _single_hit.skill_tag:
+            """说明QTE被取消了"""
+            print("取消QTE！")
         else:
             self.qte_received_box.append(_single_hit.skill_tag)
         self.__is_hitted = True
@@ -179,5 +203,3 @@ class SingleQTE:
                 strategy.apply(self.qte_data, self, attr_name)
         self.qte_data.single_qte = None
         self.qte_data.check_myself()
-
-

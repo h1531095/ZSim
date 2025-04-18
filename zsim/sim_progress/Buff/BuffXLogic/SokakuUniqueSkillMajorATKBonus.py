@@ -9,6 +9,7 @@ class SokakuAdditionalAbilityATKRecord:
         self.sub_exist_buff_dict = None
         self.last_update_rescource = 0
 
+
 class SokakuUniqueSkillMajorATKBonus(Buff.BuffLogic):
     """
     苍角的核心被动2：消耗涡流的展旗会叠加双倍的攻击力。
@@ -16,6 +17,7 @@ class SokakuUniqueSkillMajorATKBonus(Buff.BuffLogic):
     Buff1是简单判定逻辑，只要有展旗，就一定触发。
     Buff2作为额外的层数，在判定出涡流下降沿时再触发。
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -29,7 +31,9 @@ class SokakuUniqueSkillMajorATKBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['苍角'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["苍角"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = SokakuAdditionalAbilityATKRecord()
         self.record = self.buff_0.history.record
@@ -46,9 +50,11 @@ class SokakuUniqueSkillMajorATKBonus(Buff.BuffLogic):
         self.get_prepared(char_CID=1131, action_stack=1)
         action_now = self.record.action_stack.peek()
         resource_now = self.record.char.get_resources()[1]
-        if action_now.mission_tag == '1131_E_EX_A':
+        if action_now.mission_tag == "1131_E_EX_A":
             match_code = lambda a, b: a < b
-            if JudgeTools.detect_edge((resource_now, self.record.last_update_rescource), match_code):
+            if JudgeTools.detect_edge(
+                (resource_now, self.record.last_update_rescource), match_code
+            ):
                 self.record.last_update_rescource = resource_now
                 return True
         self.record.last_update_rescource = resource_now
@@ -72,6 +78,3 @@ class SokakuUniqueSkillMajorATKBonus(Buff.BuffLogic):
         # 先用simple_start把buff开起来。然后再修改层数。
         self.buff_instance.dy.count = count
         self.buff_instance.update_to_buff_0(self.buff_0)
-
-
-

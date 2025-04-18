@@ -6,6 +6,7 @@ from .FeatherManager import FeatherManager
 
 class Vivian(Character):
     """薇薇安的特殊资源模块"""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.feather_manager = FeatherManager(self)     # 羽毛管理器（飞羽、护羽的获取、切换）

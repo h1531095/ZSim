@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class BaseUniqueMechanic(ABC):
-    @ abstractmethod
+    @abstractmethod
     def __init__(self, enemy_instance):
         self.enemy = enemy_instance
 
@@ -13,5 +13,3 @@ class BaseUniqueMechanic(ABC):
     @abstractmethod
     def event_active(self, *args, **kwargs):
         pass
-
-

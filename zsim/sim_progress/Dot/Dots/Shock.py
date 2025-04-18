@@ -10,21 +10,21 @@ class Shock(Dot):
 
     @dataclass
     class DotFeature(Dot.DotFeature):
-        main_module = sys.modules['simulator.main_loop']
+        main_module = sys.modules["simulator.main_loop"]
         char_name_box = main_module.init_data.name_box
         exist_buff_dict = main_module.load_data.exist_buff_dict
         update_cd: int = 60
-        index: str = 'Shock'
-        name: str = '感电'
-        dot_from: str = 'enemy'
+        index: str = "Shock"
+        name: str = "感电"
+        dot_from: str = "enemy"
         effect_rules: int = 2
         max_count: int = 1
         incremental_step: int = 1
         """
         如果丽娜在角色列表里，灼烧和最大生效次数就要发生变化。
         """
-        if '丽娜' in char_name_box:
-            if "Buff-角色-丽娜-组队被动-延长感电" in exist_buff_dict['丽娜']:
+        if "丽娜" in char_name_box:
+            if "Buff-角色-丽娜-组队被动-延长感电" in exist_buff_dict["丽娜"]:
                 max_duration: int = 600 + 180
             else:
                 max_duration: int = 600

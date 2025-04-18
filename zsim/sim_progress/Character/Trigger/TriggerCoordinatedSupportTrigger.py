@@ -1,12 +1,13 @@
 class CoordinatedSupportManager:
     """协战状态管理器"""
+
     def __init__(self):
         self.coordinated_support = False
         self.update_tick = 0
         self.end_tick = 0
         self.max_duration = 1200
         self.max_count = 10
-        self.after_shock_tag = '1361_CoAttack_A'
+        self.after_shock_tag = "1361_CoAttack_A"
         self.count = 0
         self.update_count_box = {2: 4, 6: 6}
         self.update_tick_box = {2: 480, 6: 720}
@@ -21,7 +22,7 @@ class CoordinatedSupportManager:
         """更新协战状态的函数"""
         self.coordinated_support = True
         self.update_tick = tick
-        '''接下来是关于协战状态的结束时间（end_tick）的更新逻辑，这个比较复杂。
+        """接下来是关于协战状态的结束时间（end_tick）的更新逻辑，这个比较复杂。
                 由于协战状态的池子中的剩余时间是可以叠加的，但又存在最大值。
                 如果用最无脑的写法，那应该写一个函数，每个tick更新一次所谓的“剩余时间”，但是这样做实在是太浪费计算资源了。
                 所以这里考虑了一个等效的算法，这个算法会在每次激活协战状态时，无脑更新start_tick和end_tick，
@@ -40,8 +41,14 @@ class CoordinatedSupportManager:
                 |---------|---------------|------------------------|---------------------------|
     情况说明：   老end_tick            tick_now          ∆t                新end_tick                                  最大时间 
                 
-                纵观全部的触发情况，无外乎上面三种。而无论哪一种情况，公式都可以准确算出新end_tick的位置。'''
-        end_tick_new = min(max(self.end_tick - tick, 0) + self.update_tick_box[tbl], tick + self.max_duration) + tick
+                纵观全部的触发情况，无外乎上面三种。而无论哪一种情况，公式都可以准确算出新end_tick的位置。"""
+        end_tick_new = (
+            min(
+                max(self.end_tick - tick, 0) + self.update_tick_box[tbl],
+                tick + self.max_duration,
+            )
+            + tick
+        )
         self.end_tick = end_tick_new
         self.count += self.update_count_box[tbl]
         self.count = min(self.count, self.max_count)
@@ -70,6 +77,3 @@ class CoordinatedSupportManager:
                 self.end(tick)
             return self.after_shock_tag
         return None
-
-
-

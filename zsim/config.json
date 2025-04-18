@@ -11,6 +11,11 @@
     "character": {
         "crit_balancing": true
     },
+    "enemy": {
+        "index_ID": 11414,
+        "adjust_ID": 22412,
+        "difficulty": 8.74
+    },
     "apl_mode": {
         "enabled": true,
         "na_order": "./zsim/data/DefaultConfig/NAOrder.json",
@@ -33,6 +38,7 @@
         "EQUIP_2PC_DATA_PATH": "./zsim/data/equip_set_2pc.csv",
         "SKILL_DATA_PATH": "./zsim/data/skill.csv",
         "ENEMY_DATA_PATH": "./zsim/data/enemy.csv",
+        "ENEMY_ADJUSTMENT_PATH": "./zsim/data/enemy_adjustment.csv",
         "DEFAULT_SKILL_PATH": "./zsim/data/default_skill.csv",
         "JUDGE_FILE_PATH": "./zsim/data/\u89e6\u53d1\u5224\u65ad.csv",
         "EFFECT_FILE_PATH": "./zsim/data/buff_effect.csv",

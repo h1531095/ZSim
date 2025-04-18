@@ -1,10 +1,16 @@
-from sim_progress.Preload.APLModule.APLJudgeTools import get_last_action, check_cid, get_personal_node_stack
+from sim_progress.Preload.APLModule.APLJudgeTools import (
+    get_last_action,
+    check_cid,
+    get_personal_node_stack,
+)
 from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
 
 
 class ActionSubUnit(BaseSubConditionUnit):
     def __init__(self, priority: int, sub_condition_dict: dict = None, mode=0):
-        super().__init__(priority=priority, sub_condition_dict=sub_condition_dict, mode=mode)
+        super().__init__(
+            priority=priority, sub_condition_dict=sub_condition_dict, mode=mode
+        )
 
     class ActionCheckHandler:
         @classmethod
@@ -18,6 +24,7 @@ class ActionSubUnit(BaseSubConditionUnit):
 
     class StrictLinkedHandler(ActionCheckHandler):
         """强衔接判定，技能skill_tag符合的同时，还需要上一个动作刚好结束。"""
+
         @classmethod
         def handler(cls, char_cid: int, game_state, tick: int) -> str | None:
             char_stack = get_personal_node_stack(game_state).get(char_cid, None)
@@ -50,10 +57,10 @@ class ActionSubUnit(BaseSubConditionUnit):
             return False
 
     ActionHandlerMap = {
-        'skill_tag': LatestActionTagHandler,
-        'strict_linked_after': StrictLinkedHandler,
-        'lenient_linked_after': LenientLinkedHandler,
-        'first_action': FirstActionHandler
+        "skill_tag": LatestActionTagHandler,
+        "strict_linked_after": StrictLinkedHandler,
+        "lenient_linked_after": LenientLinkedHandler,
+        "first_action": FirstActionHandler,
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
@@ -61,12 +68,15 @@ class ActionSubUnit(BaseSubConditionUnit):
         handler_cls = self.ActionHandlerMap.get(self.check_stat)
         handler = handler_cls() if handler_cls else None
         if not handler:
-            raise ValueError(f'当前检查的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！')
+            raise ValueError(
+                f"当前检查的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！"
+            )
         if self.check_target == "after":
             return self.spawn_result(handler.handler(game_state))
         else:
-            '''check_target 不是 after（其实已经弃用了），就是CID'''
+            """check_target 不是 after（其实已经弃用了），就是CID"""
             from sim_progress.Buff.JudgeTools import find_tick
+
             check_cid(self.check_target)
             char_cid = int(self.check_target)
             tick = find_tick()

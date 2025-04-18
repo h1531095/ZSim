@@ -30,26 +30,29 @@ class Miyabi(Character):
         # 输入类型检查
         skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
-            if '1091' not in node.skill_tag:
+            if "1091" not in node.skill_tag:
                 continue
             if self.frosty <= 6:
-                if node.skill_tag in ['1091_E_EX_A_1', '1091_E_EX_B_1']:
+                if node.skill_tag in ["1091_E_EX_A_1", "1091_E_EX_B_1"]:
                     self.frosty += 2
-                elif node.skill_tag == '1091_Core_Passive' and not self._shatter_internal_cd():
+                elif (
+                    node.skill_tag == "1091_Core_Passive"
+                    and not self._shatter_internal_cd()
+                ):
                     """
                     霜灼·破的产生，在冰焰buff的exist逻辑里。
                     在exist逻辑返回True之前，会把霜灼破扔给special_resources以及eventlist
                     """
                     self.frosty += 1
-                elif node.skill_tag == '1091_Q':
+                elif node.skill_tag == "1091_Q":
                     self.frosty += 3
             else:
                 self.frosty = 6
-            if node.skill_tag == '1091_SNA_1':
+            if node.skill_tag == "1091_SNA_1":
                 self.frosty -= 2
-            elif node.skill_tag == '1091_SNA_2':
+            elif node.skill_tag == "1091_SNA_2":
                 self.frosty -= 4
-            elif node.skill_tag == '1091_SNA_3':
+            elif node.skill_tag == "1091_SNA_3":
                 self.frosty -= 6
 
             if self.frosty < 0:
@@ -65,7 +68,7 @@ class Miyabi(Character):
 
     def _shatter_internal_cd(self) -> bool:
         """判断落霜叠层是否处于CD"""
-        main_module = sys.modules['simulator.main_loop']
+        main_module = sys.modules["simulator.main_loop"]
         tick: int = main_module.tick
         if self.last_tick is None:
             self.last_tick = tick
@@ -77,4 +80,4 @@ class Miyabi(Character):
             return False
 
     def get_resources(self):
-        return '落霜', self.frosty
+        return "落霜", self.frosty

@@ -34,7 +34,9 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['雅'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["雅"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = MiyabiCoreSkillIF()
         self.record = self.buff_0.history.record
@@ -57,8 +59,8 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         else:
             for debuff in debuff_list:
                 if not isinstance(debuff, Buff):
-                    raise TypeError(f'{debuff}不是Buff类！')
-                if debuff.ft.index == 'Buff-角色-雅-核心被动-霜灼':
+                    raise TypeError(f"{debuff}不是Buff类！")
+                if debuff.ft.index == "Buff-角色-雅-核心被动-霜灼":
                     return False
             else:
                 return True
@@ -94,7 +96,9 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
         但是如果buff判定不通过，那么烈霜伤害，该buff层数的变动就没有实际意义，
         """
         self.check_record_module()
-        self.get_prepared(char_CID=1091, enemy=1, dynamic_buff_list=1, sub_exist_buff_dict=1)
+        self.get_prepared(
+            char_CID=1091, enemy=1, dynamic_buff_list=1, sub_exist_buff_dict=1
+        )
         enemy = self.record.enemy
         dynamic_buff = self.record.dynamic_buff_list
         tick_now = JudgeTools.find_tick()
@@ -104,9 +108,8 @@ class MiyabiCoreSkill_IceFire(Buff.BuffLogic):
 
         mul_data = MultiplierData(enemy, dynamic_buff, self.record.char)
         crit_rate = Calculator.RegularMul.cal_crit_rate(mul_data)
-        count = min(crit_rate, 0.8)*100
+        count = min(crit_rate, 0.8) * 100
 
         # print(crit_rate, count)
         buff_i.dy.count = min(count, self.buff_0.ft.maxcount)
         buff_i.update_to_buff_0(self.buff_0)
-

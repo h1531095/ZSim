@@ -28,6 +28,7 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
     self.dy.count = min(real_count + hit_count * fake_count_delta, 300)
     下一个ticks，虚层清空，重新计算，实层重新从buff_0拿过来\
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -41,14 +42,18 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['莱特'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["莱特"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = LighterExtraSkillRecord()
         self.record = self.buff_0.history.record
 
     def special_hit_logic(self):
         self.check_record_module()
-        self.get_prepared(char_CID=1161, enemy=1, dynamic_buff_list=1, sub_exist_buff_dict=1)
+        self.get_prepared(
+            char_CID=1161, enemy=1, dynamic_buff_list=1, sub_exist_buff_dict=1
+        )
         tick_now = JudgeTools.find_tick()
         buff_i = self.buff_instance
         buff_i.simple_start(tick_now, self.record.sub_exist_buff_dict)
@@ -67,11 +72,13 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         self.record.real_count = real_count
 
         # 计算实时冲击力
-        mul_data = MultiplierData(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
+        mul_data = MultiplierData(
+            self.record.enemy, self.record.dynamic_buff_list, self.record.char
+        )
         stun_value = Calculator.StunMul.cal_imp(mul_data)
 
         # 计算虚层
-        fake_count_delta = max((stun_value - 170)/10, 0)
+        fake_count_delta = max((stun_value - 170) / 10, 0)
         sum_fake_count = real_count / 5 * fake_count_delta
 
         # 计算等效的实际生效层数
@@ -79,6 +86,3 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         buff_i.update_to_buff_0(self.buff_0)
         # print('buff_i：', main_module.tick, buff_i.dy.active, buff_i.dy.startticks, buff_i.dy.endticks, real_count, sum_fake_count)
         # print('buff_0：', buff_0.dy.active, buff_0.dy.startticks, buff_0.dy.endticks, buff_0.history.real_count)
-
-
-

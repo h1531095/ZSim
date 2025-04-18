@@ -13,6 +13,7 @@ class SokakuAdditionalAbilityICEBonus(Buff.BuffLogic):
     苍角组队被动：
     消耗涡流发动展旗时激活
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -26,7 +27,9 @@ class SokakuAdditionalAbilityICEBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['苍角'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["苍角"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = SokakuAdditionalAbilityIBRecord()
         self.record = self.buff_0.history.record
@@ -36,7 +39,7 @@ class SokakuAdditionalAbilityICEBonus(Buff.BuffLogic):
         self.get_prepared(char_CID=1131, action_stack=1)
         action_now = self.record.action_stack.peek()
         resource_now = self.record.char.get_resources()[1]
-        if action_now.mission_tag != '1131_E_EX_A':
+        if action_now.mission_tag != "1131_E_EX_A":
             return False
         if self.record.last_update_resource <= resource_now:
             self.record.last_update_resource = resource_now
@@ -44,5 +47,3 @@ class SokakuAdditionalAbilityICEBonus(Buff.BuffLogic):
         else:
             self.record.last_update_resource = resource_now
             return True
-
-

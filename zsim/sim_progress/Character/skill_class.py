@@ -7,7 +7,7 @@ from define import *
 
 
 @lru_cache(maxsize=64)
-def lookup_name_or_cid(name: str = '', cid: int | str | None = None) -> tuple[str, int]:
+def lookup_name_or_cid(name: str = "", cid: int | str | None = None) -> tuple[str, int]:
     """
     初始化角色名称和CID（角色ID）。
 
@@ -32,17 +32,17 @@ def lookup_name_or_cid(name: str = '', cid: int | str | None = None) -> tuple[st
     """
     try:
         # 读取角色数据
-        char_dataframe = pd.read_csv(CHARACTER_DATA_PATH, encoding='utf-8')
+        char_dataframe = pd.read_csv(CHARACTER_DATA_PATH, encoding="utf-8")
     except Exception as e:
         raise IOError(f"无法读取文件 {CHARACTER_DATA_PATH}: {e}")
 
     # 查找角色信息
-    if name != '':
-        result = char_dataframe[char_dataframe['name'] == name].to_dict('records')
+    if name != "":
+        result = char_dataframe[char_dataframe["name"] == name].to_dict("records")
     elif cid is not None:
         # 确保cid是整数
         cid_int = int(cid) if cid is not None else None
-        result = char_dataframe[char_dataframe['CID'] == cid_int].to_dict('records')
+        result = char_dataframe[char_dataframe["CID"] == cid_int].to_dict("records")
     else:
         raise ValueError("角色名称与ID必须至少提供一个")
 
@@ -53,18 +53,25 @@ def lookup_name_or_cid(name: str = '', cid: int | str | None = None) -> tuple[st
 
     # 检查传入的name与CID是否匹配
     if name is not None and cid is not None:
-        if int(character_info['CID']) != int(cid):
+        if int(character_info["CID"]) != int(cid):
             raise ValueError("传入的name与CID不匹配")
 
-    return character_info['name'], int(character_info['CID'])
+    return character_info["name"], int(character_info["CID"])
 
 
 class Skill:
-    def __init__(self,
-                 name: str = '', CID: int | str | None = None,
-                 normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
-                 core_level=6, char_obj = None
-                 ):
+    def __init__(
+        self,
+        name: str = "",
+        CID: int | str | None = None,
+        normal_level=12,
+        special_level=12,
+        dodge_level=12,
+        chain_level=12,
+        assist_level=12,
+        core_level=6,
+        char_obj=None,
+    ):
         """
         根据提供的角色、各技能等级，创建一个角色的技能对象。
 
@@ -107,13 +114,13 @@ class Skill:
 
         # 根据CID提取角色的技能数据
         try:
-            self.skill_dataframe = skill_dataframe[skill_dataframe['CID'] == self.CID]
+            self.skill_dataframe = skill_dataframe[skill_dataframe["CID"] == self.CID]
             # 如果没有找到对应CID，则报错
             if self.skill_dataframe.empty:
                 raise ValueError(f"找不到CID为 {self.CID} 的角色信息")
             # 提取dataframe中，每个索引为skill_tag的值，保存为keys
             else:
-                __keys = self.skill_dataframe['skill_tag'].unique()
+                __keys = self.skill_dataframe["skill_tag"].unique()
         except KeyError:
             print(f"{SKILL_DATA_PATH} 中缺少 'skill_tag' 列")  # 虽然不可能
             return
@@ -124,9 +131,19 @@ class Skill:
         # 创建技能字典与技能列表 self.skills_dict 与 self.action_list
         self.skills_dict = {}  # {技能名str:技能参数object:InitSkill}
         for key in __keys:
-            skill = self.InitSkill(skill_dataframe=self.skill_dataframe, key=key, normal_level=normal_level,
-                                   special_level=special_level, dodge_level=dodge_level, chain_level=chain_level,
-                                   assist_level=assist_level, core_level=core_level, CID=self.CID, char_name=self.name, char_obj=char_obj)
+            skill = self.InitSkill(
+                skill_dataframe=self.skill_dataframe,
+                key=key,
+                normal_level=normal_level,
+                special_level=special_level,
+                dodge_level=dodge_level,
+                chain_level=chain_level,
+                assist_level=assist_level,
+                core_level=core_level,
+                CID=self.CID,
+                char_name=self.name,
+                char_obj=char_obj,
+            )
             self.skills_dict[key] = skill
         self.action_list = self.__create_action_list()
 
@@ -151,7 +168,7 @@ class Skill:
         """
         # 定义需要检查是否初始化的动作列表
         default_actions_dataframe = pd.read_csv(DEFAULT_SKILL_PATH)
-        by_default_actions = default_actions_dataframe['skill_tag'].unique()
+        by_default_actions = default_actions_dataframe["skill_tag"].unique()
 
         # 初始化每个动作的状态为 True
         init_actions = {action: True for action in by_default_actions}
@@ -168,18 +185,29 @@ class Skill:
         for action, init in init_actions.items():
             # 如果某个动作未被初始化，则创建对应的 Skill 对象并添加到 skills_dict
             if init:
-                self.skills_dict[f'{self.CID}_{action}'] = Skill.InitSkill(default_actions_dataframe, 
-                                                                           key=action, 
-                                                                           char_name=self.name,
-                                                                           CID=self.CID)
+                self.skills_dict[f"{self.CID}_{action}"] = Skill.InitSkill(
+                    default_actions_dataframe,
+                    key=action,
+                    char_name=self.name,
+                    CID=self.CID,
+                )
         return list(self.skills_dict.keys())
 
     class InitSkill:
-        def __init__(self, skill_dataframe, key, char_name: str,
-                     normal_level=12, special_level=12, dodge_level=12, chain_level=12, assist_level=12,
-                     core_level=6,
-                     CID=0, char_obj = None,
-                     ):
+        def __init__(
+            self,
+            skill_dataframe,
+            key,
+            char_name: str,
+            normal_level=12,
+            special_level=12,
+            dodge_level=12,
+            chain_level=12,
+            assist_level=12,
+            core_level=6,
+            CID=0,
+            char_obj=None,
+        ):
             """
             初始化角色的单个技能。
 
@@ -189,92 +217,117 @@ class Skill:
             self.char_obj = char_obj
 
             # 提取数据库内，该技能的数据
-            _raw_skill_data = skill_dataframe[skill_dataframe['skill_tag'] == key]
-            _raw_skill_data = _raw_skill_data.to_dict('records')
+            _raw_skill_data = skill_dataframe[skill_dataframe["skill_tag"] == key]
+            _raw_skill_data = _raw_skill_data.to_dict("records")
             if not _raw_skill_data:
                 raise ValueError("未找到技能")
             else:
                 _raw_skill_data = _raw_skill_data[0]
             # 如果不是 攻击力/生命值/防御力/精通 倍率，报错，未来可接复杂逻辑
-            self.diff_multiplier = int(_raw_skill_data['diff_multiplier'])
-            if _raw_skill_data['diff_multiplier'] not in [0, 1, 2, 3]:
+            self.diff_multiplier = int(_raw_skill_data["diff_multiplier"])
+            if _raw_skill_data["diff_multiplier"] not in [0, 1, 2, 3]:
                 raise ValueError("目前只支持 攻击力/生命值/防御力/精通 倍率")
             self.char_name: str = char_name
             # 储存技能Tag
             self.cid = CID
-            self.skill_tag = f'{CID}_{key}' if str(CID) not in key else key
-            self.CN_skill_tag: str = _raw_skill_data['CN_skill_tag']
+            self.skill_tag = f"{CID}_{key}" if str(CID) not in key else key
+            self.CN_skill_tag: str = _raw_skill_data["CN_skill_tag"]
             # 确定使用的技能等级
-            self.skill_type: int = int(_raw_skill_data['skill_type'])
-            self.skill_level: int = self.__init_skill_level(self.skill_type,
-                                                            normal_level, special_level, dodge_level, chain_level,
-                                                            assist_level,
-                                                            core_level)
+            self.skill_type: int = int(_raw_skill_data["skill_type"])
+            self.skill_level: int = self.__init_skill_level(
+                self.skill_type,
+                normal_level,
+                special_level,
+                dodge_level,
+                chain_level,
+                assist_level,
+                core_level,
+            )
             # 确定伤害倍率
-            damage_ratio = float(_raw_skill_data['damage_ratio'])
-            damage_ratio_growth = float(_raw_skill_data['damage_ratio_growth'])
-            self.damage_ratio: float = damage_ratio + damage_ratio_growth * (self.skill_level - 1)
+            damage_ratio = float(_raw_skill_data["damage_ratio"])
+            damage_ratio_growth = float(_raw_skill_data["damage_ratio_growth"])
+            self.damage_ratio: float = damage_ratio + damage_ratio_growth * (
+                self.skill_level - 1
+            )
             # 确定失衡倍率
-            stun_ratio = float(_raw_skill_data['stun_ratio'])
-            stun_ratio_growth = float(_raw_skill_data['stun_ratio_growth'])
-            self.stun_ratio: float = stun_ratio + stun_ratio_growth * (self.skill_level - 1)
+            stun_ratio = float(_raw_skill_data["stun_ratio"])
+            stun_ratio_growth = float(_raw_skill_data["stun_ratio_growth"])
+            self.stun_ratio: float = stun_ratio + stun_ratio_growth * (
+                self.skill_level - 1
+            )
             # 能量相关属性
-            self.sp_threshold: float = float(_raw_skill_data['sp_threshold'])
-            self.sp_consume: float = float(_raw_skill_data['sp_consume'])
-            self.sp_recovery: float = float(_raw_skill_data['sp_recovery'])
+            self.sp_threshold: float = float(_raw_skill_data["sp_threshold"])
+            self.sp_consume: float = float(_raw_skill_data["sp_consume"])
+            self.sp_recovery: float = float(_raw_skill_data["sp_recovery"])
             # 喧响值
-            self.fever_recovery: float = float(_raw_skill_data['fever_recovery'])
-            self.self_fever_re: float = float(_raw_skill_data['self_fever_re'])
+            self.fever_recovery: float = float(_raw_skill_data["fever_recovery"])
+            self.self_fever_re: float = float(_raw_skill_data["self_fever_re"])
             # 距离衰减，不知道有啥用
-            self.distance_attenuation: int = int(_raw_skill_data['distance_attenuation'])
+            self.distance_attenuation: int = int(
+                _raw_skill_data["distance_attenuation"]
+            )
             # 属性异常蓄积值，直接转化为浮点
-            self.anomaly_accumulation: float = float(_raw_skill_data['anomaly_accumulation']) / 100
+            self.anomaly_accumulation: float = (
+                float(_raw_skill_data["anomaly_accumulation"]) / 100
+            )
             # TriggerBuffLevel
-            self.trigger_buff_level: int = int(_raw_skill_data['trigger_buff_level'])
+            self.trigger_buff_level: int = int(_raw_skill_data["trigger_buff_level"])
             # 元素相关
-            self.element_type: ElementType = _raw_skill_data['element_type']
-            self.element_damage_percent: float = float(_raw_skill_data['element_damage_percent'])
+            self.element_type: ElementType = _raw_skill_data["element_type"]
+            self.element_damage_percent: float = float(
+                _raw_skill_data["element_damage_percent"]
+            )
             # 动画相关
-            self.ticks: int = int(_raw_skill_data['ticks']) 
-            temp_hit_times = int(_raw_skill_data['hit_times'])
+            self.ticks: int = int(_raw_skill_data["ticks"])
+            temp_hit_times = int(_raw_skill_data["hit_times"])
             self.hit_times: int = temp_hit_times if temp_hit_times > 0 else 1
-            self.on_field: bool = bool(_raw_skill_data['on_field'])
-            self.anomaly_attack: bool = bool(_raw_skill_data['anomaly_attack'])
+            self.on_field: bool = bool(_raw_skill_data["on_field"])
+            self.anomaly_attack: bool = bool(_raw_skill_data["anomaly_attack"])
             # 特殊标签
-            labels_str = _raw_skill_data['labels']
+            labels_str = _raw_skill_data["labels"]
             if pd.isna(labels_str) or not str(labels_str).strip():  # 判断空值或空字符串
                 labels = None
             else:
                 # 去除首尾空格后尝试解析字典
                 labels = ast.literal_eval(str(labels_str).strip())
 
-            self.labels: dict | None = labels   # 技能特殊标签
+            self.labels: dict | None = labels  # 技能特殊标签
             # if self.labels:
             #     pass
 
             # TODO：抗打断标签；无敌标签
 
             # 技能链相关
-            self.swap_cancel_ticks: int = int(_raw_skill_data['swap_cancel_ticks'])  # 可执行合轴操作的最短时间
-            follow_up = _raw_skill_data['follow_up']
+            self.swap_cancel_ticks: int = int(
+                _raw_skill_data["swap_cancel_ticks"]
+            )  # 可执行合轴操作的最短时间
+            follow_up = _raw_skill_data["follow_up"]
             if follow_up is np.nan or pd.isna(follow_up):
                 self.follow_up: list = []
             else:
-                self.follow_up: list = _raw_skill_data['follow_up'].split('|')   # 技能发动后强制衔接的技能标签
+                self.follow_up: list = _raw_skill_data["follow_up"].split(
+                    "|"
+                )  # 技能发动后强制衔接的技能标签
 
-            follow_by = _raw_skill_data['follow_by']
+            follow_by = _raw_skill_data["follow_by"]
             if follow_by is np.nan or pd.isna(follow_by):
                 self.follow_by: list = []
             else:
-                self.follow_by: list = _raw_skill_data['follow_by'].split('|')   # 发动技能必须的前置技能标签
-            self.aid_direction: int = _raw_skill_data['aid_direction']  # 触发快速支援的方向
-            aid_lag_ticks_value = _raw_skill_data['aid_lag_ticks']
-            if aid_lag_ticks_value == 'inf':
+                self.follow_by: list = _raw_skill_data["follow_by"].split(
+                    "|"
+                )  # 发动技能必须的前置技能标签
+            self.aid_direction: int = _raw_skill_data[
+                "aid_direction"
+            ]  # 触发快速支援的方向
+            aid_lag_ticks_value = _raw_skill_data["aid_lag_ticks"]
+            if aid_lag_ticks_value == "inf":
                 self.aid_lag_ticks = self.ticks - 1
             else:
-                self.aid_lag_ticks: int = int(_raw_skill_data['aid_lag_ticks'])  # 技能激活快速支援的滞后时间
+                self.aid_lag_ticks: int = int(
+                    _raw_skill_data["aid_lag_ticks"]
+                )  # 技能激活快速支援的滞后时间
             # 获取字段值（假设 _raw_skill_data 是 DataFrame 的一行）
-            tick_value = _raw_skill_data['tick_list']
+            tick_value = _raw_skill_data["tick_list"]
             if pd.isna(tick_value):
                 self.tick_list = None
             elif tick_value is np.nan:
@@ -284,53 +337,74 @@ class Skill:
                 if not tick_value.strip():
                     self.tick_list = None
                 else:
-                    split_values = tick_value.split(':')
+                    split_values = tick_value.split(":")
                     try:
                         # 转换并去除首尾空格
                         self.tick_list = [int(v.strip()) for v in split_values]
                     except ValueError as e:
-                        raise ValueError(f"{self.skill_tag} 的 tick_list 包含无效整数: {e}")
+                        raise ValueError(
+                            f"{self.skill_tag} 的 tick_list 包含无效整数: {e}"
+                        )
             else:
                 # 处理非字符串类型（如意外数值）
                 self.tick_list = None
             if self.tick_list:
                 if max(self.tick_list) >= self.ticks:
-                    raise ValueError(f'{self.skill_tag}的精确帧数分布的最大值超过技能总帧数！请检查数据正确性')
+                    raise ValueError(
+                        f"{self.skill_tag}的精确帧数分布的最大值超过技能总帧数！请检查数据正确性"
+                    )
                 if len(self.tick_list) != self.hit_times:
-                    raise ValueError(f'{self.skill_tag}的精确帧数分布所包含的命中数与技能的命中总数不符！请检查数据正确性')
+                    raise ValueError(
+                        f"{self.skill_tag}的精确帧数分布所包含的命中数与技能的命中总数不符！请检查数据正确性"
+                    )
 
-            self.ratio_distribution: list | None = None    # 技能的精确倍率分布
+            self.ratio_distribution: list | None = None  # 技能的精确倍率分布
             #  _raw_skill_data['ratio_distribution'].split(':') if _raw_skill_data['ratio_distribution'] else None
             self.force_add_condition_APL = []
-            condition_value = _raw_skill_data['force_add_condition_APL']
+            condition_value = _raw_skill_data["force_add_condition_APL"]
             if condition_value is np.nan or pd.isna(condition_value):
                 self.force_add_condition_APL = []
             else:
                 from sim_progress.Preload.APLModule.APLUnit import SimpleUnitForForceAdd
-                condition_list = condition_value.strip().split(';')
+
+                condition_list = condition_value.strip().split(";")
                 for _cond_str in condition_list:
-                    _cond_list = _cond_str.strip().split('|')
-                    simple_apl_unit_for_force_add = SimpleUnitForForceAdd(condition_list=_cond_list)
+                    _cond_list = _cond_str.strip().split("|")
+                    simple_apl_unit_for_force_add = SimpleUnitForForceAdd(
+                        condition_list=_cond_list
+                    )
                     self.force_add_condition_APL.append(simple_apl_unit_for_force_add)
-            if len(self.follow_up) != len(self.force_add_condition_APL) and self.force_add_condition_APL:
-                raise ValueError(f'ID为{self.skill_tag}的技能的follow_up与force_add_condition_APL长度不一致！请检查数据正确性')
-            self.skill_attr_dict = {attr: getattr(self, attr)
-                                    for attr in dir(self)
-                                    if not attr.startswith('__') and not callable(getattr(self, attr))
-                                    }
-            self.heavy_attack: bool = bool(_raw_skill_data['heavy_attack'])
-            self.max_repeat_times: int = int(_raw_skill_data['max_repeat_times'])       # 最大重复释放次数。
-            '''
+            if (
+                len(self.follow_up) != len(self.force_add_condition_APL)
+                and self.force_add_condition_APL
+            ):
+                raise ValueError(
+                    f"ID为{self.skill_tag}的技能的follow_up与force_add_condition_APL长度不一致！请检查数据正确性"
+                )
+            self.skill_attr_dict = {
+                attr: getattr(self, attr)
+                for attr in dir(self)
+                if not attr.startswith("__") and not callable(getattr(self, attr))
+            }
+            self.heavy_attack: bool = bool(_raw_skill_data["heavy_attack"])
+            self.max_repeat_times: int = int(
+                _raw_skill_data["max_repeat_times"]
+            )  # 最大重复释放次数。
+            """
             技能是否立刻执行，大部分技能都是False，目前只有QTE和大招具有这种属性。
             该属性会在APL部分的SwapCancelEngine中被用到，用于检测角色已有的动作是否会被新动作打断。
-            '''
-            self.do_immediately: bool = bool(_raw_skill_data['do_immediately'])
+            """
+            self.do_immediately: bool = bool(_raw_skill_data["do_immediately"])
 
-            self.anomaly_update_rule: list[int] | int | None = []        # 更新异常的模式，如果不填，那就是最后一跳，如果有填写，那就按照填写的跳数来更新。
-            anomaly_update_list_str = _raw_skill_data['anomaly_update_list']
+            self.anomaly_update_rule: (
+                list[int] | int | None
+            ) = []  # 更新异常的模式，如果不填，那就是最后一跳，如果有填写，那就按照填写的跳数来更新。
+            anomaly_update_list_str = _raw_skill_data["anomaly_update_list"]
             self._process_anomaly_update_rule(anomaly_update_list_str)
 
-            Report.report_to_log(f'[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}')
+            Report.report_to_log(
+                f"[Skill INFO]:{self.skill_tag}:{str(self.skill_attr_dict)}"
+            )
 
         def _process_anomaly_update_rule(self, anomaly_update_list_str):
             """
@@ -348,18 +422,27 @@ class Skill:
                         self.anomaly_update_rule = anomaly_update_mode
                     else:
                         if anomaly_update_mode > self.hit_times:
-                            raise ValueError(f'{self.skill_tag}的更新节点大于技能总帧数！请检查数据正确性')
+                            raise ValueError(
+                                f"{self.skill_tag}的更新节点大于技能总帧数！请检查数据正确性"
+                            )
                         self.anomaly_update_rule = [anomaly_update_mode]
                 except ValueError:
-                    self.anomaly_update_rule = anomaly_update_list_str.split('&')
+                    self.anomaly_update_rule = anomaly_update_list_str.split("&")
             if len(self.anomaly_update_rule) > self.hit_times:
-                raise ValueError(f'{self.skill_tag}的更新节点总数大于技能总帧数！请检查数据正确性')
+                raise ValueError(
+                    f"{self.skill_tag}的更新节点总数大于技能总帧数！请检查数据正确性"
+                )
 
         @staticmethod
-        def __init_skill_level(skill_type: int,
-                               normal_level: int, special_level: int, dodge_level: int, chain_level: int,
-                               assist_level: int,
-                               core_level: int) -> int:
+        def __init_skill_level(
+            skill_type: int,
+            normal_level: int,
+            special_level: int,
+            dodge_level: int,
+            chain_level: int,
+            assist_level: int,
+            core_level: int,
+        ) -> int:
             """
             根据 skill_type 选择对应的技能等级
 
@@ -378,7 +461,7 @@ class Skill:
                 2: dodge_level,
                 3: chain_level,
                 4: core_level,
-                5: assist_level
+                5: assist_level,
             }
 
             if skill_type in skill_levels:
@@ -393,11 +476,15 @@ class Skill:
         return self.name + "Skills"
 
 
-if __name__ == '__main__':
-    test_object = Skill(name='艾莲')
+if __name__ == "__main__":
+    test_object = Skill(name="艾莲")
     test_object2 = Skill(CID=1221)
     action_list = test_object.action_list  # 获取动作列表
     skills_dict = test_object.skills_dict  # 获取技能字典
-    skill_0: Skill.InitSkill = test_object.skills_dict[action_list[0]]  # 获取第一个动作对应的技能对象
+    skill_0: Skill.InitSkill = test_object.skills_dict[
+        action_list[0]
+    ]  # 获取第一个动作对应的技能对象
     print(skill_0.damage_ratio)  # 获取第一个动作的伤害倍率
-    print(test_object.get_skill_info(skill_tag=action_list[0], attr_info='damage_ratio'))  # 获取第一个动作的伤害倍率
+    print(
+        test_object.get_skill_info(skill_tag=action_list[0], attr_info="damage_ratio")
+    )  # 获取第一个动作的伤害倍率

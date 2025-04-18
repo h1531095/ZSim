@@ -15,19 +15,14 @@ class SliceofTimeExtraResourcesRecord:
             5: {4: 32, 2: 40, 7: 48, 8: 48, 9: 48, 5: 55},
         }
         self.energy_value_dict = {1: 0.7, 2: 0.8, 3: 0.9, 4: 1.0, 5: 1.1}
-        self.last_update_tick_box = {
-            'E_EX': 0,
-            'Sup': 0,
-            'QTE': 0,
-            'CA': 0
-        }
+        self.last_update_tick_box = {"E_EX": 0, "Sup": 0, "QTE": 0, "CA": 0}
         self.update_key_dict = {
-            2: 'E_EX',
-            4: 'CA',
-            5: 'QTE',
-            7: 'Sup',
-            8: 'Sup',
-            9: 'Sup',
+            2: "E_EX",
+            4: "CA",
+            5: "QTE",
+            7: "Sup",
+            8: "Sup",
+            9: "Sup",
         }
 
 
@@ -38,6 +33,7 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
     通过构建Schedule Refresh Data的实例，并向event list中添加，
     就可以实现角色的喧响值和能量值的修改。
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -52,9 +48,11 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('时光切片')
+            self.equipper = JudgeTools.find_equipper("时光切片")
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = SliceofTimeExtraResourcesRecord()
         self.record = self.buff_0.history.record
@@ -65,7 +63,7 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
         通过第一层判定后，再过内置CD检测。
         """
         self.check_record_module()
-        self.get_prepared(equipper='时光切片', action_stack=1)
+        self.get_prepared(equipper="时光切片", action_stack=1)
         action_now = self.record.action_stack.peek()
         trigger_buff_level = action_now.mission_node.skill.trigger_buff_level
         tick_now = JudgeTools.find_tick()
@@ -85,21 +83,24 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
         Buff自身没有效果。
         """
         self.check_record_module()
-        self.get_prepared(equipper='时光切片', action_stack=1, sub_exist_buff_dict=1)
+        self.get_prepared(equipper="时光切片", action_stack=1, sub_exist_buff_dict=1)
         tick_now = JudgeTools.find_tick()
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         action_now = self.record.action_stack.peek()
         trigger_buff_level = action_now.mission_node.skill.trigger_buff_level
-        decibel_value = self.record.decibel_value_dict[self.buff_instance.ft.refinement][trigger_buff_level]
+        decibel_value = self.record.decibel_value_dict[
+            self.buff_instance.ft.refinement
+        ][trigger_buff_level]
         energy_value = self.record.energy_value_dict[self.buff_instance.ft.refinement]
         actor_name = action_now.mission_character
         event_list = JudgeTools.find_event_list()
         from sim_progress.data_struct import ScheduleRefreshData
+
         refresh_data = ScheduleRefreshData(
             sp_target=(self.record.char.NAME,),
             sp_value=energy_value,
             decibel_target=(actor_name,),
-            decibel_value=decibel_value
+            decibel_value=decibel_value,
         )
         event_list.append(refresh_data)
 
@@ -109,7 +110,7 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
         所以，这里也要根据trigger buff level进行分流，分别检测各自的CD。
         """
         if tbl not in self.record.update_key_dict:
-            raise ValueError(f'传入的Trigger Buff Level为{tbl}，不在检测范围内！')
+            raise ValueError(f"传入的Trigger Buff Level为{tbl}，不在检测范围内！")
         key = self.record.update_key_dict[tbl]
         last_update_tick = self.record.last_update_tick_box[key]
         if last_update_tick == 0:

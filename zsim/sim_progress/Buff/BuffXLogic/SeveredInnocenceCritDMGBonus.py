@@ -6,9 +6,11 @@ class SeveredInnocenceCritDMGBonusRecord:
         self.char = None
         self.equipper = None
         self.update_signal = []
-        self.active_tick_box = {0: {'start': 0, 'end': 0},
-                                  1: {'start': 0, 'end': 0},
-                                  2: {'start': 0, 'end': 0}}
+        self.active_tick_box = {
+            0: {"start": 0, "end": 0},
+            1: {"start": 0, "end": 0},
+            2: {"start": 0, "end": 0},
+        }
         self.sub_exist_buff_dict = None
 
 
@@ -16,6 +18,7 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
     """
     牺牲洁纯的层数判定
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -30,9 +33,11 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('牺牲洁纯')
+            self.equipper = JudgeTools.find_equipper("牺牲洁纯")
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['零号·安比'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["零号·安比"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = SeveredInnocenceCritDMGBonusRecord()
         self.record = self.buff_0.history.record
@@ -44,23 +49,28 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
         并且更新进record中的update_signal中
         """
         self.check_record_module()
-        self.get_prepared(char_CID=1381, equipper='牺牲洁纯')
-        _skill_node = kwargs.get('skill_node', None)
-        _loading_mission = kwargs.get('loading_mission', None)
+        self.get_prepared(char_CID=1381, equipper="牺牲洁纯")
+        _skill_node = kwargs.get("skill_node", None)
+        _loading_mission = kwargs.get("loading_mission", None)
         if _skill_node is None:
-            raise ValueError(f'{self.buff_instance.ft.index}的xjudge函数并未获取到skill_node')
+            raise ValueError(
+                f"{self.buff_instance.ft.index}的xjudge函数并未获取到skill_node"
+            )
         if _loading_mission is None:
-            raise ValueError(f'{self.buff_instance.ft.index}的xjudge函数并未获取到loading_mission')
+            raise ValueError(
+                f"{self.buff_instance.ft.index}的xjudge函数并未获取到loading_mission"
+            )
         from sim_progress.Preload import SkillNode
+
         if not isinstance(_skill_node, SkillNode):
-            raise TypeError(f'{_skill_node}不是SkillNode类')
+            raise TypeError(f"{_skill_node}不是SkillNode类")
         tick = find_tick()
         if str(self.record.char.CID) not in _skill_node.skill_tag:
             return False
-        if not tick-1 < _skill_node.preload_tick <= tick:
+        if not tick - 1 < _skill_node.preload_tick <= tick:
             return False
         if _skill_node.skill.labels is not None:
-            if 'aftershock_attack' in _skill_node.skill.labels.keys():
+            if "aftershock_attack" in _skill_node.skill.labels.keys():
                 self.record.update_signal.append(2)
                 return True
         elif _skill_node.skill.trigger_buff_level == 0:
@@ -79,25 +89,23 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
         最终实现不同Buff层数的管理。
         """
         self.check_record_module()
-        self.get_prepared(char_CID=1381, equipper='牺牲洁纯', sub_exist_buff_dict=1)
+        self.get_prepared(char_CID=1381, equipper="牺牲洁纯", sub_exist_buff_dict=1)
         tick = find_tick()
         if not self.record.update_signal:
             return
         reset_list = list(set(self.record.update_signal))
         while reset_list:
             update_signal = reset_list.pop()
-            self.record.active_tick_box[update_signal]['start'] = tick
-            self.record.active_tick_box[update_signal]['end'] = tick + self.buff_instance.ft.maxduration
-        self.buff_instance.simple_start(tick, self.record.sub_exist_buff_dict, no_count=1)
+            self.record.active_tick_box[update_signal]["start"] = tick
+            self.record.active_tick_box[update_signal]["end"] = (
+                tick + self.buff_instance.ft.maxduration
+            )
+        self.buff_instance.simple_start(
+            tick, self.record.sub_exist_buff_dict, no_count=1
+        )
         self.buff_instance.dy.built_in_buff_box = []
         for _mode_index, _sub_dict in self.record.active_tick_box.items():
-            if self.record.active_tick_box[_mode_index]['end'] > tick:
+            if self.record.active_tick_box[_mode_index]["end"] > tick:
                 self.buff_instance.dy.built_in_buff_box.append(list(_sub_dict.values()))
         self.buff_instance.dy.count = len(self.buff_instance.dy.built_in_buff_box)
         self.buff_instance.update_to_buff_0(self.buff_0)
-
-
-
-
-
-

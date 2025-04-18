@@ -1,12 +1,13 @@
-from dataclasses import dataclass
+import os
 import time
+from dataclasses import dataclass
 from typing import Sequence
+
 import streamlit as st
 import toml
-import os
+from define import COSTOM_APL_DIR, DEFAULT_APL_DIR, saved_char_config
 
 from .constants import CHAR_CID_MAPPING
-from define import DEFAULT_APL_DIR, COSTOM_APL_DIR, saved_char_config
 
 
 @dataclass

@@ -9,7 +9,7 @@ class Jane(Character):
         self.passion_stream: float = 0.0  # 狂热心流，0.0 ~ 100.0
         self.passion_state: bool = False  # 狂热状态
         self.salchow_jump: int = 0  # 萨霍夫跳剩余次数
-            
+
     def __check_salchow_jump(self) -> None:
         """检查萨霍夫跳次数"""
         max_jumps = 1 if self.cinema == 0 else 2
@@ -23,43 +23,47 @@ class Jane(Character):
         self.passion_stream = 0.0
         self.passion_state = False
         self.__check_salchow_jump()
-    
+
     def __get_into_passion_state(self) -> None:
         """进入狂热状态"""
         self.passion_stream = 100
         self.passion_state = True
         self.salchow_jump += 1
         self.__check_salchow_jump()
-    
-    def __passion_core(self, passion_get: float, passion_consume: float, passion_direct_add: float) -> None:
+
+    def __passion_core(
+        self, passion_get: float, passion_consume: float, passion_direct_add: float
+    ) -> None:
         """狂热计算逻辑核心"""
-        self.passion_stream += passion_direct_add  # 直接添加的狂热值，闪反、QTE、大招、萨霍夫跳等
+        self.passion_stream += (
+            passion_direct_add  # 直接添加的狂热值，闪反、QTE、大招、萨霍夫跳等
+        )
         if not self.passion_state:
             # 非狂热心流状态下，结算狂热获得
             self.passion_stream += passion_get
-            if self.passion_stream >= 100-1e-6:
+            if self.passion_stream >= 100 - 1e-6:
                 self.__get_into_passion_state()
         else:
             # 狂热心流状态下，结算狂热消耗
             self.passion_stream -= passion_consume
             if self.passion_stream <= 1e-6:
                 self.__reset_passion()
-    
+
     def special_resources(self, *args, **kwargs) -> None:
         """模拟简的狂热心流"""
         # 输入类型检查
         skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
-            if node.char_name != '简':
+            if node.char_name != "简":
                 continue
-            if node.skill_tag == '1301_SNA_1':
+            if node.skill_tag == "1301_SNA_1":
                 self.salchow_jump -= 1
                 self.__check_salchow_jump()
-            
+
             labels = node.labels if node.labels is not None else {}
-            passion_get = labels.get('passion_get', 0)
-            passion_consume = labels.get('passion_consume', 0)
-            passion_direct_add = labels.get('passion_direct_add', 0)
+            passion_get = labels.get("passion_get", 0)
+            passion_consume = labels.get("passion_consume", 0)
+            passion_direct_add = labels.get("passion_direct_add", 0)
             self.__passion_core(passion_get, passion_consume, passion_direct_add)
 
         # TODO 关于萨霍夫跳的第一段（1301_SNA_1）的拆分问题：
@@ -76,6 +80,7 @@ class Jane(Character):
 
         # if self.cinema == 6:
         #     pass
+
     # TODO 六命后强击立刻进入狂热心流——由外部模块控制，调用接口强制启动心流即可，不需要在本函数中留接口。
     def external_passion_change(self):
         """
@@ -86,11 +91,11 @@ class Jane(Character):
 
     def get_resources(self) -> tuple[str, float]:
         return "狂热心流", self.passion_stream
-    
+
     def get_special_stats(self, *args, **kwargs) -> dict[str, int | float | bool]:
         """获取简的特殊状态"""
         return {
             "狂热心流": self.passion_stream,
             "狂热状态": self.passion_state,
-            "萨霍夫跳剩余次数": self.salchow_jump
+            "萨霍夫跳剩余次数": self.salchow_jump,
         }

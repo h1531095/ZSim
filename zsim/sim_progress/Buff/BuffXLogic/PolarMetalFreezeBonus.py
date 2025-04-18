@@ -14,6 +14,7 @@ class PolarMetalFreezeBonus(Buff.BuffLogic):
     这是极地重金属的复杂逻辑判定。
     主要检测的是碎冰的变化状态，如果碎冰状态变了，就返回True
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -28,9 +29,11 @@ class PolarMetalFreezeBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('极地重金属')
+            self.equipper = JudgeTools.find_equipper("极地重金属")
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = PolarMetalRecord()
         self.record = self.buff_0.history.record

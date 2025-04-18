@@ -10,6 +10,7 @@ class YanagiStanceKagen(Buff.BuffLogic):
     """
     柳的下弦增幅，检测到下弦状态就通过判定
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -22,7 +23,9 @@ class YanagiStanceKagen(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['柳'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["柳"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = YanagiStanceKagenRecord()
         self.record = self.buff_0.history.record
@@ -37,4 +40,3 @@ class YanagiStanceKagen(Buff.BuffLogic):
             return False
         else:
             return True
-

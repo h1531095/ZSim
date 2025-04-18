@@ -11,8 +11,4 @@ class SortableRow:
             self.delete_btn = gr.Button("❌", elem_classes="delete-btn")
 
             # 删除事件
-            self.delete_btn.click(
-                fn=lambda: None,
-                inputs=None,
-                outputs=None
-            )
+            self.delete_btn.click(fn=lambda: None, inputs=None, outputs=None)

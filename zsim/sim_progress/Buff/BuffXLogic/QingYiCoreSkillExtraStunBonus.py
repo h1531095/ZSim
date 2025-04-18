@@ -5,6 +5,7 @@ class QintYiCoreSkillExtraStunRecord:
     """
     记录信息的类。从青衣开始，这些类要统一管理。
     """
+
     def __init__(self):
         self.last_update_voltage = 0
         self.sub_exist_buff_dict = None
@@ -32,7 +33,9 @@ class QingYiCoreSkillExtraStunBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['青衣'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["青衣"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = QintYiCoreSkillExtraStunRecord()
         self.record = self.buff_0.history.record
@@ -48,12 +51,12 @@ class QingYiCoreSkillExtraStunBonus(Buff.BuffLogic):
         """
         self.check_record_module()
         self.get_prepared(char_CID=1300, action_stack=1)
-        if self.record.action_stack.peek().mission_tag == '1300_SNA_1':
+        if self.record.action_stack.peek().mission_tag == "1300_SNA_1":
             # 这个count哪怕每次SNA_1都计算也不要紧，因为SNA_1分支不会清空电压记录，
             # 所以每次算出来都是一样的。
             self.record.count = max(self.record.last_update_voltage - 75, 0)
             return True
-        elif self.record.action_stack.peek().mission_tag == '1300_SNA_2':
+        elif self.record.action_stack.peek().mission_tag == "1300_SNA_2":
             self.record.last_update_voltage = 0
             return True
         else:
@@ -73,7 +76,6 @@ class QingYiCoreSkillExtraStunBonus(Buff.BuffLogic):
         count = min(self.record.count, self.buff_instance.ft.maxcount)
         self.buff_instance.dy.count = count - 1
         self.buff_instance.update_to_buff_0(self.buff_0)
-        if self.record.action_stack.peek().mission_tag == '1300_SNA_2':
+        if self.record.action_stack.peek().mission_tag == "1300_SNA_2":
             # 在增幅完SNA_2后，本轮次的record.count使命完成，进行重置。
             self.record.count = 0
-

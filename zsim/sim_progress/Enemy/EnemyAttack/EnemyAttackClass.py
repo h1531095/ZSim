@@ -17,26 +17,27 @@ from sim_progress.RandomNumberGenerator import RNG
         5.1、首先，不同的攻击动作有各自的内置CD，以及有各自的不同属性，而EnemyAttack
 """
 
-method_file = pd.read_csv(ENEMY_ATTACK_METHOD_CONFIG, index_col='ID')
-action_file = pd.read_csv(ENEMY_ATTACK_ACTION, index_col='ID')
+method_file = pd.read_csv(ENEMY_ATTACK_METHOD_CONFIG, index_col="ID")
+action_file = pd.read_csv(ENEMY_ATTACK_ACTION, index_col="ID")
 
 
 class EnemyAttackMethod:
     """含有若干个进攻动作的进攻策略"""
+
     def __init__(self, ID: int = 0):
         self.action_set = defaultdict()
         self.last_start_tick = 0
         self.last_end_tick = 0
         self.ready = False
-        rate_list = method_file.loc[ID]['action_rate'].split('|')
+        rate_list = method_file.loc[ID]["action_rate"].split("|")
         if sum(float(i) for i in rate_list) > 1:
-            raise ValueError('动作总权重超过1，请检查配置')
-        single_action_id_list = method_file.loc[ID]['action_set'].split('|')
+            raise ValueError("动作总权重超过1，请检查配置")
+        single_action_id_list = method_file.loc[ID]["action_set"].split("|")
         if len(rate_list) != len(single_action_id_list):
-            raise ValueError('动作总数与概率总数不符，请检查配置')
-        self.rest_tick = method_file.loc[ID]['rest_tick']
-        self.description = method_file.loc[ID]['discription']   #FIXME
-        self.name = method_file.loc[ID]['method_name']
+            raise ValueError("动作总数与概率总数不符，请检查配置")
+        self.rest_tick = method_file.loc[ID]["rest_tick"]
+        self.description = method_file.loc[ID]["discription"]  # FIXME
+        self.name = method_file.loc[ID]["method_name"]
         for i in range(len(single_action_id_list)):
             action_id = single_action_id_list[i]
             action_rate = float(rate_list[i])
@@ -64,7 +65,7 @@ class EnemyAttackMethod:
                 self.ready = False
                 return _action
         else:
-            '''如果循环结束，还没有选中任何一个动作，说明无事发生，返回None'''
+            """如果循环结束，还没有选中任何一个动作，说明无事发生，返回None"""
             return None
 
     def reset_myself(self):
@@ -76,48 +77,57 @@ class EnemyAttackMethod:
 
 class EnemyAttackAction:
     """敌人的单个进攻动作"""
+
     def __init__(self, ID: int):
         if ID == 0:
-            raise ValueError('EnemyAttackAction实例化所用的ID为0，请检查配置信息！')
+            raise ValueError("EnemyAttackAction实例化所用的ID为0，请检查配置信息！")
         self.action_dict = action_file.loc[ID].to_dict()
-        self.tag = self.action_dict.get('tag', '')
-        self.description = self.action_dict.get('description', '')
-        self.hit = int(self.action_dict.get('hit', 0))
+        self.tag = self.action_dict.get("tag", "")
+        self.description = self.action_dict.get("description", "")
+        self.hit = int(self.action_dict.get("hit", 0))
         if self.hit <= 0:
-            raise ValueError('hit参数必须大于0，请检查配置信息！')
-        self.duration = float(self.action_dict.get('duration', 0))
+            raise ValueError("hit参数必须大于0，请检查配置信息！")
+        self.duration = float(self.action_dict.get("duration", 0))
         if self.duration <= 0:
-            raise ValueError('duration参数必须大于0，请检查配置信息！')
-        self.cd = int(self.action_dict.get('cd', 0))
-        self.hit_list = self.action_dict.get('hit_list', None)
+            raise ValueError("duration参数必须大于0，请检查配置信息！")
+        self.cd = int(self.action_dict.get("cd", 0))
+        self.hit_list = self.action_dict.get("hit_list", None)
         if self.hit_list is None or self.hit_list is np.nan:
             # 在未提供hit_list的情况下，默认hit均匀分布，所以直接根据hit和duration来产生hit_list，
-            self.hit_list = list((self.duration / (self.hit + 1)) * (i+1) for i in range(int(self.hit)))
+            self.hit_list = list(
+                (self.duration / (self.hit + 1)) * (i + 1) for i in range(int(self.hit))
+            )
         else:
-            self.hit_list = self.hit_list.split('|')
-        self.blockable_list = self.action_dict.get('blockable_list', None)
+            self.hit_list = self.hit_list.split("|")
+        self.blockable_list = self.action_dict.get("blockable_list", None)
         if self.blockable_list is None or self.blockable_list is np.nan:
             self.blockable_list = [False] * self.hit
         else:
-            self.blockable_list = self.blockable_list.split('|')
-        self.interruption_level_list = self.action_dict.get('interruption_level_list', None)
-        if self.interruption_level_list is None or self.interruption_level_list is np.nan:
+            self.blockable_list = self.blockable_list.split("|")
+        self.interruption_level_list = self.action_dict.get(
+            "interruption_level_list", None
+        )
+        if (
+            self.interruption_level_list is None
+            or self.interruption_level_list is np.nan
+        ):
             self.interruption_level_list = [1] * self.hit
         else:
-            self.interruption_level_list = self.interruption_level_list.split('|')
-        self.effect_radius_list = self.action_dict.get('effect_radius_list', None)
+            self.interruption_level_list = self.interruption_level_list.split("|")
+        self.effect_radius_list = self.action_dict.get("effect_radius_list", None)
         # TODO：暂时不考虑由技能范围不同而对命中率造成的影响，统一按照100%命中来处理，
-        self.stoppable = self.action_dict.get('stoppable', False)
+        self.stoppable = self.action_dict.get("stoppable", False)
 
     def block_judge(self, char_action):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     method = EnemyAttackMethod()
-    print(f'{method.name},{method.description}')
+    print(f"{method.name},{method.description}")
     count = 0
     for rate, action in method.action_set.items():
-        print(f'事件{count+1}，几率{rate}，动作集{action.hit_list}，是否可被格挡：{action.blockable_list}，\n打断等级{action.interruption_level_list}，效果半径{action.effect_radius_list}，是否可被打断{action.stoppable}')
+        print(
+            f"事件{count + 1}，几率{rate}，动作集{action.hit_list}，是否可被格挡：{action.blockable_list}，\n打断等级{action.interruption_level_list}，效果半径{action.effect_radius_list}，是否可被打断{action.stoppable}"
+        )
         count += 1
-

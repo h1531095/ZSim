@@ -10,12 +10,12 @@ class Corruption(Dot):
 
     @dataclass
     class DotFeature(Dot.DotFeature):
-        main_module = sys.modules['simulator.main_loop']
+        main_module = sys.modules["simulator.main_loop"]
         char_name_box = main_module.init_data.name_box
         update_cd: int = 30
-        index: str = 'Corruption'
-        name: str = '侵蚀'
-        dot_from: str = 'enemy'
+        index: str = "Corruption"
+        name: str = "侵蚀"
+        dot_from: str = "enemy"
         effect_rules: int = 2
         max_count: int = 1
         incremental_step: int = 1
@@ -23,6 +23,6 @@ class Corruption(Dot):
         """
         如果某角色在角色列表里，灼烧和最大生效次数就要发生变化。
         """
-        if '某角色' in char_name_box:
+        if "某角色" in char_name_box:
             max_duration: int = 600 + 180
         max_effect_times = 30

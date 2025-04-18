@@ -13,7 +13,6 @@ class SteamOvenRecord:
         self.E_EX_endtick = 0
 
 
-
 class SteamOven(Buff.BuffLogic):
     """
     这段代码是人为刀俎的生效逻辑。根据能量返回层数。
@@ -24,6 +23,7 @@ class SteamOven(Buff.BuffLogic):
     注意，这个Buff的复杂判断逻辑永远是False，但是只输出True。
     不能用Alltime参数来平替，因为这样会导致在Update_Buff函数中，本Buff会提前被送出循环，而跳过清理过期tuples的步骤。
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -39,9 +39,11 @@ class SteamOven(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('人为刀俎')
+            self.equipper = JudgeTools.find_equipper("人为刀俎")
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = SteamOvenRecord()
         self.record = self.buff_0.history.record
@@ -103,11 +105,3 @@ class SteamOven(Buff.BuffLogic):
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_instance.dy.count = output
         self.buff_instance.update_to_buff_0(self.buff_0)
-
-
-
-
-
-
-
-

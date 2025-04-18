@@ -20,6 +20,7 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
     启动阶段，它的起止时间是触发器buff的时间，这点比较特殊，所以在simple start之后，要修改起止时间并且重新update
     而在自叠层阶段，它只修改层数，不修改起止时间。
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -35,17 +36,24 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('啜泣摇篮')
-        if self.buff_0 is None:     # 这里的初始化，找到的buff_0实际上是佩戴者的buff_0，
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][self.buff_instance.ft.index]
+            self.equipper = JudgeTools.find_equipper("啜泣摇篮")
+        if self.buff_0 is None:  # 这里的初始化，找到的buff_0实际上是佩戴者的buff_0，
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = WeepingCradleDMGBRecord()
         self.record = self.buff_0.history.record
 
     def special_judge_logic(self, **kwargs):
         self.check_record_module()
-        trigger_index = f'Buff-武器-精{int(self.buff_instance.ft.refinement)}啜泣摇篮-全队增伤'
-        self.get_prepared(equipper='啜泣摇篮', trigger_buff_0=(self.buff_instance.ft.operator, trigger_index))
+        trigger_index = (
+            f"Buff-武器-精{int(self.buff_instance.ft.refinement)}啜泣摇篮-全队增伤"
+        )
+        self.get_prepared(
+            equipper="啜泣摇篮",
+            trigger_buff_0=(self.buff_instance.ft.operator, trigger_index),
+        )
         if self.record.trigger_buff_0.dy.active:
             result = self.increase_cd_judge()
             if result:
@@ -57,7 +65,7 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
 
     def special_effect_logic(self, **kwargs):
         self.check_record_module()
-        self.get_prepared(equipper='啜泣摇篮', sub_exist_buff_dict=1)
+        self.get_prepared(equipper="啜泣摇篮", sub_exist_buff_dict=1)
         tick_now = JudgeTools.find_tick()
         if not self.buff_0.dy.active:
             self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
@@ -65,8 +73,9 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
             self.buff_instance.dy.endticks = self.record.trigger_buff_0.dy.endticks
             self.buff_instance.update_to_buff_0(self.buff_0)
         else:
-            self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict, no_start=True, no_end=True)
-
+            self.buff_instance.simple_start(
+                tick_now, self.record.sub_exist_buff_dict, no_start=True, no_end=True
+            )
 
     def increase_cd_judge(self):
         tick_now = JudgeTools.find_tick()

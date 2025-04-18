@@ -25,7 +25,9 @@ class JaneCoreSkillStrikeCritDmgBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['简'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["简"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = JaneCoreSkillStrikeCritDmgBonusRecord()
         self.record = self.buff_0.history.record
@@ -33,7 +35,9 @@ class JaneCoreSkillStrikeCritDmgBonus(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         """强击的暴伤Debuff情况是和啮咬绑定的。"""
         self.check_record_module()
-        self.get_prepared(char_CID=1301, trigger_buff_0=('enemy', 'Buff-角色-简-核心被动-啮咬触发器'))
+        self.get_prepared(
+            char_CID=1301, trigger_buff_0=("enemy", "Buff-角色-简-核心被动-啮咬触发器")
+        )
         if self.record.trigger_buff_0.dy.active:
             return True
         else:
@@ -42,6 +46,3 @@ class JaneCoreSkillStrikeCritDmgBonus(Buff.BuffLogic):
     def special_exit_logic(self, **kwargs):
         """此Buff退出逻辑和触发逻辑相反"""
         return not self.special_judge_logic()
-
-
-

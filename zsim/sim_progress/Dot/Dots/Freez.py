@@ -11,12 +11,12 @@ class Freez(Dot):
 
     @dataclass
     class DotFeature(Dot.DotFeature):
-        main_module = sys.modules['simulator.main_loop']
+        main_module = sys.modules["simulator.main_loop"]
         enemy = main_module.schedule_data.enemy
         update_cd: int | float = np.inf
-        index: str = 'Freez'
-        name: str = '冻结'
-        dot_from: str = 'enemy'
+        index: str = "Freez"
+        name: str = "冻结"
+        dot_from: str = "enemy"
         effect_rules: int = 4
         max_count: int = 1
         incremental_step: int = 1
