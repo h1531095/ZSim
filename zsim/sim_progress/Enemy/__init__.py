@@ -69,20 +69,14 @@ class Enemy:
             * (1 + self.enemy_adjust["生命值"])
             * difficulty
         )
-        self.max_ATK: float = (
-            float(self.data_dict["70级最大攻击力"])
-            * (1 + self.enemy_adjust["攻击力"])
-            * difficulty
+        self.max_ATK: float = float(self.data_dict["70级最大攻击力"]) * (
+            1 + self.enemy_adjust["攻击力"]
         )
-        self.max_stun: float = (
-            float(self.data_dict["70级最大失衡值上限"])
-            * (1 + self.enemy_adjust["失衡值上限"])
-            * difficulty
+        self.max_stun: float = float(self.data_dict["70级最大失衡值上限"]) * (
+            1 + self.enemy_adjust["失衡值上限"]
         )
-        self.max_DEF: float = (
-            float(self.data_dict["60级及以上防御力"])
-            * (1 + self.enemy_adjust["防御力"])
-            * difficulty
+        self.max_DEF: float = float(self.data_dict["60级及以上防御力"]) * (
+            1 + self.enemy_adjust["防御力"]
         )
         self.CRIT_damage: float = float(self.data_dict["暴击伤害"])
         self.able_to_be_stunned: bool = bool(self.data_dict["能否失衡"])
