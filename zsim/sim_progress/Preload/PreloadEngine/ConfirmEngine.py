@@ -41,7 +41,7 @@ class ConfirmEngine(BasePreloadEngine):
             else:
                 pass
 
-    def spawn_node_from_tag(self, tick: int, tuples: tuple):
+    def spawn_node_from_tag(self, tick: int, tuples: tuple[str, bool, int]):
         """通过skill_tag构造Node"""
         skill_tag = tuples[0]
         active_generation = tuples[1] if tuples[1] else False

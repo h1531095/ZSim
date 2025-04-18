@@ -36,9 +36,11 @@ class VivianCoattackTrigger(Buff.BuffLogic):
         if skill_node is None:
             return
         from sim_progress.Preload import SkillNode
-        if not isinstance(skill_node, SkillNode):
+        from sim_progress.Load import LoadingMission
+        if not isinstance(skill_node, SkillNode | LoadingMission):
             return
-
+        if isinstance(skill_node, LoadingMission):
+            skill_node = skill_node.mission_node
         # 首先过滤所有非强化E标签的技能
         if skill_node.skill.trigger_buff_level != 2:
             return False
@@ -66,14 +68,10 @@ class VivianCoattackTrigger(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(char_CID=1361, preload_data=1)
         coattack_skill_tag = self.record.char.feather_manager.spawn_coattack()
+        # print(f'虽然监听到了队友的强化E，但是豆子不够！')
         if coattack_skill_tag is None:
             return
-        input_tuple = (coattack_skill_tag, False)
+        input_tuple = (coattack_skill_tag, False, 0)
         self.record.preload_data.external_add_skill(input_tuple)
-        print(f'监测到强化特殊技{self.record.last_update_node.skill_tag}，薇薇安触发了一次落雨生花！(迟滞1tick）')
-
-
-
-
-
+        # print(f'监测到强化特殊技{self.record.last_update_node.skill_tag}，薇薇安触发了一次落雨生花！(迟滞1tick）')
 

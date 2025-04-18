@@ -49,14 +49,14 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(char_CID=1331)
         anomaly_obj = kwargs.get('anomaly_bar', None)
-        from sim_progress.AnomalyBar import AnomalyBar
+        from sim_progress.AnomalyBar import AnomalyBar, AnomalyBarClass
         if anomaly_obj is None:
             return False
         if isinstance(anomaly_obj, AnomalyBar):
             if self.record.last_update_anomaly is None:
                 self.record.last_update_anomaly = anomaly_obj
                 return True
-            if anomaly_obj.UUID == self.record.last_update_anomaly.UUID:
+            if id(anomaly_obj) == id(self.record.last_update_anomaly):
                 return False
             else:
                 self.record.last_update_anomaly = anomaly_obj
@@ -68,10 +68,9 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         """当Xjudge检测到AnomalyBar传入时通过判定，并且执行xeffect"""
         self.check_record_module()
         self.get_prepared(char_CID=1361, preload_data=1, dynamic_buff_list=1, enemy=1, sub_exist_buff_dict=1)
-        coattack_skill_tag = self.record.char.feather_manager.spawn_coattack()
-        if coattack_skill_tag is None:
-            return
-        copyed_anomaly = self.record.last_update_anomaly
+        from sim_progress.AnomalyBar import AnomalyBar
+        copyed_anomaly = AnomalyBar.create_new_from_existing(self.record.last_update_anomaly)
+        # copyed_anomaly = self.record.last_update_anomaly
         event_list = JudgeTools.find_event_list()
         mul_data = Mul(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
         ap = Cal.AnomalyMul.cal_ap(mul_data)

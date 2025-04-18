@@ -551,7 +551,9 @@ class Enemy:
             if dots.ft.index == dot_tag and dots.dy.active:
                 return dots
             else:
-                return None
+                continue
+        else:
+            return None
 
     class EnemyDynamic:
         def __init__(self):

@@ -60,10 +60,14 @@ class VivianDotTrigger(Buff.BuffLogic):
         if self.record.enemy.find_dot("ViviansProphecy") is not None:
             return
         from sim_progress.Update.UpdateAnomaly import spawn_normal_dot
+        from sim_progress.Load import LoadingMission
         dot = spawn_normal_dot('ViviansProphecy')
+        dot.start(find_tick())
+        event_list = JudgeTools.find_event_list()
+        dot.skill_node_data.loading_mission = LoadingMission(dot.skill_node_data)
+        dot.skill_node_data.loading_mission.mission_start(find_tick())
         self.record.enemy.dynamic.dynamic_dot_list.append(dot)
-        print(f'添加了薇薇安的预言！')
-
+        event_list.append(dot.skill_node_data)
 
 
 

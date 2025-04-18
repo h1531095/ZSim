@@ -7,7 +7,7 @@
 1331|action+=|1331_E_EX|attribute.1331:energy>=60
 
 # 强化E飘浮后，长按闪避回到开伞状态
-1331|action+=|1331_SNA_0|attribute.1331:special_state→裙裾浮游==True|action.1331:strict_linked_after==1331_E_EX
+# 1331|action+=|1331_SNA_0|attribute.1331:special_state→裙裾浮游==True|action.1331:strict_linked_after==1331_E_EX
 # 开伞状态下打SNA1
 1331|action+=|1331_SNA_1|attribute.1331:special_state→淑女仪态==True
 

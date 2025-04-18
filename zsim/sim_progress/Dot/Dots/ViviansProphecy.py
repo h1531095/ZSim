@@ -19,9 +19,10 @@ class ViviansProphecy(Dot):
         name: str = '薇薇安的预言'
         dot_from: str = '薇薇安'
         effect_rules: int = 1
-        max_count: int = 1
+        max_count: int = 999999
         incremental_step: int = 1
-        max_duration: int = 600
+        max_duration: int = 999999
+        complex_exit_logic = True
 
     def exit_judge(self, **kwargs) -> bool:
         """薇薇安的预言 dot的退出逻辑：敌人只要处于异常状态，就不会退出。"""
