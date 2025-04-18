@@ -3,7 +3,7 @@
 # 连击逻辑：
 1361|action+=|1361_SNA_1|attribute.1361:special_state→狙击姿态==True|attribute.1361:special_resource<100|status.enemy:stun_pct<=0.7
 # 启动逻辑
-1361|action+=|1361_SNA_0|attribute.1361:special_resource<5|status.enemy:stun==False|status.enemy:stun==False
+1361|action+=|1361_SNA_0|attribute.1361:special_resource<5|status.enemy:stun==False
 
 
 # 失衡期逻辑：
