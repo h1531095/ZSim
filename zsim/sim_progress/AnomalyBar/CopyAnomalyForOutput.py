@@ -1,5 +1,5 @@
 from sim_progress.AnomalyBar.AnomalyBarClass import AnomalyBar
-from uuid import uuid4
+
 
 class Disorder(AnomalyBar):
     """
@@ -25,7 +25,6 @@ class NewAnomaly(AnomalyBar):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
         self.activate_by = active_by
-        self.UUID = uuid4()
 
 
 class PolarityDisorder(AnomalyBar):
@@ -49,7 +48,6 @@ class PolarityDisorder(AnomalyBar):
 class DirgeOfDestinyAnomaly(AnomalyBar):
     """薇薇安的核心被动「命运悲歌」会重复触发一次异常伤害，
     该伤害具有属性异常的全部相同参数，同时具有一个缩放倍率。"""
-
     def __init__(self, Output_bar: AnomalyBar, active_by):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)

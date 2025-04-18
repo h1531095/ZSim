@@ -14,6 +14,7 @@ from sim_progress.data_struct import (
     SPUpdateData,
 )
 from sim_progress.Load.loading_mission import LoadingMission
+from sim_progress.Load.LoadDamageEvent import ProcessHitUpdateDots
 from sim_progress.Preload import SkillNode
 from sim_progress.Update import update_anomaly
 
@@ -102,14 +103,13 @@ class ScheduledEvent:
                         self.update_anomaly_bar_after_skill_event(event)
                         ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff,
                                            self.action_stack, skill_node=event)
+                        ProcessHitUpdateDots(self.tick, self.enemy.dynamic.dynamic_dot_list, self.data.event_list)
                 elif isinstance(event, DirgeOfDestinyAnomaly):
                     self.abloom_event(event)
                     self.judge_required_info_dict["abloom"] = event
                 elif isinstance(event, PolarityDisorder):
                     self.polarity_disorder_event(event)
                     self.judge_required_info_dict["polarity_disorder"] = event
-                    ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff,
-                                       self.action_stack, anomaly_bar=event)
                 elif isinstance(event, Disorder):
                     # print(f'检测到{event.element_type}属性的紊乱，快照为：{event.current_ndarray}')
                     self.disorder_event(event)
@@ -117,6 +117,8 @@ class ScheduledEvent:
                 elif isinstance(event, AnB):
                     self.anomaly_event(event)
                     self.judge_required_info_dict["anb"] = event
+                    ScheduleBuffSettle(self.tick, self.exist_buff_dict, self.enemy, self.data.dynamic_buff,
+                                       self.action_stack, anomaly_bar=event)
                 elif isinstance(event, ScheduleRefreshData):
                     self.refresh_event(event)
                     self.judge_required_info_dict["refresh"] = event
@@ -330,7 +332,7 @@ class ScheduledEvent:
     def abloom_event(self, event: DirgeOfDestinyAnomaly):
         """薇薇安绽放处理分支逻辑"""
         cal_obj = CalAbloom(
-            anomaly_obj=event,
+            abloom_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
         )

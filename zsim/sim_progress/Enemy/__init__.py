@@ -545,6 +545,14 @@ class Enemy:
             )
             anomaly_bar.max_anomaly = max_value
 
+    def find_dot(self, dot_tag: str) -> object | None:
+        """通过dot名，查找enemy身上是否存在此dot"""
+        for dots in self.dynamic.dynamic_dot_list:
+            if dots.ft.index == dot_tag and dots.dy.active:
+                return dots
+            else:
+                return None
+
     class EnemyDynamic:
         def __init__(self):
             self.stun = False  # 失衡状态

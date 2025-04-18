@@ -326,21 +326,18 @@ class Skill:
                 self.aid_lag_ticks: int = int(
                     _raw_skill_data["aid_lag_ticks"]
                 )  # 技能激活快速支援的滞后时间
-            # 获取字段值（假设 _raw_skill_data 是 DataFrame 的一行）
             tick_value = _raw_skill_data["tick_list"]
-            if pd.isna(tick_value):
-                self.tick_list = None
-            elif tick_value is np.nan:
+            if pd.isna(tick_value) or tick_value is np.nan:
                 self.tick_list = None
             elif isinstance(tick_value, str):
                 # 处理空字符串或纯空格
                 if not tick_value.strip():
                     self.tick_list = None
                 else:
-                    split_values = tick_value.split(":")
                     try:
                         # 转换并去除首尾空格
-                        self.tick_list = [int(v.strip()) for v in split_values]
+                        self.tick_list = ast.literal_eval(str(tick_value).strip())
+                        # self.tick_list = [int(v.strip()) for v in split_values]
                     except ValueError as e:
                         raise ValueError(
                             f"{self.skill_tag} 的 tick_list 包含无效整数: {e}"
