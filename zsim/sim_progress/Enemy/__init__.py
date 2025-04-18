@@ -340,7 +340,7 @@ class Enemy:
         """
         if able_to_get_anomaly:
             # 定义基础异常值
-            base_anomaly = 150 * adjust
+            base_anomaly = 150 * (1 + adjust)
             # 定义物理异常值的乘数
             physical_anomaly_mul = 1.2
             # 计算物理异常值
