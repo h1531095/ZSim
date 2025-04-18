@@ -1,5 +1,8 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation
-from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calculator as Cal
+from sim_progress.ScheduledEvent.Calculator import (
+    MultiplierData as Mul,
+    Calculator as Cal,
+)
 
 
 class LinaCoreSkillRecord:
@@ -29,7 +32,9 @@ class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['丽娜'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["丽娜"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = LinaCoreSkillRecord()
         self.record = self.buff_0.history.record
@@ -47,15 +52,23 @@ class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
 
     def special_start_logic(self):
         self.check_record_module()
-        self.get_prepared(action_stack=1, char_CID=1211, dynamic_buff_list=1, enemy=1, sub_exist_buff_dict=1)
+        self.get_prepared(
+            action_stack=1,
+            char_CID=1211,
+            dynamic_buff_list=1,
+            enemy=1,
+            sub_exist_buff_dict=1,
+        )
         tick_now = JudgeTools.find_tick()
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_0.dy.count -= self.buff_0.ft.step
-        mul_data = Mul(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
+        mul_data = Mul(
+            self.record.enemy, self.record.dynamic_buff_list, self.record.char
+        )
 
         pen_ratio = Cal.RegularMul.cal_pen_ratio(mul_data)
 
-        count = min(pen_ratio*0.2*100 + 12, self.buff_instance.ft.maxcount)
+        count = min(pen_ratio * 0.2 * 100 + 12, self.buff_instance.ft.maxcount)
         self.buff_instance.dy.count = count
         self.buff_instance.update_to_buff_0(self.buff_0)
 

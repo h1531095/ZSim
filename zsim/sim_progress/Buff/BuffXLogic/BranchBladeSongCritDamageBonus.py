@@ -17,6 +17,7 @@ class BranchBladeSongCritDamageBonus(Buff.BuffLogic):
     由于不能实现“异常掌控>=115时候，将buff.ft.alltime修改为True的操作，
     所以只能让该buff在每个动作都检测，然后每个动作都触发，用来平替alltime。
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -30,9 +31,11 @@ class BranchBladeSongCritDamageBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('折枝剑歌')
+            self.equipper = JudgeTools.find_equipper("折枝剑歌")
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = BranchBladeSongRecord()
         self.record = self.buff_0.history.record
@@ -40,14 +43,10 @@ class BranchBladeSongCritDamageBonus(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(equipper="折枝剑歌", enemy=1, dynamic_buff_list=1)
-        mul_data = MultiplierData(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
+        mul_data = MultiplierData(
+            self.record.enemy, self.record.dynamic_buff_list, self.record.char
+        )
         am = Calculator.AnomalyMul.cal_am(mul_data)
         if am >= 115:
             return True
         return False
-
-
-
-
-
-

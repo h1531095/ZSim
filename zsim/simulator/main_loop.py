@@ -83,7 +83,9 @@ def reset_sim_data():
     )
     schedule_data = ScheduleData(
         enemy=Enemy(
-            index_ID=ENEMY_INDEX_ID, adjust_ID=ENEMY_ADJUST_ID, difficulty=ENEMY_DIFFICULTY
+            index_ID=ENEMY_INDEX_ID,
+            adjust_ID=ENEMY_ADJUST_ID,
+            difficulty=ENEMY_DIFFICULTY,
         ),
         char_obj_list=char_data.char_obj_list,
     )

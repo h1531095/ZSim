@@ -11,6 +11,7 @@ class SpectralGazeSpiritLockRecord:
 
 class SpectralGazeSpiritLock(Buff.BuffLogic):
     """扳机专武索魂影眸第二特效——魂锁，"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -24,12 +25,14 @@ class SpectralGazeSpiritLock(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('索魂影眸')
+            self.equipper = JudgeTools.find_equipper("索魂影眸")
         if self.buff_0 is None:
             """
             这里的初始化，找到的buff_0实际上是佩戴者的buff_0
             """
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = SpectralGazeSpiritLockRecord()
         self.record = self.buff_0.history.record
@@ -41,14 +44,17 @@ class SpectralGazeSpiritLock(Buff.BuffLogic):
         同一招式内最多触发一次（这里利用了skill_node 的一个新增功能：独立ID）
         """
         self.check_record_module()
-        self.get_prepared(equipper='索魂影眸', preload_data=1)
+        self.get_prepared(equipper="索魂影眸", preload_data=1)
         tick = find_tick()
-        skill_node = kwargs.get('skill_node')
-        loading_mission = kwargs.get('loading_mission')
-        '''逻辑外壳和专武的第一特效没有区别'''
+        skill_node = kwargs.get("skill_node")
+        loading_mission = kwargs.get("loading_mission")
+        """逻辑外壳和专武的第一特效没有区别"""
         if skill_node is None:
-            raise ValueError(f'{self.buff_instance.ft.index}的xjudge中缺少skill_node参数')
+            raise ValueError(
+                f"{self.buff_instance.ft.index}的xjudge中缺少skill_node参数"
+            )
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
             raise TypeError
         if not loading_mission.is_hit_now(tick):
@@ -57,16 +63,13 @@ class SpectralGazeSpiritLock(Buff.BuffLogic):
             return False
         if not skill_node.skill.labels:
             return False
-        if skill_node.skill.element_type == 3 and 'aftershock_attack' in skill_node.skill.labels:
+        if (
+            skill_node.skill.element_type == 3
+            and "aftershock_attack" in skill_node.skill.labels
+        ):
             if self.record.preload_data.operating_now != self.record.char.CID:
                 node_id = skill_node.get_total_instances()
                 if node_id != self.record.last_update_node_id:
                     self.record.last_update_node_id = node_id
                     return True
         return False
-
-
-
-
-
-

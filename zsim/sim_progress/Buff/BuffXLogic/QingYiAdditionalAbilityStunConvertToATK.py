@@ -3,7 +3,7 @@ from sim_progress.ScheduledEvent import Calculator
 from sim_progress.ScheduledEvent.Calculator import MultiplierData
 
 
-class QingYiAdditionalSkillRecord():
+class QingYiAdditionalSkillRecord:
     def __init__(self):
         self.char = None
         self.enemy = None
@@ -28,7 +28,9 @@ class QingYiAdditionalAbilityStunConvertToATK(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['青衣'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["青衣"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = QingYiAdditionalSkillRecord()
         self.record = self.buff_0.history.record
@@ -41,15 +43,16 @@ class QingYiAdditionalAbilityStunConvertToATK(Buff.BuffLogic):
         找冲击力，并且构建mul现场算。算完出层数即可。
         """
         self.check_record_module()
-        self.get_prepared(char_CID=1300, enemy=1, dynamic_buff_list=1, sub_exist_buff_dict=1)
+        self.get_prepared(
+            char_CID=1300, enemy=1, dynamic_buff_list=1, sub_exist_buff_dict=1
+        )
         tick_now = JudgeTools.find_tick()
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_0.dy.count -= self.buff_0.ft.step
-        mul_data = MultiplierData(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
+        mul_data = MultiplierData(
+            self.record.enemy, self.record.dynamic_buff_list, self.record.char
+        )
         stun_value = Calculator.StunMul.cal_imp(mul_data)
         count = min((stun_value - 120) * 6, self.buff_instance.ft.maxcount)
         self.buff_instance.dy.count = count
         self.buff_instance.update_to_buff_0(self.buff_0)
-
-
-

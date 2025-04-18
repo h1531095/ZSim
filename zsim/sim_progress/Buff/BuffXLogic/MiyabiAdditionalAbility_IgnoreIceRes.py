@@ -32,6 +32,7 @@ class MiyabiAdditionalAbility_IgnoreIceRes(Buff.BuffLogic):
     检测到紊乱发生后，buff的生效次数 effect_count 自增1，最多1层，
     只有当effect_count 的层数是1，且当前的动作（action_stack.peek()获取）
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -44,7 +45,9 @@ class MiyabiAdditionalAbility_IgnoreIceRes(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['雅'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["雅"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = MiyabiAdditionalAbility()
         self.record = self.buff_0.history.record
@@ -56,25 +59,35 @@ class MiyabiAdditionalAbility_IgnoreIceRes(Buff.BuffLogic):
         action_now = self.record.action_stack.peek()
         enemy = self.record.enemy
 
-        current_anomalies = {name: getattr(enemy.dynamic, name) for name in anomaly_name_list}
+        current_anomalies = {
+            name: getattr(enemy.dynamic, name) for name in anomaly_name_list
+        }
         # 获取当前状态
         current_count = sum(current_anomalies.values())
         last_count = sum(self.record.anomaly_state.values())
         # 计算两个list中的True的数量
 
         if last_count >= 2 or current_count >= 2:
-            raise ValueError('当前ticks总异常数量为2！')
+            raise ValueError("当前ticks总异常数量为2！")
 
         self.record.disorder = (
-            current_count == 1 and last_count == 1 and
-            any(current_anomalies[name] != self.record.anomaly_state[name] for name in anomaly_name_list)
+            current_count == 1
+            and last_count == 1
+            and any(
+                current_anomalies[name] != self.record.anomaly_state[name]
+                for name in anomaly_name_list
+            )
         )
         # 当前后的True的数量都是1（意味着上一个Ticks有异常，这个Ticks也有异常），判断二者是否是同一个异常。如果不是，就修改Disorder为True
         self.record.anomaly_state.update(current_anomalies)
 
         if self.record.disorder:
             self.record.effect_count = min(self.record.effect_count + 1, 1)
-        if self.record.effect_count > 0 and action_now.mission_tag in ['1091_SNA_1', '1091_SNA_2', '1091_SNA_3']:
+        if self.record.effect_count > 0 and action_now.mission_tag in [
+            "1091_SNA_1",
+            "1091_SNA_2",
+            "1091_SNA_3",
+        ]:
             self.record.effect_count = 0
             return True
         return False

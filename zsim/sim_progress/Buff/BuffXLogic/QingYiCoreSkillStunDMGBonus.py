@@ -36,7 +36,9 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['青衣'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["青衣"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = QintYiCoreSkillRecord()
         self.record = self.buff_0.history.record
@@ -56,17 +58,19 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_0.dy.count -= 1
         self.buff_instance.dy.count = self.buff_0.dy.count
-        if action_now.mission_tag == '1300_SNA_1':
-            if last_action.mission_tag != '1300_SNA_1':
+        if action_now.mission_tag == "1300_SNA_1":
+            if last_action.mission_tag != "1300_SNA_1":
                 """上一个动作不是1300_SNA_1时，强制清空现有层数。"""
                 self.record.pre_saved_counts = 0
             self.buff_instance.dy.count += 1
             self.record.pre_saved_counts += 1
             if self.record.pre_saved_counts > 5:
-                raise ValueError(f'1300_SNA_1提供的预叠层数已经超过了5，\n'
-                      f'当前为：{self.record.pre_saved_counts}，\n'
-                      f'应该是APL代码的逻辑有问题，请检查1300_SNA_2的释放逻辑！')
-        elif action_now.mission_tag == '1300_SNA_2':
+                raise ValueError(
+                    f"1300_SNA_1提供的预叠层数已经超过了5，\n"
+                    f"当前为：{self.record.pre_saved_counts}，\n"
+                    f"应该是APL代码的逻辑有问题，请检查1300_SNA_2的释放逻辑！"
+                )
+        elif action_now.mission_tag == "1300_SNA_2":
             self.buff_instance.dy.count += 5
             self.buff_instance.dy.count += self.record.pre_saved_counts
             self.record.pre_saved_counts = 0
@@ -80,7 +84,10 @@ class QingYiCoreSkillStunDMGBonus(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(char_CID=1300, sub_exist_buff_dict=1, enemy=1)
         mode_func = lambda a, b: a is True and b is False
-        stun_statement_tuple = self.record.last_update_stun, self.record.enemy.dynamic.stun
+        stun_statement_tuple = (
+            self.record.last_update_stun,
+            self.record.enemy.dynamic.stun,
+        )
         if JudgeTools.detect_edge(stun_statement_tuple, mode_func):
             self.record.last_update_stun = self.record.enemy.dynamic.stun
             return True

@@ -33,13 +33,13 @@ class Lighter(Character):
                 if sp_consume > 0:
                     self.morale += sp_consume * 26
 
-            if '1161' not in node.skill_tag:
+            if "1161" not in node.skill_tag:
                 continue
             # 递减逻辑
-            if node.skill_tag == '1161_NA_5_SH_EX':
+            if node.skill_tag == "1161_NA_5_SH_EX":
                 self.morale -= 1000
                 report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}")
-            elif node.skill_tag == '1161_NA_5_CoH_EX':
+            elif node.skill_tag == "1161_NA_5_CoH_EX":
                 self.morale -= 9000
                 # print(f'检测到士气消耗动作，当前士气（处理前）：{self.morale}（处理后）：{self.morale / 100:.2f}')
                 # TODO：这里需要一个函数来控制“夹断”技能的数据。思路：\n
@@ -52,19 +52,20 @@ class Lighter(Character):
                 #  观察到莱特的士气貌似只有首轮具有阈值，次轮开始就失效了
                 report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}")
 
-
             if self.morale < 0:
-                report_to_log(f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}, 请检查")
+                report_to_log(
+                    f"[Character] 莱特的士气消耗至 {self.morale / 100:.2f}, 请检查"
+                )
                 self.morale = 0
 
         # 时间每 6 ticks 更新
-        main_module = sys.modules['simulator.main_loop']
-        tick = getattr(main_module, 'tick', None)
+        main_module = sys.modules["simulator.main_loop"]
+        tick = getattr(main_module, "tick", None)
         if tick is not None:
             if (minus := tick - self.last_tick) >= 6:
-                self.morale += minus // 6 * 29     # 地板除保证整形对齐
-                self.last_tick = tick - minus % 6   # 求余以保证余数不计入本次计算
+                self.morale += minus // 6 * 29  # 地板除保证整形对齐
+                self.last_tick = tick - minus % 6  # 求余以保证余数不计入本次计算
             self.morale = min(self.morale, 10000)
 
     def get_resources(self, *args, **kwargs) -> tuple[str, float]:
-        return '士气', self.morale / 100
+        return "士气", self.morale / 100

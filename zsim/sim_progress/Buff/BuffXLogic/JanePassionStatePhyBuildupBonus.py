@@ -22,7 +22,9 @@ class JanePassionStatePhyBuildupBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['简'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["简"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = JanePassionStatePhyBuildupBonusRecord()
         self.record = self.buff_0.history.record
@@ -30,7 +32,9 @@ class JanePassionStatePhyBuildupBonus(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         """积蓄效率Buff的判定和触发器有关，其状态和触发器相同"""
         self.check_record_module()
-        self.get_prepared(char_CID=1301, trigger_buff_0=('简', 'Buff-角色-简-狂热状态触发器'))
+        self.get_prepared(
+            char_CID=1301, trigger_buff_0=("简", "Buff-角色-简-狂热状态触发器")
+        )
         if self.record.trigger_buff_0.dy.active:
             return True
         else:
@@ -39,6 +43,3 @@ class JanePassionStatePhyBuildupBonus(Buff.BuffLogic):
     def special_exit_logic(self, **kwargs):
         """积蓄效率的退出逻辑与触发器相反"""
         return not self.special_judge_logic()
-
-
-

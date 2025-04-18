@@ -13,6 +13,7 @@ class FreedomBlues(Buff.BuffLogic):
     这是自由蓝调的复杂判定逻辑。
     自由蓝调被分为6个buff，但是共用这一个逻辑模块。
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -26,9 +27,11 @@ class FreedomBlues(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('自由蓝调')
+            self.equipper = JudgeTools.find_equipper("自由蓝调")
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = FreedomBluesRecord()
         self.record = self.buff_0.history.record
@@ -43,10 +46,10 @@ class FreedomBlues(Buff.BuffLogic):
         self.get_prepared(equipper="自由蓝调", action_stack=1)
         action_now = self.record.action_stack.peek()
         element_type_trigger = self.buff_instance.ft.refinement
-        if str(self.record.char.CID) in action_now.mission_tag and action_now.mission_node.skill.trigger_buff_level == 2:
+        if (
+            str(self.record.char.CID) in action_now.mission_tag
+            and action_now.mission_node.skill.trigger_buff_level == 2
+        ):
             if action_now.mission_node.skill.element_type == element_type_trigger:
                 return True
         return False
-
-
-

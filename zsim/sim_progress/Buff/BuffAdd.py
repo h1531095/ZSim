@@ -1,10 +1,7 @@
 from sim_progress.Buff.buff_class import Buff
 
 
-def buff_add(timenow: float,
-             LOADING_BUFF_DICT: dict,
-             DYNAMIC_BUFF_DICT: dict,
-             enemy):
+def buff_add(timenow: float, LOADING_BUFF_DICT: dict, DYNAMIC_BUFF_DICT: dict, enemy):
     """
     该函数是Buff三部曲中的最后一步。
     它负责把LOADING_BUFF_DICT中的待加载的buff添加到对应角色的Dynamic_Buff_List中，
@@ -34,13 +31,24 @@ def buff_add(timenow: float,
             continue
         for buff in LOADING_BUFF_DICT[char]:
             if not isinstance(buff, Buff):
-                raise ValueError(f'loading_buff_dict中的{buff}元素不是Buff类')
-            if not buff.dy.active or (buff.dy.startticks == 0 and buff.dy.endticks == 0) or buff.dy.count == 0:
+                raise ValueError(f"loading_buff_dict中的{buff}元素不是Buff类")
+            if (
+                not buff.dy.active
+                or (buff.dy.startticks == 0 and buff.dy.endticks == 0)
+                or buff.dy.count == 0
+            ):
                 # if buff.ft.index == 'Buff-武器-精1燃狱齿轮-叠层冲击力':
                 #     print(f'{buff.dy.active, buff.dy.startticks, buff.dy.endticks, buff.dy.count}')
                 continue
 
-            buff_existing_check = next((existing_buff for existing_buff in DYNAMIC_BUFF_DICT[char] if existing_buff.ft.index == buff.ft.index), None)
+            buff_existing_check = next(
+                (
+                    existing_buff
+                    for existing_buff in DYNAMIC_BUFF_DICT[char]
+                    if existing_buff.ft.index == buff.ft.index
+                ),
+                None,
+            )
             # 这个语句的作用是，检查buff是否已经存在。检查的索引是buff.ft.index。
             if buff_existing_check:
                 if buff.ft.alltime:
@@ -54,9 +62,15 @@ def buff_add(timenow: float,
 
 
 def add_debuff_to_enemy(buff, char, enemy):
-    if char == 'enemy':
-        debuff_existing_check = next((existing_buff for existing_buff in enemy.dynamic.dynamic_debuff_list if
-                                      existing_buff.ft.index == buff.ft.index), None)
+    if char == "enemy":
+        debuff_existing_check = next(
+            (
+                existing_buff
+                for existing_buff in enemy.dynamic.dynamic_debuff_list
+                if existing_buff.ft.index == buff.ft.index
+            ),
+            None,
+        )
         if debuff_existing_check:
             enemy.dynamic.dynamic_debuff_list.remove(debuff_existing_check)
         enemy.dynamic.dynamic_debuff_list.append(buff)

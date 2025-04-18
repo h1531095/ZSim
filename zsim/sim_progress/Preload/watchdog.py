@@ -8,8 +8,10 @@ if ENABLE_WATCHDOG:
     report_to_log("[INFO] Watchdog is enabled.", level=4)
 
 
-def watch_reverse_order(current_node: SkillNode | Skill.InitSkill,
-                        last_node: SkillNode | Skill.InitSkill | None) -> bool | None:
+def watch_reverse_order(
+    current_node: SkillNode | Skill.InitSkill,
+    last_node: SkillNode | Skill.InitSkill | None,
+) -> bool | None:
     """
     监控技能队列中的技能加载顺序，如果发现逆序加载则发出警告。
 
@@ -29,7 +31,9 @@ def watch_reverse_order(current_node: SkillNode | Skill.InitSkill,
         return None
     if last_node is None:
         return None
-    if not (isinstance(current_node, SkillNode) or isinstance(current_node, Skill.InitSkill)):
+    if not (
+        isinstance(current_node, SkillNode) or isinstance(current_node, Skill.InitSkill)
+    ):
         return None
     if not (isinstance(last_node, SkillNode) or isinstance(last_node, Skill.InitSkill)):
         return None
@@ -37,8 +41,10 @@ def watch_reverse_order(current_node: SkillNode | Skill.InitSkill,
     last_tag = last_node.skill_tag
     if current_tag[:-1] == last_tag[:-1]:
         if current_tag[-1] < last_tag[-1]:
-            feedback = (f"[WARNING] Watchdog detected a reverse order preload event:"
-                        f"Is {current_tag} really behind of {last_tag}?")
+            feedback = (
+                f"[WARNING] Watchdog detected a reverse order preload event:"
+                f"Is {current_tag} really behind of {last_tag}?"
+            )
             print(feedback)
             report_to_log(feedback, level=0)
         return False

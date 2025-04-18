@@ -3,17 +3,13 @@ from sim_progress.data_struct import SingleHit, decibel_manager_instance
 from sim_progress.Report import report_dmg_result
 
 
-
-'''
+"""
 FOCUS_RATIO_MAP 的存在，是为了模拟角色在破腿的过程中，
 伤害溢散到别的腿上，导致单腿的破腿效率低于预期的情况。
 但是，这种伤害的溢散，本质上和角色自身的技能模组有关。
 这里的数据往往来自于对实战视频的观察，并非准确数值，并且可能经常需要调整。
-'''
-FOCUS_RATIO_MAP = {
-    1361: 0.6,
-    1381: 0.6
-}
+"""
+FOCUS_RATIO_MAP = {1361: 0.6, 1381: 0.6}
 
 
 class BreakingLegManager:
@@ -31,12 +27,14 @@ class BreakingLegManager:
     def update_myself(self, single_hit: SingleHit, tick: int):
         """这是整个manager的对外总接口，负责接收SingleHit，并且分配伤害到对应的腿上"""
         leg_index_tuple = self.select_target()
-        char_cid = int(single_hit.skill_tag.strip().split('_')[0])
+        char_cid = int(single_hit.skill_tag.strip().split("_")[0])
         major_ratio = FOCUS_RATIO_MAP.get(char_cid, 0.7)
-        minor_ratio = (1-major_ratio)/2
+        minor_ratio = (1 - major_ratio) / 2
         ratio_tuple = (minor_ratio, major_ratio, minor_ratio)
         for i in range(len(leg_index_tuple)):
-            self.leg_group[leg_index_tuple[i]].update_myself(single_hit, tick, ratio_tuple[i])
+            self.leg_group[leg_index_tuple[i]].update_myself(
+                single_hit, tick, ratio_tuple[i]
+            )
 
     def select_target(self) -> tuple[int, int, int]:
         """选腿！"""
@@ -57,10 +55,10 @@ class BreakingLegManager:
         # print(f'换腿！当前主目标为{self.major_target}！')
 
     def report_all_legs(self):
-        print('------------------')
+        print("------------------")
         for index, legs in self.leg_group.items():
-            print(f'腿{index}的已损失HP为{legs.lost_leg_hp}')
-        print('------------------')
+            print(f"腿{index}的已损失HP为{legs.lost_leg_hp}")
+        print("------------------")
 
     def reset_myself(self):
         self.major_target = 0
@@ -75,6 +73,7 @@ class SingleLeg(BaseUniqueMechanic):
     它们的对外接口是：update_myself()函数，需要传入single_hit，
     而它们的事件触发核心是：event_active()函数
     """
+
     def __init__(self, enemy_instance, manager_instance):
         super().__init__(enemy_instance)
         self.leg_hp_ratio = 0.08  # 腿的倍率
@@ -88,22 +87,22 @@ class SingleLeg(BaseUniqueMechanic):
     def update_myself(self, single_hit: SingleHit, tick: int, ratio: float):
         """对外接口，接受主动技能的SingleHit，并且积累伤害。但是这里有几种情况是不积累伤害的，"""
         if self.enemy.dynamic.stun:
-            '''
+            """
             敌人如果正处于失衡状态下，那么游戏会强制锁定你的目标为敌人本体，而非腿，
             所以在失衡期，是不太容易破腿的，
             在模拟器中，我们对这种情况进行了直接返回的处理——即模拟战斗中，失衡期不会破腿。
             不尽如此，腿还会因为失衡期而恢复。
-            '''
+            """
             if self.lost_leg_hp != 0:
                 self.restore_leg()
             return
 
         if self.last_broken != 0:
             if tick - self.last_broken <= self.cd:
-                '''腿还没冷却好！'''
+                """腿还没冷却好！"""
                 return
 
-        '''更新腿的生命值'''
+        """更新腿的生命值"""
         self.update_leg_hp(single_hit, tick, ratio)
 
     def event_active(self, single_hit: SingleHit, tick: int):
@@ -114,7 +113,7 @@ class SingleLeg(BaseUniqueMechanic):
         if self.lost_leg_hp >= self.max_leg_hp:
             self.last_broken = tick
             self.restore_leg()
-            print('腿破了！！！')
+            print("腿破了！！！")
             return True
         else:
             return False
@@ -128,7 +127,7 @@ class SingleLeg(BaseUniqueMechanic):
         self.lost_leg_hp += single_hit.dmg_expect * ratio
         if self.broken_leg_judge(tick):
             self.event_active(single_hit, tick)
-            decibel_manager_instance.update(single_hit=single_hit, key='part_break')
+            decibel_manager_instance.update(single_hit=single_hit, key="part_break")
 
     def reset_single_leg(self):
         """重置单条腿"""
@@ -143,12 +142,13 @@ class BreakingEvent:
         self.stun_ratio = 0.15  # 失衡比例
         self.damage_ratio = 0.055  # 破腿的直伤倍率
         self.game_state = None
-        self.found_char_dict: dict[int: object] = {}
+        self.found_char_dict: dict[int:object] = {}
 
     def active(self, single_hit: SingleHit, tick: int):
         """破腿进行时！"""
         if self.game_state is None:
             from sim_progress.Preload import get_game_state
+
             self.game_state = get_game_state()
 
         # 1、更新喧响值
@@ -163,29 +163,31 @@ class BreakingEvent:
         dmg_value = self.enemy.max_HP * self.damage_ratio
         self.enemy._Enemy__HP_update(dmg_value)
 
-        report_dmg_result(tick=tick,
-                          element_type=0,
-                          skill_tag="破腿",
-                          dmg_expect=round(dmg_value, 2),
-                          dmg_crit=round(dmg_value, 2),
-                          stun=round(stun_value, 2),
-                          buildup=0,
-                          **self.enemy.dynamic.get_status()
-                          )
+        report_dmg_result(
+            tick=tick,
+            element_type=0,
+            skill_tag="破腿",
+            dmg_expect=round(dmg_value, 2),
+            dmg_crit=round(dmg_value, 2),
+            stun=round(stun_value, 2),
+            buildup=0,
+            **self.enemy.dynamic.get_status(),
+        )
 
     def update_decibel(self, single_hit: SingleHit):
         """向破腿的角色里更新喧响值"""
-        char_cid = int(single_hit.skill_tag.strip().split('_')[0])
+        char_cid = int(single_hit.skill_tag.strip().split("_")[0])
         if char_cid not in self.found_char_dict:
             from sim_progress.Buff import find_char_from_CID
+
             self.found_char_dict[char_cid] = find_char_from_CID(char_cid)
         char_obj = self.found_char_dict[char_cid]
         char_name = char_obj.NAME
         from sim_progress.data_struct import ScheduleRefreshData
+
         refresh_data = ScheduleRefreshData(
             sp_target=(char_name,),
             decibel_target=(char_name,),
-            decibel_value=self.decibel_rewards
+            decibel_value=self.decibel_rewards,
         )
-        self.game_state['schedule_data'].event_list.append(refresh_data)
-
+        self.game_state["schedule_data"].event_list.append(refresh_data)

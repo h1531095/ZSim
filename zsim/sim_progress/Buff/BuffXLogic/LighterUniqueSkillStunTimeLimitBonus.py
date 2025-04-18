@@ -11,6 +11,7 @@ class LighterUniqueSkillStunTimeLimitBonus(Buff.BuffLogic):
     """
     该buff的退出逻辑特殊，失衡结束就会直接退出。
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -23,7 +24,9 @@ class LighterUniqueSkillStunTimeLimitBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['莱特'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["莱特"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = LighterUniqueSkillStunTimeRecord()
         self.record = self.buff_0.history.record
@@ -41,9 +44,3 @@ class LighterUniqueSkillStunTimeLimitBonus(Buff.BuffLogic):
         else:
             self.record.last_stun_statement = self.record.enemy.dynamic.stun
             return False
-
-
-
-
-
-

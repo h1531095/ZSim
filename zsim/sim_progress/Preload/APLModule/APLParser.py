@@ -17,15 +17,16 @@ class APLParser:
         """从文件中读取APL代码。"""
         try:
             # 检查文件扩展名
-            if file_path.endswith('.toml'):
+            if file_path.endswith(".toml"):
                 import toml
-                with open(file_path, 'rb') as f:
+
+                with open(file_path, "rb") as f:
                     toml_dict: dict = toml.load(f)
                     # 如果存在apl_logic表的logic，返回其内容，否则返回空字符串
-                    return toml_dict.get('apl_logic', {}).get('logic', '')
+                    return toml_dict.get("apl_logic", {}).get("logic", "")
             else:
                 # 非toml文件按原有方式处理
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     return f.read()
         except FileNotFoundError as e:
             print(f"Error reading file {file_path}: {e}")
@@ -55,7 +56,7 @@ class APLParser:
                     if int(line[:4]) not in selected_char_cid:
                         selected_char_cid.append(int(line[:4]))
                 # 1. 按 '|' 分割字符串
-                parts = line.split('|')
+                parts = line.split("|")
                 if len(parts) < 3:
                     raise ValueError(f"Invalid format: {line}")
 
@@ -67,13 +68,17 @@ class APLParser:
                 conditions = parts[3:]  # 从第4个元素开始作为条件列表
 
                 # 4. 记录解析后的数据
-                actions.append({
-                    "CID": CID,
-                    "type": apl_type.strip(),
-                    "action": action_name.strip(),
-                    "conditions": [cond.strip() for cond in conditions if cond.strip()],
-                    "priority": priority
-                })
+                actions.append(
+                    {
+                        "CID": CID,
+                        "type": apl_type.strip(),
+                        "action": action_name.strip(),
+                        "conditions": [
+                            cond.strip() for cond in conditions if cond.strip()
+                        ],
+                        "priority": priority,
+                    }
+                )
                 if mode == 0:
                     priority += 1
             except Exception as e:
@@ -88,9 +93,9 @@ class APLParser:
             所以一般情况下还是推荐对APL进行全面定制
             """
             for cid in selected_char_cid:
-                dir_path = './data/APLData/default_APL'
-                default_file_name = f'{cid}.txt'
-                full_path = dir_path + '/' + default_file_name
+                dir_path = "./data/APLData/default_APL"
+                default_file_name = f"{cid}.txt"
+                full_path = dir_path + "/" + default_file_name
                 if not os.path.isfile(full_path):
                     continue
                 else:
@@ -120,7 +125,7 @@ def renumber_priorities(data_list):
 
 
 if __name__ == "__main__":
-    code = '1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True'
+    code = "1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True"
     # actions_list = APLParser(file_path=APL_PATH).parse(mode=0)
     actions_list = APLParser(apl_code=code).parse(mode=0)
     for sub_dict in actions_list:

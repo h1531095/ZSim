@@ -56,7 +56,7 @@ class Enemy:
         enemy_info = self.__lookup_enemy(_raw_enemy_dataframe, name, index_ID, sub_ID)
         self.name, self.index_ID, self.sub_ID, self.data_dict = enemy_info
         # 获取调整倍率
-        enemy_adjust: dict[
+        self.enemy_adjust: dict[
             Literal["生命值", "攻击力", "失衡值上限", "防御力", "异常积蓄值上限"], float
         ] = self.__lookup_enemy_adjustment(_raw_enemy_adjustment_dataframe, adjust_ID)
         # 难度
@@ -66,22 +66,22 @@ class Enemy:
         # 初始化敌人基础属性
         self.max_HP: float = (
             float(self.data_dict["70级最大生命值"])
-            * (1 + enemy_adjust["生命值"])
+            * (1 + self.enemy_adjust["生命值"])
             * difficulty
         )
         self.max_ATK: float = (
             float(self.data_dict["70级最大攻击力"])
-            * (1 + enemy_adjust["攻击力"])
+            * (1 + self.enemy_adjust["攻击力"])
             * difficulty
         )
         self.max_stun: float = (
             float(self.data_dict["70级最大失衡值上限"])
-            * (1 + enemy_adjust["失衡值上限"])
+            * (1 + self.enemy_adjust["失衡值上限"])
             * difficulty
         )
         self.max_DEF: float = (
             float(self.data_dict["60级及以上防御力"])
-            * (1 + enemy_adjust["防御力"])
+            * (1 + self.enemy_adjust["防御力"])
             * difficulty
         )
         self.CRIT_damage: float = float(self.data_dict["暴击伤害"])
@@ -94,7 +94,9 @@ class Enemy:
         self.QTE_triggerable_times: int = int(self.data_dict["可连携次数"])
         # 初始化敌人异常状态抗性
         max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(
-            self.able_to_get_anomaly, self.QTE_triggerable_times, difficulty
+            self.able_to_get_anomaly,
+            self.QTE_triggerable_times,
+            self.enemy_adjust["异常积蓄值上限"],
         )
 
         self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = (
@@ -324,7 +326,7 @@ class Enemy:
 
     @staticmethod
     def __init_enemy_anomaly(
-        able_to_get_anomaly: bool, QTE_triggerable_times: int, difficulty: float
+        able_to_get_anomaly: bool, QTE_triggerable_times: int, adjust: float
     ) -> tuple[int | float, int | float]:
         """
         根据敌人的异常能力和QTE触发次数(怪物等阶)初始化敌人的异常值。
@@ -338,7 +340,7 @@ class Enemy:
         """
         if able_to_get_anomaly:
             # 定义基础异常值
-            base_anomaly = 150 * difficulty
+            base_anomaly = 150 * adjust
             # 定义物理异常值的乘数
             physical_anomaly_mul = 1.2
             # 计算物理异常值
@@ -535,7 +537,9 @@ class Enemy:
     def reset_anomaly_bars(self):
         """重置异常条！"""
         max_element_anomaly, self.max_anomaly_PHY = self.__init_enemy_anomaly(
-            self.able_to_get_anomaly, self.QTE_triggerable_times, self.difficulty
+            self.able_to_get_anomaly,
+            self.QTE_triggerable_times,
+            self.enemy_adjust["异常积蓄值上限"],
         )
         self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = (
             self.max_anomaly_ELECTRIC

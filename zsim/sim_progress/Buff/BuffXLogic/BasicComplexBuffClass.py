@@ -3,6 +3,7 @@ from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 class BaseBuffRecord:
     """基础记录Class"""
+
     def __init__(self):
         self.char = None
         self.buff_0 = None
@@ -32,12 +33,19 @@ class BasicComplexBuffClass(Buff.BuffLogic):
 
     def check_record_module(self, **kwargs):
         """通用记录模块检查"""
-        char_name = kwargs.get('char_name', None)
+        char_name = kwargs.get("char_name", None)
         if char_name is None:
-            raise ValueError(f'{self.buff_instance.ft.index}在进行初始化时，复杂Buff逻辑中的check_record_module函数中并未传入有效的char_name参数！')
+            raise ValueError(
+                f"{self.buff_instance.ft.index}在进行初始化时，复杂Buff逻辑中的check_record_module函数中并未传入有效的char_name参数！"
+            )
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[char_name][self.buff_instance.ft.index]
-        if not hasattr(self.buff_0.history, 'record') or self.buff_0.history.record is None:
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[char_name][
+                self.buff_instance.ft.index
+            ]
+        if (
+            not hasattr(self.buff_0.history, "record")
+            or self.buff_0.history.record is None
+        ):
             self.buff_0.history.record = self.RECORD_CLASS()
         self.record = self.buff_0.history.record
 
@@ -52,6 +60,3 @@ class BasicComplexBuffClass(Buff.BuffLogic):
 
     def special_hit_logic(self, **kwargs):
         pass
-
-
-

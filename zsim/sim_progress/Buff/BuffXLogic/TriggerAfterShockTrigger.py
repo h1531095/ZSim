@@ -24,7 +24,9 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['扳机'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["扳机"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = TriggerAfterShockTriggerRecord()
         self.record = self.buff_0.history.record
@@ -35,26 +37,29 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
         """
         self.check_record_module()
         self.get_prepared(char_CID=1361, preload_data=1)
-        loading_mission = kwargs.get('loading_mission', None)
+        loading_mission = kwargs.get("loading_mission", None)
         if loading_mission is None:
-            raise ValueError(f'{self.buff_instance.ft.index}的xjudge函数中，传入的loading_mission为None！')
+            raise ValueError(
+                f"{self.buff_instance.ft.index}的xjudge函数中，传入的loading_mission为None！"
+            )
         from sim_progress.Load import LoadingMission
+
         if not isinstance(loading_mission, LoadingMission):
             raise TypeError
         tick = find_tick()
-        '''如果当前mission不是hit，则不触发'''
+        """如果当前mission不是hit，则不触发"""
         if not loading_mission.is_hit_now(tick):
             return False
 
-        '''如果当前mission是扳机自己的动作，也不触发'''
-        if '1361' in loading_mission.mission_tag:
+        """如果当前mission是扳机自己的动作，也不触发"""
+        if "1361" in loading_mission.mission_tag:
             return False
 
-        '''
+        """
         剩余情况汇总：队友的、正在命中的skill_node，即为可能触发协同攻击的skill_node，
         但是，这里是不包含 扳机 决意值 的判断逻辑的，
         因为在after_shock管理器中，决意值不够时会直接返回None。
-        '''
+        """
         self.record.active_signal_mission = loading_mission
 
         return True
@@ -67,15 +72,15 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(char_CID=1361, preload_data=1)
         if self.record.active_signal_mission is None:
-            raise ValueError(f'{self.buff_instance.ft.index}的xjudge函数在本tick通过判定，但是并未将通过判定的skill_node传入自身的record中')
+            raise ValueError(
+                f"{self.buff_instance.ft.index}的xjudge函数在本tick通过判定，但是并未将通过判定的skill_node传入自身的record中"
+            )
         tick = find_tick()
-        after_shock_tag = self.record.char.after_shock_manager.spawn_after_shock(tick, self.record.active_signal_mission)
+        after_shock_tag = self.record.char.after_shock_manager.spawn_after_shock(
+            tick, self.record.active_signal_mission
+        )
         if after_shock_tag is not None:
             insert_tuple = (after_shock_tag, False, 0)
-            self.record.preload_data.preload_action_list_before_confirm.append(insert_tuple)
-
-
-
-
-
-
+            self.record.preload_data.preload_action_list_before_confirm.append(
+                insert_tuple
+            )

@@ -9,7 +9,7 @@ class PreloadClass:
         self.preload_data = PreloadData(skills, load_data=load_data)
         if SWAP_CANCEL:
             # 合轴模式，使用输入的APL路径
-            self.strategy = SwapCancelStrategy(self.preload_data, apl_path) 
+            self.strategy = SwapCancelStrategy(self.preload_data, apl_path)
         else:
             self.strategy = None
 

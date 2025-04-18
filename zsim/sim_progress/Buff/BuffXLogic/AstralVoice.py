@@ -17,6 +17,7 @@ class AstralVoice(Buff.BuffLogic):
     而触发器本身并无效果，真正实现增伤和复杂判定的是本buff的逻辑模块。
     本模块由 复杂判定（xjudge）  和 复杂生效（xstart） 两个部分构成
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -31,14 +32,16 @@ class AstralVoice(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper('静听嘉音')
+            self.equipper = JudgeTools.find_equipper("静听嘉音")
         if self.buff_0 is None:
             """
             这里的初始化，找到的buff_0实际上是佩戴者的buff_0，
             计算式受益者的buff.history.record中存储的，也是装备佩戴者的buff_0。
             理论上不能这么做，但是因为
             """
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = AstralVoiceRecord()
         self.record = self.buff_0.history.record
@@ -50,11 +53,21 @@ class AstralVoice(Buff.BuffLogic):
         然后是对比trigger_buff_level，对比通过才能输出True
         """
         self.check_record_module()
-        self.get_prepared(equipper='静听嘉音', trigger_buff_0=(self.buff_instance.ft.operator, 'Buff-驱动盘-静听嘉音-嘉音'), action_stack=1)
+        self.get_prepared(
+            equipper="静听嘉音",
+            trigger_buff_0=(
+                self.buff_instance.ft.operator,
+                "Buff-驱动盘-静听嘉音-嘉音",
+            ),
+            action_stack=1,
+        )
         tick_now = JudgeTools.find_tick()
         action_now = self.record.action_stack.peek()
-        if self.record.trigger_buff_0.dy.active and action_now.mission_node.skill.trigger_buff_level == 7:
-            if action_now.mission_dict.get(tick_now, None) == 'start':
+        if (
+            self.record.trigger_buff_0.dy.active
+            and action_now.mission_node.skill.trigger_buff_level == 7
+        ):
+            if action_now.mission_dict.get(tick_now, None) == "start":
                 return True
             else:
                 return False
@@ -63,10 +76,15 @@ class AstralVoice(Buff.BuffLogic):
 
     def special_effect_logic(self):
         self.check_record_module()
-        self.get_prepared(equipper='静听嘉音', trigger_buff_0=(self.buff_instance.ft.operator, 'Buff-驱动盘-静听嘉音-嘉音'), sub_exist_buff_dict=1)
+        self.get_prepared(
+            equipper="静听嘉音",
+            trigger_buff_0=(
+                self.buff_instance.ft.operator,
+                "Buff-驱动盘-静听嘉音-嘉音",
+            ),
+            sub_exist_buff_dict=1,
+        )
         tick_now = find_tick()
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_instance.dy.count = self.record.trigger_buff_0.dy.count
         self.buff_instance.update_to_buff_0(self.buff_0)
-
-

@@ -25,7 +25,9 @@ class JaneAdditionalAbilityPhyBuildupBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['简'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["简"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = JaneAdditionalAbilityPhyBuildupBonusRecord()
         self.record = self.buff_0.history.record
@@ -39,6 +41,3 @@ class JaneAdditionalAbilityPhyBuildupBonus(Buff.BuffLogic):
     def special_exit_logic(self, **kwargs):
         """此Buff退出逻辑和触发逻辑相反"""
         return not self.special_judge_logic()
-
-
-

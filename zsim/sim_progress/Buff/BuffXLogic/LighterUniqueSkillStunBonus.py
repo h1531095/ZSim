@@ -15,6 +15,7 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
     该buff是复杂判断 + 复杂生效双代码控制。
     检测莱特士气的变化。如果发生了变化，则返回True
     """
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -28,7 +29,9 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['莱特'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["莱特"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = LighterUniqueSkillStunBonusRecord()
         self.record = self.buff_0.history.record
@@ -42,7 +45,9 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
 
         if self.record.last_morale > self.record.char.morale:
             # 检测到士气的下降之后，计算士气差，并且转化为层数预存起来。
-            self.record.last_morale_delta = (self.record.last_morale - self.record.char.morale)/100
+            self.record.last_morale_delta = (
+                self.record.last_morale - self.record.char.morale
+            ) / 100
             self.record.buff_count = self.record.last_morale_delta
             self.record.last_morale = self.record.char.morale
             #   暂时假设不向下取整。
@@ -62,6 +67,7 @@ class LighterUniqueSkillStunBonus(Buff.BuffLogic):
         tick = JudgeTools.find_tick()
         buff_i.simple_start(tick, self.record.sub_exist_buff_dict)
         buff_i.dy.count -= buff_i.ft.step
-        buff_i.dy.count = min(buff_i.dy.count + self.record.buff_count, buff_i.ft.maxcount)
+        buff_i.dy.count = min(
+            buff_i.dy.count + self.record.buff_count, buff_i.ft.maxcount
+        )
         buff_i.update_to_buff_0(self.buff_0)
-

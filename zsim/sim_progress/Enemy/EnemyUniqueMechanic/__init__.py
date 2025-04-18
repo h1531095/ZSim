@@ -4,7 +4,7 @@ UNIQUE_MECHANIC_MAP = {
     11411: BreakingLegManager,
     # 11412: BreakingLegManager,
     11413: BreakingLegManager,
-    11414: BreakingLegManager
+    11414: BreakingLegManager,
 }
 
 

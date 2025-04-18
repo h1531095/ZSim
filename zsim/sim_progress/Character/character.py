@@ -7,17 +7,34 @@ from define import *
 
 
 class Character:
-    def __init__(self,
-                 name: str = '', CID: int | None = None,  # 角色名字和CID-必填至少一个
-                 weapon=None, weapon_level=1,  # 武器名字-选填项
-                 equip_style: str = '4+2', equip_set4=None, equip_set2_a=None, equip_set2_b=None, equip_set2_c=None,  # 驱动盘套装-选填项
-                 drive4=None, drive5=None, drive6=None,  # 驱动盘主词条-选填项
-                 scATK_percent=0, scATK=0, scHP_percent=0, scHP=0, scDEF_percent=0, scDEF=0, scAnomalyProficiency=0,
-                 scPEN=0, scCRIT=0, scCRIT_DMG=0,  # 副词条数量-选填项
-                 sp_limit=120,  # 能量上限-默认120
-                 cinema=0,
-                 crit_balancing=True,  # 暴击配平开关，默认开
-                 ):
+    def __init__(
+        self,
+        name: str = "",
+        CID: int | None = None,  # 角色名字和CID-必填至少一个
+        weapon=None,
+        weapon_level=1,  # 武器名字-选填项
+        equip_style: str = "4+2",
+        equip_set4=None,
+        equip_set2_a=None,
+        equip_set2_b=None,
+        equip_set2_c=None,  # 驱动盘套装-选填项
+        drive4=None,
+        drive5=None,
+        drive6=None,  # 驱动盘主词条-选填项
+        scATK_percent=0,
+        scATK=0,
+        scHP_percent=0,
+        scHP=0,
+        scDEF_percent=0,
+        scDEF=0,
+        scAnomalyProficiency=0,
+        scPEN=0,
+        scCRIT=0,
+        scCRIT_DMG=0,  # 副词条数量-选填项
+        sp_limit=120,  # 能量上限-默认120
+        cinema=0,
+        crit_balancing=True,  # 暴击配平开关，默认开
+    ):
         """
         调用时，会生成包含全部角色基础信息的对象，自动从数据库中查找全部信息
         缺少任何信息都是 bug
@@ -204,7 +221,7 @@ class Character:
         self.overall_AM_percent = 0.0
         self.overall_AM_numeric = 0.0
 
-        self.CRIT_rate_numeric = 0.0    # 暴击率（非配平逻辑使用）
+        self.CRIT_rate_numeric = 0.0  # 暴击率（非配平逻辑使用）
         self.CRIT_damage_numeric = 0.0  # 暴击伤害（非配平逻辑使用）
 
         self.base_sp_regen = 0.0
@@ -234,7 +251,7 @@ class Character:
 
         self.decibel: float = 1000.0
 
-        self.element_type: int | None = None    # 角色属性。
+        self.element_type: int | None = None  # 角色属性。
 
         self.crit_balancing: bool = crit_balancing
 
@@ -243,18 +260,30 @@ class Character:
         # 初始化武器基础属性    .\data\weapon.csv
         self._init_weapon_primitive(weapon, weapon_level)
         # 初始化套装效果        .\data\equip_set_2pc.csv
-        self._init_equip_set(equip_style, equip_set4, equip_set2_a, equip_set2_b, equip_set2_c)
+        self._init_equip_set(
+            equip_style, equip_set4, equip_set2_a, equip_set2_b, equip_set2_c
+        )
         self.equip_sets = [
             self.equip_set4,
             self.equip_set2_a,
             self.equip_set2_b,
-            self.equip_set2_c
+            self.equip_set2_c,
         ]
         # 初始化主词条
         self._init_primary_drive(drive4, drive5, drive6)
         # 初始化副词条
-        self._init_secondary_drive(scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency,
-                                   scPEN, scCRIT, scCRIT_DMG)
+        self._init_secondary_drive(
+            scATK_percent,
+            scATK,
+            scHP_percent,
+            scHP,
+            scDEF_percent,
+            scDEF,
+            scAnomalyProficiency,
+            scPEN,
+            scCRIT,
+            scCRIT_DMG,
+        )
 
         # 角色技能列表，还没有写修改技能等级的接口
         self.statement = Character.Statement(self, crit_balancing=crit_balancing)
@@ -288,24 +317,38 @@ class Character:
 
             self.NAME = char_class.NAME
             self.CID = char_class.CID
-            self.ATK = (char_class.baseATK * (1 + char_class.ATK_percent) + char_class.ATK_numeric) * (
-                    1 + char_class.overall_ATK_percent) + char_class.overall_ATK_numeric
-            self.HP = (char_class.baseHP * (1 + char_class.HP_percent) + char_class.HP_numeric) * (
-                    1 + char_class.overall_HP_percent) + char_class.overall_HP_numeric
-            self.DEF = (char_class.baseDEF * (1 + char_class.DEF_percent) + char_class.DEF_numeric) * (
-                    1 + char_class.overall_DEF_percent) + char_class.overall_DEF_numeric
-            self.IMP = (char_class.baseIMP * (1 + char_class.IMP_percent) + char_class.IMP_numeric) * (
-                    1 + char_class.overall_IMP_percent) + char_class.overall_IMP_numeric
-            self.AP = (char_class.baseAP * (1 + char_class.AP_percent) + char_class.AP_numeric) * (
-                    1 + char_class.overall_AP_percent) + char_class.overall_AP_numeric
-            self.AM = (char_class.baseAM * (1 + char_class.AM_percent) + char_class.AM_numeric) * (
-                    1 + char_class.overall_AM_percent) + char_class.overall_AM_numeric
+            self.ATK = (
+                char_class.baseATK * (1 + char_class.ATK_percent)
+                + char_class.ATK_numeric
+            ) * (1 + char_class.overall_ATK_percent) + char_class.overall_ATK_numeric
+            self.HP = (
+                char_class.baseHP * (1 + char_class.HP_percent) + char_class.HP_numeric
+            ) * (1 + char_class.overall_HP_percent) + char_class.overall_HP_numeric
+            self.DEF = (
+                char_class.baseDEF * (1 + char_class.DEF_percent)
+                + char_class.DEF_numeric
+            ) * (1 + char_class.overall_DEF_percent) + char_class.overall_DEF_numeric
+            self.IMP = (
+                char_class.baseIMP * (1 + char_class.IMP_percent)
+                + char_class.IMP_numeric
+            ) * (1 + char_class.overall_IMP_percent) + char_class.overall_IMP_numeric
+            self.AP = (
+                char_class.baseAP * (1 + char_class.AP_percent) + char_class.AP_numeric
+            ) * (1 + char_class.overall_AP_percent) + char_class.overall_AP_numeric
+            self.AM = (
+                char_class.baseAM * (1 + char_class.AM_percent) + char_class.AM_numeric
+            ) * (1 + char_class.overall_AM_percent) + char_class.overall_AM_numeric
             # 更换balancing参数可实线不同的逻辑，默认为True，即配平逻辑
-            self.CRIT_damage, self.CRIT_rate = self._func_statement_CRIT(char_class.baseCRIT_score,
-                                                                         char_class.CRIT_rate_numeric,
-                                                                         char_class.CRIT_damage_numeric,
-                                                                         balancing=crit_balancing)
-            self.sp_regen = char_class.base_sp_regen * (1 + char_class.sp_regen_percent) + char_class.sp_regen_numeric
+            self.CRIT_damage, self.CRIT_rate = self._func_statement_CRIT(
+                char_class.baseCRIT_score,
+                char_class.CRIT_rate_numeric,
+                char_class.CRIT_damage_numeric,
+                balancing=crit_balancing,
+            )
+            self.sp_regen = (
+                char_class.base_sp_regen * (1 + char_class.sp_regen_percent)
+                + char_class.sp_regen_numeric
+            )
             self.sp_get_ratio = char_class.sp_get_ratio
             self.sp_limit = char_class.sp_limit
             # 储存目前能量与喧响的参数
@@ -319,16 +362,20 @@ class Character:
             self.ELECTRIC_DMG_bonus = char_class.ELECTRIC_DMG_bonus
 
             # 将当前对象 (self) 的所有非可调用（即不是方法或函数）的属性收集到一个字典中
-            self.statement = {attr: getattr(self, attr)
-                              for attr in dir(self)
-                              if not callable(getattr(self, attr)) and not attr.startswith("__")}
-            report_to_log(f'[CHAR STATUS]:{self.NAME}:{str(self.statement)}')
+            self.statement = {
+                attr: getattr(self, attr)
+                for attr in dir(self)
+                if not callable(getattr(self, attr)) and not attr.startswith("__")
+            }
+            report_to_log(f"[CHAR STATUS]:{self.NAME}:{str(self.statement)}")
 
         @staticmethod
-        def _func_statement_CRIT(CRIT_score: float,
-                                 CRIT_rate_numeric: float,
-                                 CRIT_damage_numeric: float,
-                                 balancing) -> tuple:
+        def _func_statement_CRIT(
+            CRIT_score: float,
+            CRIT_rate_numeric: float,
+            CRIT_damage_numeric: float,
+            balancing,
+        ) -> tuple:
             """
             双暴状态函数
             balancing : 是否使用配平逻辑
@@ -353,7 +400,7 @@ class Character:
             if balancing:
                 if CRIT_score >= 400:
                     CRIT_rate = 1.0
-                    CRIT_damage = (CRIT_score / 100 - 2)
+                    CRIT_damage = CRIT_score / 100 - 2
                 else:
                     CRIT_damage = max(0.5, CRIT_score / 200)
                     CRIT_rate = (CRIT_score / 100 - CRIT_damage) / 2
@@ -368,10 +415,10 @@ class Character:
     class Dynamic:
         """用于记录角色各种动态信息的类，主要和APL模块进行互动。"""
 
-        def __init__(self, char_instantce: 'Character'):
+        def __init__(self, char_instantce: "Character"):
             self.character = char_instantce
             self.lasting_node = LastingNode(self.character)
-            self.on_field = False   # 角色是否在前台
+            self.on_field = False  # 角色是否在前台
 
         def reset(self):
             self.lasting_node.reset()
@@ -390,30 +437,32 @@ class Character:
         return True
 
     def __mapping_csv_to_attr(self, row: dict):
-        self.baseATK += float(row.get('base_ATK', 0))
-        self.ATK_percent += float(row.get('ATK%', 0))
-        self.DEF_percent += float(row.get('DEF%', 0))
-        self.HP_percent += float(row.get('HP%', 0))
-        self.IMP_percent += float(row.get('IMP%', 0))
-        self.overall_ATK_percent += float(row.get('oATK%', 0))
-        self.overall_DEF_percent += float(row.get('oDEF%', 0))
-        self.overall_HP_percent += float(row.get('oHP%', 0))
-        self.overall_IMP_percent += float(row.get('oIMP%', 0))
-        self.AM_numeric += float(row.get('Anomaly_Mastery', 0))
-        self.AP_numeric += float(row.get('Anomaly_Proficiency', 0))
-        self.sp_regen_percent += float(row.get('Regen%', 0))
-        self.sp_regen_numeric += float(row.get('Regen', 0))
-        self.sp_get_ratio += float(row.get('Get_ratio', 0))
-        self.ICE_DMG_bonus += float(row.get('ICE_DMG_bonus', 0))
-        self.FIRE_DMG_bonus += float(row.get('FIRE_DMG_bonus', 0))
-        self.ELECTRIC_DMG_bonus += float(row.get('ELECTRIC_DMG_bonus', 0))
-        self.PHY_DMG_bonus += float(row.get('PHY_DMG_bonus', 0))
-        self.ETHER_DMG_bonus += float(row.get('ETHER_DMG_bonus', 0))
+        self.baseATK += float(row.get("base_ATK", 0))
+        self.ATK_percent += float(row.get("ATK%", 0))
+        self.DEF_percent += float(row.get("DEF%", 0))
+        self.HP_percent += float(row.get("HP%", 0))
+        self.IMP_percent += float(row.get("IMP%", 0))
+        self.overall_ATK_percent += float(row.get("oATK%", 0))
+        self.overall_DEF_percent += float(row.get("oDEF%", 0))
+        self.overall_HP_percent += float(row.get("oHP%", 0))
+        self.overall_IMP_percent += float(row.get("oIMP%", 0))
+        self.AM_numeric += float(row.get("Anomaly_Mastery", 0))
+        self.AP_numeric += float(row.get("Anomaly_Proficiency", 0))
+        self.sp_regen_percent += float(row.get("Regen%", 0))
+        self.sp_regen_numeric += float(row.get("Regen", 0))
+        self.sp_get_ratio += float(row.get("Get_ratio", 0))
+        self.ICE_DMG_bonus += float(row.get("ICE_DMG_bonus", 0))
+        self.FIRE_DMG_bonus += float(row.get("FIRE_DMG_bonus", 0))
+        self.ELECTRIC_DMG_bonus += float(row.get("ELECTRIC_DMG_bonus", 0))
+        self.PHY_DMG_bonus += float(row.get("PHY_DMG_bonus", 0))
+        self.ETHER_DMG_bonus += float(row.get("ETHER_DMG_bonus", 0))
         if self.crit_balancing:
-            self.baseCRIT_score += 100 * (float(row.get('Crit_Rate', 0)) * 2 + float(row.get('Crit_DMG', 0)))
+            self.baseCRIT_score += 100 * (
+                float(row.get("Crit_Rate", 0)) * 2 + float(row.get("Crit_DMG", 0))
+            )
         else:
-            self.CRIT_rate_numeric += float(row.get('Crit_Rate', 0))
-            self.CRIT_damage_numeric += float(row.get('Crit_DMG', 0))
+            self.CRIT_rate_numeric += float(row.get("Crit_Rate", 0))
+            self.CRIT_damage_numeric += float(row.get("Crit_DMG", 0))
 
     def _init_base_attribute(self, char_name: str):
         """
@@ -427,28 +476,30 @@ class Character:
         try:
             df = pd.read_csv(CHARACTER_DATA_PATH)
             # 查找与角色名称匹配的行，并转换为字典形式，每条记录一个字典
-            row: list[dict] = df[df['name'] == char_name].to_dict('records')
+            row: list[dict] = df[df["name"] == char_name].to_dict("records")
             if row:
                 # 将对应记录提取出来，并赋值给角色对象
                 row_0: dict = row[0]
-                self.baseATK = float(row_0.get('基础攻击力', 0))
-                self.baseHP = float(row_0.get('基础生命值', 0))
-                self.baseDEF = float(row_0.get('基础防御力', 0))
-                self.baseIMP = float(row_0.get('基础冲击力', 0))
-                self.baseAP = float(row_0.get('基础异常精通', 0))
-                self.baseAM = float(row_0.get('基础异常掌控', 0))
-                self.baseCRIT_score = float(row_0.get('基础暴击分数', 60))
-                self.CRIT_rate_numeric = float(row_0.get('基础暴击率', 0))   # 此处不需要根据暴击配平区分
-                self.CRIT_damage_numeric = float(row_0.get('基础暴击伤害', 1))
-                self.PEN_ratio = float(row_0.get('基础穿透率', 0))
-                self.PEN_numeric = float(row_0.get('基础穿透值', 0))
-                self.base_sp_regen = float(row_0.get('基础能量自动回复', 0))
-                self.base_sp_get_ratio = float(row_0.get('基础能量获取效率', 1))
-                self.element_type = row_0.get('角色属性', None)
+                self.baseATK = float(row_0.get("基础攻击力", 0))
+                self.baseHP = float(row_0.get("基础生命值", 0))
+                self.baseDEF = float(row_0.get("基础防御力", 0))
+                self.baseIMP = float(row_0.get("基础冲击力", 0))
+                self.baseAP = float(row_0.get("基础异常精通", 0))
+                self.baseAM = float(row_0.get("基础异常掌控", 0))
+                self.baseCRIT_score = float(row_0.get("基础暴击分数", 60))
+                self.CRIT_rate_numeric = float(
+                    row_0.get("基础暴击率", 0)
+                )  # 此处不需要根据暴击配平区分
+                self.CRIT_damage_numeric = float(row_0.get("基础暴击伤害", 1))
+                self.PEN_ratio = float(row_0.get("基础穿透率", 0))
+                self.PEN_numeric = float(row_0.get("基础穿透值", 0))
+                self.base_sp_regen = float(row_0.get("基础能量自动回复", 0))
+                self.base_sp_get_ratio = float(row_0.get("基础能量获取效率", 1))
+                self.element_type = row_0.get("角色属性", None)
                 if self.element_type is None or self.element_type < 0:
                     raise NotImplementedError(f"角色{char_name}的属性类型未定义")
                 # CID特殊处理，避免不必要的类型转换
-                cid_value: int | None = row_0.get('CID', None)
+                cid_value: int | None = row_0.get("CID", None)
                 self.CID = int(cid_value) if cid_value is not None else -1
             else:
                 raise ValueError(f"角色{char_name}不存在")
@@ -468,9 +519,11 @@ class Character:
             return
 
         df = pd.read_csv(WEAPON_DATA_PATH)
-        row_5 = df[df['weapon_ID'] == weapon]  # 找到所有包含此武器的行
+        row_5 = df[df["weapon_ID"] == weapon]  # 找到所有包含此武器的行
         if not row_5.empty:  # 检查是否找到匹配项
-            row: list[dict] = row_5[row_5['level'] == weapon_level].to_dict('records')  # 找到对应精炼等级的行，并转化为字典
+            row: list[dict] = row_5[row_5["level"] == weapon_level].to_dict(
+                "records"
+            )  # 找到对应精炼等级的行，并转化为字典
             if row:
                 row_0: dict = row[0]
                 self.__mapping_csv_to_attr(row_0)
@@ -479,11 +532,16 @@ class Character:
         else:
             raise ValueError(f"请输入正确的武器名称，{weapon} 不存在！")
 
-
-
-    def _init_equip_set(self, equip_style: str, equip_set4: str | None, equip_set2_a: str | None, equip_set2_b: str | None, equip_set2_c: str | None):
+    def _init_equip_set(
+        self,
+        equip_style: str,
+        equip_set4: str | None,
+        equip_set2_a: str | None,
+        equip_set2_b: str | None,
+        equip_set2_c: str | None,
+    ):
         """初始化套装效果, Character类仅计算二件套"""
-        if equip_style not in ['4+2', '2+2+2']:
+        if equip_style not in ["4+2", "2+2+2"]:
             raise ValueError("请输入正确的套装格式")
         # 将自身套装效果抄录
         equip_set_all = [equip_set4, equip_set2_a, equip_set2_b, equip_set2_c]
@@ -497,9 +555,11 @@ class Character:
                 if set_name in used_sets:
                     raise ValueError("四件套与二件套中请勿输入重复的套装名称")
         del used_sets, two_piece_sets
-        self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = tuple(equip_set_all)
+        self.equip_set4, self.equip_set2_a, self.equip_set2_b, self.equip_set2_c = (
+            tuple(equip_set_all)
+        )
         # 4+2格式则移出2b、2c
-        if equip_style == '4+2':  # 非空判断
+        if equip_style == "4+2":  # 非空判断
             if equip_set2_b in equip_set_all:  # 别删这个if，否则输入None会报错
                 equip_set_all.remove(equip_set2_b)
             if equip_set2_c in equip_set_all:  # 别删这个if，否则输入None会报错
@@ -511,14 +571,16 @@ class Character:
             df = pd.read_csv(EQUIP_2PC_DATA_PATH)
             for equip_2pc in equip_set_all:
                 if bool(equip_2pc):  # 若二件套非空，则继续
-                    row: list[dict] = df[df['set_ID'] == equip_2pc].to_dict('records')
+                    row: list[dict] = df[df["set_ID"] == equip_2pc].to_dict("records")
                     if row:
                         row_0 = row[0]
                         self.__mapping_csv_to_attr(row_0)
                     else:
                         raise ValueError(f"套装 {equip_2pc} 不存在")
 
-    def _init_primary_drive(self, drive4: str | None, drive5: str | None, drive6: str | None):
+    def _init_primary_drive(
+        self, drive4: str | None, drive5: str | None, drive6: str | None
+    ):
         """初始化主词条"""
         drive_parts = [drive4, drive5, drive6]
         # 初始化1-3号位
@@ -528,76 +590,110 @@ class Character:
         # 匹配4-6号位
         for drive in drive_parts:
             match drive:
-                case '生命值%' | '生命值':
+                case "生命值%" | "生命值":
                     self.HP_percent += 0.3
-                case '攻击力%' | '攻击力':
+                case "攻击力%" | "攻击力":
                     self.ATK_percent += 0.3
-                case '防御力%' | '防御力':
+                case "防御力%" | "防御力":
                     self.DEF_percent += 0.48
-                case '暴击率%' | '暴击率':
+                case "暴击率%" | "暴击率":
                     if self.crit_balancing:
                         self.baseCRIT_score += 48
                     else:
                         self.CRIT_rate_numeric += 0.24
-                case '暴击伤害%' | '暴击伤害':
+                case "暴击伤害%" | "暴击伤害":
                     if self.crit_balancing:
                         self.baseCRIT_score += 48
                     else:
                         self.CRIT_damage_numeric += 0.48
-                case '异常精通':
+                case "异常精通":
                     self.AP_numeric += 92
-                case '穿透率%' | '穿透率':
+                case "穿透率%" | "穿透率":
                     self.PEN_ratio += 0.24
-                case '冰属性伤害%' | '冰属性伤害':
+                case "冰属性伤害%" | "冰属性伤害":
                     self.ICE_DMG_bonus += 0.3
-                case '火属性伤害%' | '火属性伤害':
+                case "火属性伤害%" | "火属性伤害":
                     self.FIRE_DMG_bonus += 0.3
-                case '电属性伤害%' | '电属性伤害':
+                case "电属性伤害%" | "电属性伤害":
                     self.ELECTRIC_DMG_bonus += 0.3
-                case '以太属性伤害%' | '以太属性伤害':
+                case "以太属性伤害%" | "以太属性伤害":
                     self.ETHER_DMG_bonus += 0.3
-                case '物理属性伤害%' | '物理属性伤害':
+                case "物理属性伤害%" | "物理属性伤害":
                     self.PHY_DMG_bonus += 0.3
-                case '异常掌控':
+                case "异常掌控":
                     self.AM_percent += 0.3
-                case '冲击力%' | '冲击力':
+                case "冲击力%" | "冲击力":
                     self.IMP_percent += 0.18
-                case '能量自动回复%' | '能量自动回复':
+                case "能量自动回复%" | "能量自动回复":
                     self.sp_regen_percent += 0.6
                 case None:
                     continue
-                case 'None' | '-' | '' | '0':
+                case "None" | "-" | "" | "0":
                     continue
                 case _:
                     raise ValueError(f"提供的主词条名称 {drive} 不存在")
 
-    def _init_secondary_drive(self, scATK_percent: int | float, scATK: int | float, scHP_percent: int | float, scHP: int | float, scDEF_percent: int | float,
-                              scDEF: int | float, scAnomalyProficiency: int | float, scPEN: int | float, scCRIT: int | float, scCRIT_DMG: int | float):
+    def _init_secondary_drive(
+        self,
+        scATK_percent: int | float,
+        scATK: int | float,
+        scHP_percent: int | float,
+        scHP: int | float,
+        scDEF_percent: int | float,
+        scDEF: int | float,
+        scAnomalyProficiency: int | float,
+        scPEN: int | float,
+        scCRIT: int | float,
+        scCRIT_DMG: int | float,
+    ):
         """初始化副词条"""
         # 类型检查
-        if not all(isinstance(x, (int, float)) for x in
-                   [scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN,
-                    scCRIT]):
+        if not all(
+            isinstance(x, (int, float))
+            for x in [
+                scATK_percent,
+                scATK,
+                scHP_percent,
+                scHP,
+                scDEF_percent,
+                scDEF,
+                scAnomalyProficiency,
+                scPEN,
+                scCRIT,
+            ]
+        ):
             raise TypeError("词条数量必须是数.")
 
         # 参数有效性检查
-        if any(x < 0 for x in
-               [scATK_percent, scATK, scHP_percent, scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT]):
+        if any(
+            x < 0
+            for x in [
+                scATK_percent,
+                scATK,
+                scHP_percent,
+                scHP,
+                scDEF_percent,
+                scDEF,
+                scAnomalyProficiency,
+                scPEN,
+                scCRIT,
+            ]
+        ):
             raise ValueError("词条数量不能为负.")
 
-        self.ATK_percent += (scATK_percent * 0.03)
-        self.ATK_numeric += (scATK * 19)
-        self.HP_percent += (scHP_percent * 0.03)
-        self.HP_numeric += (scHP * 112)
-        self.DEF_percent += (scDEF_percent * 0.048)
-        self.DEF_numeric += (scDEF * 15)
-        self.AP_numeric += (scAnomalyProficiency * 9)
-        self.PEN_numeric += (scPEN * 9)
+        self.ATK_percent += scATK_percent * 0.03
+        self.ATK_numeric += scATK * 19
+        self.HP_percent += scHP_percent * 0.03
+        self.HP_numeric += scHP * 112
+        self.DEF_percent += scDEF_percent * 0.048
+        self.DEF_numeric += scDEF * 15
+        self.AP_numeric += scAnomalyProficiency * 9
+        self.PEN_numeric += scPEN * 9
         if self.crit_balancing:
             self.baseCRIT_score += (scCRIT * 4.8) + (scCRIT_DMG * 4.8)
         else:
-            self.CRIT_rate_numeric += (scCRIT * 0.024)
-            self.CRIT_damage_numeric += (scCRIT_DMG * 0.048)
+            self.CRIT_rate_numeric += scCRIT * 0.024
+            self.CRIT_damage_numeric += scCRIT_DMG * 0.048
 
     def update_sp_and_decibel(self, *args, **kwargs):
         """自然更新能量和喧响的方法"""
@@ -610,13 +706,17 @@ class Character:
                 sp_threshold = node.skill.sp_threshold
                 sp_recovery = node.skill.sp_recovery
                 if self.sp < sp_threshold:
-                    print(f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树")
+                    print(
+                        f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树"
+                    )
                 sp_change = sp_recovery - sp_consume
                 self.update_sp(sp_change)
             # Decibel
-            if self.NAME == node.char_name and node.skill_tag.split('_')[1] == 'Q':
+            if self.NAME == node.char_name and node.skill_tag.split("_")[1] == "Q":
                 if self.decibel - 3000 <= -1e-5:
-                    print(f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树")
+                    print(
+                        f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树"
+                    )
                 self.decibel = 0
             else:
                 # 计算喧响变化值
@@ -632,7 +732,7 @@ class Character:
         sp_regen_data = _sp_update_data_filter(*args, **kwargs)
         for mul in sp_regen_data:
             if mul.char_name == self.NAME:
-                sp_change_2 = mul.get_sp_regen() / 60   # 每秒回能转化为每帧回能
+                sp_change_2 = mul.get_sp_regen() / 60  # 每秒回能转化为每帧回能
                 self.update_sp(sp_change_2)
 
     def update_sp(self, sp_value: int | float):
@@ -649,13 +749,13 @@ class Character:
         """父类中不包含默认特殊资源"""
         return None
 
-    def get_resources(self) -> tuple[str|None, int|float|bool|None]:
+    def get_resources(self) -> tuple[str | None, int | float | bool | None]:
         """获取特殊资源的属性名称与数量"""
         return None, None
-    
-    def get_special_stats(self, *args, **kwargs) -> dict[str|None, object|None]:
+
+    def get_special_stats(self, *args, **kwargs) -> dict[str | None, object | None]:
         """获取全部特殊属性的名称与数值"""
-        result: dict[str|None, object|None] = {}
+        result: dict[str | None, object | None] = {}
         return result
 
     def __str__(self) -> str:
@@ -687,7 +787,7 @@ class LastingNode:
         self.node = None
         self.start_tick = 0
         self.update_tick = 0
-        self.is_spamming = False      # 是否处于连续释放技能的状态
+        self.is_spamming = False  # 是否处于连续释放技能的状态
         self.repeat_times = 0
 
     def reset(self):
@@ -733,7 +833,7 @@ class LastingNode:
                 self.update_tick = tick
                 self.repeat_times = 1
                 return
-            if node.skill_tag in ['被打断', '发呆']:
+            if node.skill_tag in ["被打断", "发呆"]:
                 self.is_spamming = False
                 self.node = node
                 self.start_tick = tick
@@ -745,8 +845,10 @@ class LastingNode:
                     if not self.node.skill.do_immediately and node.skill.do_immediately:
                         pass
                     else:
-                        raise ValueError(f'过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n'
-                                         f'但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！')
+                        raise ValueError(
+                            f"过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n"
+                            f"但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！"
+                        )
 
                 if self.node.skill_tag == node.skill_tag:
                     self.is_spamming = True
