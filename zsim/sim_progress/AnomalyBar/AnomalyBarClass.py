@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 import sys
+from uuid import uuid4
 
 
 @dataclass
@@ -8,9 +9,8 @@ class AnomalyBar:
     """
     这是属性异常类的基类。其中包含了属性异常的基本属性，以及几个基本方法。
     """
-
     element_type: int = 0  # 属性种类编号(1~5)
-    is_disorder: bool = False  # 是否是紊乱实例
+    is_disorder: bool = False    # 是否是紊乱实例
     is_full: bool = False  # 是否积满了
     current_ndarray: np.ndarray | None = None  # 当前快照总和
     current_anomaly: np.float64 | None = None  # 当前已经累计的积蓄值
@@ -19,17 +19,14 @@ class AnomalyBar:
     last_active: int = 0  # 上一次属性异常的时间
     max_anomaly: int | None = None  # 最大积蓄值
     ready: bool = True  # 内置CD状态
-    accompany_debuff: list | None = None  # 是否在激活时伴生debuff的index
+    accompany_debuff: list | None = None   # 是否在激活时伴生debuff的index
     accompany_dot: str | None = None  # 是否在激活时伴生dot的index
-    active: bool | None = (
-        None  # 当前异常条是否激活，这一属性和enemy下面的异常开关同步。
-    )
+    active: bool | None = None    # 当前异常条是否激活，这一属性和enemy下面的异常开关同步。
     max_duration: int | None = None
-    duration_buff_list: list | None = None  # 影响当前异常状态最大时长的buff名
-    duration_buff_key_list: list | None = (
-        None  # 影响当前异常状态最大时长的buff效果关键字
-    )
-    basic_max_duration: int = 0  # 基础最大时间
+    duration_buff_list: list | None = None       # 影响当前异常状态最大时长的buff名
+    duration_buff_key_list: list | None = None      # 影响当前异常状态最大时长的buff效果关键字
+    basic_max_duration: int = 0          # 基础最大时间
+    UUID = uuid4()      # UUID
 
     def __post_init__(self):
         self.current_ndarray: np.ndarray = np.zeros((1, 1), dtype=np.float64)
@@ -44,9 +41,9 @@ class AnomalyBar:
     def duration(self, timetick: int):
         duration = timetick - self.last_active
         if self.max_duration is not None:
-            assert duration <= self.max_duration, "该异常早就结束了！不应该触发紊乱！"
+            assert duration <= self.max_duration, '该异常早就结束了！不应该触发紊乱！'
         else:
-            assert False, "该异常的max_duration为None，无法判断是否过期！"
+            assert False, '该异常的max_duration为None，无法判断是否过期！'
         return duration
 
     def update_snap_shot(self, new_snap_shot: tuple):
@@ -55,12 +52,12 @@ class AnomalyBar:
         所以需要在外部嵌套一个总函数，根据属性种类来执行不同属性的update函数。
         """
         if not isinstance(new_snap_shot[2], np.ndarray):
-            raise TypeError("所传入的快照元组的第3个元素应该是np.ndarray！")
+            raise TypeError('所传入的快照元组的第3个元素应该是np.ndarray！')
 
         new_ndarray = new_snap_shot[2].reshape(1, -1)  # 将数据重塑为一行多列的形式
         build_up_value = new_snap_shot[1]  # 获取积蓄值
 
-        assert self.current_ndarray is not None, "当前快照数组为None！"
+        assert self.current_ndarray is not None, '当前快照数组为None！'
         if self.current_ndarray.shape[1] != new_ndarray.shape[1]:
             # 扩展 current_ndarray 列数，保持已有数据，新增的部分会填充为零
             if self.current_ndarray.shape[1] < new_ndarray.shape[1]:
@@ -68,15 +65,11 @@ class AnomalyBar:
                 new_shape = (1, new_ndarray.shape[1])
                 extended_ndarray = np.zeros(new_shape, dtype=np.float64)
                 # 将已有的数据复制到新的 ndarray 中
-                extended_ndarray[:, : self.current_ndarray.shape[1]] = (
-                    self.current_ndarray
-                )
+                extended_ndarray[:, :self.current_ndarray.shape[1]] = self.current_ndarray
                 self.current_ndarray = extended_ndarray
             else:
                 # 如果 current_ndarray 列数大于 new_ndarray 列数，直接裁剪 current_ndarray
-                raise ValueError(
-                    f"传入的快照数组列数为{new_ndarray.shape[1]}，小于快照缓存的列数！"
-                )
+                raise ValueError(f'传入的快照数组列数为{new_ndarray.shape[1]}，小于快照缓存的列数！')
 
         cal_result_1 = build_up_value * new_ndarray
         self.current_ndarray += cal_result_1
@@ -87,9 +80,7 @@ class AnomalyBar:
             self.ready = True
 
     def check_myself(self, timenow: int):
-        assert self.max_duration is not None, (
-            "该异常的max_duration为None，无法判断是否过期！"
-        )
+        assert self.max_duration is not None, '该异常的max_duration为None，无法判断是否过期！'
         if self.active and (self.last_active + self.max_duration < timenow):
             self.active = False
             return True
@@ -98,9 +89,9 @@ class AnomalyBar:
         """
         属性异常激活时，必要的信息更新
         """
-        dynamic_buff_dict = kwargs.get("dynamic_buff_dict")
-        skill_node = kwargs.get("skill_node")
-        char_cid = int(skill_node.skill_tag.strip().split("_")[0])
+        dynamic_buff_dict = kwargs.get('dynamic_buff_dict')
+        skill_node = kwargs.get('skill_node')
+        char_cid = int(skill_node.skill_tag.strip().split('_')[0])
         self.ready = False
         self.anomaly_times += 1
         self.last_active = timenow
@@ -114,9 +105,7 @@ class AnomalyBar:
         """
         self.is_full = False
         self.current_anomaly = np.float64(0)
-        self.current_ndarray = np.zeros(
-            (1, self.current_ndarray.shape[0]), dtype=np.float64
-        )
+        self.current_ndarray = np.zeros((1, self.current_ndarray.shape[0]), dtype=np.float64)
 
     def get_buildup_pct(self):
         if self.max_anomaly is None:
@@ -143,23 +132,15 @@ class AnomalyBar:
         max_duration_delta_fix = 0
         max_duration_delta_pct = 0
         for _buff_index in self.duration_buff_list:
-            enemy_buff_list = dynamic_buff_list.get("enemy")
+            enemy_buff_list = dynamic_buff_list.get('enemy')
             for buffs in enemy_buff_list:
                 if _buff_index == buffs.ft.index and buffs.dy.active:
                     for keys in self.duration_buff_key_list:
                         if keys in buffs.effect_dct.keys():
-                            if "百分比" in keys:
-                                max_duration_delta_pct += (
-                                    buffs.dy.count * buffs.effect_dct.get(keys)
-                                )
+                            if '百分比' in keys:
+                                max_duration_delta_pct += buffs.dy.count * buffs.effect_dct.get(keys)
                             else:
-                                max_duration_delta_fix += (
-                                    buffs.dy.count * buffs.effect_dct.get(keys)
-                                )
+                                max_duration_delta_fix += buffs.dy.count * buffs.effect_dct.get(keys)
 
-        self.max_duration = max(
-            self.basic_max_duration * (1 + max_duration_delta_pct)
-            + max_duration_delta_fix,
-            0,
-        )
+        self.max_duration = max(self.basic_max_duration * (1+max_duration_delta_pct) + max_duration_delta_fix, 0)
         # print(f'属性类型为{self.element_type}的异常激活了，本次激活的最大时长为{self.max_duration}')

@@ -4,7 +4,6 @@ from zsim.sim_progress.Preload import SkillNode
 
 class FeatherManager:
     """薇薇安的羽毛管理器，飞羽、护羽存储、转化、消耗。"""
-
     def __init__(self, char_instance: Character):
         self.char = char_instance
         self.flight_feather = 2                     # 飞羽，进场初始化为4层
@@ -12,29 +11,36 @@ class FeatherManager:
         self.feather_max_count = 5            # 最大飞羽/护羽层数，默认为6层
         self.co_attack_index = '1331_CoAttack_A'
 
+    def update_myself(self, skill_node: SkillNode):
+        """
+        用来更新羽毛的方法，被薇薇安的羽毛触发器调用，
+        该函数内部没有任何类型判断，所有的判断全部交给羽毛触发器的xjudge
+        """
+        if skill_node.skill_tag == '1331_SNA_2':
+            self.trans_feather()
+        else:
+            self.gain_feather(skill_node)
+
     def trans_feather(self):
         """将现有的飞羽全部转化成护羽：注意，飞羽转化为护羽的时间点为SNA_2的最后一跳，所以这里不能走特殊资源，只能从触发器走。"""
         trans_count = self.flight_feather
-        self.guard_feather = min(
-            self.guard_feather + trans_count, self.feather_max_count
-        )
+        self.guard_feather = min(self.guard_feather + trans_count, self.feather_max_count)
         self.flight_feather = 0
 
-    def gain_feather(self, skill_node: SkillNode, tick: int):
-        """获得飞羽，飞羽的获得结算大多为技能的最后一跳，所以也需要从触发器走。"""
-        if skill_node.char_name != "薇薇安":
+    def gain_feather(self, skill_node: SkillNode):
+        """
+        获得飞羽，飞羽的获得结算大多为技能的最后一跳，所以也需要从触发器走。
+        该函数内部没有任何类型判断，所有的判断全部交给羽毛触发器的xjudge
+        """
+        if 'flight_feather' not in skill_node.skill.labels:
             return
-        if "flight_feather" not in skill_node.skill.labels:
-            return
-
         flight_feather_count = skill_node.labels['flight_feather']
         self.flight_feather = min(self.flight_feather + flight_feather_count, self.feather_max_count)
 
     def spawn_coattack(self) -> str | None:
-        """尝试生成一次生化"""
+        """尝试生成一次生花"""
         if self.guard_feather > 0:
             self.guard_feather -= 1
             return self.co_attack_index
         else:
             return None
-
