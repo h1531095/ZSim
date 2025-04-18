@@ -109,7 +109,7 @@ def report_to_log(content: str | None = None, level=4) -> None:
         log_queue.put(content)
 
 
-def report_buff_to_log(
+def report_buff_to_queue(
     character_name: str, time_tick, buff_name: str, buff_count, all_match: bool, level=4
 ):
     if DEBUG and DEBUG_LEVEL <= level:
@@ -117,7 +117,7 @@ def report_buff_to_log(
             buffered_data[character_name][time_tick][buff_name] += buff_count
 
 
-def write_to_csv():
+def dump_buff_csv():
     for char_name in buffered_data:
         if char_name not in buffered_data:
             raise ValueError("你tmd函数写错了！")
@@ -194,7 +194,7 @@ async def async_result_writer(rid):
                     result_df = pd.DataFrame(buffer)
                     csv_data = result_df.to_csv(
                         index=False, header=new_file, encoding="utf-8-sig"
-                    )
+                    ).rstrip("\n")
                     mode = "w" if new_file else "a"
                     async with aiofiles.open(
                         result_path, mode, encoding="utf-8-sig"
@@ -211,8 +211,7 @@ async def async_result_writer(rid):
                 result_df = pd.DataFrame(buffer)
                 csv_data = result_df.to_csv(
                     index=False, header=new_file, encoding="utf-8-sig"
-                )
-
+                ).rstrip("\n")
                 mode = "w" if new_file else "a"
                 async with aiofiles.open(
                     result_path, mode, encoding="utf-8-sig"
@@ -250,14 +249,10 @@ def start_async_tasks():
 def start_report_threads():
     """用于在开始模拟时启动线程以处理日志和结果写入。"""
     regen_result_id()
-
-    # 使用异步方式替代原有的多线程方式
     start_async_tasks()
 
-    # 保留原有代码作为备用方案
-    # log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
-    # log_writer_thread.start()
-    # result_writer_thread = threading.Thread(
-    #     target=lambda: thread_result_writer(__result_id), daemon=True
-    # )
-    # result_writer_thread.start()
+
+def stop_report_threads():
+    dump_buff_csv()
+    log_queue.join()
+    result_queue.join()

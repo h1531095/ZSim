@@ -13,6 +13,5 @@ from . import data_struct
 from .Character import character_factory, Character
 from .Enemy import Enemy
 from .RandomNumberGenerator import RNG
-from .Report import write_to_csv
 from .Update.Update_Buff import update_dynamic_bufflist
 from .data_struct import ActionStack
