@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import queue
@@ -5,6 +6,7 @@ import threading
 from collections import defaultdict
 from datetime import datetime
 
+import aiofiles
 import numpy as np
 import pandas as pd
 from define import ANOMALY_MAPPING, DEBUG, DEBUG_LEVEL, ElementType
@@ -14,6 +16,7 @@ log_queue: queue.Queue = queue.Queue()
 result_queue: queue.Queue = queue.Queue()
 
 __result_id: int | None = None
+__event_loop = None  # 存储事件循环的引用
 
 
 def regen_result_id() -> None:
@@ -159,37 +162,102 @@ def report_dmg_result(
     result_queue.put(result_dict)
 
 
-def thread_log_writer():
+async def async_log_writer():
     report_file_path, _ = prepare_to_report(__result_id)
     while True:
-        with open(report_file_path, "a", encoding="utf-8") as file:
-            content = log_queue.get()
-            file.write(f"{content}\n")
-        log_queue.task_done()
+        try:
+            content = log_queue.get_nowait()
+            async with aiofiles.open(report_file_path, "a", encoding="utf-8") as file:
+                await file.write(f"{content}\n")
+            log_queue.task_done()
+        except queue.Empty:
+            await asyncio.sleep(0.01)
 
 
-def thread_result_writer(rid):
+async def async_result_writer(rid):
     result_path = f"./results/{rid}/damage.csv"
     os.makedirs(os.path.dirname(result_path), exist_ok=True)
     new_file = not os.path.exists(result_path)
+
+    # 创建一个缓冲区来批量写入数据
+    buffer = []
+    max_buffer_size = 100  # 缓冲区大小
+
     while True:
-        result_dict = result_queue.get()
-        result_df = pd.DataFrame([result_dict])
-        if new_file:
-            result_df.to_csv(result_path, index=False, encoding="utf-8-sig")
-            new_file = False
-        else:
-            result_df.to_csv(result_path, mode="a", header=False, index=False)
-        result_queue.task_done()
+        try:
+            result_dict = result_queue.get_nowait()
+            buffer.append(result_dict)
+
+            # 当缓冲区达到一定大小或队列为空时，批量写入
+            if len(buffer) >= max_buffer_size or result_queue.empty():
+                if buffer:
+                    result_df = pd.DataFrame(buffer)
+                    csv_data = result_df.to_csv(
+                        index=False, header=new_file, encoding="utf-8-sig"
+                    )
+                    mode = "w" if new_file else "a"
+                    async with aiofiles.open(
+                        result_path, mode, encoding="utf-8-sig"
+                    ) as file:
+                        await file.write(csv_data)
+
+                    new_file = False
+                    buffer.clear()
+
+            result_queue.task_done()
+        except queue.Empty:
+            # 如果队列为空但缓冲区有数据，也进行写入
+            if buffer:
+                result_df = pd.DataFrame(buffer)
+                csv_data = result_df.to_csv(
+                    index=False, header=new_file, encoding="utf-8-sig"
+                )
+
+                mode = "w" if new_file else "a"
+                async with aiofiles.open(
+                    result_path, mode, encoding="utf-8-sig"
+                ) as file:
+                    await file.write(csv_data)
+
+                new_file = False
+                buffer.clear()
+
+            await asyncio.sleep(0.01)  # 短暂休眠避免CPU空转
+
+
+def start_async_tasks():
+    """启动异步任务处理日志和结果写入"""
+    global __event_loop
+
+    # 如果已有事件循环在运行，则不再创建新的
+    if __event_loop is not None:
+        return
+
+    # 创建新的事件循环
+    __event_loop = asyncio.new_event_loop()
+
+    # 在新线程中运行事件循环
+    def run_event_loop():
+        asyncio.set_event_loop(__event_loop)
+        __event_loop.create_task(async_log_writer())
+        __event_loop.create_task(async_result_writer(__result_id))
+        __event_loop.run_forever()
+
+    loop_thread = threading.Thread(target=run_event_loop, daemon=True)
+    loop_thread.start()
 
 
 def start_report_threads():
     """用于在开始模拟时启动线程以处理日志和结果写入。"""
     regen_result_id()
-    log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
-    log_writer_thread.start()
 
-    result_writer_thread = threading.Thread(
-        target=lambda: thread_result_writer(__result_id), daemon=True
-    )
-    result_writer_thread.start()
+    # 使用异步方式替代原有的多线程方式
+    start_async_tasks()
+
+    # 保留原有代码作为备用方案
+    # log_writer_thread = threading.Thread(target=thread_log_writer, daemon=True)
+    # log_writer_thread.start()
+    # result_writer_thread = threading.Thread(
+    #     target=lambda: thread_result_writer(__result_id), daemon=True
+    # )
+    # result_writer_thread.start()
