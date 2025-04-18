@@ -15,7 +15,7 @@ def SpawnDamageEvent(mission: LoadingMission | Dot.Dot, event_list: list):
         mission.hitted_count += 1
         event_list.append(mission)
     elif isinstance(mission, Dot.Dot):
-        if mission.dy.effect_times > mission.ft.max_effect_times:
+        if mission.dy.effect_times > mission.ft.max_effect_times and not mission.ft.complex_exit_logic:
             raise ValueError('该Dot任务已经完成，应当被删除！')
         if mission.anomaly_data is not None:
             event_list.append(mission.anomaly_data)

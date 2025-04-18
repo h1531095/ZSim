@@ -165,5 +165,7 @@
   "强击暴击伤害增加": "strike_crit_dmg_increase",
   "强击无视防御": "strike_ignore_defense",
 
-  "紊乱倍率增加": "disorder_basic_mul"
+  "紊乱倍率增加": "disorder_basic_mul",
+  "侵蚀紊乱伤害提升": "chaos_disorder_dmg_mul",
+  "异放无视目标伤害抗性": ""
 }

@@ -171,7 +171,6 @@ class ScheduledEvent:
             _node = event.mission_node
         else:
             raise TypeError("无法解析的事件类型")
-
         """接下来要通过技能的异常更新特性，判断当前Tick的技能是否能够更新异常
         由于调用函数的位置是ScheduleEvent，所以一定是Hit事件发生时，
         所以，直接调用loading_mission.hitted_count数量就可以获得当前正在被结算的Hit次数。"""

@@ -34,7 +34,7 @@ class VivianAdditionalAbilityCoAttackTrigger(Buff.BuffLogic):
         """检测到属性异常传入后，进行判定。如果新的异常，则放行。"""
         self.check_record_module()
         self.get_prepared(char_CID=1331, preload_data=1)
-        anomaly_bar = kwargs.get('anoamly_bar', None)
+        anomaly_bar = kwargs.get('anomaly_bar', None)
         if anomaly_bar is None:
             return False
         from sim_progress.AnomalyBar import AnomalyBar
@@ -48,7 +48,7 @@ class VivianAdditionalAbilityCoAttackTrigger(Buff.BuffLogic):
             return True
 
         # 如果是同一异常，则不放行。
-        if anomaly_bar.UUID == self.record.last_update_anomaly.UUID:
+        if id(anomaly_bar) == id(self.record.last_update_anomaly):
             return False
 
         # CD没转好，不触发。
@@ -65,10 +65,11 @@ class VivianAdditionalAbilityCoAttackTrigger(Buff.BuffLogic):
         self.get_prepared(char_CID=1361, preload_data=1)
         coattack_skill_tag = self.record.char.feather_manager.spawn_coattack()
         if coattack_skill_tag is None:
+            # print(f'虽然有{self.record.last_update_anomaly.element_type}类型的新异常触发！但是豆子不够！！')
             return
-        input_tuple = (coattack_skill_tag, False)
+        input_tuple = (coattack_skill_tag, False, 0)
         self.record.preload_data.external_add_skill(input_tuple)
-        print(f'监听到队友触发了新的异常{self.record.last_update_anomaly.activated_by}，薇薇安触发了一次落雨生花！')
+        # print(f'监听到队友触发了新的异常{self.record.last_update_anomaly.activate_by}，薇薇安触发了一次落雨生花！')
 
 
 

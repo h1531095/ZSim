@@ -17,7 +17,7 @@ class PreloadData:
             None  # 最近一次主动生成的skillnode，#TODO：可能是无用参数！
         )
         self.preload_action_list_before_confirm: list[
-            tuple[str, bool]
+            tuple[str, bool, int]
         ] = []  # 当前tick需要执行preload的SkillTag列表，列表中的元素是(skill_tag, active_generation)，其中，active_generation指的是动作是否是主动生成。
         self.name_box: list[str] | None = None
         self.char_data = None
@@ -70,9 +70,9 @@ class PreloadData:
             print(f"尚未被Load阶段处理的技能：{self.preload_action}")
         enemy.stun_judge(tick)
 
-    def external_add_skill(self, skill_tuple: tuple[str, bool]):
+    def external_add_skill(self, skill_tuple: tuple[str, bool, int]):
         """外部Buff向下一个Tick添加技能的接口，通常用于协同攻击"""
-        skill_tag, active_generation = skill_tuple
+        skill_tag, active_generation, apl_priority = skill_tuple
         self.preload_action_list_before_confirm.append(skill_tuple)
 
     def reset_myself(self, name_box):

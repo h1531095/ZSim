@@ -26,11 +26,11 @@ class AnomalyBar:
     duration_buff_list: list | None = None       # 影响当前异常状态最大时长的buff名
     duration_buff_key_list: list | None = None      # 影响当前异常状态最大时长的buff效果关键字
     basic_max_duration: int = 0          # 基础最大时间
-    UUID = uuid4()      # UUID
 
     def __post_init__(self):
         self.current_ndarray: np.ndarray = np.zeros((1, 1), dtype=np.float64)
         self.current_anomaly: np.float64 = np.float64(0)
+        self.UUID = uuid4()  # UUID
 
     def remaining_tick(self):
         main_module = sys.modules["simulator.main_loop"]
@@ -144,3 +144,12 @@ class AnomalyBar:
 
         self.max_duration = max(self.basic_max_duration * (1+max_duration_delta_pct) + max_duration_delta_fix, 0)
         # print(f'属性类型为{self.element_type}的异常激活了，本次激活的最大时长为{self.max_duration}')
+
+    @staticmethod
+    def create_new_from_existing(existing_instance):
+        """
+        通过复制已有实例的状态来创建新实例
+        """
+        new_instance = AnomalyBar.__new__(AnomalyBar)  # 不调用构造函数
+        new_instance.__dict__ = existing_instance.__dict__.copy()  # 复制原实例的属性
+        return new_instance

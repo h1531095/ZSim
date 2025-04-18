@@ -205,6 +205,9 @@ class Buff:
                 ——启发自  Buff 静听嘉音  
                 """
 
+                '''Buff标签'''
+                self.label: dict[str, int] | None = None
+
     class BuffDynamic:
         def __init__(self):
             self.exist = False  # buff是否参与了计算,即是否允许被激活
