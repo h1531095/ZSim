@@ -3,7 +3,7 @@ import ast
 import numpy as np
 import pandas as pd
 from sim_progress import Report
-from define import *
+from define import CHARACTER_DATA_PATH, SKILL_DATA_PATH, DEFAULT_SKILL_PATH, ElementType
 
 
 @lru_cache(maxsize=64)

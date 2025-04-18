@@ -1,3 +1,4 @@
+import uuid
 from sim_progress.AnomalyBar.AnomalyBarClass import AnomalyBar
 
 
@@ -15,6 +16,8 @@ class Disorder(AnomalyBar):
         activate_by = kwargs.get("active_by", None)
         self.activate_by = activate_by
         # 复制父类的所有属性，主要是快照、积蓄总值、属性类型。
+        self.source_uuid = self.UUID
+        self.UUID = uuid.uuid4()
 
 
 class NewAnomaly(AnomalyBar):
@@ -25,6 +28,8 @@ class NewAnomaly(AnomalyBar):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
         self.activate_by = active_by
+        self.source_uuid = self.UUID
+        self.UUID = uuid.uuid4()
 
 
 class PolarityDisorder(AnomalyBar):
@@ -43,6 +48,8 @@ class PolarityDisorder(AnomalyBar):
         )
         self.additional_dmg_ap_ratio = 32  # 精通附加伤害的倍率！
         self.activate_by = active_by
+        self.source_uuid = self.UUID
+        self.UUID = uuid.uuid4()
 
 
 class DirgeOfDestinyAnomaly(AnomalyBar):
@@ -53,3 +60,5 @@ class DirgeOfDestinyAnomaly(AnomalyBar):
         self.__dict__.update(Output_bar.__dict__)
         self.activate_by = active_by
         self.anomaly_dmg_ratio = 0  # 属性异常伤害的缩放倍率
+        self.source_uuid = self.UUID
+        self.UUID = uuid.uuid4()
