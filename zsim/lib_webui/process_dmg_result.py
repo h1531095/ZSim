@@ -122,8 +122,13 @@ def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
             if len(same_UUID_rows["element_type"]) > 0
             else None
         )
+        cid: int | str | None
         cid = skill_tag[0:4] if skill_tag is not None else None
-        name, _ = lookup_name_or_cid(cid=cid) if cid is not None else (None, None)
+        try:
+            name, cid = lookup_name_or_cid(cid=cid) if cid is not None else (None, None)
+        except ValueError:
+            name = skill_tag
+            cid = None
 
         result_data.append(
             {
@@ -147,30 +152,41 @@ def draw_char_chart(uuid_df: pd.DataFrame) -> None:
         cols = st.columns(2)
         # 角色伤害占比分布
         with cols[0]:
-            st.subheader("角色伤害占比")
-            char_dmg_df = uuid_df.groupby("name")["dmg_expect_sum"].sum().reset_index()
-            fig = px.pie(
-                char_dmg_df,
-                names="name",
-                values="dmg_expect_sum",
-                labels={"name": "角色", "dmg_expect_sum": "期望伤害总和"},
-            )
-            st.plotly_chart(fig)
+            st.subheader("队伍伤害来源占比")
+            # 过滤掉伤害期望为0的数据
+            char_dmg_df = uuid_df[uuid_df["dmg_expect_sum"] > 0].groupby("name")["dmg_expect_sum"].sum().reset_index()
+            if not char_dmg_df.empty:
+                fig = px.pie(
+                    char_dmg_df,
+                    names="name",
+                    values="dmg_expect_sum",
+                    labels={"name": "来源", "dmg_expect_sum": "期望伤害总和"},
+                )
+                st.plotly_chart(fig)
+            else:
+                st.info("没有非零伤害数据可供显示")
+
         # 角色失衡占比分布
         with cols[1]:
-            st.subheader("角色失衡占比")
-            char_stun_df = uuid_df.groupby("name")["stun_sum"].sum().reset_index()
-            fig = px.pie(
-                char_stun_df,
-                names="name",
-                values="stun_sum",
-                labels={"name": "角色", "stun_sum": "失衡值总和"},
-            )
-            st.plotly_chart(fig)
+            st.subheader("队伍失衡来源占比")
+            # 过滤掉失衡值为0的数据
+            char_stun_df = uuid_df[uuid_df["stun_sum"] > 0].groupby("name")["stun_sum"].sum().reset_index()
+            if not char_stun_df.empty:
+                fig = px.pie(
+                    char_stun_df,
+                    names="name",
+                    values="stun_sum",
+                    labels={"name": "来源", "stun_sum": "失衡值总和"},
+                )
+                st.plotly_chart(fig)
+            else:
+                st.info("没有非零失衡值数据可供显示")
 
         # 每个角色的各技能输出占比分布-条形图
+        # 先过滤掉cid为None的数据
+        filtered_df = uuid_df[uuid_df['cid'].notna()]
         char_skill_dmg_df = (
-            uuid_df.groupby(["name", "skill_tag"])["dmg_expect_sum"].sum().reset_index()
+            filtered_df.groupby(["name", "skill_tag"])["dmg_expect_sum"].sum().reset_index()
         )
         # 创建一个新的Streamlit列布局
         cols = st.columns(len(char_skill_dmg_df["name"].unique()))
@@ -188,8 +204,10 @@ def draw_char_chart(uuid_df: pd.DataFrame) -> None:
             col_index += 1
 
         # 每个角色各属性的积蓄占比
+        # 过滤掉积蓄值为0的数据
+        filtered_uuid_df = uuid_df[uuid_df["buildup_sum"] > 0]
         char_element_df = (
-            uuid_df.groupby(["name", "element_type"])["buildup_sum"].sum().reset_index()
+            filtered_uuid_df.groupby(["name", "element_type"])["buildup_sum"].sum().reset_index()
         )
         # 创建一个新的Streamlit列布局
         cols = st.columns(len(char_element_df["element_type"].unique()))

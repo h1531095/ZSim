@@ -1,8 +1,7 @@
 import timeit
 import argparse
-from sim_progress import Report
 from simulator.main_loop import main_loop
-from sim_progress.Report import write_to_csv
+from sim_progress.Report import stop_report_threads
 
 
 if __name__ == "__main__":
@@ -25,9 +24,7 @@ if __name__ == "__main__":
         )
 
     print("\n正在等待IO结束···")
-    write_to_csv()
-    Report.log_queue.join()
-    Report.result_queue.join()
+    stop_report_threads()
 
 # TODO：Buff晚记录了1tick——虎皮来改
 # TODO：属性抗性会影响失衡的积累速度，以及属性异常值的积累速度，这两个地方要修改

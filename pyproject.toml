@@ -16,25 +16,24 @@ dependencies = [
     "setuptools~=75.1.0",
     "streamlit~=1.44.0",
     "toml~=0.10.2",
+    "aiofiles>=24.1.0",
 ]
 
 [[tool.uv.index]]
-url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true
 
 [project.scripts]
 zsim = "zsim.run:main"
 
 [tool.setuptools]
-packages = {find = {where = ["."], exclude = ["tests", "results", "logs"]}}
+packages = { find = { where = ["."], exclude = ["tests", "results", "logs"] } }
 
 [tool.setuptools.package-data]
-"*" = ["*.json", "*.csv", "*.toml"] 
+"*" = ["*.json", "*.csv", "*.toml"]
 
 [tool.pytest.ini_options]
-pythonpath = [
-    "./zsim/"
-]
+pythonpath = ["./zsim/"]
 
 [options]
 include_package_data = true

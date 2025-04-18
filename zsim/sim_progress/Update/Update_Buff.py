@@ -1,7 +1,7 @@
 from sim_progress.Buff import Buff
 from sim_progress.Enemy import Enemy
 from sim_progress.Dot import BaseDot
-from sim_progress.Report import report_to_log, report_buff_to_log
+from sim_progress.Report import report_to_log, report_buff_to_queue
 
 
 def update_dynamic_bufflist(
@@ -27,7 +27,7 @@ def update_dynamic_bufflist(
                 shoud_exit = _.logic.xexit()
                 if not shoud_exit:
                     # 如果buff存在，再记录一次层数。
-                    report_buff_to_log(
+                    report_buff_to_queue(
                         charname, timetick, _.ft.index, _.dy.count, True, level=4
                     )
                 else:
@@ -42,7 +42,7 @@ def update_dynamic_bufflist(
                 continue
             if _.ft.alltime:
                 # 对于alltime的buff，自然是每个tick都存在，所以每个tick都记录。
-                report_buff_to_log(
+                report_buff_to_queue(
                     charname, timetick, _.ft.index, _.dy.count, True, level=4
                 )
                 continue
@@ -61,7 +61,7 @@ def update_dynamic_bufflist(
                 else:
                     process_individual_buff(_, timetick)
                     # 先更新层数，再report。
-                    report_buff_to_log(
+                    report_buff_to_queue(
                         charname, timetick, _.ft.index, _.dy.count, True, level=4
                     )
             else:
@@ -78,7 +78,7 @@ def update_dynamic_bufflist(
                     continue
                 else:
                     # 没结束的buffreport一下层数。
-                    report_buff_to_log(
+                    report_buff_to_queue(
                         charname, timetick, _.ft.index, _.dy.count, True, level=4
                     )
     update_dot(enemy, timetick)
