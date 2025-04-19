@@ -590,5 +590,29 @@
     "Buff-角色-薇薇安-6画-触发器": {
         "module": ".BuffXLogic.VivianCinema6Trigger",
         "class": "VivianCinema6Trigger"
+    },
+    "Buff-驱动盘-法厄同之歌-四件套-以太伤害提高": {
+        "module": ".BuffXLogic.PhaethonsMelody",
+        "class": "PhaethonsMelody"
+    },
+    "Buff-武器-精1飞鸟星梦-精通增幅": {
+        "module": ".BuffXLogic.FlightOfFancy",
+        "class": "FlightOfFancy"
+    },
+    "Buff-武器-精2飞鸟星梦-精通增幅": {
+        "module": ".BuffXLogic.FlightOfFancy",
+        "class": "FlightOfFancy"
+    },
+    "Buff-武器-精3飞鸟星梦-精通增幅": {
+        "module": ".BuffXLogic.FlightOfFancy",
+        "class": "FlightOfFancy"
+    },
+    "Buff-武器-精4飞鸟星梦-精通增幅": {
+        "module": ".BuffXLogic.FlightOfFancy",
+        "class": "FlightOfFancy"
+    },
+    "Buff-武器-精5飞鸟星梦-精通增幅": {
+        "module": ".BuffXLogic.FlightOfFancy",
+        "class": "FlightOfFancy"
     }
 }

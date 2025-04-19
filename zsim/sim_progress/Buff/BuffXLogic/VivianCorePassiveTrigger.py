@@ -92,5 +92,6 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
             self.record.cinema_ratio = 1 if self.record.char.cinema < 2 else 1.3
         final_ratio = math.floor(ap/10) * ratio * self.record.cinema_ratio
         dirge_of_destiny_anomaly.anomaly_dmg_ratio = final_ratio
+        dirge_of_destiny_anomaly.current_ndarray = dirge_of_destiny_anomaly.current_ndarray / dirge_of_destiny_anomaly.current_anomaly
         event_list.append(dirge_of_destiny_anomaly)
         # print(f'检测到生花命中异常状态下的敌人，触发一次异放！！！')
