@@ -380,6 +380,7 @@ class MultiplierData:
             self.strike_ignore_defense: float = 0.0
 
             self.disorder_basic_mul: float = 0.0
+            self.chaos_disorder_dmg_mul: float = 0.0
 
             self.__read_dynamic_statement(dynamic_statement)
 

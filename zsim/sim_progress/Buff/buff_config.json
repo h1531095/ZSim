@@ -582,5 +582,13 @@
     "Buff-角色-薇薇安-额外能力-协同攻击触发器": {
         "module": ".BuffXLogic.VivianAdditionalAbilityCoAttackTrigger",
         "class": "VivianAdditionalAbilityCoAttackTrigger"
+    },
+    "Buff-角色-薇薇安-1画-全属性异常和紊乱伤害提升": {
+        "module": ".BuffXLogic.VivianCinema1Debuff",
+        "class": "VivianCinema1Debuff"
+    },
+    "Buff-角色-薇薇安-6画-触发器": {
+        "module": ".BuffXLogic.VivianCinema6Trigger",
+        "class": "VivianCinema6Trigger"
     }
 }

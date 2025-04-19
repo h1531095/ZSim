@@ -1,7 +1,9 @@
-from typing import Literal
+from typing import Literal, Type
 
 import numpy as np
 import pandas as pd
+
+from sim_progress.AnomalyBar import AnomalyBar
 from define import ENEMY_ADJUSTMENT_PATH, ENEMY_DATA_PATH
 from sim_progress import AnomalyBar
 from sim_progress.data_struct import SingleHit, decibel_manager_instance
@@ -570,7 +572,7 @@ class Enemy:
             self.dynamic_debuff_list = []  # 用来装debuff的list
             self.dynamic_dot_list = []  # 用来装dot的list
             self.active_anomaly_bar_dict = {
-                number: AnomalyBar for number in range(6)
+                number: AnomalyBar.AnomalyBar for number in range(6)
             }  # 用来装激活属性异常的字典。
 
             self.stun_bar = 0  # 累计失衡条
@@ -636,6 +638,12 @@ class Enemy:
                     self.shock,
                 ]
             )
+
+        def get_active_anomaly(self) -> list[Type[AnomalyBar.AnomalyBar] | None]:
+            if self.is_under_anomaly():
+                return [_anomaly_bar for _anomaly_bar in self.active_anomaly_bar_dict.values() if _anomaly_bar is not None and _anomaly_bar.active]
+            else:
+                return []
 
     def __str__(self):
         return f"{self.name}: {self.dynamic.__str__()}"
