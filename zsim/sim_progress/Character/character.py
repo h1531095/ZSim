@@ -295,7 +295,7 @@ class Character:
         self.dynamic = self.Dynamic(self)
 
     class Statement:
-        def __init__(self, char_class, crit_balancing):
+        def __init__(self, char_class: 'Character', crit_balancing: bool):
             """
             -char_class : 已实例化的角色
 
@@ -448,7 +448,7 @@ class Character:
         self.overall_DEF_percent += float(row.get("oDEF%", 0))
         self.overall_HP_percent += float(row.get("oHP%", 0))
         self.overall_IMP_percent += float(row.get("oIMP%", 0))
-        self.AM_numeric += float(row.get("Anomaly_Mastery", 0))
+        self.AM_percent += float(row.get("Anomaly_Mastery", 0))
         self.AP_numeric += float(row.get("Anomaly_Proficiency", 0))
         self.sp_regen_percent += float(row.get("Regen%", 0))
         self.sp_regen_numeric += float(row.get("Regen", 0))

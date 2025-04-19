@@ -27,6 +27,7 @@ class MultiplierData:
         enemy_obj: Enemy,
         dynamic_buff: dict,
         character_obj: Character | None = None,
+        skill_node: SkillNode | None = None,
     ):
         hashable_dynamic_buff = tuple(
             (key, tuple(value)) for key, value in dynamic_buff.items()
@@ -35,7 +36,7 @@ class MultiplierData:
             tuple(enemy_obj.dynamic.dynamic_debuff_list),
             tuple(enemy_obj.dynamic.dynamic_dot_list),
         )
-        cache_key = tuple((enemy_hashable, hashable_dynamic_buff, id(character_obj)))
+        cache_key = tuple((enemy_hashable, hashable_dynamic_buff, id(character_obj), id(skill_node)))
         if cache_key in cls.mul_data_cache:
             return cls.mul_data_cache[cache_key]
         else:
@@ -50,12 +51,12 @@ class MultiplierData:
         enemy_obj: Enemy,
         dynamic_buff: dict | None = None,
         character_obj: Character | None = None,
+        skill_node: SkillNode | None = None,
     ):
-        self.skill_node: SkillNode | None = None
         if dynamic_buff is None:
             dynamic_buff = {}
         if not hasattr(self, "char_name"):
-            self.skill_node: SkillNode  # 此类内部不调用该属性
+            self.skill_node: SkillNode | None = skill_node
             if character_obj is None:
                 self.char_name = None
                 self.char_level = None
@@ -75,10 +76,10 @@ class MultiplierData:
             # 获取敌人数据
             self.enemy_obj = enemy_obj
             # 获取buff动态加成
-            dynamic_statement: dict = self.get_buff_bonus(dynamic_buff)
+            dynamic_statement: dict = self.get_buff_bonus(dynamic_buff, self.skill_node)
             self.dynamic = self.DynamicStatement(dynamic_statement)
 
-    def get_buff_bonus(self, dynamic_buff: dict) -> dict:
+    def get_buff_bonus(self, dynamic_buff: dict, skill_node: SkillNode | None) -> dict:
         if self.char_name is None:
             char_buff: list = []
         else:
@@ -91,7 +92,6 @@ class MultiplierData:
                 )
         try:
             enemy_buff: list = self.enemy_obj.dynamic.dynamic_debuff_list
-            pass
         except AttributeError:
             report_to_log("[WARNING] self.enemy_obj 中找不到动态buff列表", level=4)
             try:
@@ -102,7 +102,7 @@ class MultiplierData:
                 )
                 enemy_buff = []
         enabled_buff: tuple = tuple(char_buff + enemy_buff)
-        dynamic_statement: dict = cal_buff_total_bonus(enabled_buff)
+        dynamic_statement: dict = cal_buff_total_bonus(enabled_buff, skill_node)
         return dynamic_statement
 
     class StaticStatement:
@@ -428,8 +428,7 @@ class Calculator:
             raise ValueError("错误的参数类型，应该为dict")
 
         # 创建MultiplierData对象，用于计算各种战斗中的乘区数据
-        data = MultiplierData(enemy_obj, dynamic_buff, character_obj)
-        data.skill_node = skill_node
+        data = MultiplierData(enemy_obj, dynamic_buff, character_obj, skill_node)
 
         # 初始化角色名称和角色ID
         self.char_name: str | None = data.char_name

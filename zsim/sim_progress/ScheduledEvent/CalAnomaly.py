@@ -244,4 +244,3 @@ class CalAbloom(CalAnomaly):
     ):
         super().__init__(abloom_obj, enemy_obj, dynamic_buff)
         self.final_multipliers[0] *= abloom_obj.anomaly_dmg_ratio
-        pass
