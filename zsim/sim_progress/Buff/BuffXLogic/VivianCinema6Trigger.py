@@ -107,6 +107,7 @@ class VivianCinema6Trigger(Buff.BuffLogic):
             self.record.cinema_ratio = 1 if self.record.char.cinema < 2 else 1.3
         final_ratio = math.floor(ap/10) * ratio * self.record.cinema_ratio * self.record.c6_ratio
         dirge_of_destiny_anomaly.anomaly_dmg_ratio = final_ratio
+        dirge_of_destiny_anomaly.current_ndarray = dirge_of_destiny_anomaly.current_ndarray / dirge_of_destiny_anomaly.current_anomaly
         event_list.append(dirge_of_destiny_anomaly)
 
         print(f'6画触发额外异放！！！本次触发消耗额外护羽数量为：{self.record.guard_feather}')
