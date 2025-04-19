@@ -1,4 +1,15 @@
-def _skill_node_filter(*args, **kwargs):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sim_progress.AnomalyBar.CopyAnomalyForOutput import NewAnomaly
+    from sim_progress.data_struct import SPUpdateData
+    from sim_progress.Preload import SkillNode
+    from sim_progress.ScheduledEvent.Calculator import MultiplierData
+
+
+def _skill_node_filter(*args, **kwargs) -> list["SkillNode"]:
     """过滤出输入的 SKillNode，并作为列表返回"""
     from sim_progress.Preload import SkillNode
 
@@ -12,9 +23,9 @@ def _skill_node_filter(*args, **kwargs):
     return skill_nodes
 
 
-def _multiplier_filter(*args, **kwargs):
+def _multiplier_filter(*args, **kwargs) -> list["MultiplierData"]:
     """过滤出输入的 乘区数据，并作为列表返回"""
-    from sim_progress.ScheduledEvent import MultiplierData
+    from sim_progress.ScheduledEvent.Calculator import MultiplierData
 
     multiplier_data: list[MultiplierData] = []
     for arg in args:
@@ -26,7 +37,7 @@ def _multiplier_filter(*args, **kwargs):
     return multiplier_data
 
 
-def _sp_update_data_filter(*args, **kwargs):
+def _sp_update_data_filter(*args, **kwargs) -> list["SPUpdateData"]:
     """过滤出输入的 SPUpdateData，并作为列表返回"""
     from sim_progress.data_struct import SPUpdateData
 
@@ -40,7 +51,7 @@ def _sp_update_data_filter(*args, **kwargs):
     return sp_update_data
 
 
-def _anomaly_filter(*args, **kwargs):
+def _anomaly_filter(*args, **kwargs) -> list["NewAnomaly"]:
     """过滤出输入的异常类！并作为列表返回"""
     from sim_progress.AnomalyBar.CopyAnomalyForOutput import NewAnomaly
 
