@@ -7,9 +7,10 @@ class FeatherManager:
     def __init__(self, char_instance: Character):
         self.char = char_instance
         self.flight_feather = 2                     # 飞羽，进场初始化为4层
-        self.guard_feather = 0                    # 护羽，初始化为0层
+        self.guard_feather = 0 if self.char.cinema < 3 else 5                   # 护羽，初始化为0层
         self.feather_max_count = 5            # 最大飞羽/护羽层数，默认为6层
         self.co_attack_index = '1331_CoAttack_A'
+        self.c1_counter = 0         # 1 画计数器
 
     def update_myself(self, skill_node: SkillNode):
         """
@@ -26,6 +27,7 @@ class FeatherManager:
         trans_count = self.flight_feather
         self.guard_feather = min(self.guard_feather + trans_count, self.feather_max_count)
         self.flight_feather = 0
+        print(f'羽毛转化！当前的护羽、飞羽数量为：{self.guard_feather, self.flight_feather}')
 
     def gain_feather(self, skill_node: SkillNode):
         """
@@ -37,12 +39,22 @@ class FeatherManager:
         if 'flight_feather' not in skill_node.skill.labels.keys():
             return
         flight_feather_count = skill_node.labels['flight_feather']
+        c6_feather = skill_node.labels.get('c6_feather', 0)
+        if self.char.cinema == 6:
+            flight_feather_count += c6_feather
         self.flight_feather = min(self.flight_feather + flight_feather_count, self.feather_max_count)
+        print(f'获得羽毛！当前的护羽、飞羽数量为：{self.guard_feather, self.flight_feather}')
 
     def spawn_coattack(self) -> str | None:
         """尝试生成一次生花"""
         if self.guard_feather > 0:
             self.guard_feather -= 1
+            if self.char.cinema >= 1:
+                self.c1_counter += 1
+                if self.c1_counter >= 4:
+                    self.flight_feather = min(self.flight_feather + 1, self.feather_max_count)
+                    self.c1_counter -= 4
+            print(f'落羽生花结算！当前的护羽、飞羽数量为：{self.guard_feather, self.flight_feather}')
             return self.co_attack_index
         else:
             return None

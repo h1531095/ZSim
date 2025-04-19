@@ -92,9 +92,13 @@ def reset_sim_data():
 
     global_stats = GlobalStats(name_box=init_data.name_box)
     skills = [char.skill_object for char in char_data.char_obj_list]
+    # preload = PreloadClass(
+    #     skills, load_data=load_data, apl_path="./zsim/data/APLData/柳-简-丽娜.txt"
+    # )
     preload = PreloadClass(
-        skills, load_data=load_data, apl_path="./zsim/data/APLData/柳-简-丽娜.txt"
+        skills, load_data=load_data, apl_path="./zsim/data/apl_test.txt"
     )
+
 
     game_state = {  # noqa: F841
         "tick": tick,

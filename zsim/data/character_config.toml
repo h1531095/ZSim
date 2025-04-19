@@ -1,4 +1,4 @@
-name_box = [ "柳", "简", "丽娜",]
+name_box = [ "柳", "薇薇安", "丽娜",]
 
 ["露西"]
 name = "露西"
@@ -165,7 +165,7 @@ equip_set2_a = "激素朋克"
 name = "薇薇安"
 weapon = "霰落星殿"
 weapon_level = 1
-cinema = 0
+cinema = 6
 crit_balancing = false
 scATK_percent = 5
 scATK = 0

@@ -1,5 +1,6 @@
 import json
 import importlib
+import ast
 from functools import lru_cache
 import numpy as np
 from sim_progress.Report import report_to_log
@@ -206,7 +207,39 @@ class Buff:
                 """
 
                 '''Buff标签'''
-                self.label: dict[str, int] | None = None
+                self.label: dict[str, int] | None = self.__process_label_str(config_dict)
+
+                '''
+                标签生效规则：
+                None: 无标签时，该参数为None
+                0：所有标签都通过时，才生效，
+                n(0以外的任意int)：通过n个标签时，就生效。
+                '''
+                self.label_effect_rule: int | None = self.__process_label_rule(config_dict)
+
+        def __process_label_rule(self,config_dict: dict) -> int | None:
+            label_rule = config_dict.get("label_effect_rule", 0)
+            if pd.isna(label_rule) or label_rule is None:
+                if self.label:
+                    return 0
+                else:
+                    return None
+            else:
+                label_rule = int(label_rule)
+                if label_rule != 0 and label_rule > len(self.label.keys()):
+                    raise ValueError(f'{self.index}在初始化时填入的label_rule为{label_rule}，大于其label中填入的参数数量！self.ft.label = {self.label}')
+                return label_rule
+
+        def __process_label_str(self, config_dict: dict):
+            """处理label的初始化！"""
+            label_str = config_dict.get("label", None)
+            if label_str is None:
+                return None
+            elif isinstance(label_str, str):
+                if label_str.strip() is None or pd.isna(label_str):
+                    return None
+                else:
+                    return ast.literal_eval(str(label_str).strip())
 
     class BuffDynamic:
         def __init__(self):

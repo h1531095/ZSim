@@ -3,8 +3,7 @@ from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calcul
 import math
 
 
-
-class VivianCorePassiveTriggerRecord:
+class VivianCinema6TriggerRecord:
     def __init__(self):
         self.char = None
         self.preload_data = None
@@ -13,9 +12,13 @@ class VivianCorePassiveTriggerRecord:
         self.dynamic_buff_list = None
         self.sub_exist_buff_dict = None
         self.cinema_ratio = None
+        self.guard_feather = None
 
+    @property
+    def c6_ratio(self):
+        return self.guard_feather * 0.8
 
-class VivianCorePassiveTrigger(Buff.BuffLogic):
+class VivianCinema6Trigger(Buff.BuffLogic):
     def __init__(self, buff_instance):
         """薇薇安的核心被动触发器"""
         super().__init__(buff_instance)
@@ -41,35 +44,47 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         if self.buff_0 is None:
             self.buff_0 = JudgeTools.find_exist_buff_dict()['薇薇安'][self.buff_instance.ft.index]
         if self.buff_0.history.record is None:
-            self.buff_0.history.record = VivianCorePassiveTriggerRecord()
+            self.buff_0.history.record = VivianCinema6TriggerRecord()
         self.record = self.buff_0.history.record
 
     def special_judge_logic(self, **kwargs):
         """
         薇薇安的核心被动触发器：
-        触发机制为：落羽生花命中处于异常状态的目标时，构造一个新的属性异常放到Evenlist中
+        触发机制为：全队任意角色触发属性异常的第一跳时，构造一个新的属性异常放到Evenlist中
         """
         self.check_record_module()
         self.get_prepared(char_CID=1331, enemy=1)
         skill_node = kwargs.get('skill_node', None)
         if skill_node is None:
-            return False
+            return
         from sim_progress.Preload import SkillNode
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f'{self.buff_instance.ft.index}的xjudge函数获取到的skill_node 不是SkillNode类型')
-        if skill_node.skill_tag != '1331_CoAttack_A':
+            raise TypeError(f'{self.buff_instance.ft.index}的xjudge函数获取到的skill_node不是SkillNode类型！')
+
+        if skill_node.skill_tag != '1331_SNA_2':
             return False
-        if not self.record.enemy.dynamic.is_under_anomaly():
-            return False
+        if not self.record.enemy.dynamic.is_under_anomaly:
+            print(f'怪物没异常你打什么SNA_2！豆子全没了吧傻逼！')
         if self.record.last_update_node is None:
-            self.record.last_update_node = skill_node
+            self.c6_pre_active(skill_node)
             return True
         else:
             if skill_node.UUID != self.record.last_update_node.UUID:
-                self.record.last_update_node = skill_node
+                self.c6_pre_active(skill_node)
                 return True
-            else:
-                return False
+        return False
+
+    def c6_pre_active(self, skill_node):
+        self.record.last_update_node = skill_node
+        guard_feather_cost = min(self.record.char.feather_manager.guard_feather, 5)
+        print(guard_feather_cost)
+        self.record.guard_feather = guard_feather_cost
+        self.record.char.feather_manager.guard_feather = 0
+        self.record.char.feather_manager.c1_counter += guard_feather_cost
+        while self.record.char.feather_manager.c1_counter >= 4:
+            self.record.char.feather_manager.c1_counter -= 4
+            self.record.char.feather_manager.flight_feather = min(self.record.char.feather_manager.flight_feather + 1, 5)
+            print(f'因为6画触发、联动1画，恢复一点飞羽！')
 
     def special_effect_logic(self, **kwargs):
         """当Xjudge检测到AnomalyBar传入时通过判定，并且执行xeffect"""
@@ -78,10 +93,10 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         from sim_progress.AnomalyBar import AnomalyBar
         get_result = self.record.enemy.dynamic.get_active_anomaly()
         if not get_result:
-            raise ValueError(
-                f'{self.buff_instance.ft.index}的xeffect函数中，enemy.get_active_anomlay函数返回空列表，说明此时没有异常。但是xjudge函数却放行了。')
+            raise ValueError(f'{self.buff_instance.ft.index}的xeffect函数中，enemy.get_active_anomlay函数返回空列表，说明此时没有异常。但是xjudge函数却放行了。')
         active_anomaly_bar = get_result[0]
         copyed_anomaly = AnomalyBar.create_new_from_existing(active_anomaly_bar)
+        # copyed_anomaly = self.record.last_update_anomaly
         event_list = JudgeTools.find_event_list()
         mul_data = Mul(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
         ap = Cal.AnomalyMul.cal_ap(mul_data)
@@ -90,7 +105,10 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         ratio = self.ANOMALY_RATIO_MUL.get(copyed_anomaly.element_type)
         if self.record.cinema_ratio is None:
             self.record.cinema_ratio = 1 if self.record.char.cinema < 2 else 1.3
-        final_ratio = math.floor(ap/10) * ratio * self.record.cinema_ratio
+        final_ratio = math.floor(ap/10) * ratio * self.record.cinema_ratio * self.record.c6_ratio
         dirge_of_destiny_anomaly.anomaly_dmg_ratio = final_ratio
         event_list.append(dirge_of_destiny_anomaly)
-        # print(f'检测到生花命中异常状态下的敌人，触发一次异放！！！')
+
+        print(f'6画触发额外异放！！！本次触发消耗额外护羽数量为：{self.record.guard_feather}')
+        self.record.guard_feather = 0
+
