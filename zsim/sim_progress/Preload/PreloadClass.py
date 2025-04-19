@@ -1,10 +1,11 @@
-from sim_progress.Preload.PreloadDataClass import PreloadData
 from define import SWAP_CANCEL
+from sim_progress.Preload.PreloadDataClass import PreloadData
+
 from .PreloadStrategy import SwapCancelStrategy
 
 
 class PreloadClass:
-    def __init__(self, skills, *, load_data, apl_path: str | None = None,  **kwargs):
+    def __init__(self, skills, *, load_data, apl_path: str | None = None, **kwargs):
         self.preload_data = PreloadData(skills, load_data=load_data)
         if SWAP_CANCEL:
             # 合轴模式，使用输入的APL路径

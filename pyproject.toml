@@ -37,3 +37,8 @@ pythonpath = ["./zsim/"]
 
 [options]
 include_package_data = true
+
+[dependency-groups]
+dev = [
+    "openpyxl>=3.1.5",
+]

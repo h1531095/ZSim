@@ -32,7 +32,7 @@ char_options = __df["name"].drop_duplicates().tolist()
 
 # 武器选项
 __df = pd.read_csv("./zsim/data/weapon.csv")
-weapon_options = __df["weapon_ID"].drop_duplicates().tolist()
+weapon_options = __df["中文名称"].drop_duplicates().tolist()
 
 # 驱动盘套装选项
 __df = pd.read_csv("./zsim/data/equip_set_2pc.csv")

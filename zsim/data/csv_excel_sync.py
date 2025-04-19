@@ -47,7 +47,7 @@ FILE_SHEET_MAPPING = {
 def csv_to_excel():
     """将所有CSV文件导入到Excel中"""
     # 定义Excel文件路径
-    excel_file = "./data/game_data.xlsx"
+    excel_file = "./zsim/data/game_data.xlsx"
 
     # 获取当前脚本所在目录
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -71,7 +71,7 @@ def csv_to_excel():
 def excel_to_csv():
     """将Excel中的所有工作表导出到CSV文件"""
     # 定义Excel文件路径
-    excel_file = "./data/game_data.xlsx"
+    excel_file = "./zsim/data/game_data.xlsx"
 
     # 获取当前脚本所在目录
     current_dir = os.path.dirname(os.path.abspath(__file__))
