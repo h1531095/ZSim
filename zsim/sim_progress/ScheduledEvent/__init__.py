@@ -1,8 +1,8 @@
 from sim_progress import Buff, Preload, Report
 from sim_progress.AnomalyBar import AnomalyBar as AnB
-from sim_progress.AnomalyBar import Disorder
 from sim_progress.AnomalyBar.CopyAnomalyForOutput import (
-    DirgeOfDestinyAnomaly,
+    Disorder,
+    DirgeOfDestinyAnomaly as Abloom,
     PolarityDisorder,
 )
 from sim_progress.Buff import ScheduleBuffSettle
@@ -114,7 +114,7 @@ class ScheduledEvent:
                             self.enemy.dynamic.dynamic_dot_list,
                             self.data.event_list,
                         )
-                elif isinstance(event, DirgeOfDestinyAnomaly):
+                elif isinstance(event, Abloom):
                     self.abloom_event(event)
                     self.judge_required_info_dict["abloom"] = event
                 elif isinstance(event, PolarityDisorder):
@@ -349,7 +349,7 @@ class ScheduledEvent:
             UUID=event.UUID,
         )
 
-    def abloom_event(self, event: DirgeOfDestinyAnomaly):
+    def abloom_event(self, event: Abloom):
         """薇薇安绽放处理分支逻辑"""
         cal_obj = CalAbloom(
             abloom_obj=event,
