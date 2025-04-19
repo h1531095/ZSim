@@ -10,6 +10,7 @@ class FeatherManager:
         self.guard_feather = 0                    # 护羽，初始化为0层
         self.feather_max_count = 5            # 最大飞羽/护羽层数，默认为6层
         self.co_attack_index = '1331_CoAttack_A'
+        self.c1_counter = 0         # 1 画计数器
 
     def update_myself(self, skill_node: SkillNode):
         """
@@ -43,6 +44,11 @@ class FeatherManager:
         """尝试生成一次生花"""
         if self.guard_feather > 0:
             self.guard_feather -= 1
+            if self.char.cinema >= 1:
+                self.c1_counter += 1
+                if self.c1_counter >= 4:
+                    self.flight_feather = min(self.flight_feather + 1, self.feather_max_count)
+                    self.c1_counter = 0
             return self.co_attack_index
         else:
             return None
