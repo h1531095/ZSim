@@ -207,7 +207,7 @@ class Buff:
                 """
 
                 '''Buff标签'''
-                self.label: dict[str, int] | None = self.__process_label_str(config_dict)
+                self.label: dict[str, list[str] | str] | None = self.__process_label_str(config_dict)
 
                 '''
                 标签生效规则：

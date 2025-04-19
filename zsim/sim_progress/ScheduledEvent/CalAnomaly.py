@@ -5,9 +5,10 @@ from define import ElementType
 from sim_progress.Character.Yanagi import Yanagi
 from sim_progress.Enemy import Enemy
 from sim_progress.Report import report_to_log
+from sim_progress.AnomalyBar import AnomalyBar
 from sim_progress.AnomalyBar.CopyAnomalyForOutput import (
     Disorder,
-    DirgeOfDestinyAnomaly,
+    DirgeOfDestinyAnomaly as Abloom,
     PolarityDisorder,
 )
 
@@ -16,7 +17,7 @@ from .Calculator import MultiplierData as MulData
 
 
 class CalAnomaly:
-    def __init__(self, anomaly_obj, enemy_obj: Enemy, dynamic_buff: dict):
+    def __init__(self, anomaly_obj: AnomalyBar, enemy_obj: Enemy, dynamic_buff: dict):
         """
         Schedule 节点对于异常伤害的分支逻辑，用于计算异常伤害
 
@@ -35,7 +36,7 @@ class CalAnomaly:
 
         # 根据动态buff读取怪物面板
         self.data: MulData = MulData(
-            enemy_obj=self.enemy_obj, dynamic_buff=self.dynamic_buff
+            enemy_obj=self.enemy_obj, dynamic_buff=self.dynamic_buff, judge_node=anomaly_obj,
         )
 
         # 虚拟角色等级
@@ -240,7 +241,7 @@ class CalPolarityDisorder(CalDisorder):
 
 class CalAbloom(CalAnomaly):
     def __init__(
-        self, abloom_obj: DirgeOfDestinyAnomaly, enemy_obj: Enemy, dynamic_buff: dict
+        self, abloom_obj: Abloom, enemy_obj: Enemy, dynamic_buff: dict
     ):
         super().__init__(abloom_obj, enemy_obj, dynamic_buff)
         self.final_multipliers[0] *= abloom_obj.anomaly_dmg_ratio
