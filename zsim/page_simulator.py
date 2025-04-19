@@ -27,11 +27,12 @@ def page_simulator():
             st.session_state["simulation_running"] = False
 
         stop_tick = st.number_input(
-            "模拟时长（帧数，1秒=60帧）",
+            "模拟时长",
             min_value=1,
             max_value=65535,
             value=default_stop_tick,
             key="stop_tick",
+            help="单位为 tick（帧），1秒 = 60 ticks",
             disabled=st.session_state["simulation_running"],
         )
 

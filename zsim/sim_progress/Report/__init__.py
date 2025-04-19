@@ -194,7 +194,7 @@ async def async_result_writer(rid):
                     result_df = pd.DataFrame(buffer)
                     csv_data = result_df.to_csv(
                         index=False, header=new_file, encoding="utf-8-sig"
-                    ).rstrip("\n")
+                    )
                     mode = "w" if new_file else "a"
                     async with aiofiles.open(
                         result_path, mode, encoding="utf-8-sig"
@@ -211,7 +211,7 @@ async def async_result_writer(rid):
                 result_df = pd.DataFrame(buffer)
                 csv_data = result_df.to_csv(
                     index=False, header=new_file, encoding="utf-8-sig"
-                ).rstrip("\n")
+                )
                 mode = "w" if new_file else "a"
                 async with aiofiles.open(
                     result_path, mode, encoding="utf-8-sig"
