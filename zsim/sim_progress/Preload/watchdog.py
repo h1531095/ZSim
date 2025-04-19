@@ -1,4 +1,4 @@
-from sim_progress.Character import Skill
+from sim_progress.Character.skill_class import Skill
 from sim_progress.Preload.SkillsQueue import SkillNode
 from sim_progress.Report import report_to_log
 from define import ENABLE_WATCHDOG, WATCHDOG_LEVEL

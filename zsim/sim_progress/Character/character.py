@@ -1,9 +1,11 @@
-import pandas as pd
-from .skill_class import Skill, lookup_name_or_cid
-from sim_progress.Report import report_to_log
-from .utils.filters import _skill_node_filter, _sp_update_data_filter
 import logging
-from define import *
+
+import pandas as pd
+from define import CHARACTER_DATA_PATH, EQUIP_2PC_DATA_PATH, WEAPON_DATA_PATH
+from sim_progress.Report import report_to_log
+
+from .skill_class import Skill, lookup_name_or_cid
+from .utils.filters import _skill_node_filter, _sp_update_data_filter
 
 
 class Character:
@@ -514,21 +516,46 @@ class Character:
             raise
 
     def _init_weapon_primitive(self, weapon: str | None, weapon_level: int) -> None:
-        """初始化武器属性"""
+        """初始化武器主属性（适配新版 weapon.csv）"""
         if weapon is None:
             return
 
         df = pd.read_csv(WEAPON_DATA_PATH)
-        row_5 = df[df["weapon_ID"] == weapon]  # 找到所有包含此武器的行
-        if not row_5.empty:  # 检查是否找到匹配项
-            row: list[dict] = row_5[row_5["level"] == weapon_level].to_dict(
-                "records"
-            )  # 找到对应精炼等级的行，并转化为字典
-            if row:
-                row_0: dict = row[0]
-                self.__mapping_csv_to_attr(row_0)
+        row = df[df["中文名称"] == weapon]
+        if not row.empty:
+            row_0 = row.iloc[0]
+            base_atk = float(row_0["60级基础攻击力"])
+            attr_value = row_0["60级高级属性值"]
+            self.baseATK += base_atk
+            # 处理高级属性
+            attr_type = row_0["高级属性"]
+            attr_value = float(attr_value)
+            if attr_type in ["攻击力"]:
+                self.ATK_percent += attr_value if attr_value < 1 else 0
+            elif attr_type in ["暴击率"]:
+                if self.crit_balancing:
+                    self.baseCRIT_score += attr_value * 200  # 1%暴击率=2分 -> 1暴击率=200分
+                else:
+                    self.CRIT_rate_numeric += attr_value
+            elif attr_type in ["暴击伤害"]:
+                if self.crit_balancing:
+                    self.baseCRIT_score += attr_value * 100  # 1暴击伤害=100分
+                else:
+                    self.CRIT_damage_numeric += attr_value
+            elif attr_type in ["异常精通"]:
+                self.AP_numeric += attr_value
+            elif attr_type in ["冲击力"]:
+                self.IMP_percent += attr_value
+            elif attr_type in ["防御力"]:
+                self.DEF_percent += attr_value
+            elif attr_type in ["生命值"]:
+                self.HP_percent += attr_value
+            elif attr_type in ["穿透率"]:
+                self.PEN_ratio += attr_value
+            elif attr_type in ["能量自动回复"]:
+                self.sp_regen_percent += attr_value
             else:
-                raise ValueError("请输入正确的精炼等级")
+                raise ValueError(f"未知的武器高级属性类型：{attr_type}")
         else:
             raise ValueError(f"请输入正确的武器名称，{weapon} 不存在！")
 

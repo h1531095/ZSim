@@ -2,7 +2,6 @@ import json
 import subprocess
 import sys
 import threading
-import time
 from queue import Empty, Queue
 
 import streamlit as st
@@ -72,6 +71,7 @@ def page_simulator():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = json.load(f)
         default_stop_tick = config["stop_tick"]
+
     stop_tick = st.number_input(
         "模拟时长（帧数，1秒=60帧）",
         min_value=1,

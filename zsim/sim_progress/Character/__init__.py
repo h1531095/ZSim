@@ -1,7 +1,8 @@
-from typing import Type
-from .character import Character
-from .skill_class import Skill, lookup_name_or_cid
 import importlib
+from typing import Type
+
+from .character import Character
+from .skill_class import lookup_name_or_cid
 
 __char_module_map = {
     "苍角": "Soukaku",
