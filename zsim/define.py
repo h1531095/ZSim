@@ -67,6 +67,8 @@ ENABLE_WATCHDOG: bool = _config["watchdog"]["enabled"]
 WATCHDOG_LEVEL: int = _config["watchdog"]["level"]
 INPUT_ACTION_LIST = ""  # 半废弃
 
+# 初始化Buff的报告：
+BUFF_0_REPORT: bool = _config["buff_0_report"]["enabled"]
 # 角色特殊机制报告：
 VIVIAN_REPORT: bool = _config["char_report"]["Vivian"]
 

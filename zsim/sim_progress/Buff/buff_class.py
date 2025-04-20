@@ -239,7 +239,8 @@ class Buff:
                 if label_str.strip() is None or pd.isna(label_str):
                     return None
                 else:
-                    return ast.literal_eval(str(label_str).strip())
+                    _dict = ast.literal_eval(str(label_str).strip())
+                    return _dict
 
     class BuffDynamic:
         def __init__(self):
