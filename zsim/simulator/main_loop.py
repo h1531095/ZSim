@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from simulator.dataclasses import ParallelConfig
+
 import gc
 
 from define import APL_MODE, ENEMY_ADJUST_ID, ENEMY_DIFFICULTY, ENEMY_INDEX_ID
@@ -28,23 +35,7 @@ preload: PreloadClass | None = None
 game_state: dict[str, object] | None = None
 
 
-def check_state_reset():
-    """在main_loop开头调用"""
-    current_fingerprint = init_data._init_fingerprint if init_data else None
-    # 如果是第一次运行，记录指纹
-    if not hasattr(check_state_reset, "last_fingerprint"):
-        check_state_reset.last_fingerprint = current_fingerprint
-        return
-
-    # 后续运行时检查指纹是否变化
-    if current_fingerprint == check_state_reset.last_fingerprint:
-        raise RuntimeError("状态重置失败！检测到相同的初始化指纹")
-
-    # 更新最新指纹
-    check_state_reset.last_fingerprint = current_fingerprint
-
-
-def reset_sim_data():
+def reset_sim_data(parallel_config: 'ParallelConfig' | None):
     """重置所有全局变量为初始状态。"""
     global \
         tick, \
@@ -57,23 +48,12 @@ def reset_sim_data():
         skills, \
         preload, \
         game_state
-    del (
-        init_data,
-        char_data,
-        load_data,
-        schedule_data,
-        global_stats,
-        skills,
-        preload,
-        game_state,
-    )
-    gc.collect()  # 强制回收
 
     tick = 0
     crit_seed = 0
     init_data = InitData()
 
-    char_data = CharacterData(init_data)
+    char_data = CharacterData(init_data, parallel_config)
     load_data = LoadData(
         name_box=init_data.name_box,
         Judge_list_set=init_data.Judge_list_set,
@@ -99,7 +79,6 @@ def reset_sim_data():
         skills, load_data=load_data, apl_path="./zsim/data/apl_test.txt"
     )
 
-
     game_state = {  # noqa: F841
         "tick": tick,
         "init_data": init_data,
@@ -111,15 +90,14 @@ def reset_sim_data():
     }
 
 
-def reset_simulator():
+def reset_simulator(parallel_config: 'ParallelConfig' | None):
     """重置程序为初始状态。"""
-    reset_sim_data()  # 重置所有全局变量
-    start_report_threads()  # 启动线程以处理日志和结果写入
+    reset_sim_data(parallel_config)  # 重置所有全局变量
+    start_report_threads(parallel_config)  # 启动线程以处理日志和结果写入
 
 
-def main_loop(stop_tick: int | None = 6000):
-    reset_simulator()
-    check_state_reset()
+def main_loop(stop_tick: int = 6000, *, parallel_config: 'ParallelConfig' | None = None):
+    reset_simulator(parallel_config)
     global \
         tick, \
         crit_seed, \
