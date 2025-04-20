@@ -1,11 +1,22 @@
+from __future__ import annotations
+
 import logging
+from typing import TYPE_CHECKING
 
 import pandas as pd
-from define import CHARACTER_DATA_PATH, EQUIP_2PC_DATA_PATH, WEAPON_DATA_PATH
+from define import (
+    CHARACTER_DATA_PATH,
+    EQUIP_2PC_DATA_PATH,
+    SUB_STATS_MAPPING,
+    WEAPON_DATA_PATH,
+)
 from sim_progress.Report import report_to_log
 
 from .skill_class import Skill, lookup_name_or_cid
 from .utils.filters import _skill_node_filter, _sp_update_data_filter
+
+if TYPE_CHECKING:
+    from simulator.dataclasses import ParallelConfig
 
 
 class Character:
@@ -36,14 +47,11 @@ class Character:
         sp_limit=120,  # 能量上限-默认120
         cinema=0,
         crit_balancing=True,  # 暴击配平开关，默认开
+        *,
+        parallel_config: "ParallelConfig" | None = None,
     ):
         """
         调用时，会生成包含全部角色基础信息的对象，自动从数据库中查找全部信息
-        缺少任何信息都是 bug
-
-        调用内置类 Character.Statement 时，会基于角色基础信息计算角色静态面板
-        同时实例化 Character 与 Character.Statement 耗时大约 70ms，每次计算时都重新生成对象的性能开销可以接受
-        如果你想要在基础面板上手动加一些数值，那么这两个类应该分开调用
 
         构造时必须：
         -name 和 CID 两个参数二选一，或同时提供能互相匹配上的一对值
@@ -60,20 +68,6 @@ class Character:
         -记录每个基础属性来源的各参数，主要来自查表
         -包含角色全部技能信息的 Skill 对象，以及来自 Skill 的 action_list, skills_dict
 
-        包含的方法：
-        -没有！想写吗？
-
-        包含的类：
-        -Character.Statement 看下面注释去
-
-        生成对象示例：
-        char = Character(name="柳", weapon='时流贤者',
-                         equip_set4='混沌爵士', equip_set2_a='雷暴重金属',
-                         drive4='异常精通', drive5='电属性伤害%', drive6='异常掌控',
-                         scAnomalyProficiency=10, scATK_percent=14, scCRIT=4)
-        生成角色面板示例：
-        char_dynamic = Character.Statement(char)
-
         暴击非配平逻辑（直接读取）：
         scCRIT: 暴击率副词条
         scCRIT_DMG: 暴击伤害副词条
@@ -81,9 +75,6 @@ class Character:
         是否配平由传入参数 crit_balancing 控制
         非配平逻辑下，暴伤与暴击率词条将会被重新分配
 
-        还没写的：
-        -自定义技能等级、角色等级、武器等级
-        不复杂，但麻烦，还不重要
         """
         # 参数类型检查，贼长，慎展开
         if True:
@@ -261,41 +252,48 @@ class Character:
         self._init_base_attribute(name)
         # 初始化武器基础属性    .\data\weapon.csv
         self._init_weapon_primitive(weapon, weapon_level)
-        # 初始化套装效果        .\data\equip_set_2pc.csv
-        self._init_equip_set(
-            equip_style, equip_set4, equip_set2_a, equip_set2_b, equip_set2_c
-        )
-        self.equip_sets = [
-            self.equip_set4,
-            self.equip_set2_a,
-            self.equip_set2_b,
-            self.equip_set2_c,
-        ]
-        # 初始化主词条
-        self._init_primary_drive(drive4, drive5, drive6)
-        # 初始化副词条
-        self._init_secondary_drive(
-            scATK_percent,
-            scATK,
-            scHP_percent,
-            scHP,
-            scDEF_percent,
-            scDEF,
-            scAnomalyProficiency,
-            scPEN,
-            scCRIT,
-            scCRIT_DMG,
-        )
+        # fmt: off
+        # 如果并行配置没有移除套装，就初始化套装效果和主副词条
+        if parallel_config is not None:
+            if not parallel_config.remove_equip:
+                self.__init_all_equip_static(drive4, drive5, drive6, 
+                                             equip_set2_a, equip_set2_b, equip_set2_c, equip_set4, equip_style, 
+                                             scATK, scATK_percent, scAnomalyProficiency, scCRIT, 
+                                             scCRIT_DMG, scDEF, scDEF_percent, scHP, scHP_percent, scPEN)
+            self.__init_parallel_config(parallel_config)
+        else:
+            self.__init_all_equip_static(drive4, drive5, drive6, 
+                                         equip_set2_a, equip_set2_b, equip_set2_c, equip_set4, equip_style, 
+                                         scATK, scATK_percent, scAnomalyProficiency, scCRIT, 
+                                         scCRIT_DMG, scDEF, scDEF_percent, scHP, scHP_percent, scPEN)
 
         # 角色技能列表，还没有写修改技能等级的接口
         self.statement = Character.Statement(self, crit_balancing=crit_balancing)
         self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
-        self.action_list = self.skill_object.action_list
+        self.action_list = self.skill_object.action_list 
         self.skills_dict = self.skill_object.skills_dict
         self.dynamic = self.Dynamic(self)
 
+    # fmt: off
+    def __init_all_equip_static(self, drive4, drive5, drive6, 
+                                equip_set2_a, equip_set2_b, equip_set2_c, equip_set4, equip_style, 
+                                scATK, scATK_percent, scAnomalyProficiency, scCRIT, 
+                                scCRIT_DMG, scDEF, scDEF_percent, scHP, scHP_percent, scPEN):
+        # fmt: on
+        # 初始化套装效果        .\data\equip_set_2pc.csv
+        self._init_equip_set(
+            equip_style, equip_set4, equip_set2_a, equip_set2_b, equip_set2_c
+        )
+        # 初始化主词条
+        self._init_main_stats(drive4, drive5, drive6)
+        # 初始化副词条
+        self._init_sub_stats(
+            scATK_percent, scATK, scHP_percent,scHP, scDEF_percent, scDEF, scAnomalyProficiency, scPEN, scCRIT, scCRIT_DMG,
+        )
+    # fmt: on
+
     class Statement:
-        def __init__(self, char_class: 'Character', crit_balancing: bool):
+        def __init__(self, char_class: "Character", crit_balancing: bool):
             """
             -char_class : 已实例化的角色
 
@@ -534,7 +532,9 @@ class Character:
                 self.ATK_percent += attr_value if attr_value < 1 else 0
             elif attr_type in ["暴击率"]:
                 if self.crit_balancing:
-                    self.baseCRIT_score += attr_value * 200  # 1%暴击率=2分 -> 1暴击率=200分
+                    self.baseCRIT_score += (
+                        attr_value * 200
+                    )  # 1%暴击率=2分 -> 1暴击率=200分
                 else:
                     self.CRIT_rate_numeric += attr_value
             elif attr_type in ["暴击伤害"]:
@@ -605,7 +605,7 @@ class Character:
                     else:
                         raise ValueError(f"套装 {equip_2pc} 不存在")
 
-    def _init_primary_drive(
+    def _init_main_stats(
         self, drive4: str | None, drive5: str | None, drive6: str | None
     ):
         """初始化主词条"""
@@ -660,67 +660,69 @@ class Character:
                 case _:
                     raise ValueError(f"提供的主词条名称 {drive} 不存在")
 
-    def _init_secondary_drive(
+    def _init_sub_stats(
         self,
-        scATK_percent: int | float,
-        scATK: int | float,
-        scHP_percent: int | float,
-        scHP: int | float,
-        scDEF_percent: int | float,
-        scDEF: int | float,
-        scAnomalyProficiency: int | float,
-        scPEN: int | float,
-        scCRIT: int | float,
-        scCRIT_DMG: int | float,
+        scATK_percent: int | float = 0,
+        scATK: int | float = 0,
+        scHP_percent: int | float = 0,
+        scHP: int | float = 0,
+        scDEF_percent: int | float = 0,
+        scDEF: int | float = 0,
+        scAnomalyProficiency: int | float = 0,
+        scPEN: int | float = 0,
+        scCRIT: int | float = 0,
+        scCRIT_DMG: int | float = 0,
+        *,
+        DMG_BONUS: int | float = 0,
+        PEN_RATIO: int | float = 0,
+        ANOMALY_MASTERY: int | float = 0,
+        SP_REGEN: int | float = 0,
     ):
         """初始化副词条"""
-        # 类型检查
-        if not all(
-            isinstance(x, (int, float))
-            for x in [
-                scATK_percent,
-                scATK,
-                scHP_percent,
-                scHP,
-                scDEF_percent,
-                scDEF,
-                scAnomalyProficiency,
-                scPEN,
-                scCRIT,
-            ]
-        ):
-            raise TypeError("词条数量必须是数.")
 
-        # 参数有效性检查
-        if any(
-            x < 0
-            for x in [
-                scATK_percent,
-                scATK,
-                scHP_percent,
-                scHP,
-                scDEF_percent,
-                scDEF,
-                scAnomalyProficiency,
-                scPEN,
-                scCRIT,
-            ]
-        ):
-            raise ValueError("词条数量不能为负.")
-
-        self.ATK_percent += scATK_percent * 0.03
-        self.ATK_numeric += scATK * 19
-        self.HP_percent += scHP_percent * 0.03
-        self.HP_numeric += scHP * 112
-        self.DEF_percent += scDEF_percent * 0.048
-        self.DEF_numeric += scDEF * 15
-        self.AP_numeric += scAnomalyProficiency * 9
-        self.PEN_numeric += scPEN * 9
+        self.ATK_percent += scATK_percent * SUB_STATS_MAPPING["scATK_percent"]
+        self.ATK_numeric += scATK * SUB_STATS_MAPPING["scATK"]
+        self.HP_percent += scHP_percent * SUB_STATS_MAPPING["scHP_percent"]
+        self.HP_numeric += scHP * SUB_STATS_MAPPING["scHP"]
+        self.DEF_percent += scDEF_percent * SUB_STATS_MAPPING["scDEF_percent"]
+        self.DEF_numeric += scDEF * SUB_STATS_MAPPING["scDEF"]
+        self.AP_numeric += (
+            scAnomalyProficiency * SUB_STATS_MAPPING["scAnomalyProficiency"]
+        )
+        self.PEN_numeric += scPEN * SUB_STATS_MAPPING["scPEN"]
         if self.crit_balancing:
-            self.baseCRIT_score += (scCRIT * 4.8) + (scCRIT_DMG * 4.8)
+            self.baseCRIT_score += (scCRIT * SUB_STATS_MAPPING["scCRIT"]) + (
+                scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
+            )
         else:
-            self.CRIT_rate_numeric += scCRIT * 0.024
-            self.CRIT_damage_numeric += scCRIT_DMG * 0.048
+            self.CRIT_rate_numeric += scCRIT * SUB_STATS_MAPPING["scCRIT"]
+            self.CRIT_damage_numeric += scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
+
+        # Only for parallel
+        element_dmg_mapping = {
+            0: self.PHY_DMG_bonus,
+            1: self.FIRE_DMG_bonus,
+            2: self.ICE_DMG_bonus,
+            3: self.ELECTRIC_DMG_bonus,
+            4: self.ETHER_DMG_bonus,
+            5: self.ICE_DMG_bonus,  # 烈霜也是冰
+        }
+        element_dmg_mapping[self.element_type] += (
+            DMG_BONUS * SUB_STATS_MAPPING["DMG_BONUS"]
+        )
+
+        self.PEN_ratio += PEN_RATIO * SUB_STATS_MAPPING["PEN_RATIO"]
+        self.AM_percent += ANOMALY_MASTERY * SUB_STATS_MAPPING["ANOMALY_MASTERY"]
+        self.sp_regen_percent += SP_REGEN * SUB_STATS_MAPPING["SP_REGEN"]
+
+    def __init_parallel_config(self, parallel_config: "ParallelConfig"):
+        ALLOW_SC_LIST: list[str] = SUB_STATS_MAPPING.keys()
+        sc_name, sc_value = parallel_config.sc_name, parallel_config.sc_value
+        if sc_name in ALLOW_SC_LIST:
+            adjust_pair = {sc_name: sc_value}
+        else:
+            raise ValueError(f"请输入正确的词条名称，{sc_name} 不存在")
+        self._init_sub_stats(**adjust_pair)
 
     def update_sp_and_decibel(self, *args, **kwargs):
         """自然更新能量和喧响的方法"""

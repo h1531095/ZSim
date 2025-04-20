@@ -47,6 +47,7 @@ def character_factory(
     sp_limit=120,  # 能量上限-默认120
     cinema=0,
     crit_balancing=True,  # 暴击配平开关，默认开
+    *, parallel_config=None,
 ) -> Character:
     name, CID = lookup_name_or_cid(name, CID)
     char_init_args = {
@@ -75,6 +76,7 @@ def character_factory(
         "sp_limit": sp_limit,
         "cinema": cinema,
         "crit_balancing": crit_balancing,
+        "parallel_config": parallel_config,
     }
     if name in __char_module_map:
         module_name = __char_module_map[name]

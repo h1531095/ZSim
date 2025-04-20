@@ -6,6 +6,7 @@ import toml
 
 # 属性类型：
 ElementType = Literal[0, 1, 2, 3, 4, 5]
+Number = int | float
 
 INVALID_ELEMENT_ERROR = "Invalid element type"
 ID_CACHE_JSON = "results/id_cache.json"
@@ -85,6 +86,41 @@ ANOMALY_MAPPING: dict[ElementType, str] = {
     3: "感电",
     4: "侵蚀",
     5: "烈霜碎冰",
+}
+
+SUB_STATS_MAPPING: dict[
+    Literal[
+        "scATK_percent",
+        "scATK",
+        "scHP_percent",
+        "scHP",
+        "scDEF_percent",
+        "scDEF",
+        "scAnomalyProficiency",
+        "scPEN",
+        "scCRIT",
+        "scCRIT_DMG",
+        "DMG_BONUS",
+        "PEN_RATIO",
+        "ANOMALY_MASTERY",
+        "SP_REGEN",
+    ],
+    Number,
+] = {
+    "scATK_percent": 0.03,
+    "scATK": 19,
+    "scHP_percent": 0.03,
+    "scHP": 112,
+    "scDEF_percent": 0.048,
+    "scDEF": 15,
+    "scAnomalyProficiency": 9,
+    "scPEN": 9,
+    "scCRIT": 0.024,
+    "scCRIT_DMG": 0.048,
+    "DMG_BONUS": 0.03,
+    "PEN_RATIO": 0.024,
+    "ANOMALY_MASTERY": 0.03,
+    "SP_REGEN": 0.06,
 }
 
 if __name__ == "__main__":

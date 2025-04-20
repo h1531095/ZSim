@@ -1,4 +1,5 @@
 import streamlit as st
+
 from lib_webui.clean_results_cache import delete_result, get_all_results, rename_result
 from lib_webui.constants import IDDuplicateError
 
@@ -11,13 +12,15 @@ def _render_result_management_ui():
         st.warning("没有找到任何结果缓存。请先运行模拟器生成结果。", icon="⚠️")
         st.stop()
 
+    st.markdown("选择一个结果：")
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        selected_key = st.selectbox("选择你要查看的结果", options)
+        selected_key = st.selectbox(
+            "选择你要查看的结果", options, label_visibility="collapsed"
+        )
     with col2:
-        st.markdown("备注信息")
         st.markdown(
-            f'<span style="color:gray;">{id_cache.get(selected_key, "N/A")}</span>',
+            f'<span style="color:gray;">备注：<br>{id_cache.get(selected_key, "N/A")}</span>',
             unsafe_allow_html=True,
         )
     with col3:

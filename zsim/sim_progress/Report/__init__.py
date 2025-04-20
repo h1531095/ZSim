@@ -246,7 +246,7 @@ def start_async_tasks():
     loop_thread.start()
 
 
-def start_report_threads():
+def start_report_threads(*args):
     """用于在开始模拟时启动线程以处理日志和结果写入。"""
     regen_result_id()
     start_async_tasks()

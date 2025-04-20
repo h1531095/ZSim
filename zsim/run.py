@@ -32,6 +32,9 @@ def go_subprocess(stop_tick: int):
     except Exception as e:
         return f"错误：启动子进程失败 - {str(e)}"
 
+def go_multiprocess_subprocess(stop_tick: int, config: dict, MAX_WORKERS: int):
+    """启动多进程子进程"""
+    raise NotImplementedError("多进程子进程功能尚未实现")
 
 def go_help():
     """显示帮助信息"""
