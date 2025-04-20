@@ -62,5 +62,8 @@
         "DmgRelated_Attributes": "diff_multiplier",
         "StunRelated_Attributes": "",
         "Interruption_Resistance": "interruption_resistance"
+    },
+    "char_report": {
+        "Vivian": true
     }
 }

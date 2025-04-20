@@ -1,5 +1,5 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
-
+from define import VIVIAN_REPORT
 
 class VivianAdditionalAbilityCoAttackTriggerRecord:
     def __init__(self):
@@ -40,6 +40,11 @@ class VivianAdditionalAbilityCoAttackTrigger(Buff.BuffLogic):
         from sim_progress.AnomalyBar import AnomalyBar
         if not isinstance(anomaly_bar, AnomalyBar):
             raise TypeError(f"{self.buff_instance.ft.index}的xjudge函数获取的{anomaly_bar}不是AnomalyBar类！")
+        # 如果是VVA自己触发的异常，则不放行。
+        if anomaly_bar.activated_by:
+            if '1331' in anomaly_bar.activated_by.skill_tag:
+                print(f'组队被动：检测到薇薇安触发的属性异常，不放行！') if VIVIAN_REPORT else None
+                return False
         # 如果是首次传入的属性异常类，则直接放行。
         tick = find_tick()
         if self.record.last_update_anomaly is None:
@@ -65,11 +70,11 @@ class VivianAdditionalAbilityCoAttackTrigger(Buff.BuffLogic):
         self.get_prepared(char_CID=1361, preload_data=1)
         coattack_skill_tag = self.record.char.feather_manager.spawn_coattack()
         if coattack_skill_tag is None:
-            # print(f'虽然有{self.record.last_update_anomaly.element_type}类型的新异常触发！但是豆子不够！！')
+            print(f'组队被动：虽然有{self.record.last_update_anomaly.element_type}类型的新异常触发！但是豆子不够！当前资源情况为：{self.record.char.get_special_stats()}') if VIVIAN_REPORT else None
             return
         input_tuple = (coattack_skill_tag, False, 0)
         self.record.preload_data.external_add_skill(input_tuple)
-        # print(f'监听到队友触发了新的异常{self.record.last_update_anomaly.activate_by}，薇薇安触发了一次落雨生花！')
+        print(f'组队被动：监听到队友的技能{self.record.last_update_anomaly.activate_by}触发了新的异常，薇薇安触发了一次落雨生花！') if VIVIAN_REPORT else None
 
 
 

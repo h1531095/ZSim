@@ -1,5 +1,6 @@
 from ..character import Character
 from zsim.sim_progress.Preload import SkillNode
+from define import VIVIAN_REPORT
 
 
 class FeatherManager:
@@ -12,22 +13,25 @@ class FeatherManager:
         self.co_attack_index = '1331_CoAttack_A'
         self.c1_counter = 0         # 1 画计数器
 
-    def update_myself(self, skill_node: SkillNode):
+    def update_myself(self, skill_node: SkillNode = None, c6_signal: bool = None):
         """
         用来更新羽毛的方法，被薇薇安的羽毛触发器调用，
         该函数内部没有任何类型判断，所有的判断全部交给羽毛触发器的xjudge
         """
-        if skill_node.skill_tag == '1331_SNA_2':
+        if skill_node is None and c6_signal is None:
+            raise ValueError('薇薇安羽毛管理器的update_myself函数必须传入skill_node或c6_singal参数中的一个！')
+        if c6_signal or skill_node.skill_tag == '1331_SNA_2':
             self.trans_feather()
         else:
             self.gain_feather(skill_node)
+
 
     def trans_feather(self):
         """将现有的飞羽全部转化成护羽：注意，飞羽转化为护羽的时间点为SNA_2的最后一跳，所以这里不能走特殊资源，只能从触发器走。"""
         trans_count = self.flight_feather
         self.guard_feather = min(self.guard_feather + trans_count, self.feather_max_count)
         self.flight_feather = 0
-        print(f'羽毛转化！当前的护羽、飞羽数量为：{self.guard_feather, self.flight_feather}')
+        print(f'羽毛管理器：羽毛转化！当前的护羽、飞羽数量为：{self.guard_feather, self.flight_feather}') if VIVIAN_REPORT else None
 
     def gain_feather(self, skill_node: SkillNode):
         """
@@ -43,7 +47,7 @@ class FeatherManager:
         if self.char.cinema == 6:
             flight_feather_count += c6_feather
         self.flight_feather = min(self.flight_feather + flight_feather_count, self.feather_max_count)
-        print(f'获得羽毛！当前的护羽、飞羽数量为：{self.guard_feather, self.flight_feather}')
+        print(f'羽毛管理器：获得{flight_feather_count}点羽毛！当前护、飞羽数量为：{self.guard_feather, self.flight_feather}') if VIVIAN_REPORT else None
 
     def spawn_coattack(self) -> str | None:
         """尝试生成一次生花"""
@@ -54,7 +58,7 @@ class FeatherManager:
                 if self.c1_counter >= 4:
                     self.flight_feather = min(self.flight_feather + 1, self.feather_max_count)
                     self.c1_counter -= 4
-            print(f'落羽生花结算！当前的护羽、飞羽数量为：{self.guard_feather, self.flight_feather}')
+            print(f'羽毛管理器：落羽生花完成结算！当前的护羽、飞羽数量为：{self.guard_feather, self.flight_feather}') if VIVIAN_REPORT else None
             return self.co_attack_index
         else:
             return None

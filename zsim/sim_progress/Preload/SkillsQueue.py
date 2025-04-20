@@ -31,7 +31,7 @@ class SkillNode:
             self.char_name: str = skill.char_name
             self.preload_tick: int = preload_tick
             self.hit_times: int = skill.hit_times
-            self.labels: dict[str, list[str] | str] | None = skill.labels
+            self.labels: dict[str, list[str] | str | int | float] | None = skill.labels
             self.skill: Skill.InitSkill = skill
             self.end_tick: int = self.preload_tick + self.skill.ticks
             self.active_generation: bool = (

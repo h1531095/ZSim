@@ -1,5 +1,5 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
-
+from define import VIVIAN_REPORT
 
 class VivianDotTriggerRecord:
     def __init__(self):
@@ -68,7 +68,7 @@ class VivianDotTrigger(Buff.BuffLogic):
         dot.skill_node_data.loading_mission.mission_start(find_tick())
         self.record.enemy.dynamic.dynamic_dot_list.append(dot)
         event_list.append(dot.skill_node_data)
-
+        print(f'核心被动：薇薇安对敌人施加Dot——薇薇安的预言') if VIVIAN_REPORT else None
 
 
 

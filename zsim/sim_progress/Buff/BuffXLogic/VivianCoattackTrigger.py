@@ -1,11 +1,15 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
-
+from define import VIVIAN_REPORT
 
 class VivianCoattackTriggerRecord:
     def __init__(self):
         self.char = None
         self.preload_data = None
         self.last_update_node = None
+        self.JUDGE_MAP = {
+            '1221_E_EX_1': lambda: self.last_update_node.end_tick >= find_tick(),
+            '1221_E_EX_2': lambda: False
+        }
 
 
 class VivianCoattackTrigger(Buff.BuffLogic):
@@ -59,19 +63,26 @@ class VivianCoattackTrigger(Buff.BuffLogic):
             if skill_node.UUID == self.record.last_update_node.UUID:
                 return False
             else:
-                # 若是不同技能则放行
-                self.record.last_update_node = skill_node
-                return True
+                # 若是不同技能，进入最后一个判断分支
+                if skill_node.skill_tag in self.record.JUDGE_MAP:
+                    result = self.record.JUDGE_MAP[skill_node.skill_tag]()
+                    if result:
+                        self.record.last_update_node = skill_node
+                    else:
+                        return False
+                else:
+                    self.record.last_update_node = skill_node
+                    return True
 
     def special_effect_logic(self, **kwargs):
         """执行后直接添加一次落雨生花到eventlist——该动作没有动画，所以直接进event_list即可"""
         self.check_record_module()
         self.get_prepared(char_CID=1361, preload_data=1)
         coattack_skill_tag = self.record.char.feather_manager.spawn_coattack()
-        # print(f'虽然监听到了队友的强化E，但是豆子不够！')
         if coattack_skill_tag is None:
+            print(f'【落雨生花】触发器：虽然监听到了队友的强化E：{self.record.last_update_node.skill_tag}，但是豆子不够！当前资源情况为：{self.record.char.get_special_stats()}') if VIVIAN_REPORT else None
             return
         input_tuple = (coattack_skill_tag, False, 0)
         self.record.preload_data.external_add_skill(input_tuple)
-        # print(f'监测到强化特殊技{self.record.last_update_node.skill_tag}，薇薇安触发了一次落雨生花！(迟滞1tick）')
+        print(f'【落雨生花】触发器：监测到强化特殊技{self.record.last_update_node.skill_tag}，薇薇安成功触发了一次落雨生花！(迟滞1tick）') if VIVIAN_REPORT else None
 

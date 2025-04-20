@@ -27,6 +27,7 @@ class AnomalyBar:
     duration_buff_key_list: list | None = None      # 影响当前异常状态最大时长的buff效果关键字
     basic_max_duration: int = 0          # 基础最大时间
     UUID: uuid.UUID | None = None
+    activated_by = None
 
 
     def __post_init__(self):
@@ -100,6 +101,7 @@ class AnomalyBar:
         self.anomaly_times += 1
         self.last_active = timenow
         self.active = True
+        self.activated_by = skill_node
         self.__get_max_duration(dynamic_buff_dict, char_cid)
 
     def reset_current_info_cause_output(self):

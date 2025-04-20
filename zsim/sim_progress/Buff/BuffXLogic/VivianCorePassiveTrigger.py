@@ -1,7 +1,7 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calculator as Cal
 import math
-
+from define import VIVIAN_REPORT
 
 
 class VivianCorePassiveTriggerRecord:
@@ -94,4 +94,4 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         dirge_of_destiny_anomaly.anomaly_dmg_ratio = final_ratio
         dirge_of_destiny_anomaly.current_ndarray = dirge_of_destiny_anomaly.current_ndarray / dirge_of_destiny_anomaly.current_anomaly
         event_list.append(dirge_of_destiny_anomaly)
-        # print(f'检测到生花命中异常状态下的敌人，触发一次异放！！！')
+        print(f'核心被动：检测到【落羽生花】命中异常状态下的敌人，触发一次异放！！！') if VIVIAN_REPORT else None
