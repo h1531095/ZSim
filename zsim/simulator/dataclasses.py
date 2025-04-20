@@ -6,7 +6,10 @@ from pydantic import BaseModel
 from sim_progress import Buff
 from sim_progress.Character import Character, character_factory
 from sim_progress.data_struct import ActionStack
-from sim_progress.Enemy import Enemy
+
+import time
+from sim_progress.Buff.Buff0Manager import Buff0ManagerClass
+
 
 
 @dataclass
@@ -102,9 +105,11 @@ class LoadData:
     # all_name_order_box = Buff.change_name_box(name_box)
 
     def __post_init__(self):
-        self.exist_buff_dict = Buff.buff_exist_judge(
-            self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict
-        )
+        self.buff_0_manager = Buff0ManagerClass.Buff0Manager(self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict)
+        self.exist_buff_dict = self.buff_0_manager.exist_buff_dict
+        # self.exist_buff_dict = Buff.buff_exist_judge(
+        #     self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict
+        # )
         self.all_name_order_box = Buff.change_name_box(self.name_box)
 
     def reset_exist_buff_dict(self):

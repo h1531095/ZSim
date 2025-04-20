@@ -94,7 +94,8 @@ class VivianCinema6Trigger(Buff.BuffLogic):
         from sim_progress.AnomalyBar import AnomalyBar
         get_result = self.record.enemy.dynamic.get_active_anomaly()
         if not get_result:
-            raise ValueError(f'{self.buff_instance.ft.index}的xeffect函数中，enemy.get_active_anomlay函数返回空列表，说明此时没有异常。但是xjudge函数却放行了。')
+            self.record.char.feather_manager.update_myself(c6_signal=True)
+            print(f'6画触发器：在怪物没有异常的情况下打了【悬落】，虽然不能触发额外的异放，但是依然可以进行羽毛转化！') if VIVIAN_REPORT else None
         active_anomaly_bar = get_result[0]
         copyed_anomaly = AnomalyBar.create_new_from_existing(active_anomaly_bar)
         # copyed_anomaly = self.record.last_update_anomaly

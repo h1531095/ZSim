@@ -36,8 +36,7 @@ class AstralVoice(Buff.BuffLogic):
         if self.buff_0 is None:
             """
             这里的初始化，找到的buff_0实际上是佩戴者的buff_0，
-            计算式受益者的buff.history.record中存储的，也是装备佩戴者的buff_0。
-            理论上不能这么做，但是因为
+            即使是在受益者的buff.history.record中存储的，也是装备佩戴者的buff_0。
             """
             self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
                 self.buff_instance.ft.index

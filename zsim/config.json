@@ -63,6 +63,9 @@
         "StunRelated_Attributes": "",
         "Interruption_Resistance": "interruption_resistance"
     },
+    "buff_0_report": {
+        "enabled": true
+    },
     "char_report": {
         "Vivian": true
     },
