@@ -71,6 +71,24 @@ main_stat6_options = [
     "-",
 ]
 
+stats_trans_mapping = {
+    "攻击力%": "scATK_percent",
+    "攻击力": "scATK",
+    "生命值%": "scHP_percent", 
+    "生命值": "scHP",
+    "防御力%": "scDEF_percent",
+    "防御力": "scDEF",
+    "异常精通": "scAnomalyProficiency",
+    "穿透值": "scPEN",
+    "暴击率": "scCRIT",
+    "暴击伤害": "scCRIT_DMG",
+    
+    "属性伤害加成": "DMG_BONUS",
+    "穿透率": "PEN_RATIO", 
+    "异常掌控": "ANOMALY_MASTERY",
+    "能量自动回复": "SP_REGEN"
+}
+
 # 副词条最大值
 sc_max_value = 40
 

@@ -1,8 +1,9 @@
-import json
 import concurrent.futures
-from run import go_subprocess
+import json
 
 import streamlit as st
+
+from run import go_subprocess
 
 
 def page_simulator():
@@ -35,13 +36,13 @@ def page_simulator():
             help="单位为 tick（帧），1秒 = 60 ticks",
             disabled=st.session_state["simulation_running"],
         )
-
-        with open(CONFIG_PATH, "r+", encoding="utf-8") as f:
-            config = json.load(f)
-            config["stop_tick"] = stop_tick
-            f.seek(0)
-            json.dump(config, f, indent=4)
-            f.truncate()
+        if stop_tick != default_stop_tick:
+            with open(CONFIG_PATH, "r+", encoding="utf-8") as f:
+                config = json.load(f)
+                config["stop_tick"] = stop_tick
+                f.seek(0)
+                json.dump(config, f, indent=4)
+                f.truncate()
 
         # 启动模拟后自锁
         col1, col2 = st.columns(2)

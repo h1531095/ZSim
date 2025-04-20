@@ -1,19 +1,12 @@
 import asyncio
 import json
 import os
-import queue
 import threading
-from collections import defaultdict
 from datetime import datetime
 
-import aiofiles
-import numpy as np
-import pandas as pd
-from define import ANOMALY_MAPPING, DEBUG, DEBUG_LEVEL, ElementType
-
-buffered_data: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-log_queue: queue.Queue = queue.Queue()
-result_queue: queue.Queue = queue.Queue()
+from .buff_handler import dump_buff_csv, report_buff_to_queue # noqa: F401
+from .log_handler import async_log_writer, log_queue, report_to_log  # noqa: F401
+from .result_handler import async_result_writer, result_queue, report_dmg_result    # noqa: F401
 
 __result_id: int | None = None
 __event_loop = None  # 存储事件循环的引用
@@ -73,157 +66,6 @@ def regen_result_id() -> None:
         __result_id = current_id
 
 
-def prepare_to_report(rid: int):
-    # 获取当前日期和时间
-    report_file_path = f"./logs/{rid}.log"
-    buff_report_file_path_pre = f"./results/{rid}/buff_log/"
-    # 确保目录存在
-    os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
-    os.makedirs(os.path.dirname(buff_report_file_path_pre), exist_ok=True)
-    return report_file_path, buff_report_file_path_pre
-
-
-def report_to_log(content: str | None = None, level=4) -> None:
-    """
-    如果满足调试级别要求 DEBUG_LEVEL <= level，则将指定内容写入日志文件中。
-
-    参数:
-    - content: 要写入日志文件的内容。
-    - level: 日志级别，用于判断是否应该记录该日志。级别从 0 到 4，4 为最高级别。
-        0：不重要
-        1：可能需要注意
-        2：需要注意
-        3：非常有必要输出
-        4：必须要输出日志
-
-    该函数首先检查当前是否处于DEBUG模式以及日志的DEBUG_LEVEL是否大于等于当前日志级别。
-    如果检查通过，则生成一个带有当前日期和时间戳的日志文件名，并确保对应的日志目录存在。
-    最后，将content写入到日志文件中。
-    """
-
-    if not DEBUG or content is None:
-        return
-
-    if DEBUG and DEBUG_LEVEL <= level:
-        # 写入日志
-        log_queue.put(content)
-
-
-def report_buff_to_queue(
-    character_name: str, time_tick, buff_name: str, buff_count, all_match: bool, level=4
-):
-    if DEBUG and DEBUG_LEVEL <= level:
-        if all_match:
-            buffered_data[character_name][time_tick][buff_name] += buff_count
-
-
-def dump_buff_csv():
-    for char_name in buffered_data:
-        if char_name not in buffered_data:
-            raise ValueError("你tmd函数写错了！")
-        report_file_path, buff_report_file_path_pre = prepare_to_report(__result_id)
-        buff_report_file_path = buff_report_file_path_pre + f"{char_name}.csv"
-        df = pd.DataFrame.from_dict(
-            buffered_data[char_name], orient="index"
-        ).reset_index()
-        df.rename(columns={"index": "time_tick"}, inplace=True)
-        # 对 'time_tick' 列进行排序
-        df = df.sort_values(by="time_tick")
-        # 保存更新后的 CSV 文件
-        df.to_csv(buff_report_file_path, index=False, encoding="utf-8-sig")
-
-
-def report_dmg_result(
-    tick: int,
-    element_type: ElementType | int,
-    skill_tag: str | None = None,
-    dmg_expect: float | np.float64 = 0,
-    dmg_crit: float | np.float64 | None = None,
-    is_anomaly: bool = False,
-    is_disorder: bool = False,
-    **kwargs,
-):
-    if is_anomaly and skill_tag is None:
-        skill_tag = ANOMALY_MAPPING.get(element_type, skill_tag)
-    assert skill_tag is not None, "技能标签不能为空！"
-    if is_disorder and "紊乱" not in skill_tag:
-        skill_tag += "紊乱"
-    if dmg_crit is None:
-        dmg_crit = np.nan
-    result_dict = {
-        "tick": tick,
-        "element_type": element_type,
-        "is_anomaly": is_anomaly,
-        "skill_tag": skill_tag,
-        "dmg_expect": float(dmg_expect),
-        "dmg_crit": float(dmg_crit),
-    }
-    result_dict.update(kwargs)
-    result_queue.put(result_dict)
-
-
-async def async_log_writer():
-    report_file_path, _ = prepare_to_report(__result_id)
-    while True:
-        try:
-            content = log_queue.get_nowait()
-            async with aiofiles.open(report_file_path, "a", encoding="utf-8") as file:
-                await file.write(f"{content}\n")
-            log_queue.task_done()
-        except queue.Empty:
-            await asyncio.sleep(0.01)
-
-
-async def async_result_writer(rid):
-    result_path = f"./results/{rid}/damage.csv"
-    os.makedirs(os.path.dirname(result_path), exist_ok=True)
-    new_file = not os.path.exists(result_path)
-
-    # 创建一个缓冲区来批量写入数据
-    buffer = []
-    max_buffer_size = 100  # 缓冲区大小
-
-    while True:
-        try:
-            result_dict = result_queue.get_nowait()
-            buffer.append(result_dict)
-
-            # 当缓冲区达到一定大小或队列为空时，批量写入
-            if len(buffer) >= max_buffer_size or result_queue.empty():
-                if buffer:
-                    result_df = pd.DataFrame(buffer)
-                    csv_data = result_df.to_csv(
-                        index=False, header=new_file, encoding="utf-8-sig"
-                    )
-                    mode = "w" if new_file else "a"
-                    async with aiofiles.open(
-                        result_path, mode, encoding="utf-8-sig"
-                    ) as file:
-                        await file.write(csv_data)
-
-                    new_file = False
-                    buffer.clear()
-
-            result_queue.task_done()
-        except queue.Empty:
-            # 如果队列为空但缓冲区有数据，也进行写入
-            if buffer:
-                result_df = pd.DataFrame(buffer)
-                csv_data = result_df.to_csv(
-                    index=False, header=new_file, encoding="utf-8-sig"
-                )
-                mode = "w" if new_file else "a"
-                async with aiofiles.open(
-                    result_path, mode, encoding="utf-8-sig"
-                ) as file:
-                    await file.write(csv_data)
-
-                new_file = False
-                buffer.clear()
-
-            await asyncio.sleep(0.01)  # 短暂休眠避免CPU空转
-
-
 def start_async_tasks():
     """启动异步任务处理日志和结果写入"""
     global __event_loop
@@ -238,7 +80,7 @@ def start_async_tasks():
     # 在新线程中运行事件循环
     def run_event_loop():
         asyncio.set_event_loop(__event_loop)
-        __event_loop.create_task(async_log_writer())
+        __event_loop.create_task(async_log_writer(__result_id))
         __event_loop.create_task(async_result_writer(__result_id))
         __event_loop.run_forever()
 
@@ -246,13 +88,15 @@ def start_async_tasks():
     loop_thread.start()
 
 
-def start_report_threads():
+def start_report_threads(parallel_config):
     """用于在开始模拟时启动线程以处理日志和结果写入。"""
+    if parallel_config is not None:
+        run_turn_uuid = parallel_config.run_turn_uuid
     regen_result_id()
     start_async_tasks()
 
 
 def stop_report_threads():
-    dump_buff_csv()
+    dump_buff_csv(__result_id)
     log_queue.join()
     result_queue.join()

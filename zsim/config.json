@@ -68,5 +68,21 @@
     },
     "char_report": {
         "Vivian": true
+    },
+    "parallel_mode": {
+        "enabled": false,
+        "worker_num": 8,
+        "adjust_char": 1,
+        "adjust_sc":{
+            "enabled": true,
+            "sc_range": "0-50",
+            "sc_list": [
+            ]
+        },
+        "adjust_weapon": {
+            "enabled": false,
+            "weapon_list": [
+            ]
+        }
     }
 }
