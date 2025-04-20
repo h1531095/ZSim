@@ -1,120 +1,70 @@
 import json
-import subprocess
-import sys
-import threading
-from queue import Empty, Queue
+import concurrent.futures
+from run import go_subprocess
 
 import streamlit as st
-
-if "sim_process" not in st.session_state:
-    st.session_state.sim_process = None
-if "output" not in st.session_state:
-    st.session_state.output = []
-
-output_queue = Queue()
-
-
-def enqueue_output(pipe, queue):
-    for line in iter(pipe.readline, ""):
-        queue.put(line)
-    pipe.close()
-
-
-def star_simulator(stop_tick):
-    if st.session_state.sim_process is None:
-        command = [sys.executable, "zsim/main.py", "--stop_tick", str(stop_tick)]
-        proc = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            universal_newlines=True,
-        )
-        st.session_state.sim_process = proc
-        threading.Thread(
-            target=enqueue_output, args=(proc.stdout, output_queue), daemon=True
-        ).start()
-
-
-def reset_simulator():
-    if st.session_state.sim_process is not None:
-        st.session_state.sim_process.terminate()
-        # Optionally wait for the process to terminate
-        try:
-            st.session_state.sim_process.wait(timeout=1)  # Wait for 1 second
-        except subprocess.TimeoutExpired:
-            # Force kill if terminate doesn't work quickly
-            st.session_state.sim_process.kill()
-            st.session_state.sim_process.wait()  # Wait for kill to complete
-        except Exception as e:
-            st.error(f"Error terminating process: {e}")  # Log potential errors
-        finally:
-            st.session_state.sim_process = None
-
-        st.session_state.output = []
-        # Clear the queue more robustly
-        while not output_queue.empty():
-            try:
-                output_queue.get_nowait()
-            except Empty:
-                break
-        # Force a rerun to update the UI state immediately
-
-        st.rerun()
 
 
 def page_simulator():
     st.title("ZZZ Simulator - 模拟器")
     from define import CONFIG_PATH
 
+    MAX_WORKERS = 4
+
+    @st.cache_resource
+    def get_executor():
+        return concurrent.futures.ProcessPoolExecutor(max_workers=MAX_WORKERS)
+
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = json.load(f)
         default_stop_tick = config["stop_tick"]
 
-    stop_tick = st.number_input(
-        "模拟时长（帧数，1秒=60帧）",
-        min_value=1,
-        max_value=65535,
-        value=default_stop_tick,
-        key="stop_tick",
-    )
-    col1, col2 = st.columns(2)
-    with col1:
-        if not st.button("开始模拟"):
-            st.stop()
-    with col2:
-        if st.button("重置模拟器"):
-            reset_simulator()
+    @st.fragment
+    def go_simulator():
+        """启动模拟器"""
+        # 初始化状态
+        if "simulation_running" not in st.session_state:
+            st.session_state["simulation_running"] = False
 
-    st.write(f"开始模拟，时长: {stop_tick} ticks")
-    output_placeholder = st.empty()
+        stop_tick = st.number_input(
+            "模拟时长",
+            min_value=1,
+            max_value=65535,
+            value=default_stop_tick,
+            key="stop_tick",
+            help="单位为 tick（帧），1秒 = 60 ticks",
+            disabled=st.session_state["simulation_running"],
+        )
 
-    with st.spinner("正在模拟中，这可能会持续数分钟，请稍候..."):
-        star_simulator(stop_tick)
-        while (
-            st.session_state.sim_process and st.session_state.sim_process.poll() is None
-        ):
-            try:
-                line = output_queue.get_nowait()
-                st.session_state.output.append(line)
-            except Empty:
-                pass
+        with open(CONFIG_PATH, "r+", encoding="utf-8") as f:
+            config = json.load(f)
+            config["stop_tick"] = stop_tick
+            f.seek(0)
+            json.dump(config, f, indent=4)
+            f.truncate()
 
-            if st.session_state.output:
-                output_placeholder.code("\n".join(st.session_state.output[-20:]))
+        # 启动模拟后自锁
+        col1, col2 = st.columns(2)
+        with col1:
+            if (
+                st.button("开始模拟", disabled=st.session_state["simulation_running"], type="primary")
+                and not st.session_state["simulation_running"]
+            ):
+                st.session_state["simulation_running"] = True
+                st.rerun(scope="fragment")
+            elif not st.session_state["simulation_running"]:
+                st.stop()
+        with st.spinner("正在模拟中，这可能会持续数分钟，请稍候...", show_time=True):
+            future = get_executor().submit(go_subprocess, stop_tick)
+            result = future.result()
+            st.text_area("模拟结果", result, height=400)
+            st.session_state["simulation_running"] = False
 
-            # time.sleep(0.1)
+        with col2:
+            if st.button("重置模拟器", type="primary"):
+                st.rerun(scope="fragment")
 
-    if st.session_state.output:
-        output_placeholder.code("\n".join(st.session_state.output[-20:]))
-
-    with open(CONFIG_PATH, "r+", encoding="utf-8") as f:
-        config = json.load(f)
-        config["stop_tick"] = stop_tick
-        f.seek(0)
-        json.dump(config, f, indent=4)
-        f.truncate()
+    go_simulator()
 
 
 page_simulator()

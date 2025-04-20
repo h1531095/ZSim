@@ -21,6 +21,18 @@ def go_cli():
         sys.exit(1)
 
 
+def go_subprocess(stop_tick: int):
+    """启动子进程"""
+    try:
+        results = []
+        command = [sys.executable, "zsim/main.py", "--stop_tick", str(stop_tick)]
+        proc = subprocess.run(command, capture_output=True, text=True)
+        results.append(proc.stdout.strip())
+        return "\n".join(results)
+    except Exception as e:
+        return f"错误：启动子进程失败 - {str(e)}"
+
+
 def go_help():
     """显示帮助信息"""
     print("ZZZ模拟器")

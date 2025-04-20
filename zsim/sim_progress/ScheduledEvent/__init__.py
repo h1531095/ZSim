@@ -350,7 +350,7 @@ class ScheduledEvent:
         )
 
     def abloom_event(self, event: Abloom):
-        """薇薇安绽放处理分支逻辑"""
+        """薇薇安异放处理分支逻辑"""
         cal_obj = CalAbloom(
             abloom_obj=event,
             enemy_obj=self.data.enemy,
@@ -361,7 +361,7 @@ class ScheduledEvent:
         Report.report_dmg_result(
             tick=self.tick,
             element_type=event.element_type,
-            skill_tag="绽放",
+            skill_tag="异放",
             dmg_expect=round(dmg_anomaly, 2),
             is_anomaly=True,
             dmg_crit=round(dmg_anomaly, 2),
