@@ -1,6 +1,6 @@
 import time
 from dataclasses import dataclass, field
-
+from sim_progress.Enemy import Enemy
 from define import saved_char_config
 from pydantic import BaseModel
 from sim_progress import Buff
