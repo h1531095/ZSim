@@ -67,6 +67,8 @@ ENABLE_WATCHDOG: bool = _config["watchdog"]["enabled"]
 WATCHDOG_LEVEL: int = _config["watchdog"]["level"]
 INPUT_ACTION_LIST = ""  # 半废弃
 
+# 角色特殊机制报告：
+VIVIAN_REPORT: bool = _config["char_report"]["Vivian"]
 
 compare_methods_mapping: dict[str, Callable[[float | int, float | int], bool]] = {
     "<": lambda a, b: a < b,

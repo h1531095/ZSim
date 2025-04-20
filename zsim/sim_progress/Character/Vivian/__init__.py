@@ -59,6 +59,7 @@ class Vivian(Character):
 
     def get_special_stats(self, *args, **kwargs) -> dict[str, int | float | bool]:
         return {
+            '护羽数量': self.feather_manager.guard_feather,
             '飞羽数量': self.feather_manager.flight_feather,
             '裙裾浮游': self.fluttering_frock_state,
             '淑女仪态': self.noblewoman_state,

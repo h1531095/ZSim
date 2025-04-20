@@ -1,6 +1,7 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calculator as Cal
 import math
+from define import VIVIAN_REPORT
 
 
 class VivianCinema6TriggerRecord:
@@ -64,7 +65,7 @@ class VivianCinema6Trigger(Buff.BuffLogic):
         if skill_node.skill_tag != '1331_SNA_2':
             return False
         if not self.record.enemy.dynamic.is_under_anomaly:
-            print(f'怪物没异常你打什么SNA_2！豆子全没了吧傻逼！')
+            print(f' APL警告：怪物没异常你打什么SNA_2！豆子全没了吧傻子！') if VIVIAN_REPORT else None
         if self.record.last_update_node is None:
             self.c6_pre_active(skill_node)
             return True
@@ -77,14 +78,14 @@ class VivianCinema6Trigger(Buff.BuffLogic):
     def c6_pre_active(self, skill_node):
         self.record.last_update_node = skill_node
         guard_feather_cost = min(self.record.char.feather_manager.guard_feather, 5)
-        print(guard_feather_cost)
+        print(f'6画触发器：检测到【悬落】，即将消耗全部护羽！消耗前的资源情况为：{self.record.char.get_special_stats()}') if VIVIAN_REPORT else None
         self.record.guard_feather = guard_feather_cost
         self.record.char.feather_manager.guard_feather = 0
         self.record.char.feather_manager.c1_counter += guard_feather_cost
         while self.record.char.feather_manager.c1_counter >= 4:
             self.record.char.feather_manager.c1_counter -= 4
             self.record.char.feather_manager.flight_feather = min(self.record.char.feather_manager.flight_feather + 1, 5)
-            print(f'因为6画触发、联动1画，恢复一点飞羽！')
+            print(f'6画触发器：因6画触发、联动1画，恢复一点飞羽！当前资源情况为：{self.record.char.get_special_stats()}') if VIVIAN_REPORT else None
 
     def special_effect_logic(self, **kwargs):
         """当Xjudge检测到AnomalyBar传入时通过判定，并且执行xeffect"""
@@ -109,7 +110,7 @@ class VivianCinema6Trigger(Buff.BuffLogic):
         dirge_of_destiny_anomaly.anomaly_dmg_ratio = final_ratio
         dirge_of_destiny_anomaly.current_ndarray = dirge_of_destiny_anomaly.current_ndarray / dirge_of_destiny_anomaly.current_anomaly
         event_list.append(dirge_of_destiny_anomaly)
-
-        print(f'6画触发额外异放！！！本次触发消耗额外护羽数量为：{self.record.guard_feather}')
+        print(f'6画触发器：触发额外异放！本次触发消耗额外护羽数量为：{self.record.guard_feather}，当前资源情况为：{self.record.char.get_special_stats()}') if VIVIAN_REPORT else None
         self.record.guard_feather = 0
+        self.record.char.feather_manager.update_myself(c6_signal=True)
 
