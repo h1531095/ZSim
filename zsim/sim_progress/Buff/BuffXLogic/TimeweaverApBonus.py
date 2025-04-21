@@ -1,14 +1,14 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 
 
-class TimeweaverEleBuildupRecord:
+class TimeweaverApBonusRecord:
     def __init__(self):
         self.equipper = None
         self.char = None
         self.enemy = None
 
 
-class TimeweaverEleBuildup(Buff.BuffLogic):
+class TimeweaverApBonus(Buff.BuffLogic):
     """时流贤者的电属性积蓄相关Buff逻辑。"""
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
@@ -29,7 +29,7 @@ class TimeweaverEleBuildup(Buff.BuffLogic):
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
-            self.buff_0.history.record = TimeweaverEleBuildupRecord()
+            self.buff_0.history.record = TimeweaverApBonusRecord()
         self.record = self.buff_0.history.record
 
     def special_judge_logic(self, **kwargs):

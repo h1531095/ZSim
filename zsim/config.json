@@ -64,10 +64,10 @@
         "Interruption_Resistance": "interruption_resistance"
     },
     "buff_0_report": {
-        "enabled": true
+        "enabled": false
     },
     "char_report": {
-        "Vivian": true
+        "Vivian": false
     },
     "parallel_mode": {
         "enabled": false,

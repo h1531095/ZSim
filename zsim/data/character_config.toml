@@ -140,7 +140,7 @@ equip_set2_a = "啄木鸟电音"
 
 ["柳"]
 name = "柳"
-weapon = "淬锋钳刺"
+weapon = "时流贤者"
 weapon_level = 1
 cinema = 2
 crit_balancing = false

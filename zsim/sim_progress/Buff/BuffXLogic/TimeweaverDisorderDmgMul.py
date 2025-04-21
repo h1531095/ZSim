@@ -1,7 +1,7 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
-class TimeweaverMasteryCheckRecord:
+class TimeweaverDisorderDmgMulRecord:
     def __init__(self):
         self.equipper = None
         self.char = None
@@ -10,12 +10,13 @@ class TimeweaverMasteryCheckRecord:
         self.enemy = None
 
 
-class TimeweaverMasteryCheck(Buff.BuffLogic):
+class TimeweaverDisorderDmgMul(Buff.BuffLogic):
     """时流贤者的精通AP检查相关Buff逻辑。"""
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
+        self.xexit = self.special_exit_logic
         self.equipper = None
         self.buff_0 = None
         self.record = None
@@ -31,7 +32,7 @@ class TimeweaverMasteryCheck(Buff.BuffLogic):
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
-            self.buff_0.history.record = TimeweaverMasteryCheckRecord()
+            self.buff_0.history.record = TimeweaverDisorderDmgMulRecord()
         self.record = self.buff_0.history.record
 
     def special_judge_logic(self, **kwargs):
@@ -42,3 +43,6 @@ class TimeweaverMasteryCheck(Buff.BuffLogic):
         mul_data = Mul(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
         ap = Cal.AnomalyMul.cal_ap(mul_data)
         return ap >= 375
+
+    def special_exit_logic(self, **kwargs):
+        return not self.special_judge_logic(**kwargs)
