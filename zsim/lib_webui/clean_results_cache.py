@@ -2,7 +2,7 @@ import json
 import os
 
 try:
-    from define import ID_CACHE_JSON
+    from define import NORMAL_MODE_ID_JSON
 except ModuleNotFoundError:
     from .constants import ID_CACHE_JSON
 
@@ -11,7 +11,7 @@ from .constants import results_dir, IDDuplicateError
 
 # 获取合法的结果缓存
 def get_all_results(
-    *, id_cache_path=ID_CACHE_JSON, results_dir=results_dir
+    *, id_cache_path=NORMAL_MODE_ID_JSON, results_dir=results_dir
 ) -> dict[str : str | int | None]:
     # 读取id_cache.json文件
     # 如果文件不存在则创建空的id_cache
@@ -57,7 +57,7 @@ def rename_result(
     new_name: str,
     new_comment: str = None,
     *,
-    id_cache_path=ID_CACHE_JSON,
+    id_cache_path=NORMAL_MODE_ID_JSON,
     results_dir=results_dir,
 ):
     """
@@ -109,7 +109,7 @@ def rename_result(
 
 
 def delete_result(
-    former_name: str, *, id_cache_path=ID_CACHE_JSON, results_dir=results_dir
+    former_name: str, *, id_cache_path=NORMAL_MODE_ID_JSON, results_dir=results_dir
 ):
     """
     删除结果文件夹并更新id_cache.json文件中的对应条目。

@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # 创建命令行参数解析器
     parser = argparse.ArgumentParser(description="ZZZ模拟器")
     parser.add_argument(
-        "--stop_tick", type=int, default=None, help="指定模拟的tick数量 int"
+        "--stop-tick", type=int, default=None, help="指定模拟的tick数量 int"
     )
     parser.add_argument(
         "--mode",
@@ -19,21 +19,21 @@ if __name__ == "__main__":
         help="运行模式",
     )
     parser.add_argument(
-        "--adjust_char",
+        "--adjust-char",
         type=int,
         default=None,
         choices=[1, 2, 3],
         help="调整的角色相对位置",
     )
-    parser.add_argument("--sc_name", type=str, default=None, help="要调整的副词条名称 str")
-    parser.add_argument("--sc_value", type=int, default=None, help="要调整的副词条数量 int")
-    parser.add_argument("--run_turn_uuid", type=str, default=None, help="运行的uuid str")
-    parser.add_argument("--remove_equip", type=bool, default=True, help="移除装备 bool")
+    parser.add_argument("--sc-name", type=str, default=None, help="要调整的副词条名称 str")
+    parser.add_argument("--sc-value", type=int, default=None, help="要调整的副词条数量 int")
+    parser.add_argument("--run-turn-uuid", type=str, default=None, help="运行的uuid str")
+    parser.add_argument("--remove-equip", action='store_true', default=False, help="移除装备 (存在此标志时移除)")
 
     # 解析命令行参数
     args = parser.parse_args()
-    print(args)
     if args.mode == "normal":
+        print("常规模式")
         # 常规模式，作为单进程运行，读取全部的配置
         if args.stop_tick is not None:
             print(
@@ -47,6 +47,8 @@ if __name__ == "__main__":
         print("\n正在等待IO结束···")
         stop_report_threads()
     elif args.mode == "parallel":
+        print("并行模式")
+        print(args)
         # 并行模式，作为子进程运行，角色的指定副词条将被设为传入值，并根据是否移除其他主副词条进行模拟
         parallel_config: ParallelConfig = ParallelConfig(
             adjust_char=args.adjust_char,
