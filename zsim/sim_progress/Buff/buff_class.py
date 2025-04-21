@@ -486,6 +486,7 @@ class Buff:
                     _simple_start_buff_0.dy.count + self.ft.step, self.ft.maxcount
                 )
         self.dy.is_changed = True
+        self.dy.ready = False
         self.update_to_buff_0(_simple_start_buff_0)
 
     def individual_setteled_update(self, duration, timenow):
