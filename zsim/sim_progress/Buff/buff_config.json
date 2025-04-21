@@ -654,5 +654,45 @@
     "Buff-武器-精5时流贤者-装备者紊乱伤害提升": {
         "module": ".BuffXLogic.TimeweaverDisorderDmgMul",
         "class": "TimeweaverDisorderDmgMul"
+    },
+    "Buff-武器-精1淬锋钳刺-猎意": {
+        "module": ".BuffXLogic.SharpenedStingerPhyDmgBonus",
+        "class": "SharpenedStingerPhyDmgBonus"
+    },
+    "Buff-武器-精2淬锋钳刺-猎意": {
+        "module": ".BuffXLogic.SharpenedStingerPhyDmgBonus",
+        "class": "SharpenedStingerPhyDmgBonus"
+    },
+    "Buff-武器-精3淬锋钳刺-猎意": {
+        "module": ".BuffXLogic.SharpenedStingerPhyDmgBonus",
+        "class": "SharpenedStingerPhyDmgBonus"
+    },
+    "Buff-武器-精4淬锋钳刺-猎意": {
+        "module": ".BuffXLogic.SharpenedStingerPhyDmgBonus",
+        "class": "SharpenedStingerPhyDmgBonus"
+    },
+    "Buff-武器-精5淬锋钳刺-猎意": {
+        "module": ".BuffXLogic.SharpenedStingerPhyDmgBonus",
+        "class": "SharpenedStingerPhyDmgBonus"
+    },
+    "Buff-武器-精1淬锋钳刺-属性异常积蓄效率提升" : {
+        "module": ".BuffXLogic.SharpenedStingerAnomalyBuildupBonus",
+        "class": "SharpenedStingerAnomalyBuildupBonus"
+    },
+    "Buff-武器-精2淬锋钳刺-属性异常积蓄效率提升" : {
+        "module": ".BuffXLogic.SharpenedStingerAnomalyBuildupBonus",
+        "class": "SharpenedStingerAnomalyBuildupBonus"
+    },
+    "Buff-武器-精3淬锋钳刺-属性异常积蓄效率提升" : {
+        "module": ".BuffXLogic.SharpenedStingerAnomalyBuildupBonus",
+        "class": "SharpenedStingerAnomalyBuildupBonus"
+    },
+    "Buff-武器-精4淬锋钳刺-属性异常积蓄效率提升" : {
+        "module": ".BuffXLogic.SharpenedStingerAnomalyBuildupBonus",
+        "class": "SharpenedStingerAnomalyBuildupBonus"
+    },
+    "Buff-武器-精5淬锋钳刺-属性异常积蓄效率提升" : {
+        "module": ".BuffXLogic.SharpenedStingerAnomalyBuildupBonus",
+        "class": "SharpenedStingerAnomalyBuildupBonus"
     }
 }
