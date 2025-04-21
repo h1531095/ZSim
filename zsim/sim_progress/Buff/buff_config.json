@@ -614,5 +614,45 @@
     "Buff-武器-精5飞鸟星梦-精通增幅": {
         "module": ".BuffXLogic.FlightOfFancy",
         "class": "FlightOfFancy"
+    },
+    "Buff-武器-精1时流贤者-精通提升": {
+        "module": ".BuffXLogic.TimeweaverApBonus",
+        "class": "TimeweaverApBonus"
+    },
+    "Buff-武器-精2时流贤者-精通提升": {
+        "module": ".BuffXLogic.TimeweaverApBonus",
+        "class": "TimeweaverApBonus"
+    },
+    "Buff-武器-精3时流贤者-精通提升": {
+        "module": ".BuffXLogic.TimeweaverApBonus",
+        "class": "TimeweaverApBonus"
+    },
+    "Buff-武器-精4时流贤者-精通提升": {
+        "module": ".BuffXLogic.TimeweaverApBonus",
+        "class": "TimeweaverApBonus"
+    },
+    "Buff-武器-精5时流贤者-精通提升": {
+        "module": ".BuffXLogic.TimeweaverApBonus",
+        "class": "TimeweaverApBonus"
+    },
+    "Buff-武器-精1时流贤者-装备者紊乱伤害提升": {
+        "module": ".BuffXLogic.TimeweaverDisorderDmgMul",
+        "class": "TimeweaverDisorderDmgMul"
+    },
+    "Buff-武器-精2时流贤者-装备者紊乱伤害提升": {
+        "module": ".BuffXLogic.TimeweaverDisorderDmgMul",
+        "class": "TimeweaverDisorderDmgMul"
+    },
+    "Buff-武器-精3时流贤者-装备者紊乱伤害提升": {
+        "module": ".BuffXLogic.TimeweaverDisorderDmgMul",
+        "class": "TimeweaverDisorderDmgMul"
+    },
+    "Buff-武器-精4时流贤者-装备者紊乱伤害提升": {
+        "module": ".BuffXLogic.TimeweaverDisorderDmgMul",
+        "class": "TimeweaverDisorderDmgMul"
+    },
+    "Buff-武器-精5时流贤者-装备者紊乱伤害提升": {
+        "module": ".BuffXLogic.TimeweaverDisorderDmgMul",
+        "class": "TimeweaverDisorderDmgMul"
     }
 }
