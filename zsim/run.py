@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 
 class MainArgs(BaseModel):
-    """main.py 的命令行参数模型"""
+    """负责储存 main.py 的命令行参数"""
 
     stop_tick: int | None = Field(None, description="指定模拟的tick数量")
     mode: Literal["normal", "parallel"] | None = Field(None, description="运行模式")
