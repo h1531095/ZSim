@@ -15,11 +15,11 @@ def report_buff_to_queue(
             buffered_data[character_name][time_tick][buff_name] += buff_count
 
 
-def dump_buff_csv(result_id):
+def dump_buff_csv(result_id: str):
     for char_name in buffered_data:
         if char_name not in buffered_data:
             raise ValueError("你tmd函数写错了！")
-        buff_report_file_path = f"./results/{result_id}/buff_log/{char_name}.csv"
+        buff_report_file_path = f"{result_id}/buff_log/{char_name}.csv"
         os.makedirs(os.path.dirname(buff_report_file_path), exist_ok=True)
         df = pd.DataFrame.from_dict(
             buffered_data[char_name], orient="index"
