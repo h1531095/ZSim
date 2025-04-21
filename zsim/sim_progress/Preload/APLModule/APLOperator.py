@@ -21,7 +21,7 @@ class APLOperator:
                     self.found_char_dict, self.game_state, tick=tick
                 )
                 if not result:
-                    # if priority in [3,4]:
+                    # if priority in [0, 1, 2]:
                     #     print(f'这次不通过的APL优先级为{priority}， 判定结果为：{result_box}')
                     continue
                 else:

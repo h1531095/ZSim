@@ -186,7 +186,7 @@ class NodeStack:
                     key=lambda x: x.preload_tick,
                 )
             else:
-                """当场上的node全部都是被动动作时，只去其中最新的那个。"""
+                """当场上的node全部都是被动动作时，只取其中最新的那个。"""
                 return max((x for x in _exist_node_list), key=lambda x: x.preload_tick)
 
     def reset(self):

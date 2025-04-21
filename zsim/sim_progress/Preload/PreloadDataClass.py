@@ -1,6 +1,6 @@
+from sim_progress.data_struct import QuickAssistSystem
 from sim_progress.Preload import SkillNode
 from sim_progress.data_struct import NodeStack
-
 
 class PreloadData:
     """循环于Preload阶段内部的数据"""
@@ -21,7 +21,9 @@ class PreloadData:
         ] = []  # 当前tick需要执行preload的SkillTag列表，列表中的元素是(skill_tag, active_generation)，其中，active_generation指的是动作是否是主动生成。
         self.name_box: list[str] | None = None
         self.char_data = None
+        self.load_data = load_data
         self.load_mission_dict: dict = load_data.load_mission_dict
+        self.quick_assist_system = None
 
     @property
     def operating_now(self) -> int | None:
@@ -48,6 +50,9 @@ class PreloadData:
         self.personal_node_stack[char_cid].push(node)
         if node.active_generation:
             self.latest_active_generation_node = node
+        if self.quick_assist_system is None:
+            self.quick_assist_system = QuickAssistSystem(self.char_data.char_obj_list)
+        self.quick_assist_system.update(tick, node, self.load_data.all_name_order_box)
 
     def check_myself_before_push_node(self):
         """Confirm阶段自检"""

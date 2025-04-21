@@ -107,12 +107,10 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                             return False
                         else:
                             """附加伤害additional_damage（类似于“白雷”）由于不需要占用角色，所以可以免于被挤掉的命运"""
-                            if (
-                                "additional_damage"
-                                not in obj.get_skill_info(
-                                    skill_tag=_tag, attr_info="labels"
-                                ).keys()
-                            ):
+                            skill_info = obj.get_skill_info(skill_tag=_tag, attr_info="labels")
+                            if skill_info is None:
+                                skill_info = {}
+                            if "additional_damage" not in skill_info.keys():
                                 """但若当前tick被force_add 添加的skill_tag只是个普通技能，那么就要执行顶替。"""
                                 self.data.preload_action_list_before_confirm.remove(
                                     _tuples
@@ -141,6 +139,8 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                 """查了一下时间，竟然是1秒内刚切下去的"""
                 if "Aid" not in skill_tag or "QTE" not in skill_tag:
                     """如果不是支援类和连携技这种无视切人CD的技能，那么此时角色是切不出来的"""
+                    return True
+                else:
                     return False
 
         """其他剩下的所有情况，都返回True"""

@@ -156,7 +156,11 @@ class Skill:
         if attr_info is None:
             return skill_info
         else:
-            return getattr(skill_info, attr_info)
+            value = getattr(skill_info, attr_info)
+            if value:
+                return value
+            else:
+                return None
 
     def __create_action_list(self):
         """

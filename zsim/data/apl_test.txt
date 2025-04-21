@@ -1,7 +1,13 @@
+# 柳硬等快支触发，不提前上场抢队。
+1221|action+=|wait|status.1221:assist_waiting_for_anwser==True
+1221|action+=|1221_BH_Aid|status.1221:quick_assist_available==True
+
 # 柳开场强化E
 1221|action+=|1221_E_EX_1|attribute.1221:energy>=40|action.1221:first_action==True
 # 丽娜开场摸一下（要不然感电延长的Buff挂不上）
 1211|action+=|1211_NA_1|action.1211:first_action==True
+
+1211|action+=|1211_E_EX|attribute.1211:energy>=60
 
 # VVA测试
 1331|action+=|1331_E_EX|attribute.1331:energy>=60

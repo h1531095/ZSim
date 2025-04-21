@@ -418,6 +418,8 @@ class Character:
         def __init__(self, char_instantce: "Character"):
             self.character = char_instantce
             self.lasting_node = LastingNode(self.character)
+            from sim_progress.data_struct.QuickAssistSystem.QuickAssistManager import QuickAssistManager
+            self.quick_assist_manager = QuickAssistManager(self.character)
             self.on_field = False  # 角色是否在前台
 
         def reset(self):
@@ -796,6 +798,7 @@ class Character:
         self.decibel: float = 1000.0
         # 重置动态属性
         self.dynamic.reset()
+
 
 
 class LastingNode:
