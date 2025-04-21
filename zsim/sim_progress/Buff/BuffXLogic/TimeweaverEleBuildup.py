@@ -60,4 +60,3 @@ class TimeweaverEleBuildup(Buff.BuffLogic):
             return False
 
         return True
-    
