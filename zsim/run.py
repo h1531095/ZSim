@@ -21,8 +21,8 @@ def go_cli():
         sys.exit(1)
 
 
-def go_subprocess(stop_tick: int):
-    """启动子进程"""
+def go_single_subprocess(stop_tick: int):
+    """启动单个子进程"""
     try:
         results = []
         command = [sys.executable, "zsim/main.py", "--stop_tick", str(stop_tick)]
@@ -32,9 +32,9 @@ def go_subprocess(stop_tick: int):
     except Exception as e:
         return f"错误：启动子进程失败 - {str(e)}"
 
-def go_multiprocess_subprocess(stop_tick: int, config: dict, MAX_WORKERS: int):
+def go_parallel_subprocess(stop_tick: int, config: dict, MAX_WORKERS: int):
     """启动多进程子进程"""
-    raise NotImplementedError("多进程子进程功能尚未实现")
+    raise NotImplementedError
 
 def go_help():
     """显示帮助信息"""

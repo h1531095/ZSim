@@ -1,4 +1,3 @@
-import time
 from dataclasses import dataclass, field
 from sim_progress.Enemy import Enemy
 from define import saved_char_config
@@ -21,7 +20,6 @@ class InitData:
         从配置文件中加载角色配置信息，并初始化相关数据结构。
         如果配置文件不存在或配置信息不完整，将抛出异常。
         """
-        self._init_fingerprint = time.time()
         config: dict = saved_char_config
         if not config:
             assert False, "No character init configuration found."

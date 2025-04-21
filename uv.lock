@@ -391,6 +391,15 @@ wheels = [
 ]
 
 [[package]]
+name = "objprint"
+version = "0.3.0"
+source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
+sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/81/b8/c10e96120f1585824a1992655334b49da3924edfb364e84a26cc0ecdb89b/objprint-0.3.0.tar.gz", hash = "sha256:b5d83f9d62db5b95353bb42959106e1cd43010dcaa3eed1ad8d7d0b2df9b2d5a", size = 47481 }
+wheels = [
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/ec/af/572825252f16f36eeecbc8e3b721913d2640d69b984fdb8907aa8b4b0975/objprint-0.3.0-py3-none-any.whl", hash = "sha256:489083bfc8baf0526f8fd6af74673799511532636f0ce4141133255ded773405", size = 41619 },
+]
+
+[[package]]
 name = "openpyxl"
 version = "3.1.5"
 source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
@@ -511,6 +520,21 @@ wheels = [
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/a2/b5/bade14ae31ba871a139aa45e7a8183d869efe87c34a4850c87b936963261/protobuf-5.29.4-cp38-abi3-manylinux2014_aarch64.whl", hash = "sha256:aec4962f9ea93c431d5714ed1be1c93f13e1a8618e70035ba2b0564d9e633f2e", size = 319574 },
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/46/88/b01ed2291aae68b708f7d334288ad5fb3e7aa769a9c309c91a0d55cb91b0/protobuf-5.29.4-cp38-abi3-manylinux2014_x86_64.whl", hash = "sha256:d7d3f7d1d5a66ed4942d4fefb12ac4b14a29028b209d4bfb25c68ae172059922", size = 319672 },
     { url = "https://pypi.tuna.tsinghua.edu.cn/packages/12/fb/a586e0c973c95502e054ac5f81f88394f24ccc7982dac19c515acd9e2c93/protobuf-5.29.4-py3-none-any.whl", hash = "sha256:3fde11b505e1597f71b875ef2fc52062b6a9740e5f7c8997ce878b6009145862", size = 172551 },
+]
+
+[[package]]
+name = "psutil"
+version = "7.0.0"
+source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
+sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/2a/80/336820c1ad9286a4ded7e845b2eccfcb27851ab8ac6abece774a6ff4d3de/psutil-7.0.0.tar.gz", hash = "sha256:7be9c3eba38beccb6495ea33afd982a44074b78f28c434a1f51cc07fd315c456", size = 497003 }
+wheels = [
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/ed/e6/2d26234410f8b8abdbf891c9da62bee396583f713fb9f3325a4760875d22/psutil-7.0.0-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:101d71dc322e3cffd7cea0650b09b3d08b8e7c4109dd6809fe452dfd00e58b25", size = 238051 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/04/8b/30f930733afe425e3cbfc0e1468a30a18942350c1a8816acfade80c005c4/psutil-7.0.0-cp36-abi3-macosx_11_0_arm64.whl", hash = "sha256:39db632f6bb862eeccf56660871433e111b6ea58f2caea825571951d4b6aa3da", size = 239535 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/2a/ed/d362e84620dd22876b55389248e522338ed1bf134a5edd3b8231d7207f6d/psutil-7.0.0-cp36-abi3-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:1fcee592b4c6f146991ca55919ea3d1f8926497a713ed7faaf8225e174581e91", size = 275004 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/bf/b9/b0eb3f3cbcb734d930fdf839431606844a825b23eaf9a6ab371edac8162c/psutil-7.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4b1388a4f6875d7e2aff5c4ca1cc16c545ed41dd8bb596cefea80111db353a34", size = 277986 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/eb/a2/709e0fe2f093556c17fbafda93ac032257242cabcc7ff3369e2cb76a97aa/psutil-7.0.0-cp36-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a5f098451abc2828f7dc6b58d44b532b22f2088f4999a937557b603ce72b1993", size = 279544 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/50/e6/eecf58810b9d12e6427369784efe814a1eec0f492084ce8eb8f4d89d6d61/psutil-7.0.0-cp37-abi3-win32.whl", hash = "sha256:ba3fcef7523064a6c9da440fc4d6bd07da93ac726b5733c29027d7dc95b39d99", size = 241053 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/50/1b/6921afe68c74868b4c9fa424dad3be35b095e16687989ebbb50ce4fceb7c/psutil-7.0.0-cp37-abi3-win_amd64.whl", hash = "sha256:4cf3d4eb1aa9b348dec30105c55cd9b7d4629285735a102beb4441e38db90553", size = 244885 },
 ]
 
 [[package]]
@@ -864,6 +888,35 @@ wheels = [
 ]
 
 [[package]]
+name = "viztracer"
+version = "1.0.3"
+source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
+dependencies = [
+    { name = "objprint" },
+]
+sdist = { url = "https://pypi.tuna.tsinghua.edu.cn/packages/5d/01/3e7d7d1b555fa120340a0927d67ff93604ee738b11794b7c4072f1dfa0ea/viztracer-1.0.3.tar.gz", hash = "sha256:1e37da741242d63ce2be0c6d7878aba7267e9cd2592c5823c2383128ea5b943a", size = 14272944 }
+wheels = [
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/08/12/ad1e476ec9898005f15b1da2278cc27fecffa8d95c1b9521f51eed8eb165/viztracer-1.0.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ba474dce78737a55dea26904d96d65abd7e265ee27f7846c57c0da0c40ee9fbc", size = 14439126 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/a1/21/4616d015757afc60312e154158abf500511127aa8fbc37fb7d7a29cb3300/viztracer-1.0.3-cp312-cp312-macosx_11_0_x86_64.whl", hash = "sha256:1a89ab9ab327b1612e59334082fbeb28ef4c74b4c89f98186b197c341f26fce1", size = 14438956 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/2a/39/bbdddf8fa144dc5732f42f7148120b4586dfd18c6102c10ffffeffbe1ee0/viztracer-1.0.3-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:262cc4f8d0572295df31b95e54153120b0e8a4d8ac8b689edfd505d047b3e079", size = 14554674 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/66/c0/ad422516329cd3ff95aa0b7814adca255998405e4229ae332a7d4dfdf3f0/viztracer-1.0.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8f19c38772a16b706193662c62fd449d08bf243a123a12f24a8d5ebdc344b636", size = 14566572 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/83/21/fe038d5243f78001aebdbcd36f7c5af41c631ea615f9ab91ca618ac5272e/viztracer-1.0.3-cp312-cp312-win32.whl", hash = "sha256:bcef27e88ef564895209415463fb43d003048c9e799cfd3c10eb1c38f51fa101", size = 14602979 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/3e/30/58a47010407c00ef3ccc3177cc82ba98ce01afa285254298d5e51eed6cb9/viztracer-1.0.3-cp312-cp312-win_amd64.whl", hash = "sha256:6c19abb195efb1cb4ccf83ec8826d9de00eff9a5ede7220b781d7a4eb5f27fa0", size = 14605714 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/59/9f/3f98961078f216294dcf51b07eb96804c6d32a39a6eec53481a25cb37d65/viztracer-1.0.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:6dc236dcd3040dee579a195cfda5e225c73d24c8301b3a6ba1f699bc0dec9fe4", size = 14439136 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/be/fa/468497cdbefbc661753e7b077dea4264063cbb36b959fd09cb60dba3585b/viztracer-1.0.3-cp313-cp313-macosx_11_0_x86_64.whl", hash = "sha256:a9f465d21523d605b644072819422831e1c8bcef68a38585fd9eccb67368568e", size = 14438995 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/e4/37/17acf5e9c0d330d6b496742539cff4f19578f1ddef48872852e47da9b8ab/viztracer-1.0.3-cp313-cp313-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:ec9c31394e1eaf19d633f5a588367622c4d66a3c6527e98711db0fa1e2cccf46", size = 14554544 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/82/84/32c77af78a274b6c1da4dcd3900fb7a756b2281eaf2af2aaa3a4e8b5a01b/viztracer-1.0.3-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:895b698a2b724a7ff18516bb025ca2aecc3ff345544c8502f5abf57d670d43fe", size = 14566601 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/63/c2/1671012be07af40f992d87a70520bc7d83340b40c396e11d06ead472ff1f/viztracer-1.0.3-cp313-cp313-win32.whl", hash = "sha256:663c0ddc48522fa95fed519cacf5fee9e41536b9ecc46ef4d978237d6ad93268", size = 14602983 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/3b/f0/bdec7b8f6dbc69a7e614963852ec9b9ab46db1e6851f070132a28f0e9851/viztracer-1.0.3-cp313-cp313-win_amd64.whl", hash = "sha256:ea3afbb3abcfede0fe82c17f93b5e54e6f8fa1ca86fcf450c6e5759db5c34028", size = 14605597 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/00/a6/fea88b9a4dd72d9d7e234d7b87823287666f864c9f348d2cca1f4246b23d/viztracer-1.0.3-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:8a47f550641a8003ba5fbc28fbe6d8b25fde37ae8720341d4f6ca2771ed13434", size = 14441854 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/6b/43/4e1ba851302b4319cb526ba096172c92f2918eefee73b1c0241afa101cfb/viztracer-1.0.3-cp313-cp313t-macosx_11_0_x86_64.whl", hash = "sha256:d09b680f5041148c228a2099bb11bdb1ff9a14b476477b507274a64173d1d749", size = 14441669 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/95/a1/bb4f3730ed5a40dc33d33e9d85cf10f46f17df69b130968a4cc35bb97c16/viztracer-1.0.3-cp313-cp313t-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:982af1a1a2e93255a7caec4b73c52200f40ec21d01280e99e5d542ce62b6982d", size = 14597088 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/5b/63/ac19cb1acd266911c397d1a2cec3a55ce9a639aa6045fc38e0f3be3dc7a3/viztracer-1.0.3-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6cd70946a1bfc850ae037745c52c00ad247ea1f18e2a01c7b2d10c627e0d1a77", size = 14608662 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/c5/0f/c9903690534672098ae5b963ce4cf815b6093c3e6edcc3b018f1670b6dbe/viztracer-1.0.3-cp313-cp313t-win32.whl", hash = "sha256:b74455007cbbea7ab4758e0e0fe5a35f7ff822c86dc6a0306075cf9b767a2ad9", size = 14606962 },
+    { url = "https://pypi.tuna.tsinghua.edu.cn/packages/2b/fc/be9a36c36b54f4e5023c2e061481f4bcf95236d9054eb378775a79a963a1/viztracer-1.0.3-cp313-cp313t-win_amd64.whl", hash = "sha256:4b237c343b2cd9ac261ef9ff4a1c0505918031baf617cfc05842f295d50e8378", size = 14610317 },
+]
+
+[[package]]
 name = "watchdog"
 version = "6.0.0"
 source = { registry = "https://pypi.tuna.tsinghua.edu.cn/simple" }
@@ -912,6 +965,7 @@ dependencies = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "plotly" },
+    { name = "psutil" },
     { name = "pydantic" },
     { name = "setuptools" },
     { name = "streamlit" },
@@ -922,6 +976,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "openpyxl" },
+    { name = "viztracer" },
 ]
 
 [package.metadata]
@@ -931,6 +986,7 @@ requires-dist = [
     { name = "numpy", specifier = "~=2.1.3" },
     { name = "pandas", specifier = "~=2.2.3" },
     { name = "plotly", specifier = "~=6.0.0" },
+    { name = "psutil", specifier = ">=7.0.0" },
     { name = "pydantic", specifier = ">=2.11.3" },
     { name = "setuptools", specifier = "~=75.1.0" },
     { name = "streamlit", specifier = "~=1.44.0" },
@@ -939,4 +995,7 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "openpyxl", specifier = ">=3.1.5" }]
+dev = [
+    { name = "openpyxl", specifier = ">=3.1.5" },
+    { name = "viztracer", specifier = ">=1.0.3" },
+]

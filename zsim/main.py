@@ -63,8 +63,6 @@ if __name__ == "__main__":
             print(
                 f"\n主循环耗时: {timeit.timeit(lambda: main_loop(parallel_config=parallel_config), globals=globals(), number=1):.2f} s"
             )
-
-        print("\n正在等待IO结束···")
         stop_report_threads()
 
 # TODO：Buff晚记录了1tick——虎皮来改
