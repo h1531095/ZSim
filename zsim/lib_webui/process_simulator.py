@@ -2,12 +2,13 @@ from typing import Iterator
 
 from run import MainArgs
 
+from .constants import stats_trans_mapping
+
 
 def generate_parallel_args(
     stop_tick: int,
     parallel_cfg: dict,
     run_turn_uuid: str,
-    stats_trans_mapping: dict,
 ) -> Iterator[MainArgs]:
     """生成用于并行模拟的参数。
 
@@ -15,7 +16,6 @@ def generate_parallel_args(
         stop_tick: 模拟停止的 tick 数。
         parallel_cfg: 并行模式的配置字典。
         run_turn_uuid: 当前运行轮次的 UUID。
-        stats_trans_mapping: 属性名称到内部名称的映射。
 
     Yields:
         MainArgs: 为每个模拟任务生成的参数对象。

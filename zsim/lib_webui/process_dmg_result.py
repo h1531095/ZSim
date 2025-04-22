@@ -1,36 +1,80 @@
+from typing import Any
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-
 from sim_progress.Character.skill_class import lookup_name_or_cid
-from .constants import results_dir, element_mapping
+
+from .constants import element_mapping, results_dir
 
 
-def process_dmg_result(rid: int) -> None:
-    # 读取伤害数据 CSV 文件
+def _load_dmg_data(rid: int) -> pd.DataFrame | None:
+    """加载指定运行ID的伤害数据CSV文件。
+
+    Args:
+        rid (int): 运行ID。
+
+    Returns:
+        Optional[pd.DataFrame]: 加载的伤害数据DataFrame，如果文件未找到则返回None。
+    """
     try:
         csv_file_path = f"{results_dir}/{rid}/damage.csv"
-        dmg_result_df: pd.DataFrame = pd.read_csv(csv_file_path)
+        return pd.read_csv(csv_file_path)
     except FileNotFoundError:
         st.error(f"未找到文件：{csv_file_path}")
-        return
-    with st.expander("原始数据："):
-        st.dataframe(dmg_result_df)
-    draw_line_chart(dmg_result_df)  # 绘制伤害与失衡的折线图
-    uuid_df = sort_df_by_UUID(dmg_result_df)  # 按UUID排序
-    with st.expander("按UUID排序后的数据："):
-        st.dataframe(uuid_df)
-    draw_char_chart(uuid_df)  # 绘制角色相关信息的图标
-    draw_char_timeline(dmg_result_df)  # 绘制技能相关信息的图标
+        return None
 
 
-def draw_line_chart(dmg_result_df: pd.DataFrame) -> None:
+def prepare_line_chart_data(dmg_result_df: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    """准备用于绘制伤害与失衡曲线图的数据。
+
+    Args:
+        dmg_result_df (pd.DataFrame): 原始伤害数据。
+
+    Returns:
+        Dict[str, Any]: 包含处理后数据的字典，用于绘制折线图。
+            - 'line_chart_df': 包含时间、伤害、DPS、失衡值、失衡效率的DataFrame。
+    """
+    processed_df = dmg_result_df.copy()
+
+    # 计算DPS
+    processed_df["dps"] = (
+        processed_df["dmg_expect"].cumsum() / processed_df["tick"] * 60
+    )
+
+    # 处理失衡值
+    if "失衡状态" in processed_df.columns:
+        processed_df.loc[processed_df["失衡状态"], "stun"] = 0
+
+    # 计算失衡效率
+    first_stun_index = processed_df[processed_df["失衡状态"] == True].index.min()  # noqa: E712
+    if pd.notna(first_stun_index):
+        processed_df.loc[:first_stun_index, "stun_efficiency"] = (
+            processed_df.loc[:first_stun_index, "stun"].cumsum()
+            / processed_df.loc[:first_stun_index, "tick"]
+            * 60
+        )
+        processed_df.loc[first_stun_index + 1 :, "stun_efficiency"] = None
+    else:
+        processed_df["stun_efficiency"] = (
+            processed_df["stun"].cumsum() / processed_df["tick"] * 60
+        )
+
+    return {"line_chart_df": processed_df}
+
+
+def draw_line_chart(chart_data: dict[str, Any]) -> None:
+    """绘制伤害与失衡曲线图。
+
+    Args:
+        chart_data (Dict[str, Any]): 包含绘制图表所需数据的字典。
+    """
+    df = chart_data["line_chart_df"]
     with st.expander("伤害与失衡曲线："):
         # 时间-伤害分布
         st.subheader("时间-伤害分布")
-        # 要确保纵轴标题与变量名称改变，需要设置 `labels` 参数
-        fig = px.line(
-            dmg_result_df,
+        fig_dmg = px.line(
+            df,
             x="tick",
             y=["dmg_expect", "dmg_crit"],
             labels={
@@ -41,94 +85,81 @@ def draw_line_chart(dmg_result_df: pd.DataFrame) -> None:
                 "dmg_crit": "暴击伤害",
             },
         )
-        st.plotly_chart(fig)
+        st.plotly_chart(fig_dmg)
 
         # 时间-DPS分布
-        dmg_result_df["dps"] = (
-            dmg_result_df["dmg_expect"].cumsum() / dmg_result_df["tick"] * 60
-        )
         st.subheader("时间-DPS分布")
-        fig = px.line(
-            dmg_result_df,
+        fig_dps = px.line(
+            df,
             x="tick",
             y="dps",
             labels={"tick": "时间（帧数）", "dps": "DPS"},
         )
-        st.plotly_chart(fig)
+        st.plotly_chart(fig_dps)
 
         # 时间-失衡值分布
         st.subheader("时间-失衡值分布")
-        if "失衡状态" in dmg_result_df.columns:
-            dmg_result_df.loc[dmg_result_df["失衡状态"], "stun"] = 0
-        filtered_df = dmg_result_df
-        fig = px.line(
-            filtered_df,
+        fig_stun = px.line(
+            df,
             x="tick",
             y="stun",
             labels={"tick": "时间（帧数）", "stun": "失衡值"},
         )
-        st.plotly_chart(fig)
+        st.plotly_chart(fig_stun)
 
         # 时间-失衡效率分布
-        # 找到第一次失衡状态为True的索引
-        first_stun_index = filtered_df[filtered_df["失衡状态"] == True].index.min()  # noqa: E712
-        if pd.notna(first_stun_index):
-            # 只计算第一次失衡状态为True之前的失衡效率
-            filtered_df.loc[:first_stun_index, "stun_efficiency"] = (
-                filtered_df.loc[:first_stun_index, "stun"].cumsum()
-                / filtered_df.loc[:first_stun_index, "tick"]
-                * 60
-            )
-            filtered_df.loc[first_stun_index + 1 :, "stun_efficiency"] = None
-        else:
-            # 如果没有失衡状态为True的情况，计算全部的失衡效率
-            filtered_df["stun_efficiency"] = (
-                filtered_df["stun"].cumsum() / filtered_df["tick"] * 60
-            )
         st.subheader("时间-失衡效率分布")
-        fig = px.line(
-            filtered_df,
+        fig_stun_eff = px.line(
+            df,
             x="tick",
             y="stun_efficiency",
             labels={"tick": "时间（帧数）", "stun_efficiency": "失衡效率（每秒）"},
         )
-        st.plotly_chart(fig)
+        st.plotly_chart(fig_stun_eff)
 
 
 def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
-    # 检查必要的列是否存在
+    """按UUID对伤害数据进行分组和聚合。
+
+    Args:
+        dmg_result_df (pd.DataFrame): 原始伤害数据。
+
+    Returns:
+        pd.DataFrame: 按UUID聚合后的数据，包含每个UUID的总伤害、总失衡、总积蓄等信息。
+
+    Raises:
+        ValueError: 如果DataFrame缺少必要的列。
+    """
     required_columns = ["skill_tag", "dmg_expect", "stun", "buildup", "UUID"]
     for col in required_columns:
         if col not in dmg_result_df.columns:
             raise ValueError(f"DataFrame 中缺少必要的列: {col}")
 
     result_data = []
-
-    # 提取全部UUID
     all_UUID = dmg_result_df["UUID"].unique()
-    # 按UUID遍历，将每个相同UUID的伤害期望、失衡值、积蓄值相加，并保留skill_tag
+
     for UUID in all_UUID:
-        # 找到所有UUID相同的行（不再使用dropna()）
         same_UUID_rows = dmg_result_df[dmg_result_df["UUID"] == UUID]
-        # 计算期望伤害、失衡值、积蓄值的总和（使用fillna(0)确保计算）
         dmg_expect_sum = same_UUID_rows["dmg_expect"].fillna(0).sum()
         stun_sum = same_UUID_rows["stun"].fillna(0).sum()
         buildup_sum = same_UUID_rows["buildup"].fillna(0).sum()
-        # 获取第一个非空的skill_tag
+
         skill_tags = same_UUID_rows["skill_tag"].dropna()
-        skill_tag = skill_tags.iloc[0] if len(skill_tags) > 0 else None
-        element_type = (
-            same_UUID_rows["element_type"].iloc[0]
-            if len(same_UUID_rows["element_type"]) > 0
-            else None
-        )
-        cid: int | str | None
-        cid = skill_tag[0:4] if skill_tag is not None else None
-        try:
-            name, cid = lookup_name_or_cid(cid=cid) if cid is not None else (None, None)
-        except ValueError:
-            name = skill_tag
-            cid = None
+        skill_tag = skill_tags.iloc[0] if not skill_tags.empty else None
+
+        element_types = same_UUID_rows["element_type"].dropna()
+        element_type = element_types.iloc[0] if not element_types.empty else None
+
+        cid: int | str | None = None
+        name: str | None = None
+        if skill_tag:
+            cid_str = skill_tag[0:4]
+            try:
+                name, cid_lookup = lookup_name_or_cid(cid=cid_str)
+                cid = cid_lookup
+            except ValueError:
+                name = skill_tag # 如果查找失败，使用skill_tag作为名字
+                cid = None
 
         result_data.append(
             {
@@ -143,135 +174,202 @@ def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
             }
         )
 
-    # 将列表转换为DataFrame并返回
     return pd.DataFrame(result_data)
 
 
-def draw_char_chart(uuid_df: pd.DataFrame) -> None:
+def prepare_char_chart_data(uuid_df: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    """准备用于绘制角色参与度分布图的数据。
+
+    Args:
+        uuid_df (pd.DataFrame): 按UUID聚合后的伤害数据。
+
+    Returns:
+        Dict[str, Any]: 包含绘制饼图所需数据的字典。
+            - 'char_dmg_df': 按角色分组的伤害总和。
+            - 'char_stun_df': 按角色分组的失衡总和。
+            - 'char_skill_dmg_df': 按角色和技能标签分组的伤害总和。
+            - 'char_element_df': 按角色和元素类型分组的积蓄总和。
+    """
+    # 角色伤害占比
+    char_dmg_df = uuid_df[uuid_df["dmg_expect_sum"] > 0].groupby("name")["dmg_expect_sum"].sum().reset_index()
+
+    # 角色失衡占比
+    char_stun_df = uuid_df[uuid_df["stun_sum"] > 0].groupby("name")["stun_sum"].sum().reset_index()
+
+    # 角色技能输出占比
+    filtered_skill_df = uuid_df[uuid_df['cid'].notna()]
+    char_skill_dmg_df = (
+        filtered_skill_df.groupby(["name", "skill_tag"])["dmg_expect_sum"].sum().reset_index()
+    )
+
+    # 角色属性积蓄占比
+    filtered_buildup_df = uuid_df[uuid_df["buildup_sum"] > 0]
+    char_element_df = (
+        filtered_buildup_df.groupby(["name", "element_type"])["buildup_sum"].sum().reset_index()
+    )
+
+    return {
+        "char_dmg_df": char_dmg_df,
+        "char_stun_df": char_stun_df,
+        "char_skill_dmg_df": char_skill_dmg_df,
+        "char_element_df": char_element_df,
+    }
+
+
+def draw_char_chart(chart_data: dict[str, pd.DataFrame]) -> None:
+    """绘制角色参与度分布图。
+
+    Args:
+        chart_data (Dict[str, Any]): 包含绘制图表所需数据的字典。
+    """
+    char_dmg_df = chart_data["char_dmg_df"]
+    char_stun_df = chart_data["char_stun_df"]
+    char_skill_dmg_df = chart_data["char_skill_dmg_df"]
+    char_element_df = chart_data["char_element_df"]
+
     with st.expander("角色参与度分布情况："):
-        cols = st.columns(2)
+        cols1 = st.columns(2)
         # 角色伤害占比分布
-        with cols[0]:
+        with cols1[0]:
             st.subheader("队伍伤害来源占比")
-            # 过滤掉伤害期望为0的数据
-            char_dmg_df = uuid_df[uuid_df["dmg_expect_sum"] > 0].groupby("name")["dmg_expect_sum"].sum().reset_index()
             if not char_dmg_df.empty:
-                fig = px.pie(
+                fig_dmg_pie = px.pie(
                     char_dmg_df,
                     names="name",
                     values="dmg_expect_sum",
                     labels={"name": "来源", "dmg_expect_sum": "期望伤害总和"},
                 )
-                st.plotly_chart(fig)
+                st.plotly_chart(fig_dmg_pie)
             else:
                 st.info("没有非零伤害数据可供显示")
 
         # 角色失衡占比分布
-        with cols[1]:
+        with cols1[1]:
             st.subheader("队伍失衡来源占比")
-            # 过滤掉失衡值为0的数据
-            char_stun_df = uuid_df[uuid_df["stun_sum"] > 0].groupby("name")["stun_sum"].sum().reset_index()
             if not char_stun_df.empty:
-                fig = px.pie(
+                fig_stun_pie = px.pie(
                     char_stun_df,
                     names="name",
                     values="stun_sum",
                     labels={"name": "来源", "stun_sum": "失衡值总和"},
                 )
-                st.plotly_chart(fig)
+                st.plotly_chart(fig_stun_pie)
             else:
                 st.info("没有非零失衡值数据可供显示")
 
-        # 每个角色的各技能输出占比分布-条形图
-        # 先过滤掉cid为None的数据
-        filtered_df = uuid_df[uuid_df['cid'].notna()]
-        char_skill_dmg_df = (
-            filtered_df.groupby(["name", "skill_tag"])["dmg_expect_sum"].sum().reset_index()
-        )
-        # 创建一个新的Streamlit列布局
-        cols = st.columns(len(char_skill_dmg_df["name"].unique()))
-        col_index = 0
-        for name, group in char_skill_dmg_df.groupby("name"):
-            with cols[col_index]:
-                st.subheader(f"{name}各技能输出占比")
-                fig = px.pie(
-                    group,
-                    names="skill_tag",
-                    values="dmg_expect_sum",
-                    labels={"skill_tag": "技能标签", "dmg_expect_sum": "期望伤害总和"},
-                )
-                st.plotly_chart(fig)
-            col_index += 1
+        # 每个角色的各技能输出占比分布
+        st.subheader("各角色技能输出占比")
+        unique_names = char_skill_dmg_df["name"].unique()
+        if len(unique_names) > 0:
+            cols2 = st.columns(len(unique_names))
+            col_index = 0
+            for name, group in char_skill_dmg_df.groupby("name"):
+                with cols2[col_index]:
+                    st.caption(f"{name}") # 使用caption代替subheader以节省空间
+                    fig_skill_pie = px.pie(
+                        group,
+                        names="skill_tag",
+                        values="dmg_expect_sum",
+                        labels={"skill_tag": "技能标签", "dmg_expect_sum": "期望伤害总和"},
+                    )
+                    st.plotly_chart(fig_skill_pie)
+                col_index += 1
+        else:
+            st.info("没有角色技能伤害数据可供显示")
 
         # 每个角色各属性的积蓄占比
-        # 过滤掉积蓄值为0的数据
-        filtered_uuid_df = uuid_df[uuid_df["buildup_sum"] > 0]
-        char_element_df = (
-            filtered_uuid_df.groupby(["name", "element_type"])["buildup_sum"].sum().reset_index()
-        )
-        # 创建一个新的Streamlit列布局
-        cols = st.columns(len(char_element_df["element_type"].unique()))
-        col_index = 0
-        for element in char_element_df["element_type"].unique():
-            element_df = char_element_df[char_element_df["element_type"] == element]
-            with cols[col_index]:
-                st.subheader(f"{element_mapping[element]}积蓄来源占比")
-                fig = px.pie(
-                    element_df,
-                    names="name",
-                    values="buildup_sum",
-                    labels={"name": "角色", "buildup_sum": "积蓄值总和"},
-                )
-                st.plotly_chart(fig)
-            col_index += 1
+        st.subheader("各属性积蓄来源占比")
+        unique_elements = char_element_df["element_type"].unique()
+        if len(unique_elements) > 0:
+            cols3 = st.columns(len(unique_elements))
+            col_index = 0
+            for element in unique_elements:
+                element_df = char_element_df[char_element_df["element_type"] == element]
+                element_name = element_mapping.get(element, element) # 获取元素中文名
+                with cols3[col_index]:
+                    st.caption(f"{element_name}") # 使用caption代替subheader
+                    fig_buildup_pie = px.pie(
+                        element_df,
+                        names="name",
+                        values="buildup_sum",
+                        labels={"name": "角色", "buildup_sum": "积蓄值总和"},
+                    )
+                    st.plotly_chart(fig_buildup_pie)
+                col_index += 1
+        else:
+            st.info("没有属性积蓄数据可供显示")
 
 
-def draw_char_timeline(dmg_result_df: pd.DataFrame) -> None:
-    # 验证输入数据是否包含所需列
+def _find_consecutive_true_ranges(df: pd.DataFrame, column: str) -> list[tuple[int, int]]:
+    """查找DataFrame列中连续为True的范围。
+
+    Args:
+        df (pd.DataFrame): 输入的DataFrame，需要包含 'tick' 列。
+        column (str): 要查找的布尔列名。
+
+    Returns:
+        list[tuple[int, int]]: 一个包含 (开始tick, 结束tick) 元组的列表。
+    """
+    ranges = []
+    start = None
+    for i, row in df.iterrows():
+        if row[column]:
+            if start is None:
+                start = row["tick"]
+        else:
+            if start is not None:
+                # 结束tick应该是上一个为True的tick
+                prev_tick = df["tick"].iloc[i - 1] if i > 0 else start
+                ranges.append((start, prev_tick))
+                start = None
+    # 处理最后一个区间（如果存在）
+    if start is not None:
+        ranges.append((start, df["tick"].iloc[-1]))
+    return ranges
+
+
+def prepare_timeline_data(dmg_result_df: pd.DataFrame) -> pd.DataFrame | None:
+    """准备用于绘制异常状态时间线的数据。
+
+    Args:
+        dmg_result_df (pd.DataFrame): 原始伤害数据。
+
+    Returns:
+        Optional[pd.DataFrame]: 用于绘制Gantt图的DataFrame，如果缺少列或无数据则返回None。
+    """
     required_columns = [
-        "冻结",
-        "霜寒",
-        "畏缩",
-        "感电",
-        "灼烧",
-        "侵蚀",
-        "烈霜霜寒",
-        "tick",
+        "冻结", "霜寒", "畏缩", "感电", "灼烧", "侵蚀", "烈霜霜寒", "tick",
     ]
     missing_cols = [col for col in required_columns if col not in dmg_result_df.columns]
     if missing_cols:
         st.error(f"输入数据缺少必要的列: {missing_cols}")
-        return
+        return None
 
-    def find_consecutive_true_ranges(df, column):
-        ranges = []
-        start = None
-        for i, row in df.iterrows():
-            if row[column]:
-                if start is None:
-                    start = row["tick"]
-            else:
-                if start is not None:
-                    prev_tick = df["tick"].iloc[i - 1]
-                    ranges.append((start, prev_tick))
-                    start = None
-        if start is not None:
-            ranges.append((start, df["tick"].iloc[-1]))
-        return ranges
-
-    with st.expander("异常时间线："):
-        columns = ["冻结", "霜寒", "畏缩", "感电", "灼烧", "侵蚀", "烈霜霜寒"]
-        gantt_data = []
-        for col in columns:
-            ranges = find_consecutive_true_ranges(dmg_result_df, col)
+    columns_to_check = ["冻结", "霜寒", "畏缩", "感电", "灼烧", "侵蚀", "烈霜霜寒"]
+    gantt_data = []
+    for col in columns_to_check:
+        if col in dmg_result_df.columns:
+            ranges = _find_consecutive_true_ranges(dmg_result_df, col)
             for start, end in ranges:
                 gantt_data.append({"Task": col, "Start": start, "Finish": end})
-        gantt_df = pd.DataFrame(gantt_data)
 
-        if not gantt_df.empty:
-            # 计算每个任务的持续时间
-            gantt_df["Duration"] = gantt_df["Finish"] - gantt_df["Start"]
-            fig = px.bar(
+    if not gantt_data:
+        return None
+
+    gantt_df = pd.DataFrame(gantt_data)
+    gantt_df["Duration"] = gantt_df["Finish"] - gantt_df["Start"] + 1 # 持续时间包含首尾
+    return gantt_df
+
+
+def draw_char_timeline(gantt_df: pd.DataFrame | None) -> None:
+    """绘制异常状态时间线（Gantt图）。
+
+    Args:
+        gantt_df: 用于绘制Gantt图的数据，如果为None则不绘制。
+    """
+    with st.expander("异常时间线："):
+        if gantt_df is not None and not gantt_df.empty:
+            fig_timeline = px.bar(
                 gantt_df,
                 x="Duration",
                 y="Task",
@@ -283,8 +381,39 @@ def draw_char_timeline(dmg_result_df: pd.DataFrame) -> None:
                     "Task": "状态类型",
                 },
             )
-            st.plotly_chart(fig)
+            st.plotly_chart(fig_timeline)
         else:
             st.warning("没有找到任何连续的状态数据")
-    # with st.expander('时间线数据：'):
-    #     st.dataframe(gantt_df)
+
+
+def process_dmg_result(rid: int) -> None:
+    """处理并显示指定运行ID的伤害分析结果。
+
+    Args:
+        rid (int): 运行ID。
+    """
+    dmg_result_df = _load_dmg_data(rid)
+    if dmg_result_df is None:
+        return
+
+    with st.expander("原始数据："):
+        st.dataframe(dmg_result_df)
+
+    # 准备并绘制折线图
+    line_chart_data = prepare_line_chart_data(dmg_result_df)
+    draw_line_chart(line_chart_data)
+
+    # 按UUID排序数据
+    uuid_df = sort_df_by_UUID(dmg_result_df)
+    with st.expander("按UUID排序后的数据："):
+        st.dataframe(uuid_df)
+
+    # 准备并绘制角色分布图
+    char_chart_data = prepare_char_chart_data(uuid_df)
+    draw_char_chart(char_chart_data)
+
+    # 准备并绘制时间线图
+    timeline_data = prepare_timeline_data(dmg_result_df)
+    draw_char_timeline(timeline_data)
+
+# 注意：process_buff_result 函数不在此文件中，其签名不受影响。
