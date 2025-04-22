@@ -11,6 +11,8 @@ Number = int | float
 INVALID_ELEMENT_ERROR = "Invalid element type"
 NORMAL_MODE_ID_JSON = "results/id_cache.json"
 
+results_dir = "results/"
+
 # 加载角色配置
 data_dir = Path("./zsim/data")
 data_dir.mkdir(exist_ok=True)

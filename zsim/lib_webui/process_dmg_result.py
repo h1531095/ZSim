@@ -1,13 +1,14 @@
+from typing import Any
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from typing import Dict, Any, Optional
-
 from sim_progress.Character.skill_class import lookup_name_or_cid
-from .constants import results_dir, element_mapping
+
+from .constants import element_mapping, results_dir
 
 
-def _load_dmg_data(rid: int) -> Optional[pd.DataFrame]:
+def _load_dmg_data(rid: int) -> pd.DataFrame | None:
     """加载指定运行ID的伤害数据CSV文件。
 
     Args:
@@ -24,7 +25,7 @@ def _load_dmg_data(rid: int) -> Optional[pd.DataFrame]:
         return None
 
 
-def prepare_line_chart_data(dmg_result_df: pd.DataFrame) -> Dict[str, Any]:
+def prepare_line_chart_data(dmg_result_df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """准备用于绘制伤害与失衡曲线图的数据。
 
     Args:
@@ -62,7 +63,7 @@ def prepare_line_chart_data(dmg_result_df: pd.DataFrame) -> Dict[str, Any]:
     return {"line_chart_df": processed_df}
 
 
-def draw_line_chart(chart_data: Dict[str, Any]) -> None:
+def draw_line_chart(chart_data: dict[str, Any]) -> None:
     """绘制伤害与失衡曲线图。
 
     Args:
@@ -150,7 +151,7 @@ def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
         element_type = element_types.iloc[0] if not element_types.empty else None
 
         cid: int | str | None = None
-        name: Optional[str] = None
+        name: str | None = None
         if skill_tag:
             cid_str = skill_tag[0:4]
             try:
@@ -176,7 +177,7 @@ def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(result_data)
 
 
-def prepare_char_chart_data(uuid_df: pd.DataFrame) -> Dict[str, Any]:
+def prepare_char_chart_data(uuid_df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """准备用于绘制角色参与度分布图的数据。
 
     Args:
@@ -215,7 +216,7 @@ def prepare_char_chart_data(uuid_df: pd.DataFrame) -> Dict[str, Any]:
     }
 
 
-def draw_char_chart(chart_data: Dict[str, Any]) -> None:
+def draw_char_chart(chart_data: dict[str, pd.DataFrame]) -> None:
     """绘制角色参与度分布图。
 
     Args:
@@ -327,7 +328,7 @@ def _find_consecutive_true_ranges(df: pd.DataFrame, column: str) -> list[tuple[i
     return ranges
 
 
-def prepare_timeline_data(dmg_result_df: pd.DataFrame) -> Optional[pd.DataFrame]:
+def prepare_timeline_data(dmg_result_df: pd.DataFrame) -> pd.DataFrame | None:
     """准备用于绘制异常状态时间线的数据。
 
     Args:
@@ -360,11 +361,11 @@ def prepare_timeline_data(dmg_result_df: pd.DataFrame) -> Optional[pd.DataFrame]
     return gantt_df
 
 
-def draw_char_timeline(gantt_df: Optional[pd.DataFrame]) -> None:
+def draw_char_timeline(gantt_df: pd.DataFrame | None) -> None:
     """绘制异常状态时间线（Gantt图）。
 
     Args:
-        gantt_df (Optional[pd.DataFrame]): 用于绘制Gantt图的数据，如果为None则不绘制。
+        gantt_df: 用于绘制Gantt图的数据，如果为None则不绘制。
     """
     with st.expander("异常时间线："):
         if gantt_df is not None and not gantt_df.empty:
