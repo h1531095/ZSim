@@ -18,7 +18,7 @@ jobs:
           python-version: '3.13'
 
       - name: Install uv
-        run: winget install --id=astral-sh.uv  -e
+        run: :powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
       - name: Install dependencies with uv
         run: |
