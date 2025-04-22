@@ -293,30 +293,35 @@ def page_simulator():
                     json.dump(parallel_cfg, f, indent=4)
 
                 # 启动多进程
-                futures = [
-                    get_executor().submit(go_parallel_subprocess, args)
-                    for args in generate_parallel_args(
+                futures = {
+                    get_executor().submit(go_parallel_subprocess, args): i+1
+                    for i, args in enumerate(generate_parallel_args(
                         stop_tick,
                         parallel_cfg,
                         run_turn_uuid,
-                        stats_trans_mapping,
-                    )
-                ]
-                # TODO: 处理 futures 的结果，例如显示进度或汇总结果
-                results = [
-                    future.result()
-                    for future in concurrent.futures.as_completed(futures)
-                ]
-                st.write("模拟完成，请前往数据分析查看结果")
-                # 循环显示每个进程的输出结果
-                for i, result in enumerate(results, 1):
-                    with st.expander(f"进程 {i} 输出结果"):
-                        st.text_area(
-                            f"进程 {i} 输出结果:",
-                            result,
-                            height=TEXT_AREA_HEIGHT,
-                            label_visibility="collapsed",
-                        )
+                    ))
+                }
+                
+                # 创建结果容器
+                result_container = st.container()
+                
+                # 实时处理完成的任务
+                for future in concurrent.futures.as_completed(futures):
+                    task_num = futures[future]
+                    try:
+                        result = future.result()
+                        with result_container:
+                            with st.expander(f"进程 {task_num} 输出结果"):
+                                st.text_area(
+                                    f"进程 {task_num} 输出结果:",
+                                    result,
+                                    height=TEXT_AREA_HEIGHT,
+                                    label_visibility="collapsed",
+                                )
+                    except Exception as e:
+                        with result_container:
+                            st.error(f"进程 {task_num} 执行出错: {str(e)}")
+                
                 st.session_state["simulation_running"] = False
 
         with col2:

@@ -5,7 +5,7 @@ from lib_webui.constants import IDDuplicateError
 
 
 @st.fragment
-def _render_result_management_ui():
+def _result_manager():
     id_cache = get_all_results()
     options = list(id_cache.keys())[::-1]
     if not options:
@@ -70,7 +70,7 @@ def _render_result_management_ui():
 def page_data_analysis():
     st.title("ZZZ Simulator - 数据分析")
 
-    selected_key = _render_result_management_ui()
+    selected_key = _result_manager()
 
     if not st.toggle("开启数据分析"):
         st.stop()
