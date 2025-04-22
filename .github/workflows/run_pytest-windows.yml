@@ -1,4 +1,4 @@
-name: pytest_unix
+name: pytest_windows
 
 on:
   push:
@@ -8,10 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4  # 检出代码
 
@@ -21,7 +18,7 @@ jobs:
           python-version: '3.13'
 
       - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+        run: winget install --id=astral-sh.uv  -e
 
       - name: Install dependencies with uv
         run: |
