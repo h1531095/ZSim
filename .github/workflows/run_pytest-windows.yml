@@ -9,13 +9,16 @@ on:
 jobs:
   test:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [3.12, 3.13]
     steps:
       - uses: actions/checkout@v4  # 检出代码
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13'
+          python-version: ${{ matrix.python-version }}
 
       - name: Install uv
         run: powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
