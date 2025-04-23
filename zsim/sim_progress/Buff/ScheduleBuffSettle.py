@@ -149,11 +149,12 @@ def add_schedule_buff(
         # if buff.ft.index == 'Buff-武器-精1啜泣摇篮-全队增伤自增长':
         #     print(f'buff_0情况：{buff.dy.startticks, buff.dy.endticks}')
         #     print(f'新buff情况：{buff_new.dy.startticks, buff_new.dy.endticks}')
-        if buff.ft.operator == characters:
-            if buff.ft.simple_effect_logic:
-                buff_new.simple_start(time_tick, sub_exist_buff_dict)
-            else:
-                buff_new.logic.xeffect(**kwargs)
+        if not buff.ft.operator == characters:
+            continue
+        if buff.ft.simple_effect_logic:
+            buff_new.simple_start(time_tick, sub_exist_buff_dict)
+        else:
+            buff_new.logic.xeffect(**kwargs)
         # Buff加载
         buff_existing_check = next(
             (

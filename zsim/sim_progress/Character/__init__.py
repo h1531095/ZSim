@@ -18,6 +18,7 @@ __char_module_map = {
     "柳": "Yanagi",
     "简": "Jane",
     "薇薇安": "Vivian",
+    "耀嘉音": "AstraYao"
 }
 
 

@@ -31,10 +31,18 @@ class ActionSubUnit(BaseSubConditionUnit):
             if char_stack is None:
                 return None
             else:
-                current_node = char_stack.peek()
-                if current_node.end_tick != tick:
+                for i in range(char_stack.length):
+                    current_node = char_stack.peek_index(i)
+                    if current_node is None:
+                        return None
+                    if current_node.skill.labels is not None and 'additional_damage' in current_node.skill.labels:
+                        continue
+                    else:
+                        if current_node.end_tick != tick:
+                            return None
+                        return current_node.skill_tag
+                else:
                     return None
-                return current_node.skill_tag
 
     class LenientLinkedHandler(ActionCheckHandler):
         @classmethod
@@ -42,7 +50,16 @@ class ActionSubUnit(BaseSubConditionUnit):
             char_stack = get_personal_node_stack(game_state).get(char_cid, None)
             if char_stack is None:
                 return None
-            return char_stack.peek().skill_tag
+            for i in range(char_stack.length):
+                current_node = char_stack.peek_index(i)
+                if current_node is None:
+                    return None
+                if current_node.skill.labels is not None and 'additional_damage' in current_node.skill.labels:
+                    continue
+                else:
+                    return current_node.skill_tag
+            else:
+                return None
 
     class FirstActionHandler(ActionCheckHandler):
         @classmethod

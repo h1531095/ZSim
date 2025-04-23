@@ -15,7 +15,8 @@ class LoadingMission:
         self.preload_tick = mission.preload_tick
         self.mission_node.loading_mission = self
 
-    def mission_start(self, timenow):
+    def mission_start(self, timenow, **kwargs):
+        report = kwargs.get("report", True)
         self.mission_active_state = True
         timecost = self.mission_node.skill.ticks
         if timecost:
@@ -37,9 +38,9 @@ class LoadingMission:
             self.mission_dict[float(self.mission_node.preload_tick + timecost)] = "end"
             report_to_log(
                 f"[Skill LOAD]:{timenow}:{self.mission_tag}开始并拆分子任务。", level=4
-            )
+            ) if report else None
         else:
-            self.mission_dict[timenow] = 'hit'
+            self.mission_dict[timenow] = "hit"
 
     def mission_end(self):
         self.mission_active_state = False
@@ -49,6 +50,7 @@ class LoadingMission:
     def check_myself(self, timenow):
         if self.mission_end_tick < timenow:
             self.mission_end()
+            return
 
     def get_first_hit(self):
         """返回首次命中的时间"""
@@ -84,4 +86,14 @@ class LoadingMission:
 
     def is_last_hit(self, tick: int):
         return tick - 1 < self.get_last_hit() <= tick
+
+    def is_heavy_hit(self, tick: int):
+        if not self.is_last_hit(tick):
+            return False
+        else:
+            if self.mission_node.skill.heavy_attack:
+                return True
+            else:
+                return False
+
 

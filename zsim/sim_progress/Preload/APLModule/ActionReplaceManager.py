@@ -58,7 +58,10 @@ class ActionReplaceManager:
                 else:
                     raise ValueError(f"没有找到{CID}角色的快速支援管理器！")
             current_manager = self.manager_box[CID]
-            node_on_field = self.preload_data.current_node_stack.get_on_field_node(tick)
+            node_on_field = self.preload_data.get_on_field_node(tick-1)
+            '''注意，这里传入tick-1的作用：当某些技能不能被合轴与终止时（比如QTE和Q），新动作会被SwapCancelEngine一直拦截，
+            此时，就会出现1帧时间场上没有任何动作，这会导致调用该函数的一些判断出错。所以将时间提前了1帧，规避这些错误。'''
+
             '''当前角色的快速支援正处于激活状态，并且角色企图上场释放技能，则执行替换。'''
             if current_manager.quick_assist_available and str(CID) not in node_on_field.skill_tag:
                 return True
