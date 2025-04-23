@@ -67,7 +67,8 @@
         "enabled": false
     },
     "char_report": {
-        "Vivian": false
+        "Vivian": false,
+        "AstraYao": false
     },
     "parallel_mode": {
         "enabled": true,

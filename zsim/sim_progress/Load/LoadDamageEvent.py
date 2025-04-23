@@ -1,7 +1,7 @@
 from .. import Dot
 # import Enemy
 from .loading_mission import LoadingMission
-
+from sim_progress.Report import report_to_log
 
 def SpawnDamageEvent(mission: LoadingMission | Dot.Dot, event_list: list):
     """
@@ -95,6 +95,7 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: 
     """
     # 处理 Load.Mission 任务
     dynamic_buff_dict = kwargs.get('dynamic_buff_dict', None)
+    process_overtime_mission(timetick, load_mission_dict)
     for mission in load_mission_dict.values():
         if not isinstance(mission, LoadingMission | Dot.Dot):
             raise TypeError(f'{mission}不是LoadingMission或是Dot类！')
@@ -105,3 +106,25 @@ def DamageEventJudge(timetick: int, load_mission_dict: dict, enemy, event_list: 
     # 始终检查 effect_rules == 1 的 Dot
     ProcessTimeUpdateDots(timetick, enemy.dynamic.dynamic_dot_list, event_list)
     # TODO：预留接口：处理effect_rules == 3 的buff（但是涉及快照）
+
+
+
+def process_overtime_mission(tick: int, Load_mission_dict: dict):
+    """去除过期任务！"""
+    to_remove = []
+    for key, mission in Load_mission_dict.items():
+        if not isinstance(mission, LoadingMission):
+            continue
+        mission.check_myself(tick)
+        if not mission.mission_active_state:
+            if key not in to_remove:
+                to_remove.append(key)
+    for key in to_remove:
+        report_to_log(
+            f"[Skill LOAD]:{tick}:{Load_mission_dict[key].mission_tag}已经结束,已从Load中移除",
+            level=2,
+        )
+        Load_mission_dict.pop(key)
+    # for mission_key, mission in Load_mission_dict.items():
+    #     if mission_key == '1331_CoAttack_A':
+    #         print(mission_key, mission.mission_node.preload_tick, mission.mission_node.end_tick)

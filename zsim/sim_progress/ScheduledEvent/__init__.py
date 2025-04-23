@@ -12,6 +12,8 @@ from sim_progress.data_struct import (
     ScheduleRefreshData,
     SingleHit,
     SPUpdateData,
+    QuickAssistEvent,
+    SchedulePreload,
 )
 from sim_progress.Load.LoadDamageEvent import ProcessHitUpdateDots
 from sim_progress.Load.loading_mission import LoadingMission
@@ -53,7 +55,7 @@ class ScheduledEvent:
     ):
         self.data = data  # ScheduleData in __main__
         self.data.dynamic_buff = dynamic_buff
-        self.judge_required_info_dict = data.judge_required_info_dict
+        # self.judge_required_info_dict = data.judge_required_info_dict
         self.action_stack = action_stack
 
         if loading_buff is None:
@@ -69,6 +71,12 @@ class ScheduledEvent:
         self.data.loading_buff = loading_buff
         self.exist_buff_dict = exist_buff_dict
         self.enemy = self.data.enemy
+
+        self.execute_tick_key_map = {
+            SkillNode: "preload_tick",
+            QuickAssistEvent: "execute_tick",
+            SchedulePreload: "execute_tick",
+        }
 
     def event_start(self):
         """Schedule主逻辑"""
@@ -94,7 +102,7 @@ class ScheduledEvent:
                 elif isinstance(event, Preload.SkillNode | LoadingMission):
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
-                        self.judge_required_info_dict["skill_node"] = event
+                        # self.judge_required_info_dict["skill_node"] = event
                         """
                         在2025.4.14的更新中，在skill_event分支新增了下面这个函数，
                         这是经过改良后的新的更新异常条的节点。
@@ -116,17 +124,17 @@ class ScheduledEvent:
                         )
                 elif isinstance(event, Abloom):
                     self.abloom_event(event)
-                    self.judge_required_info_dict["abloom"] = event
+                    # self.judge_required_info_dict["abloom"] = event
                 elif isinstance(event, PolarityDisorder):
                     self.polarity_disorder_event(event)
-                    self.judge_required_info_dict["polarity_disorder"] = event
+                    # self.judge_required_info_dict["polarity_disorder"] = event
                 elif isinstance(event, Disorder):
                     # print(f'检测到{event.element_type}属性的紊乱，快照为：{event.current_ndarray}')
                     self.disorder_event(event)
-                    self.judge_required_info_dict["disorder"] = event
+                    # self.judge_required_info_dict["disorder"] = event
                 elif isinstance(event, AnB):
                     self.anomaly_event(event)
-                    self.judge_required_info_dict["anb"] = event
+                    # self.judge_required_info_dict["anb"] = event
                     ScheduleBuffSettle(
                         self.tick,
                         self.exist_buff_dict,
@@ -137,7 +145,12 @@ class ScheduledEvent:
                     )
                 elif isinstance(event, ScheduleRefreshData):
                     self.refresh_event(event)
-                    self.judge_required_info_dict["refresh"] = event
+                    # self.judge_required_info_dict["refresh"] = event
+                elif isinstance(event, QuickAssistEvent):
+                    self.quick_assist_event(event)
+                elif isinstance(event, SchedulePreload):
+                    self.preload_event(event)
+                    # self.judge_required_info_dict["preload"] = event
                 else:
                     raise NotImplementedError(
                         f"{type(event)}，目前不应存在于 event_list"
@@ -145,7 +158,25 @@ class ScheduledEvent:
 
             # 计算过程中如果又有新的事件生成，则继续循环
             if self.data.event_list:
-                self.event_start()
+                if not self.check_all_event():
+                    self.event_start()
+
+    def check_all_event(self):
+        """检查所有残留事件是否到期，只要有一个残留事件已经到期，直接返回False，激活递归。"""
+        for event in self.data.event_list:
+            # 获取事件类型对应的tick属性名
+            tick_attr = self.execute_tick_key_map.get(type(event), None)
+            if tick_attr is None:
+                """获取不到属性时，说明该event并不具备计划事件的需求，所以这种事件是必须在当前tick被清空的，直接返回False"""
+                return False
+            execute_tick = getattr(event, tick_attr, None)
+            if execute_tick is None:
+                raise AttributeError(f"{type(event)} 没有属性 {tick_attr}")
+            if execute_tick > self.tick:  # 严格大于当前tick才视为未到期
+                continue
+            else:
+                return False
+        return True
 
     def update_anomaly_bar_after_skill_event(self, event):
         """在Schedule阶段，处理完一个SkillEvent后，都要进行一次异常条更新。"""
@@ -388,6 +419,22 @@ class ScheduledEvent:
             raise ValueError(
                 f"[Schedule] target: {target} not found in char_obj_list, check the alloc."
             )
+
+    def quick_assist_event(self, event: QuickAssistEvent):
+        """用于处理快速支援类方法的函数！"""
+        if self.tick < event.execute_tick:
+            # 发现现在处理还太早，塞回去。
+            self.data.event_list.append(event)
+            return
+        event.execute_update(self.tick)
+
+    def preload_event(self, event: SchedulePreload):
+        """用于处理SchedulePreload事件的函数！"""
+        if self.tick < event.execute_tick:
+            # 发现现在处理还太早，塞回去。
+            self.data.event_list.append(event)
+            return
+        event.execute_myself()
 
 
 if __name__ == "__main__":

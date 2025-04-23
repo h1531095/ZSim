@@ -54,7 +54,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
         "special_resource": SpecialResourceValueHandler,
         "special_resource_type": SpecialResourceTypeHandler,
         "special_state": SpecialStateHandler,
-        "cinema": CinemaHandler,
+        "cinema": CinemaHandler
     }
 
     def check_myself(self, found_char_dict, game_state: dict, *args, **kwargs):

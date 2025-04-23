@@ -1,15 +1,25 @@
+# 耀嘉音开场E
+1311|action+=|1311_E_A|action.1311:first_action==True
+1331|action+=|1331_SNA_2|status.1331:on_field==False|attribute.1331:special_state→裙裾浮游==True
+
+# 柳硬等快支触发，不提前上场抢队。
+1221|action+=|wait|status.1221:assist_waiting_for_anwser==True
+1221|action+=|1221_BH_Aid|status.1221:quick_assist_available==True|status.enemy:is_shock==False
+1331|action+=|1331_BH_Aid|status.1331:quick_assist_available==True|status.enemy:is_corruption==False
+
 # 柳开场强化E
 1221|action+=|1221_E_EX_1|attribute.1221:energy>=40|action.1221:first_action==True
-# 丽娜开场摸一下（要不然感电延长的Buff挂不上）
-1211|action+=|1211_NA_1|action.1211:first_action==True
+
 
 # VVA测试
-1331|action+=|1331_E_EX|attribute.1331:energy>=60
+1331|action+=|1331_Q|status.enemy:is_corruption==False|attribute.1331:decibel==3000
+1331|action+=|1331_E_EX|attribute.1331:energy>=60|status.enemy:is_corruption==False
 
 # 强化E飘浮后，长按闪避回到开伞状态
-# 1331|action+=|1331_SNA_0|attribute.1331:special_state→裙裾浮游==True|action.1331:strict_linked_after==1331_E_EX
+# 1331|action+=|1331_SNA_0|attribute.1331:special_state→裙裾浮游==True|action.1331:strict_linked_after==1331_E_EX||status.enemy:is_corruption==False
 # 开伞状态下打SNA1
 1331|action+=|1331_SNA_1|attribute.1331:special_state→淑女仪态==True
+
 
 # 柳切换架势逻辑
 1221|action+=|1221_E_A|buff.1221:duration→Buff-角色-柳-架势-下弦<=120|action.1221:strict_linked_after==1221_NA_5
@@ -18,8 +28,6 @@
 1221|action+=|auto_NA|status.enemy:is_shock==False
 
 # 柳强化E释放逻辑
-# 强化E终结一击逻辑（0~1命），1直接接2
-1221|action+=|1221_E_EX_2|action.1221:strict_linked_after==1221_E_EX_1|attribute.1221:cinema<2
 # 强化E终结一击逻辑（2~5命），1穿刺达到2次上限后再接2
 1221|action+=|1221_E_EX_2|action.1221:strict_linked_after==1221_E_EX_1|attribute.1221:cinema>=2|attribute.1221:cinema<6|status.1221:lasting_node_tag==1221_E_EX_1|status.1221:repeat_times>1
 # 强化E终结一击逻辑（6命），1穿刺达到4次上限后再接2
@@ -28,6 +36,7 @@
 # 连击逻辑
 1221|action+=|1221_E_EX_1|attribute.1221:cinema>1|attribute.1221:energy>=40|action.1221:strict_linked_after==1221_E_EX_1|status.enemy:is_under_anomaly==True
 # 启动逻辑
+1221|action+=|1221_Q|attribute.1221:decibel==3000|status.enemy:is_under_anomaly==True
 1221|action+=|1221_E_EX_1|attribute.1221:energy>=50|status.enemy:is_under_anomaly==True
 
 # 手动释放SNA2——VVA的SNA_2大多会强制在技能后面自动释放，所以基本没有手动释放的时候。

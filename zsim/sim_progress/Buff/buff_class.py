@@ -133,6 +133,7 @@ class Buff:
                 ]  # 复杂退出逻辑
                 self.index = config_dict["BuffName"]  # buff的英文名,也是buff的索引
                 self.is_weapon = config_dict["is_weapon"]  # buff是否是武器特效
+                self.is_additional_ability = config_dict["is_additional_ability"]       # Buff是否是组队被动Buff
                 self.refinement = config_dict["refinement"]  # 武器特效的精炼等级
                 self.bufffrom = config_dict[
                     "from"
@@ -372,6 +373,12 @@ class Buff:
             self.last_update_tick = 0
             self.last_update_resource = 0
             self.record = None
+
+    @property
+    def durtation(self):
+        if not self.dy.active:
+            return 0
+        return self.dy.endticks - self.dy.startticks
 
     def __lookup_buff_effect(self, index: str) -> dict:
         """

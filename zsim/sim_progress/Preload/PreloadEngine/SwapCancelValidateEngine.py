@@ -69,13 +69,15 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         if char_stack is None:
             """角色当前没有正在发生的Node，有空"""
             return True
-        char_latest_node = char_stack.peek()
+        char_latest_node = char_stack.get_effective_node()
         # char_latest_active_node = char_stack.get_on_field_node(tick)
         # if char_latest_active_node is not None:
         #     print(char_latest_node.skill_tag, char_latest_active_node.skill_tag)
         if char_latest_node is None:
             """角色当前没有正在发生的Node，有空"""
             return True
+        # print([_stacknode.skill_tag for _stacknode in char_stack.stack])
+        # print(f'APL：{apl_skill_node.skill_tag, apl_skill_node.apl_priority}， 上个技能：{char_latest_node.skill_tag, char_latest_node.apl_priority, char_latest_node.end_tick}')
 
         """角色当前有一个正在发生的Node"""
         if char_latest_node.end_tick > tick:
@@ -107,12 +109,10 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                             return False
                         else:
                             """附加伤害additional_damage（类似于“白雷”）由于不需要占用角色，所以可以免于被挤掉的命运"""
-                            if (
-                                "additional_damage"
-                                not in obj.get_skill_info(
-                                    skill_tag=_tag, attr_info="labels"
-                                ).keys()
-                            ):
+                            skill_info = obj.get_skill_info(skill_tag=_tag, attr_info="labels")
+                            if skill_info is None:
+                                skill_info = {}
+                            if "additional_damage" not in skill_info.keys():
                                 """但若当前tick被force_add 添加的skill_tag只是个普通技能，那么就要执行顶替。"""
                                 self.data.preload_action_list_before_confirm.remove(
                                     _tuples
@@ -131,16 +131,25 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         if node_on_field is None:
             return True
 
+        if not isinstance(node_on_field, SkillNode):
+            raise TypeError
+
         """角色有空，当前场上虽然存在技能，但是技能并不需求前台释放，那么等同于当前角色可用。"""
         if not node_on_field.skill.on_field:
             return True
 
         """角色有空，当前前台技能是其他角色的，此时要针对切人CD和技能Tag进行检查"""
         if int(node_on_field.skill_tag.split("_")[0]) != cid:
+            '''当前前台技能本身就具有最高优先级，则不可切人。'''
+            if node_on_field.skill.do_immediately:
+                return False
+
             if tick - char_latest_node.end_tick < 60:
                 """查了一下时间，竟然是1秒内刚切下去的"""
                 if "Aid" not in skill_tag or "QTE" not in skill_tag:
                     """如果不是支援类和连携技这种无视切人CD的技能，那么此时角色是切不出来的"""
+                    return True
+                else:
                     return False
 
         """其他剩下的所有情况，都返回True"""

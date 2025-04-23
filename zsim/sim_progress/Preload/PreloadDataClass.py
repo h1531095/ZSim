@@ -1,3 +1,4 @@
+from sim_progress.data_struct import QuickAssistSystem
 from sim_progress.Preload import SkillNode
 from sim_progress.data_struct import NodeStack
 
@@ -21,7 +22,9 @@ class PreloadData:
         ] = []  # 当前tick需要执行preload的SkillTag列表，列表中的元素是(skill_tag, active_generation)，其中，active_generation指的是动作是否是主动生成。
         self.name_box: list[str] | None = None
         self.char_data = None
+        self.load_data = load_data
         self.load_mission_dict: dict = load_data.load_mission_dict
+        self.quick_assist_system = None
 
     @property
     def operating_now(self) -> int | None:
@@ -41,13 +44,18 @@ class PreloadData:
             self.personal_node_stack[char_cid] = NodeStack(length=3)
 
         if not self.personal_node_stack[char_cid].last_node_is_end(tick):
-            """若检测到当前stack中的最新node还未结束，但是SwapCancel还是放行了，那么就说明发生了node的顶替，
-            此时应该在抢在stack中被push新node之前，先更新loading_mission"""
-            self.force_change_action(node)
+            """若检测到当前stack中的最新node还未结束，但是SwapCancel还是放行了，那么就说明可能发生了node的顶替，
+            此时应该先排除是附加伤害的可能性，因为附加伤害是可以被swapcancel轻易放行的，但是并不具备打断的效果。
+            如果新来的node不是附加伤害，此时可以判断为强打断技能，再调用forcechange函数。"""
+            if not(node.skill.labels is not None and 'additional_damage' in node.skill.labels):
+                self.force_change_action(node)
 
         self.personal_node_stack[char_cid].push(node)
         if node.active_generation:
             self.latest_active_generation_node = node
+        if self.quick_assist_system is None:
+            self.quick_assist_system = QuickAssistSystem(self.char_data.char_obj_list)
+        self.quick_assist_system.update(tick, node, self.load_data.all_name_order_box)
 
     def check_myself_before_push_node(self):
         """Confirm阶段自检"""
@@ -108,4 +116,3 @@ class PreloadData:
                 mission_key_to_remove.append(mission_key)
         for key in mission_key_to_remove:
             self.load_mission_dict.pop(key)
-

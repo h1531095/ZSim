@@ -21,7 +21,8 @@ class ConfirmEngine(BasePreloadEngine):
     def run_myself(self, tick: int, **kwargs):
         """依次执行 Node构造、验证、内外部数据交互"""
         apl_skill_node: SkillNode | None = kwargs.get("apl_skill_node", None)
-        if apl_skill_node is None:
+        apl_skill_tag = kwargs.get("apl_skill_tag", None)
+        if apl_skill_node is None and apl_skill_tag != 'wait':
             raise ValueError("ConfirmEngine 并未获取到 APL Skill Node，请检查输入")
         for i in range(len(self.data.preload_action_list_before_confirm)):
             tuples = self.data.preload_action_list_before_confirm.pop()

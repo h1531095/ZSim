@@ -1,6 +1,7 @@
 import itertools
 from define import saved_char_config, BUFF_0_REPORT
-from sim_progress.Buff import Buff, JudgeTools
+from sim_progress.Buff import JudgeTools
+from sim_progress.Buff.buff_class import Buff
 from define import EXIST_FILE_PATH, JUDGE_FILE_PATH, CHARACTER_DATA_PATH
 import pandas as pd
 import copy
@@ -8,7 +9,7 @@ import copy
 
 class Buff0Manager:
     def __init__(self, name_box: list[str], judge_list_set: list[list[str]], weapon_dict: dict[str, list],
-                 cinema_dict: dict):
+                 cinema_dict: dict, char_obj_dict: dict):
         # 加载文件
         self.EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col="BuffName")
         self.JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col="BuffName")
@@ -18,6 +19,7 @@ class Buff0Manager:
         self.cinema_dict = cinema_dict
         self.char_name_box = name_box  # 角色名列表
         self.name_order_box = self.change_name_box()  # 角色名顺序字典
+        self.char_obj_dict = char_obj_dict
 
         # 设置初始值和数据预处理
         self.allbuff_list = self.EXIST_FILE.index.tolist()  # 将索引列转为列表
@@ -38,6 +40,7 @@ class Buff0Manager:
         self.__selector.select_buff_into_exist_buff_dict()
         self.__passively_updating_change()
         self.__process_label()
+        self.__process_additional_ability_data()
         if BUFF_0_REPORT:
             print(self)
 
@@ -79,6 +82,20 @@ class Buff0Manager:
                 self.__equip_set2_box.append(_equip_set2_c)
             else:
                 raise ValueError(f'无法解析的驱动盘装备策略！')
+
+    def __process_additional_ability_data(self):
+        """修改角色对象的组队被动激活参数"""
+        for _char_name, sub_exist_dict in self.exist_buff_dict.items():
+            if _char_name == "enemy":
+                continue
+            char_instance = self.char_obj_dict[_char_name]
+            for _buff_index, _buff_instance in sub_exist_dict.items():
+                if _buff_instance.ft.is_additional_ability and _char_name == _buff_instance.ft.bufffrom:
+                    char_instance.additional_abililty_active = True
+                    break
+            else:
+                char_instance.additional_abililty_active = False
+
 
     def change_name_box(self):
         """
@@ -295,3 +312,14 @@ class Buff0Manager:
                 selected_characters.append(equipment_carrier)
             for _name in selected_characters:
                 self.initiate_buff(buff_info_tuple, buff_name, _name, equipment_carrier)
+
+
+def change_name_box(name_box):
+    """
+    生成每个角色对应的namebox列表，以自己作为第0位角色
+    """
+    output_name_dict = {}
+    for i in range(len(name_box)):
+        new_name_box = name_box[i:] + name_box[:i]
+        output_name_dict[name_box[i]] = new_name_box + ["enemy"]
+    return output_name_dict

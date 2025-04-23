@@ -1,5 +1,4 @@
 import tqdm
-from sim_progress.Report import report_to_log
 from sim_progress import Load, Preload
 from sim_progress.data_struct import ActionStack
 
@@ -11,11 +10,7 @@ def SkillEventSplit(
     timenow,
     action_stack: ActionStack,
 ):
-    to_remove = []
-    for mission in Load_mission_dict.values():
-        if not isinstance(mission, Load.LoadingMission):
-            raise TypeError(f"{mission}并非LoadingMission类！")
-        mission.check_myself(timenow)
+    # 新增新的loading mission
     for i in range(len(preloaded_action_list)):
         skill = preloaded_action_list.pop()
         if not isinstance(skill, Preload.SkillNode):
@@ -29,18 +24,6 @@ def SkillEventSplit(
             name_dict[skill.skill_tag] = 1
         key = skill.skill_tag + f"[{name_dict[skill.skill_tag]}]"
         Load_mission_dict[key] = this_mission
-        for key, mission in Load_mission_dict.items():
-            if not isinstance(mission, Load.LoadingMission):
-                raise TypeError(f"{mission}并非LoadingMission类！")
-            if not mission.mission_active_state:
-                if key not in to_remove:
-                    to_remove.append(key)
-    for key in to_remove:
-        report_to_log(
-            f"[Skill LOAD]:{timenow}:{Load_mission_dict[key].mission_tag}已经结束,已从Load中移除",
-            level=2,
-        )
-        Load_mission_dict.pop(key)
     return Load_mission_dict
 
 

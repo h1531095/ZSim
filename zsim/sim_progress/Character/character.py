@@ -267,6 +267,8 @@ class Character:
         # 初始化武器基础属性    .\data\weapon.csv
         self._init_weapon_primitive(weapon, weapon_level)
 
+        self.additional_abililty_active: bool | None = None     # 角色是否激活组队被动，该参数将在Buff模块初始化完成后进行赋值
+
         # 角色技能列表，还没有写修改技能等级的接口
         self.statement = Character.Statement(self, crit_balancing=crit_balancing)
         self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
@@ -415,9 +417,11 @@ class Character:
     class Dynamic:
         """用于记录角色各种动态信息的类，主要和APL模块进行互动。"""
 
-        def __init__(self, char_instantce: "Character"):
+        def __init__(self, char_instantce: Character):
             self.character = char_instantce
             self.lasting_node = LastingNode(self.character)
+            from sim_progress.data_struct.QuickAssistSystem.QuickAssistManager import QuickAssistManager
+            self.quick_assist_manager = QuickAssistManager(self.character)
             self.on_field = False  # 角色是否在前台
 
         def reset(self):
@@ -807,39 +811,47 @@ class Character:
         skill_nodes = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
             # SP
-            if node.char_name == self.NAME:
-                sp_consume = node.skill.sp_consume
-                sp_threshold = node.skill.sp_threshold
-                sp_recovery = node.skill.sp_recovery
-                if self.sp < sp_threshold:
-                    print(
-                        f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树"
-                    )
-                sp_change = sp_recovery - sp_consume
-                self.update_sp(sp_change)
-            # Decibel
-            if self.NAME == node.char_name and node.skill_tag.split("_")[1] == "Q":
-                if self.decibel - 3000 <= -1e-5:
-                    print(
-                        f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树"
-                    )
-                self.decibel = 0
-            else:
-                # 计算喧响变化值
-                decibel_change = node.skill.self_fever_re
-                # 如果喧响变化值大于0，则更新喧响值
-                if decibel_change > 0:
-                    # 如果不是自身技能，倍率折半
-                    if node.char_name != self.NAME:
-                        decibel_change *= 0.5
-                    # 更新喧响值
-                    self.update_decibel(decibel_change)
+            self.update_single_node_sp(node)
         # SP recovery over time
+        self.update_single_node_sp_overtime(args, kwargs)
+
+    def update_single_node_sp_overtime(self, args, kwargs):
+        """处理单个skill_node的自然回能"""
         sp_regen_data = _sp_update_data_filter(*args, **kwargs)
         for mul in sp_regen_data:
             if mul.char_name == self.NAME:
                 sp_change_2 = mul.get_sp_regen() / 60  # 每秒回能转化为每帧回能
                 self.update_sp(sp_change_2)
+
+    def update_single_node_sp(self, node):
+        """处理单个skill_node的回能"""
+        if node.char_name == self.NAME:
+            sp_consume = node.skill.sp_consume
+            sp_threshold = node.skill.sp_threshold
+            sp_recovery = node.skill.sp_recovery
+            if self.sp < sp_threshold:
+                print(
+                    f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树"
+                )
+            sp_change = sp_recovery - sp_consume
+            self.update_sp(sp_change)
+        # Decibel
+        if self.NAME == node.char_name and node.skill_tag.split("_")[1] == "Q":
+            if self.decibel - 3000 <= -1e-5:
+                print(
+                    f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树"
+                )
+            self.decibel = 0
+        else:
+            # 计算喧响变化值
+            decibel_change = node.skill.self_fever_re
+            # 如果喧响变化值大于0，则更新喧响值
+            if decibel_change > 0:
+                # 如果不是自身技能，倍率折半
+                if node.char_name != self.NAME:
+                    decibel_change *= 0.5
+                # 更新喧响值
+                self.update_decibel(decibel_change)
 
     def update_sp(self, sp_value: int | float):
         """可全局强制更新能量的方法"""
@@ -873,6 +885,7 @@ class Character:
         self.decibel: float = 1000.0
         # 重置动态属性
         self.dynamic.reset()
+
 
 
 class LastingNode:
