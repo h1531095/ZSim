@@ -11,7 +11,7 @@ from run import go_parallel_subprocess, go_single_subprocess
 
 # --- 常量定义 ---
 # 模拟器配置相关
-RUN_MODES = ["单进程", "多进程"]
+RUN_MODES = ["普通模式（单进程）", "并行模式（多进程）"]
 ADJUST_CHAR_OPTIONS = ["1号", "2号", "3号"]
 SIMULATION_FUNCTIONS = [
     "属性收益曲线",
