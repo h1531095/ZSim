@@ -9,6 +9,7 @@ __pycache__
 logs
 mypy.ini
 pytest.ini
+result*
 /results/
 
 # 开发工具和环境文件

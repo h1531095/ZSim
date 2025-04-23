@@ -1,4 +1,3 @@
-import time
 from dataclasses import dataclass, field
 from sim_progress.Enemy import Enemy
 from define import saved_char_config
@@ -6,9 +5,9 @@ from pydantic import BaseModel
 from sim_progress import Buff
 from sim_progress.Character import Character, character_factory
 from sim_progress.data_struct import ActionStack
-
 import time
 from sim_progress.Buff.Buff0Manager import Buff0ManagerClass, change_name_box
+
 
 
 
@@ -21,7 +20,6 @@ class InitData:
         从配置文件中加载角色配置信息，并初始化相关数据结构。
         如果配置文件不存在或配置信息不完整，将抛出异常。
         """
-        self._init_fingerprint = time.time()
         config: dict = saved_char_config
         if not config:
             assert False, "No character init configuration found."

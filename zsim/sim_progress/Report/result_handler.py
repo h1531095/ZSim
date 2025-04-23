@@ -39,8 +39,8 @@ def report_dmg_result(
     result_queue.put(result_dict)
 
 
-async def async_result_writer(rid):
-    result_path = f"./results/{rid}/damage.csv"
+async def async_result_writer(result_id: str):
+    result_path = f"{result_id}/damage.csv"
     os.makedirs(os.path.dirname(result_path), exist_ok=True)
     new_file = not os.path.exists(result_path)
 

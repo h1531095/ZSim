@@ -15,8 +15,8 @@ def report_to_log(content: str | None = None, level=4) -> None:
         log_queue.put(content)
 
 
-async def async_log_writer(result_id):
-    report_file_path = f"./logs/{result_id}.log"
+async def async_log_writer(result_id: str):
+    report_file_path = f"./logs/{result_id}.log".replace("./results/", "")
     os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
     while True:
         try:

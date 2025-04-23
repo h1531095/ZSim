@@ -5,7 +5,7 @@ from lib_webui.constants import IDDuplicateError
 
 
 @st.fragment
-def _render_result_management_ui():
+def _result_manager():
     id_cache = get_all_results()
     options = list(id_cache.keys())[::-1]
     if not options:
@@ -68,9 +68,16 @@ def _render_result_management_ui():
 
 
 def page_data_analysis():
+    from lib_webui.process_parallel_data import (
+        judge_parallel_result,
+        process_parallel_result,
+    )
+    from lib_webui.process_dmg_result import show_dmg_result
+    from lib_webui.process_buff_result import show_buff_result
+
     st.title("ZZZ Simulator - 数据分析")
 
-    selected_key = _render_result_management_ui()
+    selected_key = _result_manager()
 
     if not st.toggle("开启数据分析"):
         st.stop()
@@ -80,13 +87,13 @@ def page_data_analysis():
         st.error("无法获取选定的结果键。")
         st.stop()
 
-    from lib_webui.process_dmg_result import process_dmg_result
-
-    process_dmg_result(selected_key)
-
-    from lib_webui.process_buff_result import process_buff_result
-
-    process_buff_result(selected_key)
+    if judge_parallel_result(selected_key):
+        st.write("这是一个并行模式（多进程）的结果。")
+        process_parallel_result(selected_key)
+    else:
+        st.write("这是一个普通模式（单进程）的结果。")
+        show_dmg_result(selected_key)
+        show_buff_result(selected_key)
 
 
 page_data_analysis()

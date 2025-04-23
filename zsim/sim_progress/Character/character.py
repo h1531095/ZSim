@@ -250,8 +250,6 @@ class Character:
 
         # 初始化角色基础属性    .\data\character.csv
         self._init_base_attribute(name)
-        # 初始化武器基础属性    .\data\weapon.csv
-        self._init_weapon_primitive(weapon, weapon_level)
         # fmt: off
         # 如果并行配置没有移除套装，就初始化套装效果和主副词条
         if parallel_config is not None:
@@ -266,6 +264,8 @@ class Character:
                                          equip_set2_a, equip_set2_b, equip_set2_c, equip_set4, equip_style, 
                                          scATK, scATK_percent, scAnomalyProficiency, scCRIT, 
                                          scCRIT_DMG, scDEF, scDEF_percent, scHP, scHP_percent, scPEN)
+        # 初始化武器基础属性    .\data\weapon.csv
+        self._init_weapon_primitive(weapon, weapon_level)
 
         self.additional_abililty_active: bool | None = None     # 角色是否激活组队被动，该参数将在Buff模块初始化完成后进行赋值
 
@@ -719,14 +719,91 @@ class Character:
         self.AM_percent += ANOMALY_MASTERY * SUB_STATS_MAPPING["ANOMALY_MASTERY"]
         self.sp_regen_percent += SP_REGEN * SUB_STATS_MAPPING["SP_REGEN"]
 
+    def hardset_sub_stats(
+        self,
+        scATK_percent: int | float = None,
+        scATK: int | float = None,
+        scHP_percent: int | float = None,
+        scHP: int | float = None,
+        scDEF_percent: int | float = None,
+        scDEF: int | float = None,
+        scAnomalyProficiency: int | float = None,
+        scPEN: int | float = None,
+        scCRIT: int | float = None,
+        scCRIT_DMG: int | float = None,
+        *,
+        DMG_BONUS: int | float = None,
+        PEN_RATIO: int | float = None,
+        ANOMALY_MASTERY: int | float = None,
+        SP_REGEN: int | float = None,
+    ):
+        """硬设置副词条，仅修改传入的参数对应的属性"""
+
+        if scATK_percent is not None:
+            self.ATK_percent = scATK_percent * SUB_STATS_MAPPING["scATK_percent"]
+        if scATK is not None:
+            self.ATK_numeric = scATK * SUB_STATS_MAPPING["scATK"]
+        if scHP_percent is not None:
+            self.HP_percent = scHP_percent * SUB_STATS_MAPPING["scHP_percent"]
+        if scHP is not None:
+            self.HP_numeric = scHP * SUB_STATS_MAPPING["scHP"]
+        if scDEF_percent is not None:
+            self.DEF_percent = scDEF_percent * SUB_STATS_MAPPING["scDEF_percent"]
+        if scDEF is not None:
+            self.DEF_numeric = scDEF * SUB_STATS_MAPPING["scDEF"]
+        if scAnomalyProficiency is not None:
+            self.AP_numeric = (
+                scAnomalyProficiency * SUB_STATS_MAPPING["scAnomalyProficiency"]
+            )
+        if scPEN is not None:
+            self.PEN_numeric = scPEN * SUB_STATS_MAPPING["scPEN"]
+        if self.crit_balancing:
+            if scCRIT is not None or scCRIT_DMG is not None:
+                current_score = self.baseCRIT_score
+                if scCRIT is not None:
+                    current_score += scCRIT * SUB_STATS_MAPPING["scCRIT"]
+                if scCRIT_DMG is not None:
+                    current_score += scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
+                self.baseCRIT_score = current_score
+        else:
+            if scCRIT is not None:
+                self.CRIT_rate_numeric = scCRIT * SUB_STATS_MAPPING["scCRIT"]
+            if scCRIT_DMG is not None:
+                self.CRIT_damage_numeric = scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
+
+        # Only for parallel
+        if DMG_BONUS is not None:
+            element_dmg_mapping = {
+                0: "PHY_DMG_bonus",
+                1: "FIRE_DMG_bonus",
+                2: "ICE_DMG_bonus",
+                3: "ELECTRIC_DMG_bonus",
+                4: "ETHER_DMG_bonus",
+                5: "ICE_DMG_bonus",  # 烈霜也是冰
+            }
+            setattr(
+                self,
+                element_dmg_mapping[self.element_type],
+                DMG_BONUS * SUB_STATS_MAPPING["DMG_BONUS"],
+            )
+
+        if PEN_RATIO is not None:
+            self.PEN_ratio = PEN_RATIO * SUB_STATS_MAPPING["PEN_RATIO"]
+        if ANOMALY_MASTERY is not None:
+            self.AM_percent = ANOMALY_MASTERY * SUB_STATS_MAPPING["ANOMALY_MASTERY"]
+        if SP_REGEN is not None:
+            self.sp_regen_percent = SP_REGEN * SUB_STATS_MAPPING["SP_REGEN"]
+
     def __init_parallel_config(self, parallel_config: "ParallelConfig"):
         ALLOW_SC_LIST: list[str] = SUB_STATS_MAPPING.keys()
         sc_name, sc_value = parallel_config.sc_name, parallel_config.sc_value
         if sc_name in ALLOW_SC_LIST:
             adjust_pair = {sc_name: sc_value}
         else:
-            raise ValueError(f"请输入正确的词条名称，{sc_name} 不存在")
-        self._init_sub_stats(**adjust_pair)
+            raise RuntimeError(
+                f"Parallel Config Segfault: sc_name: {sc_name} do not exist"
+            )
+        self.hardset_sub_stats(**adjust_pair)
 
     def update_sp_and_decibel(self, *args, **kwargs):
         """自然更新能量和喧响的方法"""

@@ -136,7 +136,7 @@ def main_loop(stop_tick: int = 6000, *, parallel_config: 'ParallelConfig' | None
                 load_data.name_dict,
                 tick,
                 load_data.action_stack,
-            )  # type: ignore
+            )
         Load.DamageEventJudge(
             tick,
             load_data.load_mission_dict,
@@ -144,7 +144,7 @@ def main_loop(stop_tick: int = 6000, *, parallel_config: 'ParallelConfig' | None
             schedule_data.event_list,
             char_data.char_obj_list,
             dynamic_buff_dict=global_stats.DYNAMIC_BUFF_DICT,
-        )  # type: ignore
+        )
         Buff.BuffLoadLoop(
             tick,
             load_data.load_mission_dict,
@@ -152,13 +152,13 @@ def main_loop(stop_tick: int = 6000, *, parallel_config: 'ParallelConfig' | None
             init_data.name_box,
             load_data.LOADING_BUFF_DICT,
             load_data.all_name_order_box,
-        )  # type: ignore
+        )
         Buff.buff_add(
             tick,
             load_data.LOADING_BUFF_DICT,
             global_stats.DYNAMIC_BUFF_DICT,
             schedule_data.enemy,
-        )  # type: ignore
+        )
         # Load.DamageEventJudge(tick, load_data.load_mission_dict, schedule_data.enemy, schedule_data.event_list, char_data.char_obj_list)
         # ScheduledEvent
         scheduled = ScE.ScheduledEvent(
@@ -167,10 +167,10 @@ def main_loop(stop_tick: int = 6000, *, parallel_config: 'ParallelConfig' | None
             tick,
             load_data.exist_buff_dict,
             load_data.action_stack,
-        )  # type: ignore
+        )
         scheduled.event_start()
         tick += 1
         print(f"\r{tick} ", end="")
 
-        if tick % 100 == 0 and tick != 0:
+        if tick % 500 == 0 and tick != 0:
             gc.collect()

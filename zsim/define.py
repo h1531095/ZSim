@@ -9,7 +9,9 @@ ElementType = Literal[0, 1, 2, 3, 4, 5]
 Number = int | float
 
 INVALID_ELEMENT_ERROR = "Invalid element type"
-ID_CACHE_JSON = "results/id_cache.json"
+NORMAL_MODE_ID_JSON = "results/id_cache.json"
+
+results_dir = "results/"
 
 # 加载角色配置
 data_dir = Path("./zsim/data")
