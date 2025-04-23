@@ -3,7 +3,7 @@
         "enabled": true,
         "level": 4
     },
-    "stop_tick": 6000,
+    "stop_tick": 3000,
     "watchdog": {
         "enabled": false,
         "level": 4
@@ -76,20 +76,13 @@
             "enabled": true,
             "sc_range": [
                 0,
-                1
+                30
             ],
             "sc_list": [
-                "\u653b\u51fb\u529b%",
-                "\u5f02\u5e38\u7cbe\u901a",
-                "\u5f02\u5e38\u638c\u63a7",
-                "\u7a7f\u900f\u7387",
-                "\u5c5e\u6027\u4f24\u5bb3\u52a0\u6210"
+                "\u5f02\u5e38\u7cbe\u901a"
             ],
             "remove_equip_list": [
-                "\u653b\u51fb\u529b%",
-                "\u5f02\u5e38\u7cbe\u901a",
-                "\u7a7f\u900f\u7387",
-                "\u5c5e\u6027\u4f24\u5bb3\u52a0\u6210"
+                "\u5f02\u5e38\u7cbe\u901a"
             ]
         },
         "adjust_weapon": {

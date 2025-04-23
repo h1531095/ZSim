@@ -770,15 +770,17 @@ class Character:
         # Only for parallel
         if DMG_BONUS is not None:
             element_dmg_mapping = {
-                0: self.PHY_DMG_bonus,
-                1: self.FIRE_DMG_bonus,
-                2: self.ICE_DMG_bonus,
-                3: self.ELECTRIC_DMG_bonus,
-                4: self.ETHER_DMG_bonus,
-                5: self.ICE_DMG_bonus,  # 烈霜也是冰
+                0: "PHY_DMG_bonus",
+                1: "FIRE_DMG_bonus",
+                2: "ICE_DMG_bonus",
+                3: "ELECTRIC_DMG_bonus",
+                4: "ETHER_DMG_bonus",
+                5: "ICE_DMG_bonus",  # 烈霜也是冰
             }
-            element_dmg_mapping[self.element_type] = (
-                DMG_BONUS * SUB_STATS_MAPPING["DMG_BONUS"]
+            setattr(
+                self,
+                element_dmg_mapping[self.element_type],
+                DMG_BONUS * SUB_STATS_MAPPING["DMG_BONUS"],
             )
 
         if PEN_RATIO is not None:

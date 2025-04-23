@@ -1,15 +1,17 @@
+import json
+import os
 from typing import Any
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from sim_progress.Character.skill_class import lookup_name_or_cid
 from define import ANOMALY_MAPPING
+from sim_progress.Character.skill_class import lookup_name_or_cid
 
 from .constants import element_mapping, results_dir
 
 
-def _load_dmg_data(rid: int) -> pd.DataFrame | None:
+def _load_dmg_data(rid: int | str) -> pd.DataFrame | None:
     """加载指定运行ID的伤害数据CSV文件。
 
     Args:
@@ -37,7 +39,6 @@ def prepare_line_chart_data(dmg_result_df: pd.DataFrame) -> dict[str, pd.DataFra
             - 'line_chart_df': 包含时间、伤害、DPS、失衡值、失衡效率的DataFrame。
     """
     processed_df = dmg_result_df.copy()
-
     # 计算DPS
     processed_df["dps"] = (
         processed_df["dmg_expect"].cumsum() / processed_df["tick"] * 60
@@ -420,6 +421,8 @@ def draw_char_timeline(gantt_df: pd.DataFrame | None) -> None:
             st.warning("没有找到任何连续的状态数据")
 
 
+
+
 def calculate_and_save_anomaly_attribution(
     rid: int, char_dmg_df: pd.DataFrame, char_element_df: pd.DataFrame
 ) -> None:
@@ -430,6 +433,10 @@ def calculate_and_save_anomaly_attribution(
         char_dmg_df (pd.DataFrame): 角色直接伤害数据。
         char_element_df (pd.DataFrame): 角色元素积蓄数据。
     """
+    output_path = f"{results_dir}/{rid}/damage_attribution.json"
+    # 检查文件是否已存在
+    if os.path.exists(output_path):
+        return
     # 计算每种元素类型的异常总伤害
     anomaly_name_list = list(ANOMALY_MAPPING.values()) + ["极性紊乱", "异放"]
     anomaly_damage_totals = {element: 0 for element in anomaly_name_list}
@@ -494,40 +501,61 @@ def calculate_and_save_anomaly_attribution(
                     if key == "薇薇安":
                         attribution_data[key]["anomaly_damage"] += total_anomaly_damage
 
-    # 创建DataFrame并保存为JSON
-    attribution_df = pd.DataFrame([attribution_data])
-    output_path = f"{results_dir}/{rid}/damage_attribution.json"
-    attribution_df.to_json(output_path, orient="records", force_ascii=False, indent=4)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(attribution_data, f, ensure_ascii=False, indent=4)
 
 
-def process_dmg_result(rid: int) -> None:
-    """处理并显示指定运行ID的伤害分析结果。
+def prepare_dmg_data_and_cache(rid: int | str) -> dict[str, pd.DataFrame] | None:
+    """准备并缓存伤害分析所需的数据。
 
     Args:
         rid (int): 运行ID。
+
+    Returns:
+        Optional[dict[str, pd.DataFrame]]: 包含预处理后的数据的字典，
+        如果没有数据则返回None。
     """
     dmg_result_df = _load_dmg_data(rid)
     if dmg_result_df is None:
-        return
-
-    with st.expander("原始数据："):
-        st.dataframe(dmg_result_df)
-
-    # 准备并绘制折线图
-    line_chart_data = prepare_line_chart_data(dmg_result_df)
-    draw_line_chart(line_chart_data)
-
-    # 按UUID排序数据
+        return None
     uuid_df = sort_df_by_UUID(dmg_result_df)
-    with st.expander("按UUID排序后的数据："):
-        st.dataframe(uuid_df)
-
-    # 准备并绘制角色分布图
     char_chart_data = prepare_char_chart_data(uuid_df)
     # st.write(char_chart_data)
     calculate_and_save_anomaly_attribution(
         rid, char_chart_data["char_dmg_df"], char_chart_data["char_element_df"]
     )
+    return {
+        "dmg_result_df": dmg_result_df,
+        "char_dmg_df": char_chart_data["char_dmg_df"],
+        "uuid_df": uuid_df,
+        "char_chart_data": char_chart_data,
+    }
+
+
+def show_dmg_result(rid: int | str) -> None:
+    """处理并显示指定运行ID的伤害分析结果。
+
+    Args:
+        rid (int): 运行ID。
+    """
+    prepared_data_dict = prepare_dmg_data_and_cache(rid)
+    uuid_df = prepared_data_dict["uuid_df"]
+    char_chart_data = prepared_data_dict["char_chart_data"]
+    dmg_result_df = prepared_data_dict["dmg_result_df"]
+    
+    if dmg_result_df is None:
+        return
+
+    with st.expander("原始数据："):
+        st.dataframe(dmg_result_df)
+    
+    with st.expander("按UUID排序后的数据："):
+        st.dataframe(uuid_df)
+    # 准备并绘制折线图
+    line_chart_data = prepare_line_chart_data(dmg_result_df)
+    draw_line_chart(line_chart_data)
+
+    # 准备并绘制角色分布图
     draw_char_chart(char_chart_data)
 
     # 准备并绘制时间线图
