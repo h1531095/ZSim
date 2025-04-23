@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from sim_progress.Character.skill_class import lookup_name_or_cid
+from define import ANOMALY_MAPPING
 
 from .constants import element_mapping, results_dir
 
@@ -32,7 +33,7 @@ def prepare_line_chart_data(dmg_result_df: pd.DataFrame) -> dict[str, pd.DataFra
         dmg_result_df (pd.DataFrame): 原始伤害数据。
 
     Returns:
-        Dict[str, Any]: 包含处理后数据的字典，用于绘制折线图。
+        dict[str, Any]: 包含处理后数据的字典，用于绘制折线图。
             - 'line_chart_df': 包含时间、伤害、DPS、失衡值、失衡效率的DataFrame。
     """
     processed_df = dmg_result_df.copy()
@@ -130,7 +131,14 @@ def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         ValueError: 如果DataFrame缺少必要的列。
     """
-    required_columns = ["skill_tag", "dmg_expect", "stun", "buildup", "UUID"]
+    required_columns = [
+        "skill_tag",
+        "dmg_expect",
+        "stun",
+        "buildup",
+        "UUID",
+        "is_anomaly",
+    ]
     for col in required_columns:
         if col not in dmg_result_df.columns:
             raise ValueError(f"DataFrame 中缺少必要的列: {col}")
@@ -146,7 +154,7 @@ def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
 
         skill_tags = same_UUID_rows["skill_tag"].dropna()
         skill_tag = skill_tags.iloc[0] if not skill_tags.empty else None
-
+        is_anomaly = same_UUID_rows["is_anomaly"].iloc[0]
         element_types = same_UUID_rows["element_type"].dropna()
         element_type = element_types.iloc[0] if not element_types.empty else None
 
@@ -158,7 +166,7 @@ def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
                 name, cid_lookup = lookup_name_or_cid(cid=cid_str)
                 cid = cid_lookup
             except ValueError:
-                name = skill_tag # 如果查找失败，使用skill_tag作为名字
+                name = skill_tag  # 如果查找失败，使用skill_tag作为名字
                 cid = None
 
         result_data.append(
@@ -166,6 +174,7 @@ def sort_df_by_UUID(dmg_result_df: pd.DataFrame) -> pd.DataFrame:
                 "UUID": UUID,
                 "name": name,
                 "element_type": element_type,
+                "is_anomaly": is_anomaly,
                 "cid": cid,
                 "skill_tag": skill_tag,
                 "dmg_expect_sum": dmg_expect_sum,
@@ -190,22 +199,33 @@ def prepare_char_chart_data(uuid_df: pd.DataFrame) -> dict[str, pd.DataFrame]:
             - 'char_skill_dmg_df': 按角色和技能标签分组的伤害总和。
             - 'char_element_df': 按角色和元素类型分组的积蓄总和。
     """
-    # 角色伤害占比
-    char_dmg_df = uuid_df[uuid_df["dmg_expect_sum"] > 0].groupby("name")["dmg_expect_sum"].sum().reset_index()
+    # 各伤害来源占比
+    char_dmg_df = (
+        uuid_df[uuid_df["dmg_expect_sum"] > 0]
+        .groupby(["name", "is_anomaly"])["dmg_expect_sum"]
+        .sum()
+        .reset_index()
+    )
 
     # 角色失衡占比
-    char_stun_df = uuid_df[uuid_df["stun_sum"] > 0].groupby("name")["stun_sum"].sum().reset_index()
+    char_stun_df = (
+        uuid_df[uuid_df["stun_sum"] > 0].groupby("name")["stun_sum"].sum().reset_index()
+    )
 
     # 角色技能输出占比
-    filtered_skill_df = uuid_df[uuid_df['cid'].notna()]
+    filtered_skill_df = uuid_df[uuid_df["cid"].notna()]
     char_skill_dmg_df = (
-        filtered_skill_df.groupby(["name", "skill_tag"])["dmg_expect_sum"].sum().reset_index()
+        filtered_skill_df.groupby(["name", "skill_tag"])["dmg_expect_sum"]
+        .sum()
+        .reset_index()
     )
 
     # 角色属性积蓄占比
     filtered_buildup_df = uuid_df[uuid_df["buildup_sum"] > 0]
     char_element_df = (
-        filtered_buildup_df.groupby(["name", "element_type"])["buildup_sum"].sum().reset_index()
+        filtered_buildup_df.groupby(["name", "element_type"])["buildup_sum"]
+        .sum()
+        .reset_index()
     )
 
     return {
@@ -265,12 +285,15 @@ def draw_char_chart(chart_data: dict[str, pd.DataFrame]) -> None:
             col_index = 0
             for name, group in char_skill_dmg_df.groupby("name"):
                 with cols2[col_index]:
-                    st.caption(f"{name}") # 使用caption代替subheader以节省空间
+                    st.caption(f"{name}")  # 使用caption代替subheader以节省空间
                     fig_skill_pie = px.pie(
                         group,
                         names="skill_tag",
                         values="dmg_expect_sum",
-                        labels={"skill_tag": "技能标签", "dmg_expect_sum": "期望伤害总和"},
+                        labels={
+                            "skill_tag": "技能标签",
+                            "dmg_expect_sum": "期望伤害总和",
+                        },
                     )
                     st.plotly_chart(fig_skill_pie)
                 col_index += 1
@@ -285,9 +308,9 @@ def draw_char_chart(chart_data: dict[str, pd.DataFrame]) -> None:
             col_index = 0
             for element in unique_elements:
                 element_df = char_element_df[char_element_df["element_type"] == element]
-                element_name = element_mapping.get(element, element) # 获取元素中文名
+                element_name = element_mapping.get(element, element)  # 获取元素中文名
                 with cols3[col_index]:
-                    st.caption(f"{element_name}") # 使用caption代替subheader
+                    st.caption(f"{element_name}")  # 使用caption代替subheader
                     fig_buildup_pie = px.pie(
                         element_df,
                         names="name",
@@ -300,7 +323,9 @@ def draw_char_chart(chart_data: dict[str, pd.DataFrame]) -> None:
             st.info("没有属性积蓄数据可供显示")
 
 
-def _find_consecutive_true_ranges(df: pd.DataFrame, column: str) -> list[tuple[int, int]]:
+def _find_consecutive_true_ranges(
+    df: pd.DataFrame, column: str
+) -> list[tuple[int, int]]:
     """查找DataFrame列中连续为True的范围。
 
     Args:
@@ -338,7 +363,14 @@ def prepare_timeline_data(dmg_result_df: pd.DataFrame) -> pd.DataFrame | None:
         Optional[pd.DataFrame]: 用于绘制Gantt图的DataFrame，如果缺少列或无数据则返回None。
     """
     required_columns = [
-        "冻结", "霜寒", "畏缩", "感电", "灼烧", "侵蚀", "烈霜霜寒", "tick",
+        "冻结",
+        "霜寒",
+        "畏缩",
+        "感电",
+        "灼烧",
+        "侵蚀",
+        "烈霜霜寒",
+        "tick",
     ]
     missing_cols = [col for col in required_columns if col not in dmg_result_df.columns]
     if missing_cols:
@@ -357,7 +389,9 @@ def prepare_timeline_data(dmg_result_df: pd.DataFrame) -> pd.DataFrame | None:
         return None
 
     gantt_df = pd.DataFrame(gantt_data)
-    gantt_df["Duration"] = gantt_df["Finish"] - gantt_df["Start"] + 1 # 持续时间包含首尾
+    gantt_df["Duration"] = (
+        gantt_df["Finish"] - gantt_df["Start"] + 1
+    )  # 持续时间包含首尾
     return gantt_df
 
 
@@ -386,6 +420,86 @@ def draw_char_timeline(gantt_df: pd.DataFrame | None) -> None:
             st.warning("没有找到任何连续的状态数据")
 
 
+def calculate_and_save_anomaly_attribution(
+    rid: int, char_dmg_df: pd.DataFrame, char_element_df: pd.DataFrame
+) -> None:
+    """计算并保存异常伤害归因。
+
+    Args:
+        rid (int): 运行ID。
+        char_dmg_df (pd.DataFrame): 角色直接伤害数据。
+        char_element_df (pd.DataFrame): 角色元素积蓄数据。
+    """
+    # 计算每种元素类型的异常总伤害
+    anomaly_name_list = list(ANOMALY_MAPPING.values()) + ["极性紊乱", "异放"]
+    anomaly_damage_totals = {element: 0 for element in anomaly_name_list}
+    for anomaly_name in anomaly_name_list:
+        if anomaly_name in char_dmg_df["name"].values:
+            for _, row in char_dmg_df.iterrows():
+                if anomaly_name in row["name"]:
+                    anomaly_damage_totals[anomaly_name] += row["dmg_expect_sum"]
+
+    # 初始化一个包含所有角色的字典
+    all_characters = set(char_dmg_df[~char_dmg_df["is_anomaly"]]["name"]).union(
+        set(char_element_df["name"])
+    )
+
+    # 初始化角色伤害数据
+    attribution_data: dict[str, str] = {
+        name: {"direct_damage": 0, "anomaly_damage": 0} for name in all_characters
+    }
+
+    # 处理只打出直伤的角色
+    for _, row in char_dmg_df.iterrows():
+        name = row["name"]
+        is_anomaly = row["is_anomaly"]
+        direct_damage = row["dmg_expect_sum"]
+
+        # 更新角色的直接伤害
+        if not is_anomaly:
+            attribution_data[name]["direct_damage"] = direct_damage
+
+    # 分配异常伤害到角色
+    for _, row in char_element_df.iterrows():
+        name = row["name"]
+        element_type = row["element_type"]
+        buildup_sum = row["buildup_sum"]
+        anomaly_name = ANOMALY_MAPPING[element_type]
+        total_anomaly_damage = anomaly_damage_totals[anomaly_name]
+
+        # 计算角色的异常伤害归因
+        if total_anomaly_damage > 0:
+            anomaly_damage_attribution = (
+                buildup_sum
+                / char_element_df[char_element_df["element_type"] == element_type][
+                    "buildup_sum"
+                ].sum()
+            ) * total_anomaly_damage
+        else:
+            anomaly_damage_attribution = 0
+
+        # 更新角色的异常伤害
+        attribution_data[name]["anomaly_damage"] += anomaly_damage_attribution
+
+    # 处理极性紊乱和异放
+    for anomaly_name in ["极性紊乱", "异放"]:
+        total_anomaly_damage = anomaly_damage_totals.get(anomaly_name, 0)
+        if total_anomaly_damage > 0:
+            if anomaly_name == "极性紊乱":
+                for key in attribution_data:
+                    if key == "柳":
+                        attribution_data[key]["anomaly_damage"] += total_anomaly_damage
+            if anomaly_name == "异放":
+                for key in attribution_data:
+                    if key == "薇薇安":
+                        attribution_data[key]["anomaly_damage"] += total_anomaly_damage
+
+    # 创建DataFrame并保存为JSON
+    attribution_df = pd.DataFrame([attribution_data])
+    output_path = f"{results_dir}/{rid}/damage_attribution.json"
+    attribution_df.to_json(output_path, orient="records", force_ascii=False, indent=4)
+
+
 def process_dmg_result(rid: int) -> None:
     """处理并显示指定运行ID的伤害分析结果。
 
@@ -410,10 +524,12 @@ def process_dmg_result(rid: int) -> None:
 
     # 准备并绘制角色分布图
     char_chart_data = prepare_char_chart_data(uuid_df)
+    # st.write(char_chart_data)
+    calculate_and_save_anomaly_attribution(
+        rid, char_chart_data["char_dmg_df"], char_chart_data["char_element_df"]
+    )
     draw_char_chart(char_chart_data)
 
     # 准备并绘制时间线图
     timeline_data = prepare_timeline_data(dmg_result_df)
     draw_char_timeline(timeline_data)
-
-# 注意：process_buff_result 函数不在此文件中，其签名不受影响。
