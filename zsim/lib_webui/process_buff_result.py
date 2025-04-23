@@ -32,12 +32,12 @@ def _prepare_buff_timeline_data(df: pd.DataFrame) -> list[dict[str, Any]]:
         start_tick: int | None = None
         current_value: Any = None
 
-        # 遍历每个时间点
+        # 按行遍历每个tick
         for index, row in df.iterrows():
             tick = row["time_tick"]
             value = row[buff_name]
 
-            # 检查值是否为 NaN 或 None
+            # 检查值是否为 NaN 或 None，用作判断
             is_nan_or_none = pd.isna(value)
 
             if start_tick is None:  # 当前没有记录BUFF段
