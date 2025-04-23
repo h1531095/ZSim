@@ -226,4 +226,3 @@ def process_buff_result(rid: int) -> None:
     elif all_buff_data == {}:
         # 明确处理空字典的情况（无CSV文件但处理流程正常）
         st.info("没有可用于绘制图表的BUFF数据。")
-    # all_buff_data is None 的情况已在前面处理并返回
