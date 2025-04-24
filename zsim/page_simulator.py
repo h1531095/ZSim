@@ -1,6 +1,7 @@
 import concurrent.futures
 import json
 import os
+from typing import Literal
 import uuid
 
 import psutil
@@ -11,7 +12,7 @@ from run import go_parallel_subprocess, go_single_subprocess
 
 # --- 常量定义 ---
 # 模拟器配置相关
-RUN_MODES = ["普通模式（单进程）", "并行模式（多进程）"]
+RUN_MODES: list[Literal["普通模式（单进程）", "并行模式（多进程）"]] = ["普通模式（单进程）", "并行模式（多进程）"]
 ADJUST_CHAR_OPTIONS = ["1号", "2号", "3号"]
 SIMULATION_FUNCTIONS = [
     "属性收益曲线",
@@ -192,32 +193,41 @@ def page_simulator():
 
                 if st.button("保存配置"):
                     mode_bool = True if mode == RUN_MODES[1] else False  # 多进程
-                    with open(CONFIG_PATH, "r+", encoding="utf-8") as f:
-                        config = json.load(f)
-                        config["parallel_mode"]["enabled"] = mode_bool
-                        config["parallel_mode"]["adjust_char"] = int(
-                            adjust_char.split("号")[0]
-                        )
-                        if selected_func == SIMULATION_FUNCTIONS[0]:  # 属性收益曲线
-                            config["parallel_mode"]["adjust_sc"] = {
-                                "enabled": True,
-                                "sc_range": sc_range,
-                                "sc_list": sc_list,
-                                "remove_equip_list": remove_equip_list,
-                            }
-                        else:
-                            config["parallel_mode"]["adjust_sc"] = {
+                    if mode_bool:
+                        with open(CONFIG_PATH, "r+", encoding="utf-8") as f:
+                            config = json.load(f)
+                            config["parallel_mode"]["enabled"] = mode_bool
+                            config["parallel_mode"]["adjust_char"] = int(
+                                adjust_char.split("号")[0]
+                            )
+                            if selected_func == SIMULATION_FUNCTIONS[0]:  # 属性收益曲线
+                                config["parallel_mode"]["adjust_sc"] = {
+                                    "enabled": True,
+                                    "sc_range": sc_range,
+                                    "sc_list": sc_list,
+                                    "remove_equip_list": remove_equip_list,
+                                }
+                            else:
+                                config["parallel_mode"]["adjust_sc"] = {
+                                    "enabled": False,
+                                    "sc_range": list(DEFAULT_SC_RANGE),
+                                    "sc_list": DEFAULT_SC_LIST,
+                                }
+                            config["parallel_mode"]["adjust_weapon"] = {
                                 "enabled": False,
-                                "sc_range": list(DEFAULT_SC_RANGE),
-                                "sc_list": DEFAULT_SC_LIST,
+                                "weapon_list": DEFAULT_WEAPON_LIST,
                             }
-                        config["parallel_mode"]["adjust_weapon"] = {
-                            "enabled": False,
-                            "weapon_list": DEFAULT_WEAPON_LIST,
-                        }
-                        f.seek(0)
-                        json.dump(config, f, indent=4)
-                        f.truncate()
+                            f.seek(0)
+                            json.dump(config, f, indent=4)
+                            f.truncate()
+                    else:
+                        # 单进程模式
+                        with open(CONFIG_PATH, "r+", encoding="utf-8") as f:
+                            config = json.load(f)
+                            config["parallel_mode"]["enabled"] = mode_bool
+                            f.seek(0)
+                            json.dump(config, f, indent=4)
+                            f.truncate()
                     st.rerun(scope="fragment")
 
             if st.button(
