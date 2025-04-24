@@ -60,7 +60,7 @@ async def _process_sub_directory(sub_rid: str) -> None:
     """
     # prepare_dmg_data_and_cache 不是异步函数，使用 to_thread
     await asyncio.to_thread(prepare_dmg_data_and_cache, sub_rid)
-    await prepare_buff_data_and_cache(sub_rid)
+    # await prepare_buff_data_and_cache(sub_rid)
 
 
 async def prepare_parallel_data_and_cache(rid: int | str) -> None:
@@ -70,6 +70,24 @@ async def prepare_parallel_data_and_cache(rid: int | str) -> None:
         rid (int | str): 运行ID。
     """
     result_dir = os.path.join(results_dir, str(rid))
+    parallel_config_path = os.path.join(result_dir, ".parallel_config.json")
+    if not os.path.exists(parallel_config_path):
+        st.error(f"并行配置文件 {parallel_config_path} 不存在！")
+        return
+
+    try:
+        with open(parallel_config_path, "r", encoding="utf-8") as f:
+            parallel_config: dict = json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        st.error(f"读取或解析并行配置文件 {parallel_config_path} 失败: {e}")
+        return
+
+    if parallel_config.get("adjust_sc", {}).get("enabled", False):
+        merged_sc_file_path = os.path.join(result_dir, "merged_sc_data.json")
+        if os.path.exists(merged_sc_file_path):
+            return
+    
+    
     tasks = []
 
     for item in os.listdir(result_dir):
@@ -95,16 +113,9 @@ def merge_parallel_dmg_data(rid: int | str) -> None:
     """
     result_dir = os.path.join(results_dir, str(rid))
     parallel_config_path = os.path.join(result_dir, ".parallel_config.json")
-    if not os.path.exists(parallel_config_path):
-        st.error(f"并行配置文件 {parallel_config_path} 不存在！")
-        return
 
-    try:
-        with open(parallel_config_path, "r", encoding="utf-8") as f:
-            parallel_config: dict = json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        st.error(f"读取或解析并行配置文件 {parallel_config_path} 失败: {e}")
-        return
+    with open(parallel_config_path, "r", encoding="utf-8") as f:
+        parallel_config: dict = json.load(f)
 
     if parallel_config.get("adjust_sc", {}).get("enabled", False):
         # 属性收益曲线功能
@@ -114,9 +125,7 @@ def merge_parallel_dmg_data(rid: int | str) -> None:
                 sc_merged_data = json.load(f)
         else:
             try:
-                st.info(
-                    f"首次尝试从 {merged_sc_file_path} 读取属性收益曲线数据，请稍等..."
-                )
+                st.info("首次处理读取属性收益曲线数据，请稍等...")
                 sc_merged_data = asyncio.run(merge_parallel_sc_data(rid))
                 st.success("属性收益曲线数据合并完成！")
                 # 将合并后的数据保存到 JSON 文件
@@ -137,26 +146,22 @@ def merge_parallel_dmg_data(rid: int | str) -> None:
                 has_data = False  # 标记是否有数据添加到图表中
 
                 for sc_name, sc_values_results in char_data.items():
-                    # 确保键是数值类型并排序
-                    try:
-                        sorted_items = sorted(
-                            sc_values_results.items(), key=lambda item: float(item[0])
-                        )
-                    except ValueError:
-                        # 如果转换失败（例如键不是数字字符串），按原始键排序
-                        sorted_items = sorted(sc_values_results.items())
-
-                    # 使用排序后的原始数据
-                    if not sorted_items:
+                    # sc_values_results 的结构现在是 {sc_value: {"result": float, "rate": float | None}}
+                    # 数据在 merge_parallel_sc_data 中已经按 sc_value 排序
+                    if not sc_values_results:
                         st.warning(
                             f"角色 '{char_name}' 的词条 '{sc_name}' 没有数据，跳过绘制。"
                         )
                         continue
 
-                    x_values_raw = [item[0] for item in sorted_items]
-                    y_values_raw = [float(item[1]) for item in sorted_items]
+                    # 提取 x 值 (词条值) 和 y 值 (收益率)
+                    x_values_raw = list(sc_values_results.keys())
+                    # 提取预计算的收益率，跳过第一个点（收益率通常为None）
+                    y_values_rate = [
+                        data.get("rate") for data in sc_values_results.values()
+                    ]
 
-                    # 检查 x_values_raw 是否包含非数值类型，以防万一
+                    # 尝试将 x 值转换为浮点数
                     try:
                         x_values = [float(x) for x in x_values_raw]
                     except ValueError:
@@ -165,40 +170,52 @@ def merge_parallel_dmg_data(rid: int | str) -> None:
                         )
                         continue
 
-                    if not x_values or not y_values_raw or len(x_values) < 1:
+                    # 确保有足够的数据点来绘制收益率（至少需要两个原始点才能计算一个收益率点）
+                    if len(x_values) < 2:
                         st.warning(
-                            f"角色 '{char_name}' 的词条 '{sc_name}' 数据不足，无法计算收益率或绘制图表。"
+                            f"角色 '{char_name}' 的词条 '{sc_name}' 数据点不足 (<2)，无法绘制收益率曲线。"
                         )
                         continue
 
-                    # 计算收益率
-                    y_values_rate = [None] * len(y_values_raw)  # 初始化为 None
-                    if len(y_values_raw) > 0:
-                        for i in range(1, len(y_values_raw)):
-                            if y_values_raw[i - 1] != 0:
-                                y_values_rate[i] = (
-                                    y_values_raw[i] / y_values_raw[i - 1]
-                                ) - 1
-                            else:
-                                # 如果前一个值为0，则无法计算比率，设为 None
-                                y_values_rate[i] = None
+                    # 过滤掉第一个点的 x 值和 y 值（因为第一个点没有收益率）
+                    # 同时处理 y_values_rate 中可能存在的 None 值
+                    plot_x_values = []
+                    plot_y_values = []
+                    for i in range(1, len(x_values)):
+                        if y_values_rate[i] is not None:
+                            plot_x_values.append(x_values[i])
+                            plot_y_values.append(y_values_rate[i])
+
+                    if not plot_x_values:
+                        st.warning(
+                            f"角色 '{char_name}' 的词条 '{sc_name}' 没有有效的收益率数据点，跳过绘制。"
+                        )
+                        continue
 
                     fig.add_trace(
                         go.Scatter(
-                            x=x_values,
-                            y=y_values_rate,
+                            x=plot_x_values,  # 使用过滤后的 x 值
+                            y=plot_y_values,  # 使用过滤后的 y 值 (收益率)
                             mode="lines+markers",
-                            name=reversed_stats_trans_mapping[sc_name],
-                            connectgaps=False,
+                            name=reversed_stats_trans_mapping.get(
+                                sc_name, sc_name
+                            ),  # 使用 .get 提供默认值
+                            connectgaps=False,  # 不连接 None 值造成的断点
                         )
                     )
                     has_data = True
 
                 if has_data:
-                    # 计算整数刻度 (基于原始 x_values)
+                    # 计算整数刻度 (基于原始的所有 x_values)
                     try:
-                        min_x = min(x for x in x_values if isinstance(x, (int, float)))
-                        max_x = max(x for x in x_values if isinstance(x, (int, float)))
+                        # 确保只使用数值类型的 x 值
+                        numeric_x_values = [
+                            x for x in x_values if isinstance(x, (int, float))
+                        ]
+                        if not numeric_x_values:
+                            raise ValueError("No numeric x values found")
+                        min_x = min(numeric_x_values)
+                        max_x = max(numeric_x_values)
                         # 生成从最小整数到最大整数的所有整数刻度
                         integer_ticks = list(
                             range(
@@ -210,7 +227,9 @@ def merge_parallel_dmg_data(rid: int | str) -> None:
                         if isinstance(min_x, int) or (
                             isinstance(min_x, float) and min_x.is_integer()
                         ):
-                            integer_ticks.insert(0, int(min_x))
+                            if int(min_x) not in integer_ticks:
+                                integer_ticks.insert(0, int(min_x))
+                        integer_ticks.sort()  # 确保刻度排序
                     except ValueError:  # 如果 x_values 为空或不包含数字
                         integer_ticks = []
 
@@ -260,17 +279,20 @@ async def _read_json_file(file_path: str) -> dict[str, Any]:
 
 async def merge_parallel_sc_data(
     rid: int | str,
-) -> dict[str, dict[str, dict[int | float, float]]]:
-    """读取所有子进程的属性收益曲线数据并合并。
+) -> dict[str, dict[str, dict[int | float, dict[str, float | None]]]]:
+    """读取所有子进程的属性收益曲线数据，合并并计算收益率。
 
     Args:
         rid (int | str): 运行ID。
 
     Returns:
-        dict[str, dict[str, dict[int | float, float]]]: {
+        dict[str, dict[str, dict[int | float, dict[str, float | None]]]]: {
             角色名(adjust_char): {
                 词条名(sc_name): {
-                    词条值(sc_value): 结果(sc_result: float)
+                    词条值(sc_value): {
+                        "result": 原始结果(sc_result: float),
+                        "rate": 收益率(rate_of_return: float | None)
+                    }
                 }
             }
         }
@@ -363,14 +385,39 @@ async def merge_parallel_sc_data(
                 f"警告：在角色 '{adjust_char}' 的词条 '{sc_name}' 中，词条值 '{sc_value}' 重复出现。来自子目录: {current_sub_dir}"
             )
 
-        all_sc_data[adjust_char][sc_name][sc_value] = sc_result
+        # 存储原始结果
+        all_sc_data[adjust_char][sc_name][sc_value] = {
+            "result": sc_result,
+            "rate": None,
+        }
 
-    # 对每个词条的值按 sc_value 排序 (可选，但通常有用)
-    for char_data in all_sc_data.values():
-        for sc_name_key in char_data:
-            # 使用 sorted 创建排序后的列表，然后转换为字典
-            sorted_items = sorted(char_data[sc_name_key].items())
-            char_data[sc_name_key] = dict(sorted_items)
+    # 对每个词条的值按 sc_value 排序并计算收益率
+    for char_name, char_data in all_sc_data.items():
+        for sc_name_key, sc_values_data in char_data.items():
+            # 按 sc_value 排序
+            try:
+                # 尝试将键转换为浮点数进行排序
+                sorted_items = sorted(
+                    sc_values_data.items(), key=lambda item: float(item[0])
+                )
+            except ValueError:
+                # 如果转换失败，按原始键（字符串）排序
+                sorted_items = sorted(sc_values_data.items())
+
+            # 更新排序后的字典，并计算收益率
+            sorted_sc_data: dict[int | float, dict[str, float | None]] = {}
+            previous_result: float | None = None
+            for i, (sc_val, data) in enumerate(sorted_items):
+                current_result = data["result"]
+                rate = None
+                if i > 0 and previous_result is not None and previous_result != 0:
+                    rate = (current_result / previous_result) - 1
+
+                sorted_sc_data[sc_val] = {"result": current_result, "rate": rate}
+                previous_result = current_result
+
+            # 用包含收益率的排序后字典替换原来的字典
+            all_sc_data[char_name][sc_name_key] = sorted_sc_data
 
     return all_sc_data
 
@@ -382,7 +429,9 @@ def process_parallel_result(rid: int | str) -> None:
         rid (int): 运行ID。
     """
     # 1. 预处理每个子目录的数据（伤害、Buff等）
-    with st.spinner("开始预处理并行子目录数据，初次处理会持续一段时间...", show_time=True):
+    with st.spinner(
+        "开始预处理并行子目录数据，初次处理会持续一段时间...", show_time=True
+    ):
         try:
             asyncio.run(prepare_parallel_data_and_cache(rid))
         except Exception as e:
