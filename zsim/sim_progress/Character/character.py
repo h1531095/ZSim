@@ -695,9 +695,9 @@ class Character:
         )
         self.PEN_numeric += scPEN * SUB_STATS_MAPPING["scPEN"]
         if self.crit_balancing:
-            self.baseCRIT_score += (scCRIT * SUB_STATS_MAPPING["scCRIT"]) + (
+            self.baseCRIT_score += ((scCRIT * SUB_STATS_MAPPING["scCRIT"]) + (
                 scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
-            )
+            )) * 100
         else:
             self.CRIT_rate_numeric += scCRIT * SUB_STATS_MAPPING["scCRIT"]
             self.CRIT_damage_numeric += scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
@@ -761,9 +761,9 @@ class Character:
             if scCRIT is not None or scCRIT_DMG is not None:
                 current_score = self.baseCRIT_score
                 if scCRIT is not None:
-                    current_score += scCRIT * SUB_STATS_MAPPING["scCRIT"]
+                    current_score += scCRIT * SUB_STATS_MAPPING["scCRIT"] * 100
                 if scCRIT_DMG is not None:
-                    current_score += scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
+                    current_score += scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"] * 100
                 self.baseCRIT_score = current_score
         else:
             if scCRIT is not None:
