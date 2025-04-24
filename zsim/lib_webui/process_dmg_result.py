@@ -216,7 +216,9 @@ def prepare_char_chart_data(uuid_df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     # 角色技能输出占比
     filtered_skill_df = uuid_df[uuid_df["cid"].notna()]
     char_skill_dmg_df = (
-        filtered_skill_df.groupby(["name", "skill_tag"])["dmg_expect_sum"]
+        filtered_skill_df.groupby(["name", "skill_tag"])[
+            ["dmg_expect_sum", "buildup_sum", "stun_sum"]
+        ]
         .sum()
         .reset_index()
     )
@@ -286,7 +288,7 @@ def draw_char_chart(chart_data: dict[str, pd.DataFrame]) -> None:
             col_index = 0
             for name, group in char_skill_dmg_df.groupby("name"):
                 with cols2[col_index]:
-                    st.caption(f"{name}")  # 使用caption代替subheader以节省空间
+                    st.caption(f"{name}")
                     fig_skill_pie = px.pie(
                         group,
                         names="skill_tag",
@@ -301,6 +303,52 @@ def draw_char_chart(chart_data: dict[str, pd.DataFrame]) -> None:
         else:
             st.info("没有角色技能伤害数据可供显示")
 
+        # 每个角色各技能的异常积蓄占比
+        st.subheader("各角色技能异常积蓄占比")
+        unique_names = char_skill_dmg_df["name"].unique()
+        if len(unique_names) > 0:
+            cols2 = st.columns(len(unique_names))
+            col_index = 0
+            for name, group in char_skill_dmg_df.groupby("name"):
+                with cols2[col_index]:
+                    st.caption(f"{name}")
+                    fig_skill_ano_pie = px.pie(
+                        group,
+                        names="skill_tag",
+                        values="buildup_sum",
+                        labels={
+                            "skill_tag": "技能标签",
+                            "buildup_sum": "异常值总和",
+                        },
+                    )
+                    st.plotly_chart(fig_skill_ano_pie)
+                col_index += 1
+        else:
+            st.info("没有角色技能异常数据可供显示")
+
+        # 每个角色各技能的失衡值占比
+        st.subheader("各角色技能失衡值占比")
+        unique_names = char_skill_dmg_df["name"].unique()
+        if len(unique_names) > 0:
+            cols2 = st.columns(len(unique_names))
+            col_index = 0
+            for name, group in char_skill_dmg_df.groupby("name"):
+                with cols2[col_index]:
+                    st.caption(f"{name}")
+                    fig_skill_stun_pie = px.pie(
+                        group,
+                        names="skill_tag",
+                        values="stun_sum",
+                        labels={
+                            "skill_tag": "技能标签",
+                            "stun_sum": "失衡值总和",
+                        },
+                    )
+                    st.plotly_chart(fig_skill_stun_pie)
+                col_index += 1
+        else:
+            st.info("没有角色技能失衡数据可供显示")
+
         # 每个角色各属性的积蓄占比
         st.subheader("各属性积蓄来源占比")
         unique_elements = char_element_df["element_type"].unique()
@@ -311,7 +359,7 @@ def draw_char_chart(chart_data: dict[str, pd.DataFrame]) -> None:
                 element_df = char_element_df[char_element_df["element_type"] == element]
                 element_name = element_mapping.get(element, element)  # 获取元素中文名
                 with cols3[col_index]:
-                    st.caption(f"{element_name}")  # 使用caption代替subheader
+                    st.caption(f"{element_name}")
                     fig_buildup_pie = px.pie(
                         element_df,
                         names="name",
@@ -419,8 +467,6 @@ def draw_char_timeline(gantt_df: pd.DataFrame | None) -> None:
             st.plotly_chart(fig_timeline)
         else:
             st.warning("没有找到任何连续的状态数据")
-
-
 
 
 def calculate_and_save_anomaly_attribution(
@@ -542,13 +588,13 @@ def show_dmg_result(rid: int | str) -> None:
     uuid_df = prepared_data_dict["uuid_df"]
     char_chart_data = prepared_data_dict["char_chart_data"]
     dmg_result_df = prepared_data_dict["dmg_result_df"]
-    
+
     if dmg_result_df is None:
         return
 
     with st.expander("原始数据："):
         st.dataframe(dmg_result_df)
-    
+
     with st.expander("按UUID排序后的数据："):
         st.dataframe(uuid_df)
     # 准备并绘制折线图
