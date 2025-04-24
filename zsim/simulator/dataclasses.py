@@ -5,8 +5,9 @@ from pydantic import BaseModel
 from sim_progress import Buff
 from sim_progress.Character import Character, character_factory
 from sim_progress.data_struct import ActionStack
+import time
+from sim_progress.Buff.Buff0Manager import Buff0ManagerClass, change_name_box
 
-from sim_progress.Buff.Buff0Manager import Buff0ManagerClass
 
 
 
@@ -98,16 +99,13 @@ class LoadData:
     name_dict: dict = field(default_factory=dict)
     all_name_order_box: dict = field(default_factory=dict)
     preload_tick_stamp: dict = field(default_factory=dict)
-    # exist_buff_dict = Buff.buff_exist_judge(name_box, Judge_list_set, weapon_dict, cinema_dict)
-    # all_name_order_box = Buff.change_name_box(name_box)
+    char_obj_dict: dict = None
 
     def __post_init__(self):
-        self.buff_0_manager = Buff0ManagerClass.Buff0Manager(self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict)
+        self.buff_0_manager = Buff0ManagerClass.Buff0Manager(self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict, self.char_obj_dict)
         self.exist_buff_dict = self.buff_0_manager.exist_buff_dict
-        # self.exist_buff_dict = Buff.buff_exist_judge(
-        #     self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict
-        # )
-        self.all_name_order_box = Buff.change_name_box(self.name_box)
+        self.all_name_order_box = change_name_box(self.name_box)
+        # self.all_name_order_box = Buff.Buff0Manager.change_name_box()
 
     def reset_exist_buff_dict(self):
         """重置buff_exist_dict"""
@@ -125,7 +123,7 @@ class LoadData:
         self.load_mission_dict = {}
         self.LOADING_BUFF_DICT = {}
         self.name_dict = {}
-        self.all_name_order_box = Buff.change_name_box(self.name_box)
+        self.all_name_order_box = change_name_box(self.name_box)
         self.preload_tick_stamp = {}
 
 
@@ -134,7 +132,7 @@ class ScheduleData:
     enemy: Enemy
     char_obj_list: list[Character]
     event_list: list = field(default_factory=list)
-    judge_required_info_dict = {"skill_node": None}
+    # judge_required_info_dict = {"skill_node": None}
     loading_buff: dict[str, list[Buff.Buff]] = field(default_factory=dict)
     dynamic_buff: dict[str, list[Buff.Buff]] = field(default_factory=dict)
 
@@ -142,7 +140,7 @@ class ScheduleData:
         """重置ScheduleData的动态数据！"""
         self.enemy.reset_myself()
         self.event_list = []
-        self.judge_required_info_dict = {"skill_node": None}
+        # self.judge_required_info_dict = {"skill_node": None}
         for char_name in self.loading_buff:
             self.loading_buff[char_name] = []
             self.dynamic_buff[char_name] = []

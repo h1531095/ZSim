@@ -7,6 +7,7 @@ from sim_progress.data_struct.NormalAttackManager import (
     na_manager_factory,
     BaseNAManager,
 )
+from sim_progress.Preload.APLModule.ActionReplaceManager import ActionReplaceManager
 
 
 class APLClass:
@@ -29,6 +30,7 @@ class APLClass:
             self.NA_action_dict = {}
         self.apl_operator: APLOperator | None = None
         self.repeat_action: tuple[str, int] = ("", 0)
+        self.action_replace_manager = None
 
     def execute(self, tick, mode: int) -> tuple[str, int]:
         if self.game_state is None:
@@ -36,7 +38,10 @@ class APLClass:
         if self.apl_operator is None:
             self.apl_operator = APLOperator(self.actions_list, self.game_state)
         cid, skill_tag, apl_priority = self.apl_operator.spawn_next_action(tick)
-        return self.perform_action(cid, skill_tag, tick), apl_priority
+        final_result = self.perform_action(cid, skill_tag, tick)
+        if final_result != skill_tag:
+            apl_priority = 0
+        return final_result, apl_priority
 
     def get_game_state(self) -> dict | None:
         if self.game_state is None:
@@ -56,12 +61,23 @@ class APLClass:
             self.game_state = self.get_game_state()
         if self.preload_data is None:
             self.preload_data = self.game_state.get("preload").preload_data
-        output = self.action_processor(CID, action)
+        output = self.action_processor(CID, action, tick)
         return output
 
-    def action_processor(self, CID, action) -> str:
+    def action_processor(self, CID, action, tick) -> str:
         """用于生成动作"""
         last_action: SkillNode | None
+        if self.action_replace_manager is None:
+            self.action_replace_manager = ActionReplaceManager(self.preload_data)
+        result_tupe = self.action_replace_manager.action_replace_factory(CID, action, tick)
+        if result_tupe[0]:
+            output = result_tupe[1]
+        else:
+            output = self.spawn_action_directly(CID, action)
+        return output
+
+    def spawn_action_directly(self, CID, action):
+        """在没有被快速支援、或是其他技能拦截的情况下，直接生成动作"""
         if action == "auto_NA":
             if CID not in self.na_manager_dict:
                 for _char_obj in self.preload_data.char_data.char_obj_list:
@@ -84,6 +100,7 @@ class APLClass:
         else:
             output = action
         return output
+
 
 
 class NaManager:

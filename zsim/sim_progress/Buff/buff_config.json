@@ -694,5 +694,61 @@
     "Buff-武器-精5淬锋钳刺-属性异常积蓄效率提升" : {
         "module": ".BuffXLogic.SharpenedStingerAnomalyBuildupBonus",
         "class": "SharpenedStingerAnomalyBuildupBonus"
+    },
+    "Buff-角色-耀佳音-咏叹华彩": {
+        "module": ".BuffXLogic.AstraYaoIdyllicCadenza",
+        "class": "AstraYaoIdyllicCadenza"
+    },
+    "Buff-角色-耀佳音-核心被动-攻击力": {
+        "module": ".BuffXLogic.AstraYaoCorePassiveAtkBonus",
+        "class": "AstraYaoCorePassiveAtkBonus"
+    },
+    "Buff-角色-耀佳音-快支管理器-触发器": {
+        "module": ".BuffXLogic.AstraYaoQuickAssistManagerTrigger",
+        "class": "AstraYaoQuickAssistManagerTrigger"
+    },
+    "Buff-角色-耀佳音-震音管理器-触发器": {
+        "module": ".BuffXLogic.AstraYaoChordManagerTrigger",
+        "class": "AstraYaoChordManagerTrigger"
+    },
+    "Buff-武器-精1玲珑妆匣-回能": {
+        "module": ".BuffXLogic.ElegantVanitySpRecover",
+        "class": "ElegantVanitySpRecover"
+    },
+    "Buff-武器-精2玲珑妆匣-回能": {
+        "module": ".BuffXLogic.ElegantVanitySpRecover",
+        "class": "ElegantVanitySpRecover"
+    },
+    "Buff-武器-精3玲珑妆匣-回能": {
+        "module": ".BuffXLogic.ElegantVanitySpRecover",
+        "class": "ElegantVanitySpRecover"
+    },
+    "Buff-武器-精4玲珑妆匣-回能": {
+        "module": ".BuffXLogic.ElegantVanitySpRecover",
+        "class": "ElegantVanitySpRecover"
+    },
+    "Buff-武器-精5玲珑妆匣-回能": {
+        "module": ".BuffXLogic.ElegantVanitySpRecover",
+        "class": "ElegantVanitySpRecover"
+    },
+    "Buff-武器-精1玲珑妆匣-全队增伤": {
+        "module": ".BuffXLogic.ElegantVanityDmgBonus",
+        "class": "ElegantVanityDmgBonus"
+    },
+    "Buff-武器-精2玲珑妆匣-全队增伤": {
+        "module": ".BuffXLogic.ElegantVanityDmgBonus",
+        "class": "ElegantVanityDmgBonus"
+    },
+    "Buff-武器-精3玲珑妆匣-全队增伤": {
+        "module": ".BuffXLogic.ElegantVanityDmgBonus",
+        "class": "ElegantVanityDmgBonus"
+    },
+    "Buff-武器-精4玲珑妆匣-全队增伤": {
+        "module": ".BuffXLogic.ElegantVanityDmgBonus",
+        "class": "ElegantVanityDmgBonus"
+    },
+    "Buff-武器-精5玲珑妆匣-全队增伤": {
+        "module": ".BuffXLogic.ElegantVanityDmgBonus",
+        "class": "ElegantVanityDmgBonus"
     }
 }

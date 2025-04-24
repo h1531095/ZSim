@@ -85,6 +85,18 @@ class StatusSubUnit(BaseSubConditionUnit):
             char = find_char(found_char_dict, game_state, char_cid)
             return char.is_available(find_tick())
 
+    class QuickAssistHandler(CheckHandler):
+        @classmethod
+        def handler(cls, char_cid, found_char_dict, game_state):
+            char = find_char(found_char_dict, game_state, char_cid)
+            return char.dynamic.quick_assist_manager.quick_assist_available
+
+    class WaitingAssistHandler(CheckHandler):
+        @classmethod
+        def handler(cls, char_cid, found_char_dict, game_state):
+            char = find_char(found_char_dict, game_state, char_cid)
+            return char.dynamic.quick_assist_manager.assist_waiting_for_anwser(find_tick())
+
     class ActiveAnomalyHandler(CheckHandler):
         @classmethod
         def handler(cls, enemy, *args, **kwargs):
@@ -140,6 +152,8 @@ class StatusSubUnit(BaseSubConditionUnit):
         "is_frostbite": FrostbiteHandler,
         "is_frost_frostbite": FrostFrostbiteHandler,
         "is_corruption": CorruptionHandler,
+        "quick_assist_available": QuickAssistHandler,
+        "assist_waiting_for_anwser": WaitingAssistHandler
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):

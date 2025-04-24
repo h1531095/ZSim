@@ -74,6 +74,7 @@ INPUT_ACTION_LIST = ""  # 半废弃
 BUFF_0_REPORT: bool = _config["buff_0_report"]["enabled"]
 # 角色特殊机制报告：
 VIVIAN_REPORT: bool = _config["char_report"]["Vivian"]
+ASTRAYAO_REPORT: bool = _config["char_report"]["AstraYao"]
 
 compare_methods_mapping: dict[str, Callable[[float | int, float | int], bool]] = {
     "<": lambda a, b: a < b,

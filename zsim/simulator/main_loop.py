@@ -60,6 +60,7 @@ def reset_sim_data(parallel_config: 'ParallelConfig' | None):
         weapon_dict=init_data.weapon_dict,
         cinema_dict=init_data.cinema_dict,
         action_stack=ActionStack(),
+        char_obj_dict=char_data.char_obj_dict,
     )
     schedule_data = ScheduleData(
         enemy=Enemy(

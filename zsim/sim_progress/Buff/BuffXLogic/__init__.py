@@ -6,7 +6,7 @@ import os
 # buff_logic_directory = os.path.dirname(__file__)
 # # 遍历目录下的每一个文件
 # for filename in os.listdir(buff_logic_directory):
-#     if filename.endswith('.py') and filename != '__init__.py':
+#     if filename.endswith('.py') and filename != 'AstraYao.py':
 #         # 获取模块名，去掉.py后缀
 #         module_name = f"BuffXLogic.{filename[:-3]}"
 #         try:

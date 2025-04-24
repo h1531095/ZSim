@@ -1,3 +1,5 @@
+from openpyxl.styles.builtins import output
+
 from define import SWAP_CANCEL
 from collections import defaultdict
 
@@ -148,6 +150,13 @@ class NodeStack:
         else:
             return None
 
+    def peek_index(self, index: int):
+        if self.is_empty():
+            return None
+        if index > len(self.stack):
+            raise IndexError("index out of range")
+        return self.stack[-index]
+
     def is_empty(self):
         """判断栈是否为空"""
         return len(self.stack) == 0
@@ -158,6 +167,19 @@ class NodeStack:
             return self.stack[0]
         else:
             return None
+
+    def get_effective_node(self):
+        """排除附加伤害技能，来获取有效的技能。"""
+        if self.is_empty():
+            return None
+        else:
+            i = 1
+            while i <= len(self.stack):
+                if self.stack[-i].skill.labels is not None:
+                    if "additional_damage" in self.stack[-i].skill.labels:
+                        i += 1
+                        continue
+                return self.stack[-i]
 
     def get_on_field_node(self, tick_now: int):
         """
@@ -186,7 +208,7 @@ class NodeStack:
                     key=lambda x: x.preload_tick,
                 )
             else:
-                """当场上的node全部都是被动动作时，只去其中最新的那个。"""
+                """当场上的node全部都是被动动作时，只取其中最新的那个。"""
                 return max((x for x in _exist_node_list), key=lambda x: x.preload_tick)
 
     def reset(self):
