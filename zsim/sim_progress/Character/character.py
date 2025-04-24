@@ -269,9 +269,17 @@ class Character:
 
         self.additional_abililty_active: bool | None = None     # 角色是否激活组队被动，该参数将在Buff模块初始化完成后进行赋值
 
+        skill_level_addon = 4 if self.cinema >=5 else (2 if self.cinema >= 3 else 0)
+        skills_level: dict[str, int] = {
+            "normal_level": 12 + skill_level_addon,
+            "special_level": 12 + skill_level_addon,
+            "dodge_level": 12 + skill_level_addon,
+            "chain_level": 12 + skill_level_addon,
+            "assist_level": 12 + skill_level_addon,
+        }
         # 角色技能列表，还没有写修改技能等级的接口
         self.statement = Character.Statement(self, crit_balancing=crit_balancing)
-        self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID)
+        self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID, **skills_level)
         self.action_list = self.skill_object.action_list 
         self.skills_dict = self.skill_object.skills_dict
         self.dynamic = self.Dynamic(self)
