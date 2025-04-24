@@ -1,13 +1,15 @@
+# 耀嘉音开场E
+1311|action+=|1311_E_A|action.1311:first_action==True
 1331|action+=|1331_SNA_2|status.1331:on_field==False|attribute.1331:special_state→裙裾浮游==True
 
 # 失衡期逻辑
-1211|action+=|1211_QTE|status.enemy:QTE_triggered_times==0|status.enemy:single_qte!=None|special.preload_data:operating_char!=1211
+1311|action+=|1311_QTE|status.enemy:QTE_triggered_times==0|status.enemy:single_qte!=None|special.preload_data:operating_char!=1311
 1221|action+=|1221_QTE|status.enemy:single_qte!=None|special.preload_data:operating_char!=1221
 1331|action+=|1331_QTE|status.enemy:single_qte!=None|special.preload_data:operating_char!=1331
 
 1331|action+=|1331_Q|status.enemy:is_corruption==False|attribute.1331:decibel==3000|attribute.1331:special_resource<=1|attribute.1331:special_state→飞羽数量<=1|status.enemy:stun==True
 1221|action+=|1221_Q|attribute.1221:decibel==3000|status.enemy:is_under_anomaly==True|status.enemy:stun==True
-1211|action+=|1211_Q|attribute.1211:decibel==3000|status.enemy:stun==True
+
 
 # 柳硬等快支触发，不提前上场抢队。
 1221|action+=|wait|status.1221:assist_waiting_for_anwser==True
@@ -16,8 +18,6 @@
 
 # 柳开场强化E
 1221|action+=|1221_E_EX_1|attribute.1221:energy>=40|action.1221:first_action==True
-1211|action+=|1211_E_EX|attribute.1211:energy>=60
-
 
 # VVA测试
 1331|action+=|1331_E_EX|attribute.1331:energy>=60|status.enemy:is_corruption==False
