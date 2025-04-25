@@ -71,9 +71,6 @@ async def prepare_parallel_data_and_cache(rid: int | str) -> None:
     """
     result_dir = os.path.join(results_dir, str(rid))
     parallel_config_path = os.path.join(result_dir, ".parallel_config.json")
-    if not os.path.exists(parallel_config_path):
-        st.error(f"并行配置文件 {parallel_config_path} 不存在！")
-        return
 
     try:
         with open(parallel_config_path, "r", encoding="utf-8") as f:
@@ -86,8 +83,7 @@ async def prepare_parallel_data_and_cache(rid: int | str) -> None:
         merged_sc_file_path = os.path.join(result_dir, "merged_sc_data.json")
         if os.path.exists(merged_sc_file_path):
             return
-    
-    
+
     tasks = []
 
     for item in os.listdir(result_dir):
@@ -139,102 +135,108 @@ def merge_parallel_dmg_data(rid: int | str) -> None:
 
             except Exception as e:
                 st.error(f"合并属性收益曲线数据时出错: {e}")
-        # 绘制折线图
-        if sc_merged_data:
-            for char_name, char_data in sc_merged_data.items():
-                fig = go.Figure()
-                has_data = False  # 标记是否有数据添加到图表中
+        return sc_merged_data
+    else:
+        return
 
-                for sc_name, sc_values_results in char_data.items():
-                    # sc_values_results 的结构现在是 {sc_value: {"result": float, "rate": float | None}}
-                    # 数据在 merge_parallel_sc_data 中已经按 sc_value 排序
-                    if not sc_values_results:
-                        st.warning(
-                            f"角色 '{char_name}' 的词条 '{sc_name}' 没有数据，跳过绘制。"
-                        )
-                        continue
 
-                    # 提取 x 值 (词条值) 和 y 值 (收益率)
-                    x_values_raw = list(sc_values_results.keys())
-                    # 提取预计算的收益率，跳过第一个点（收益率通常为None）
-                    y_values_rate = [
-                        data.get("rate") for data in sc_values_results.values()
+def draw_sc_attr_graph(
+    sc_merged_data: dict[str, dict[str, dict[int | float, dict[str, float | None]]]],
+) -> None:
+    # 绘制折线图
+    if sc_merged_data:
+        for char_name, char_data in sc_merged_data.items():
+            fig = go.Figure()
+            has_data = False  # 标记是否有数据添加到图表中
+
+            for sc_name, sc_values_results in char_data.items():
+                # sc_values_results 的结构现在是 {sc_value: {"result": float, "rate": float | None}}
+                # 数据在 merge_parallel_sc_data 中已经按 sc_value 排序
+                if not sc_values_results:
+                    st.warning(
+                        f"角色 '{char_name}' 的词条 '{sc_name}' 没有数据，跳过绘制。"
+                    )
+                    continue
+
+                # 提取 x 值 (词条值) 和 y 值 (收益率)
+                x_values_raw = list(sc_values_results.keys())
+                # 提取预计算的收益率，跳过第一个点（收益率通常为None）
+                y_values_rate = [
+                    data.get("rate") for data in sc_values_results.values()
+                ]
+
+                # 尝试将 x 值转换为浮点数
+                try:
+                    x_values = [float(x) for x in x_values_raw]
+                except ValueError:
+                    st.warning(
+                        f"角色 '{char_name}' 的词条 '{sc_name}' 包含非数值的 x 值，跳过绘制。"
+                    )
+                    continue
+
+                # 确保有足够的数据点来绘制收益率（至少需要两个原始点才能计算一个收益率点）
+                if len(x_values) < 2:
+                    st.warning(
+                        f"角色 '{char_name}' 的词条 '{sc_name}' 数据点不足 (<2)，无法绘制收益率曲线。"
+                    )
+                    continue
+
+                # 过滤掉第一个点的 x 值和 y 值（因为第一个点没有收益率）
+                # 同时处理 y_values_rate 中可能存在的 None 值
+                plot_x_values = []
+                plot_y_values = []
+                for i in range(1, len(x_values)):
+                    if y_values_rate[i] is not None:
+                        plot_x_values.append(x_values[i])
+                        plot_y_values.append(y_values_rate[i])
+
+                if not plot_x_values:
+                    st.warning(
+                        f"角色 '{char_name}' 的词条 '{sc_name}' 没有有效的收益率数据点，跳过绘制。"
+                    )
+                    continue
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=plot_x_values,  # 使用过滤后的 x 值
+                        y=plot_y_values,  # 使用过滤后的 y 值 (收益率)
+                        mode="lines+markers",
+                        name=reversed_stats_trans_mapping.get(sc_name, sc_name),
+                        connectgaps=False,  # 不连接 None 值造成的断点
+                    )
+                )
+                has_data = True
+
+            if has_data:
+                # 计算整数刻度 (基于原始的所有 x_values)
+                try:
+                    # 确保只使用数值类型的 x 值
+                    numeric_x_values = [
+                        x for x in x_values if isinstance(x, (int, float))
                     ]
-
-                    # 尝试将 x 值转换为浮点数
-                    try:
-                        x_values = [float(x) for x in x_values_raw]
-                    except ValueError:
-                        st.warning(
-                            f"角色 '{char_name}' 的词条 '{sc_name}' 包含非数值的 x 值，跳过绘制。"
-                        )
-                        continue
-
-                    # 确保有足够的数据点来绘制收益率（至少需要两个原始点才能计算一个收益率点）
-                    if len(x_values) < 2:
-                        st.warning(
-                            f"角色 '{char_name}' 的词条 '{sc_name}' 数据点不足 (<2)，无法绘制收益率曲线。"
-                        )
-                        continue
-
-                    # 过滤掉第一个点的 x 值和 y 值（因为第一个点没有收益率）
-                    # 同时处理 y_values_rate 中可能存在的 None 值
-                    plot_x_values = []
-                    plot_y_values = []
-                    for i in range(1, len(x_values)):
-                        if y_values_rate[i] is not None:
-                            plot_x_values.append(x_values[i])
-                            plot_y_values.append(y_values_rate[i])
-
-                    if not plot_x_values:
-                        st.warning(
-                            f"角色 '{char_name}' 的词条 '{sc_name}' 没有有效的收益率数据点，跳过绘制。"
-                        )
-                        continue
-
-                    fig.add_trace(
-                        go.Scatter(
-                            x=plot_x_values,  # 使用过滤后的 x 值
-                            y=plot_y_values,  # 使用过滤后的 y 值 (收益率)
-                            mode="lines+markers",
-                            name=reversed_stats_trans_mapping.get(
-                                sc_name, sc_name
-                            ),  # 使用 .get 提供默认值
-                            connectgaps=False,  # 不连接 None 值造成的断点
+                    if not numeric_x_values:
+                        raise ValueError("No numeric x values found")
+                    min_x = min(numeric_x_values)
+                    max_x = max(numeric_x_values)
+                    # 生成从最小整数到最大整数的所有整数刻度
+                    integer_ticks = list(
+                        range(
+                            int(min_x) if min_x == int(min_x) else int(min_x) + 1,
+                            int(max_x) + 1,
                         )
                     )
-                    has_data = True
+                    # 如果最小值本身是整数，也包含它
+                    if isinstance(min_x, int) or (
+                        isinstance(min_x, float) and min_x.is_integer()
+                    ):
+                        if int(min_x) not in integer_ticks:
+                            integer_ticks.insert(0, int(min_x))
+                    integer_ticks.sort()  # 确保刻度排序
+                except ValueError:  # 如果 x_values 为空或不包含数字
+                    integer_ticks = []
 
-                if has_data:
-                    # 计算整数刻度 (基于原始的所有 x_values)
-                    try:
-                        # 确保只使用数值类型的 x 值
-                        numeric_x_values = [
-                            x for x in x_values if isinstance(x, (int, float))
-                        ]
-                        if not numeric_x_values:
-                            raise ValueError("No numeric x values found")
-                        min_x = min(numeric_x_values)
-                        max_x = max(numeric_x_values)
-                        # 生成从最小整数到最大整数的所有整数刻度
-                        integer_ticks = list(
-                            range(
-                                int(min_x) if min_x == int(min_x) else int(min_x) + 1,
-                                int(max_x) + 1,
-                            )
-                        )
-                        # 如果最小值本身是整数，也包含它
-                        if isinstance(min_x, int) or (
-                            isinstance(min_x, float) and min_x.is_integer()
-                        ):
-                            if int(min_x) not in integer_ticks:
-                                integer_ticks.insert(0, int(min_x))
-                        integer_ticks.sort()  # 确保刻度排序
-                    except ValueError:  # 如果 x_values 为空或不包含数字
-                        integer_ticks = []
-
-                    # fmt: off
-                    fig.update_layout(
+                # fmt: off
+                fig.update_layout(
                         title=f"{char_name} - 属性收益曲线",
                         xaxis_title="词条数",
                         yaxis_title="收益率",  # 更新 Y 轴标题
@@ -246,16 +248,12 @@ def merge_parallel_dmg_data(rid: int | str) -> None:
                             tickformat="d",  # 强制显示为整数
                         ),
                     )
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.warning(f"角色 '{char_name}' 没有足够的数据来绘制组合图表。")
-                    # fmt: on
-        else:
-            st.warning("没有可用于绘制属性收益曲线的数据。")
-
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.warning(f"角色 '{char_name}' 没有足够的数据来绘制组合图表。")
+                # fmt: on
     else:
-        st.info("未启用属性收益曲线调整功能。")
-        return
+        st.warning("没有可用于绘制属性收益曲线的数据。")
 
 
 async def _read_json_file(file_path: str) -> dict[str, Any]:
@@ -439,7 +437,9 @@ def process_parallel_result(rid: int | str) -> None:
             return
 
     # 2. 合并需要聚合的数据（例如属性收益曲线）
-    merge_parallel_dmg_data(rid)
+    sc_merged_data = merge_parallel_dmg_data(rid)
+    # 3. 绘制图表
+    draw_sc_attr_graph(sc_merged_data)
 
     # TODO: 添加其他并行结果的处理逻辑，例如生成聚合报告、绘制对比图表等。
     st.warning("并行模式的结果合并与展示功能仍在开发中。", icon="⚠️")
