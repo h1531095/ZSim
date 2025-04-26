@@ -43,7 +43,7 @@ class ElegantVanitySpRecover(Buff.BuffLogic):
         self.get_prepared(equipper="玲珑妆匣", sub_exist_buff_dict=1)
         tick_now = JudgeTools.find_tick()
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
-        energy_value = self.record.energy_value_dict[self.buff_instance.ft.refinement]
+        energy_value = self.record.energy_value_dict[int(self.buff_instance.ft.refinement)]
         event_list = JudgeTools.find_event_list()
         from sim_progress.data_struct import ScheduleRefreshData
         refresh_data = ScheduleRefreshData(

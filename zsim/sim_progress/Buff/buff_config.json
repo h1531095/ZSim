@@ -750,5 +750,201 @@
     "Buff-武器-精5玲珑妆匣-全队增伤": {
         "module": ".BuffXLogic.ElegantVanityDmgBonus",
         "class": "ElegantVanityDmgBonus"
+    },
+    "Buff-武器-精1灼心摇壶-回能": {
+        "module": ".BuffXLogic.BackendJudge",
+        "class": "BackendJudge"
+    },
+    "Buff-武器-精2灼心摇壶-回能": {
+        "module": ".BuffXLogic.BackendJudge",
+        "class": "BackendJudge"
+    },
+    "Buff-武器-精3灼心摇壶-回能": {
+        "module": ".BuffXLogic.BackendJudge",
+        "class": "BackendJudge"
+    },
+    "Buff-武器-精4灼心摇壶-回能": {
+        "module": ".BuffXLogic.BackendJudge",
+        "class": "BackendJudge"
+    },
+    "Buff-武器-精5灼心摇壶-回能": {
+        "module": ".BuffXLogic.BackendJudge",
+        "class": "BackendJudge"
+    },
+    "Buff-武器-精1灼心摇壶-增伤": {
+        "module": ".BuffXLogic.FlamemakerShakerDmgBonus",
+        "class": "FlamemakerShakerDmgBonus"
+    },
+    "Buff-武器-精2灼心摇壶-增伤": {
+        "module": ".BuffXLogic.FlamemakerShakerDmgBonus",
+        "class": "FlamemakerShakerDmgBonus"
+    },
+    "Buff-武器-精3灼心摇壶-增伤": {
+        "module": ".BuffXLogic.FlamemakerShakerDmgBonus",
+        "class": "FlamemakerShakerDmgBonus"
+    },
+    "Buff-武器-精4灼心摇壶-增伤": {
+        "module": ".BuffXLogic.FlamemakerShakerDmgBonus",
+        "class": "FlamemakerShakerDmgBonus"
+    },
+    "Buff-武器-精5灼心摇壶-增伤": {
+        "module": ".BuffXLogic.FlamemakerShakerDmgBonus",
+        "class": "FlamemakerShakerDmgBonus"
+    },
+    "Buff-武器-精1灼心摇壶-精通": {
+        "module": ".BuffXLogic.FlamemakerShakerApBonus",
+        "class": "FlamemakerShakerApBonus"
+    },
+    "Buff-武器-精2灼心摇壶-精通": {
+        "module": ".BuffXLogic.FlamemakerShakerApBonus",
+        "class": "FlamemakerShakerApBonus"
+    },
+    "Buff-武器-精3灼心摇壶-精通": {
+        "module": ".BuffXLogic.FlamemakerShakerApBonus",
+        "class": "FlamemakerShakerApBonus"
+    },
+    "Buff-武器-精4灼心摇壶-精通": {
+        "module": ".BuffXLogic.FlamemakerShakerApBonus",
+        "class": "FlamemakerShakerApBonus"
+    },
+    "Buff-武器-精5灼心摇壶-精通": {
+        "module": ".BuffXLogic.FlamemakerShakerApBonus",
+        "class": "FlamemakerShakerApBonus"
+    },
+    "Buff-武器-精1雨林饕客-局内攻击力": {
+        "module": ".BuffXLogic.RainforestGourmetATKBonus",
+        "class": "RainforestGourmetATKBonus"
+    },
+    "Buff-武器-精2雨林饕客-局内攻击力": {
+        "module": ".BuffXLogic.RainforestGourmetATKBonus",
+        "class": "RainforestGourmetATKBonus"
+    },
+    "Buff-武器-精3雨林饕客-局内攻击力": {
+        "module": ".BuffXLogic.RainforestGourmetATKBonus",
+        "class": "RainforestGourmetATKBonus"
+    },
+    "Buff-武器-精4雨林饕客-局内攻击力": {
+        "module": ".BuffXLogic.RainforestGourmetATKBonus",
+        "class": "RainforestGourmetATKBonus"
+    },
+    "Buff-武器-精5雨林饕客-局内攻击力": {
+        "module": ".BuffXLogic.RainforestGourmetATKBonus",
+        "class": "RainforestGourmetATKBonus"
+    },
+    "Buff-武器-精1双生泣星-精通增幅": {
+        "module": ".BuffXLogic.WeepingGeminiApBonus",
+        "class": "WeepingGeminiApBonus"
+    },
+    "Buff-武器-精2双生泣星-精通增幅": {
+        "module": ".BuffXLogic.WeepingGeminiApBonus",
+        "class": "WeepingGeminiApBonus"
+    },
+    "Buff-武器-精3双生泣星-精通增幅": {
+        "module": ".BuffXLogic.WeepingGeminiApBonus",
+        "class": "WeepingGeminiApBonus"
+    },
+    "Buff-武器-精4双生泣星-精通增幅": {
+        "module": ".BuffXLogic.WeepingGeminiApBonus",
+        "class": "WeepingGeminiApBonus"
+    },
+    "Buff-武器-精5双生泣星-精通增幅": {
+        "module": ".BuffXLogic.WeepingGeminiApBonus",
+        "class": "WeepingGeminiApBonus"
+    },
+    "Buff-武器-精1触电唇彩-攻击力与增伤": {
+        "module": ".BuffXLogic.ElectroLipGlossAtkAndDmgBonus",
+        "class": "ElectroLipGlossAtkAndDmgBonus"
+    },
+    "Buff-武器-精2触电唇彩-攻击力与增伤": {
+        "module": ".BuffXLogic.ElectroLipGlossAtkAndDmgBonus",
+        "class": "ElectroLipGlossAtkAndDmgBonus"
+    },
+    "Buff-武器-精3触电唇彩-攻击力与增伤": {
+        "module": ".BuffXLogic.ElectroLipGlossAtkAndDmgBonus",
+        "class": "ElectroLipGlossAtkAndDmgBonus"
+    },
+    "Buff-武器-精4触电唇彩-攻击力与增伤": {
+        "module": ".BuffXLogic.ElectroLipGlossAtkAndDmgBonus",
+        "class": "ElectroLipGlossAtkAndDmgBonus"
+    },
+    "Buff-武器-精5触电唇彩-攻击力与增伤": {
+        "module": ".BuffXLogic.ElectroLipGlossAtkAndDmgBonus",
+        "class": "ElectroLipGlossAtkAndDmgBonus"
+    },
+    "Buff-武器-精1轰鸣座驾-触发器": {
+        "module": ".BuffXLogic.RoaringRideBuffTrigger",
+        "class": "RoaringRideBuffTrigger"
+    },
+    "Buff-武器-精2轰鸣座驾-触发器": {
+        "module": ".BuffXLogic.RoaringRideBuffTrigger",
+        "class": "RoaringRideBuffTrigger"
+    },
+    "Buff-武器-精3轰鸣座驾-触发器": {
+        "module": ".BuffXLogic.RoaringRideBuffTrigger",
+        "class": "RoaringRideBuffTrigger"
+    },
+    "Buff-武器-精4轰鸣座驾-触发器": {
+        "module": ".BuffXLogic.RoaringRideBuffTrigger",
+        "class": "RoaringRideBuffTrigger"
+    },
+    "Buff-武器-精5轰鸣座驾-触发器": {
+        "module": ".BuffXLogic.RoaringRideBuffTrigger",
+        "class": "RoaringRideBuffTrigger"
+    },
+    "Buff-武器-精1「电磁暴」-壹式-异常掌控": {
+        "module": ".BuffXLogic.MagneticStormAlphaAMBonus",
+        "class": "MagneticStormAlphaAMBonus"
+    },
+    "Buff-武器-精2「电磁暴」-壹式-异常掌控": {
+        "module": ".BuffXLogic.MagneticStormAlphaAMBonus",
+        "class": "MagneticStormAlphaAMBonus"
+    },
+    "Buff-武器-精3「电磁暴」-壹式-异常掌控": {
+        "module": ".BuffXLogic.MagneticStormAlphaAMBonus",
+        "class": "MagneticStormAlphaAMBonus"
+    },
+    "Buff-武器-精4「电磁暴」-壹式-异常掌控": {
+        "module": ".BuffXLogic.MagneticStormAlphaAMBonus",
+        "class": "MagneticStormAlphaAMBonus"
+    },
+    "Buff-武器-精5「电磁暴」-壹式-异常掌控": {
+        "module": ".BuffXLogic.MagneticStormAlphaAMBonus",
+        "class": "MagneticStormAlphaAMBonus"
+    },
+    "Buff-武器-精2「电磁暴」-贰式-异常精通": {
+        "module": ".BuffXLogic.MagneticStormBravoApBonus",
+        "class": "MagneticStormBravoApBonus"
+    },
+    "Buff-武器-精3「电磁暴」-贰式-异常精通": {
+        "module": ".BuffXLogic.MagneticStormBravoApBonus",
+        "class": "MagneticStormBravoApBonus"
+    },
+    "Buff-武器-精4「电磁暴」-贰式-异常精通": {
+        "module": ".BuffXLogic.MagneticStormBravoApBonus",
+        "class": "MagneticStormBravoApBonus"
+    },
+    "Buff-武器-精5「电磁暴」-贰式-异常精通": {
+        "module": ".BuffXLogic.MagneticStormBravoApBonus",
+        "class": "MagneticStormBravoApBonus"
+    },
+    "Buff-武器-精1「电磁暴」-叁式-回能": {
+        "module": ".BuffXLogic.MagneticStormCharlieSpRecover",
+        "class": "MagneticStormCharlieSpRecover"
+    },
+    "Buff-武器-精2「电磁暴」-叁式-回能": {
+        "module": ".BuffXLogic.MagneticStormCharlieSpRecover",
+        "class": "MagneticStormCharlieSpRecover"
+    },
+    "Buff-武器-精3「电磁暴」-叁式-回能": {
+        "module": ".BuffXLogic.MagneticStormCharlieSpRecover",
+        "class": "MagneticStormCharlieSpRecover"
+    },
+    "Buff-武器-精4「电磁暴」-叁式-回能": {
+        "module": ".BuffXLogic.MagneticStormCharlieSpRecover",
+        "class": "MagneticStormCharlieSpRecover"
+    },
+    "Buff-武器-精5「电磁暴」-叁式-回能": {
+        "module": ".BuffXLogic.MagneticStormCharlieSpRecover",
+        "class": "MagneticStormCharlieSpRecover"
     }
 }
