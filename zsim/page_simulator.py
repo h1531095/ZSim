@@ -332,11 +332,10 @@ def page_simulator():
                         result = future.result()
                         with result_container:
                             with st.expander(f"进程 {task_num} 输出结果"):
-                                st.text_area(
-                                    f"进程 {task_num} 输出结果:",
+                                st.code(
                                     result,
+                                    language="",
                                     height=TEXT_AREA_HEIGHT,
-                                    label_visibility="collapsed",
                                 )
                     except Exception as e:
                         with result_container:
