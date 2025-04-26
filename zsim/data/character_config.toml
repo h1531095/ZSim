@@ -163,9 +163,9 @@ equip_set2_a = "激素朋克"
 
 ["薇薇安"]
 name = "薇薇安"
-weapon = "飞鸟星梦"
-weapon_level = 1
-cinema = 3
+weapon = "「电磁暴」-叁式"
+weapon_level = 5
+cinema = 0
 crit_balancing = true
 scATK_percent = 5
 scATK = 0
