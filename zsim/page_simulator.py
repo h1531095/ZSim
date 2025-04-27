@@ -1,18 +1,23 @@
 import concurrent.futures
 import json
 import os
-from typing import Literal
 import uuid
+from typing import Literal
 
 import psutil
 import streamlit as st
+from define import saved_char_config
 from lib_webui.constants import stats_trans_mapping
+from lib_webui.process_char_config import dialog_character_panels
 from lib_webui.process_simulator import generate_parallel_args
 from run import go_parallel_subprocess, go_single_subprocess
 
 # --- 常量定义 ---
 # 模拟器配置相关
-RUN_MODES: list[Literal["普通模式（单进程）", "并行模式（多进程）"]] = ["普通模式（单进程）", "并行模式（多进程）"]
+RUN_MODES: list[Literal["普通模式（单进程）", "并行模式（多进程）"]] = [
+    "普通模式（单进程）",
+    "并行模式（多进程）",
+]
 ADJUST_CHAR_OPTIONS = ["1号", "2号", "3号"]
 SIMULATION_FUNCTIONS = [
     "属性收益曲线",
@@ -88,18 +93,21 @@ def page_simulator():
                     json.dump(config, f, indent=4)
                     f.truncate()
         with col2:
-            st.button(
-                "查看角色配置（未实装）",
+            if st.button(
+                "查看角色配置",
                 use_container_width=True,
                 disabled=st.session_state["simulation_running"],
-            )
+            ):
+                name_box = saved_char_config["name_box"]
+                dialog_character_panels(name_box)
 
         with col3:
-            st.button(
+            if st.button(
                 "APL选择（未实装）",
                 use_container_width=True,
                 disabled=st.session_state["simulation_running"],
-            )
+            ):
+                pass
 
         with col4:
 
@@ -304,17 +312,19 @@ def page_simulator():
 
                 # 启动多进程
                 futures = {
-                    get_executor().submit(go_parallel_subprocess, args): i+1
-                    for i, args in enumerate(generate_parallel_args(
-                        stop_tick,
-                        parallel_cfg,
-                        run_turn_uuid,
-                    ))
+                    get_executor().submit(go_parallel_subprocess, args): i + 1
+                    for i, args in enumerate(
+                        generate_parallel_args(
+                            stop_tick,
+                            parallel_cfg,
+                            run_turn_uuid,
+                        )
+                    )
                 }
-                
+
                 # 创建结果容器
                 result_container = st.container()
-                
+
                 # 实时处理完成的任务
                 for future in concurrent.futures.as_completed(futures):
                     task_num = futures[future]
@@ -322,16 +332,15 @@ def page_simulator():
                         result = future.result()
                         with result_container:
                             with st.expander(f"进程 {task_num} 输出结果"):
-                                st.text_area(
-                                    f"进程 {task_num} 输出结果:",
+                                st.code(
                                     result,
+                                    language="",
                                     height=TEXT_AREA_HEIGHT,
-                                    label_visibility="collapsed",
                                 )
                     except Exception as e:
                         with result_container:
                             st.error(f"进程 {task_num} 执行出错: {str(e)}")
-                
+
                 st.session_state["simulation_running"] = False
 
         with col2:

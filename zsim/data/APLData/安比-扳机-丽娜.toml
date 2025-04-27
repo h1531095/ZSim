@@ -3,7 +3,7 @@ title = "零号安比+扳机逻辑1122"
 comment = "这是一个APL配置示例，你可以据此新建新模板"
 author = "Yuki Aro"
 create_time = "2025-04-15T23:00:00.000+08:00"
-latest_change_time = "2025-04-15T23:00:00.000+08:00"
+latest_change_time = "2025-04-26T21:22:12.627+08:00"
 
 [characters]
 required = [ "零号·安比", "扳机",]
