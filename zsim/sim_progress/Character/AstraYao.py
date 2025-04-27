@@ -240,6 +240,6 @@ class ChordCoattackManager:
             add_buff_list = [self.manager.char.NAME] + [skill_node.char_name]
             benifit_list = list(set(add_buff_list))
             from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
-            buff_add_strategy(benifit_list, self.core_passive_buff_index)
+            buff_add_strategy(self.core_passive_buff_index, benifit_list=benifit_list)
             if ASTRAYAO_REPORT:
                 print(f'核心被动触发器激活！为{benifit_list}添加了{self.core_passive_buff_index}！')

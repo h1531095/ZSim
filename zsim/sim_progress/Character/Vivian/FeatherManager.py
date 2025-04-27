@@ -8,7 +8,7 @@ class FeatherManager:
     def __init__(self, char_instance: Character):
         self.char = char_instance
         self.flight_feather = 2                     # 飞羽，进场初始化为4层
-        self.guard_feather = 0 if self.char.cinema < 3 else 5                   # 护羽，初始化为0层
+        self.guard_feather = 0 if self.char.cinema < 4 else 5                   # 护羽，初始化为0层
         self.feather_max_count = 5            # 最大飞羽/护羽层数，默认为6层
         self.co_attack_index = '1331_CoAttack_A'
         self.c1_counter = 0         # 1 画计数器
