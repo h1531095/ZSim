@@ -11,7 +11,6 @@ def _init_char_mapping() -> dict:
         for _, row in df.iterrows():
             cid = str(row["CID"])
             name = row["name"]
-            mapping[cid] = name
             mapping[name] = cid
         return mapping
     except Exception as e:

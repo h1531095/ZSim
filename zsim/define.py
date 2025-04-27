@@ -128,6 +128,7 @@ SUB_STATS_MAPPING: dict[
     "SP_REGEN": 0.06,
 }
 
+DOCS_DIR = "docs"
 
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名
