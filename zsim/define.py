@@ -128,6 +128,7 @@ SUB_STATS_MAPPING: dict[
     "SP_REGEN": 0.06,
 }
 
+
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名
     def print_constant_names_and_values():

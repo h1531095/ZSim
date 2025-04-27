@@ -89,6 +89,24 @@ stats_trans_mapping = {
     "能量自动回复": "SP_REGEN"
 }
 
+SC_DATA_DISCRIPTION_MAPPING = {
+    "scATK_percent": "3%/词条",
+    "scATK": "19点/词条",
+    "scHP_percent": "3%/词条",
+    "scHP": "112/词条",
+    "scDEF_percent": "4.8%/词条",
+    "scDEF": "15点/词条",
+    "scAnomalyProficiency": "9点/词条",
+    "scPEN": "9点/词条",
+    "scCRIT": "2.4%暴击率或4.8%暴击伤害/词条",
+    "scCRIT_DMG": "2.4%暴击率或4.8%暴击伤害/词条",
+    
+    "DMG_BONUS": "3%/词条",
+    "PEN_RATIO": "2.4%/词条",
+    "ANOMALY_MASTERY": "3%/词条",
+    "SP_REGEN": "6%/词条",
+}
+
 # 副词条最大值
 sc_max_value = 40
 
