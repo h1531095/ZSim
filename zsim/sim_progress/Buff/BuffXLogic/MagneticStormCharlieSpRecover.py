@@ -1,18 +1,21 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 
 
-class FlightOfFancyRecord:
+class MagneticStormCharlieSpRecoverRecord:
     def __init__(self):
         self.equipper = None
         self.char = None
+        self.sub_exist_buff_dict = None
+        self.energy_value_dict = {1: 3.5, 2: 4, 3: 4.5, 4: 5, 5: 5.5}
 
 
-class FlightOfFancy(Buff.BuffLogic):
-    """飞鸟星梦的复杂逻辑，监测到装备者造成以太伤害时叠层。"""
+class MagneticStormCharlieSpRecover(Buff.BuffLogic):
+    """电磁暴3式判定逻辑"""
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
         self.xjudge = self.special_judge_logic
+        self.xhit = self.special_hit_logic
         self.equipper = None
         self.buff_0 = None
         self.record = None
@@ -22,19 +25,19 @@ class FlightOfFancy(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("飞鸟星梦")
+            self.equipper = JudgeTools.find_equipper("「电磁暴」-叁式")
         if self.buff_0 is None:
             self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
-            self.buff_0.history.record = FlightOfFancyRecord()
+            self.buff_0.history.record = MagneticStormCharlieSpRecoverRecord()
         self.record = self.buff_0.history.record
 
     def special_judge_logic(self, **kwargs):
-        """检测到装备者的以太伤害技能，并且处于Hit节点。"""
+        """只要造成了积蓄值，就放行"""
         self.check_record_module()
-        self.get_prepared(equipper="飞鸟星梦")
+        self.get_prepared(equipper="「电磁暴」-叁式")
         skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
@@ -49,10 +52,24 @@ class FlightOfFancy(Buff.BuffLogic):
         # 滤去不是自己的技能
         if self.record.equipper != skill_node.char_name:
             return False
-        # 滤去非以太伤害的技能
-        if skill_node.skill.element_type != 4:
-            return False
-        tick = find_tick()
-        if skill_node.loading_mission.is_hit_now(tick):
+
+        if skill_node.skill.anomaly_accumulation != 0 and skill_node.skill.element_damage_percent > 0:
             return True
         return False
+
+    def special_hit_logic(self, **kwargs):
+        self.check_record_module()
+        self.get_prepared(equipper="「电磁暴」-叁式", sub_exist_buff_dict=1)
+        tick_now = JudgeTools.find_tick()
+        self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
+        energy_value = self.record.energy_value_dict[int(self.buff_instance.ft.refinement)]
+        event_list = JudgeTools.find_event_list()
+        from sim_progress.data_struct import ScheduleRefreshData
+        refresh_data = ScheduleRefreshData(
+            sp_target=(self.record.char.NAME,),
+            sp_value=energy_value,
+        )
+        event_list.append(refresh_data)
+        print(f'电磁暴3式回能触发！')
+
+

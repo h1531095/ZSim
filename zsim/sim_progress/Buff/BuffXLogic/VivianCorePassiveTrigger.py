@@ -90,7 +90,9 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         ratio = self.ANOMALY_RATIO_MUL.get(copyed_anomaly.element_type)
         if self.record.cinema_ratio is None:
             self.record.cinema_ratio = 1 if self.record.char.cinema < 2 else 1.3
-        final_ratio = math.floor(ap/10) * ratio * self.record.cinema_ratio
+        '''20250424参考波波獭视频，该倍率是每一点精通平滑收益，并非向下取整，故此调整模型，去掉floor。'''
+        '''final_ratio = math.floor(ap/10) * ratio * self.record.cinema_ratio'''
+        final_ratio = ap / 10 * ratio * self.record.cinema_ratio
         dirge_of_destiny_anomaly.anomaly_dmg_ratio = final_ratio
         dirge_of_destiny_anomaly.current_ndarray = dirge_of_destiny_anomaly.current_ndarray / dirge_of_destiny_anomaly.current_anomaly
         event_list.append(dirge_of_destiny_anomaly)

@@ -97,7 +97,7 @@ def reset_simulator(parallel_config: 'ParallelConfig' | None):
     start_report_threads(parallel_config)  # 启动线程以处理日志和结果写入
 
 
-def main_loop(stop_tick: int = 6000, *, parallel_config: 'ParallelConfig' | None = None):
+def main_loop(stop_tick: int = 10800, *, parallel_config: 'ParallelConfig' | None = None):
     reset_simulator(parallel_config)
     global \
         tick, \

@@ -479,7 +479,11 @@ class Buff:
         no_end = kwargs.get("no_end", False)
         no_count = kwargs.get("no_count", False)
         _simple_start_buff_0 = sub_exist_buff_dict[self.ft.index]
-
+        individule_settled_count = kwargs.get("individule_settled_count", 0)
+        if individule_settled_count != 0 and not self.ft.individual_settled:
+            raise ValueError(f'对于层数不独立结算的{self.ft.index}，在调用simple_start函数时，不应传入individule_settled_count参数。')
+        if individule_settled_count == 0:
+            individule_settled_count = 1
         self.dy.active = True
         if not no_start:
             self.dy.startticks = timenow
@@ -487,7 +491,11 @@ class Buff:
             self.dy.endticks = timenow + self.ft.maxduration
         if not no_count:
             if self.ft.individual_settled:
-                self.dy.built_in_buff_box.append((self.dy.startticks, self.dy.endticks))
+                for i in range(0, individule_settled_count):
+                    self.dy.built_in_buff_box.append((self.dy.startticks, self.dy.endticks))
+                while len(self.dy.built_in_buff_box) > self.ft.maxcount:
+                    self.dy.built_in_buff_box.pop(0)
+                self.dy.count = len(self.dy.built_in_buff_box)
             else:
                 self.dy.count = min(
                     _simple_start_buff_0.dy.count + self.ft.step, self.ft.maxcount
