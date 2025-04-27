@@ -88,7 +88,7 @@ class ActionSubUnit(BaseSubConditionUnit):
             raise ValueError(
                 f"当前检查的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！"
             )
-        if self.check_target == "after":
+        if self.check_target in ["after", "team"]:
             return self.spawn_result(handler.handler(game_state))
         else:
             """check_target 不是 after（其实已经弃用了），就是CID"""
