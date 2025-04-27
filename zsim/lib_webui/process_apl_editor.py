@@ -1,14 +1,20 @@
 import os
 import time
 import copy
-import pandas as pd # <-- 添加导入 pandas
+import pandas as pd
 from dataclasses import dataclass
 from typing import Sequence, Any
 
 import streamlit as st
 import toml
-from streamlit_ace import st_ace # <-- 导入 streamlit-ace
-from define import COSTOM_APL_DIR, DEFAULT_APL_DIR, saved_char_config, CHARACTER_DATA_PATH # <-- 添加 DATA_DIR
+from streamlit_ace import st_ace
+from define import (
+    COSTOM_APL_DIR,
+    DEFAULT_APL_DIR,
+    saved_char_config,
+    CHARACTER_DATA_PATH,
+    DOCS_DIR,
+)
 
 from .constants import CHAR_CID_MAPPING
 
@@ -19,7 +25,7 @@ class APLArchive:
     custom_apl_map: dict[str, dict] = None  # {relative_path: apl_toml}
     options: Sequence[str] = None
     title_apl_map: dict[str, dict] = None  # {title: apl_toml}
-    title_path_map: dict[str, str] = None  # {title: relative_path}
+    title_file_name_map: dict[str, str] = None  # {title: APL file name}
 
     def __post_init__(self):
         self.refresh()
@@ -34,7 +40,7 @@ class APLArchive:
         self.title_apl_map = {
             apl.get("general", {}).get("title", None): apl for apl in all_apl_list
         }
-        self.title_path_map = {
+        self.title_file_name_map = {
             apl.get("general", {}).get("title", None): relative_path
             for relative_path, apl in all_apl_map.items()
         }
@@ -52,14 +58,13 @@ class APLArchive:
         Raises:
             ValueError: 如果找不到标题对应的文件路径或保存失败。
         """
-        relative_path = self.title_path_map.get(title)
+        relative_path = self.title_file_name_map.get(title)
         if not relative_path:
             raise ValueError(f"错误：找不到标题 '{title}' 对应的文件路径。")
 
         # 确定绝对路径
         if relative_path in self.default_apl_map:
             base_dir = DEFAULT_APL_DIR
-            # 警告已移至 display_apl_details 函数中显示
         elif relative_path in self.custom_apl_map:
             base_dir = COSTOM_APL_DIR
         else:
@@ -79,16 +84,21 @@ class APLArchive:
             #     chars_info.pop('optional_str_temp', None)
 
             # 更新最后修改时间
-            if 'general' in data_to_save:
+            if "general" in data_to_save:
                 from datetime import datetime
-                now_str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "+08:00"
-                data_to_save['general']['latest_change_time'] = now_str
-            else:
-                 # 如果没有 general 部分，也尝试添加时间戳
-                 from datetime import datetime
-                 now_str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "+08:00"
-                 data_to_save['general'] = {'latest_change_time': now_str}
 
+                now_str = (
+                    datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "+08:00"
+                )
+                data_to_save["general"]["latest_change_time"] = now_str
+            else:
+                # 如果没有 general 部分，也尝试添加时间戳
+                from datetime import datetime
+
+                now_str = (
+                    datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "+08:00"
+                )
+                data_to_save["general"] = {"latest_change_time": now_str}
 
             # 保存到文件
             with open(absolute_path, "w", encoding="utf-8") as f:
@@ -102,15 +112,53 @@ class APLArchive:
         except Exception as e:
             raise ValueError(f"保存APL文件时出错：{e}")
 
-    def dump_toml(self, apl_path):
-        raise NotImplementedError()
-
     def get_general(self, title: str):
         return self.title_apl_map.get(title, {}).get("general", {})
 
     def get_apl_data(self, title: str) -> dict[str, Any] | None:
         """获取指定标题的完整APL数据"""
         return self.title_apl_map.get(title)
+
+    def get_title_from_path(self, path: str) -> str | None:
+        """根据路径获取对应的标题"""
+        st.write(self.title_file_name_map)
+        for title, apl_path in self.title_file_name_map.items():
+            if apl_path in path:
+                return title
+        return None
+
+    def get_origin_relative_path(self, title: str) -> str | None:
+        """根据标题获取其在项目中的相对文件路径。
+
+        Args:
+            title (str): APL的标题。
+
+        Returns:
+            str | None: APL文件相对于项目根目录的相对路径，如果找不到则返回 None。
+        """
+        # 从 title_file_name_map 获取相对于 APL 基础目录的路径
+        relative_path_in_apl_dir = self.title_file_name_map.get(title)
+        if relative_path_in_apl_dir is None:
+            # st.error(f"错误：找不到标题 '{title}' 对应的文件路径。")
+            return None
+
+        # 确定文件属于哪个基础目录 (default 或 custom)
+        if relative_path_in_apl_dir in self.default_apl_map:
+            base_dir_relative_to_project = DEFAULT_APL_DIR
+        elif relative_path_in_apl_dir in self.custom_apl_map:
+            base_dir_relative_to_project = COSTOM_APL_DIR
+        else:
+            # st.error(f"内部错误：无法确定文件 '{relative_path_in_apl_dir}' 的所属目录。")
+            return None  # 或者可以抛出异常
+
+        # 组合基础目录的项目相对路径和文件在基础目录内的相对路径
+        # 使用 os.path.join 来正确处理路径分隔符
+        # 替换反斜杠为正斜杠以保持一致性
+        full_relative_path = os.path.join(
+            base_dir_relative_to_project, relative_path_in_apl_dir
+        ).replace("\\", "/")
+
+        return full_relative_path
 
     def change_title(self, former_title: str, new_title: str, new_comment: str = None):
         # Step 1: Check if the former title exists
@@ -131,7 +179,7 @@ class APLArchive:
             return
 
         # Step 4: Get the relative path for the former title
-        relative_path = self.title_path_map.get(former_title)
+        relative_path = self.title_file_name_map.get(former_title)
         if not relative_path:
             st.error(
                 f"内部错误：找不到标题 '{former_title}' 对应的文件路径。"
@@ -162,9 +210,6 @@ class APLArchive:
             apl_data["general"]["title"] = new_title
             if new_comment is not None:
                 apl_data["general"]["comment"] = new_comment
-            # Optionally update latest_change_time
-            # from datetime import datetime
-            # apl_data['general']['latest_change_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             with open(absolute_path, "w", encoding="utf-8") as f:
                 toml.dump(apl_data, f)
@@ -287,26 +332,28 @@ class APLJudgeTool:
             for key, value in config.items():
                 saved_value = self.saved_char_config.get(char_name, {}).get(key)
                 target_value = str(value)
-                pass_through_values = ["", "None", "-1"]
+                pass_through_values = ["", "None", "-1", "[]"]
                 # 如果目标值在pass_through中，直接跳过后续判断
                 if target_value in pass_through_values:
                     continue
                 # 判断saved_value是否为列表
                 if isinstance(saved_value, list):
-                    # 如果是列表，检查目标值是否在列表中
-                    if target_value not in [str(v) for v in saved_value]:
+                    # 如果是列表，检查保存值是否在列表中
+                    if any(v in target_value for v in [str(v) for v in saved_value]):
                         missing_configs[char_name] = missing_configs.get(char_name, {})
                         missing_configs[char_name][key] = value
                 else:
                     # 如果不是列表，按相等判断
-                    if str(saved_value) != target_value:
+                    if str(saved_value) not in target_value:
                         missing_configs[char_name] = missing_configs.get(char_name, {})
                         missing_configs[char_name][key] = value
 
         return len(missing_configs) == 0, missing_configs
 
 
-def display_apl_details(apl_data: dict[str, Any], apl_title: str, apl_archive: APLArchive): # <-- 添加 apl_archive 参数
+def display_apl_details(
+    apl_data: dict[str, Any], apl_title: str, apl_archive: APLArchive
+):  # <-- 添加 apl_archive 参数
     """使用Streamlit组件显示和编辑APL的详细信息。
 
     Args:
@@ -318,7 +365,7 @@ def display_apl_details(apl_data: dict[str, Any], apl_title: str, apl_archive: A
         return
 
     st.divider()
-    st.subheader(f"编辑 APL: {apl_title}") # Use title in subheader
+    st.subheader(f"编辑 APL：{apl_title}")  # Use title in subheader
 
     # Initialize session state for edited data if not present
     session_key = f"edited_apl_{apl_title}"
@@ -326,38 +373,39 @@ def display_apl_details(apl_data: dict[str, Any], apl_title: str, apl_archive: A
         # Deep copy to avoid modifying the original dict directly
         st.session_state[session_key] = copy.deepcopy(apl_data)
 
-    edited_data = st.session_state[session_key]
+    edited_data: dict = st.session_state[session_key]
 
     # --- General 信息编辑 ---
-    st.markdown("**通用信息**")
     general_info = edited_data.get("general", {})
     cols_general = st.columns(2)
     # Title editing might need special handling due to its use as an identifier
     # For now, make it read-only or handle rename separately as per roadmap
-    cols_general[0].markdown(f"- **标题:** {general_info.get('title', 'N/A')} (重命名请使用上方按钮)")
+    cols_general[0].markdown(
+        f"**标题:**  (重命名请使用上方按钮)</br>**{general_info.get('title', 'N/A')}**  ", unsafe_allow_html=True
+    )
     general_info["author"] = cols_general[1].text_input(
         "作者", value=general_info.get("author", "")
     )
     # Display create/change times - typically read-only
-    cols_general[0].markdown(f"- **创建时间:** {general_info.get('create_time', 'N/A')}")
-    cols_general[1].markdown(f"- **最后修改:** {general_info.get('latest_change_time', 'N/A')}")
     general_info["comment"] = st.text_area(
         "注释", value=general_info.get("comment", "")
     )
-    edited_data["general"] = general_info # Update the edited data
+    edited_data["general"] = general_info  # Update the edited data
 
     # --- Characters 信息编辑 (Basic Framework) ---
     st.markdown("**角色信息**")
-    characters_info = edited_data.setdefault("characters", {}) # 使用 setdefault 确保存在
+    characters_info: dict = edited_data.setdefault(
+        "characters", {}
+    )  # 使用 setdefault 确保存在
 
     # --- 读取角色列表 ---
     try:
         if os.path.exists(CHARACTER_DATA_PATH):
             df_char = pd.read_csv(CHARACTER_DATA_PATH)
-            all_character_names = df_char['name'].unique().tolist()
+            all_character_names = df_char["name"].unique().tolist()
         else:
             st.error(f"角色数据文件未找到: {CHARACTER_DATA_PATH}")
-            all_character_names = [] # 提供空列表以避免后续错误
+            all_character_names = []  # 提供空列表以避免后续错误
     except Exception as e:
         st.error(f"读取角色数据时出错: {e}")
         all_character_names = []
@@ -377,52 +425,162 @@ def display_apl_details(apl_data: dict[str, Any], apl_title: str, apl_archive: A
             "必须角色",
             options=all_character_names,
             default=valid_required,
-            key=f"{session_key}_required_chars", # 添加唯一 key
-            max_selections=3
+            key=f"{session_key}_required_chars",  # 添加唯一 key
+            max_selections=3,
         )
     with col2:
         characters_info["optional"] = st.multiselect(
             "可选角色",
             options=all_character_names,
             default=valid_optional,
-            key=f"{session_key}_optional_chars" # 添加唯一 key
+            key=f"{session_key}_optional_chars",  # 添加唯一 key
         )
 
-    # --- 显示角色配置 (保持不变) ---
-    configs = {k: v for k, v in characters_info.items() if k not in ["required", "optional"]}
+        # 清理掉不在 selected_chars 中的角色配置
+        # 需要在这里重新获取最新的 selected_chars 列表
+        _selected_chars_for_cleanup = characters_info.get(
+            "required", []
+        ) + characters_info.get("optional", [])
+        _current_config_keys = list(characters_info.keys())
+        for _key in _current_config_keys:
+            if _key not in _selected_chars_for_cleanup and _key not in [
+                "required",
+                "optional",
+            ]:
+                # 确保 key 存在再删除，避免潜在错误
+                if _key in characters_info:
+                    del characters_info[_key]
 
-    if configs:
-        st.markdown("- **角色配置:** (暂不支持编辑)") # Placeholder
-        for char, config in configs.items():
-            st.markdown(f"  - **{char}:**")
-            for key, value in config.items():
-                st.markdown(f"    - {key}: {value}") # Display only for now
+    # --- 编辑角色配置 ---
+    st.markdown("**角色配置编辑**")
+    selected_chars = characters_info.get("required", []) + characters_info.get(
+        "optional", []
+    )
+
+    if not selected_chars:
+        st.markdown("- 请先在上方选择“必须角色”或“可选角色”。")
     else:
-        st.markdown("- **角色配置:** 无")
+        # 确保 characters_info 中存在所有选定角色的条目
+        cols = st.columns(len(selected_chars))
+        i = 0
+        for char_name in selected_chars:
+            if char_name not in characters_info:
+                characters_info[char_name] = {}  # 如果不存在则初始化为空字典
 
-    # 注意：目前仅更新 general 和 apl_logic 部分到 edited_data
-    # characters 部分的编辑逻辑较为复杂，暂时只显示和基础输入
-    # edited_data['characters'] = characters_info # 暂时注释掉，避免因简单输入覆盖复杂结构
+        # 为每个选定的角色显示编辑界面
+        for char_name in selected_chars:
+            with cols[i]:
+                i += 1
+                if char_name not in all_character_names:  # 跳过无效的角色名
+                    continue
+
+                # 获取或初始化该角色的配置
+                char_config = characters_info.setdefault(char_name, {})
+
+                with st.expander(f"编辑角色配置需求: {char_name}", expanded=False):
+                    # cinema 编辑 (使用多选框)
+                    cinema_options = list(range(7))  # 选项为 0 到 6
+                    current_cinema_val = char_config.get("cinema", [])
+
+                    # 确保 current_cinema_val 是列表，并且元素是整数
+                    if isinstance(current_cinema_val, int):
+                        default_cinema = (
+                            [current_cinema_val]
+                            if current_cinema_val in cinema_options
+                            else []
+                        )
+                    elif isinstance(current_cinema_val, list):
+                        # 过滤掉无效值或非整数值
+                        default_cinema = [
+                            int(v)
+                            for v in current_cinema_val
+                            if isinstance(v, (int, str))
+                            and str(v).isdigit()
+                            and int(v) in cinema_options
+                        ]
+                    elif (
+                        isinstance(current_cinema_val, str)
+                        and current_cinema_val.isdigit()
+                    ):
+                        default_cinema = (
+                            [int(current_cinema_val)]
+                            if int(current_cinema_val) in cinema_options
+                            else []
+                        )
+                    else:
+                        default_cinema = []  # 如果是其他类型或空字符串，默认为空列表
+
+                    # 使用 st.multiselect 控件
+                    selected_cinema = st.multiselect(
+                        "影画等级 (可多选)",
+                        options=cinema_options,
+                        default=default_cinema,
+                        key=f"{session_key}_{char_name}_cinema",
+                    )
+
+                    # 直接将选择的列表（整数）保存到 char_config
+                    # 如果用户没有选择任何项，则保存空列表
+                    char_config["cinema"] = selected_cinema
+
+                    # weapon 编辑
+                    char_config["weapon"] = st.text_input(
+                        "音擎",
+                        value=str(char_config.get("weapon", "")),
+                        key=f"{session_key}_{char_name}_weapon",
+                    )
+                    # equip_set4 编辑
+                    char_config["equip_set4"] = st.text_input(
+                        "四件套",
+                        value=str(char_config.get("equip_set4", "")),
+                        key=f"{session_key}_{char_name}_equip_set4",
+                    )
+
+    # 更新 session state 中的 characters 数据
+    edited_data["characters"] = characters_info
 
     # --- APL Logic 编辑 ---
     st.markdown("**APL 逻辑**")
+
+    # 定义 Markdown 文件路径
+    apl_doc_path = os.path.abspath(os.path.join(DOCS_DIR, "ZZZSim_APL功能技术文档.md"))
+
+    # 创建按钮，点击时打开文档对话框
+    if st.button("查看 APL 技术文档"):
+        try:
+            with open(apl_doc_path, "r", encoding="utf-8") as f:
+                apl_doc_content = f.read()
+
+            @st.dialog("APL 技术文档", width="large")
+            def show_apl_doc():
+                st.markdown(apl_doc_content, unsafe_allow_html=True)
+
+            show_apl_doc()
+        except FileNotFoundError:
+            st.error(f"错误：找不到 APL 技术文档文件 '{apl_doc_path}'")
+        except Exception as e:
+            st.error(f"读取 APL 技术文档时出错：{e}")
+
     apl_logic_info = edited_data.get("apl_logic", {})
+    st.write("逻辑编写：")
     # 使用 st_ace 替换 st.text_area 以获得更好的代码编辑体验
     apl_logic_info["logic"] = st_ace(
         value=apl_logic_info.get("logic", ""),
         language="python",
-        theme="github",    # 选择一个主题
-        keybinding="vscode", # 可选：设置键位绑定
-        height=800,        # 设置编辑器高度
+        theme="github",  # 选择一个主题
+        keybinding="vscode",  # 可选：设置键位绑定
+        height=800,  # 设置编辑器高度
         auto_update=True,  # 自动更新内容
-        key=f"{session_key}_apl_logic_editor" # 添加唯一 key
+        key=f"{session_key}_apl_logic_editor",  # 添加唯一 key
     )
-    edited_data["apl_logic"] = apl_logic_info # Update the edited data
+    edited_data["apl_logic"] = apl_logic_info  # Update the edited data
 
-    # --- 在保存按钮前添加警告 --- 
-    relative_path = apl_archive.title_path_map.get(apl_title)
+    # --- 在保存按钮前添加警告 ---
+    relative_path = apl_archive.title_file_name_map.get(apl_title)
     if relative_path and relative_path in apl_archive.default_apl_map:
-        st.warning("警告：正在修改非自建APL，这可能会在更新时被覆盖。请考虑复制后修改。", icon="⚠️")
+        st.warning(
+            "警告：正在修改非自建APL，这可能会在更新时被覆盖。请考虑复制后修改。",
+            icon="⚠️",
+        )
 
     # --- 保存按钮 ---
     st.divider()
@@ -434,7 +592,7 @@ def display_apl_details(apl_data: dict[str, Any], apl_title: str, apl_archive: A
             st.success(f"APL '{apl_title}' 已成功保存！")
             # 清理 session state 并刷新页面
             del st.session_state[session_key]
-            time.sleep(1) # 短暂显示成功消息
+            time.sleep(1)  # 短暂显示成功消息
             st.rerun()
         except ValueError as e:
             st.error(f"保存失败：{e}")
@@ -442,7 +600,7 @@ def display_apl_details(apl_data: dict[str, Any], apl_title: str, apl_archive: A
             st.error(f"保存过程中发生意外错误：{e}")
 
 
-def listed_alp_options():
+def go_apl_editor():
     apl_archive = APLArchive()
     st.write("选择一个APL")
     col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
@@ -479,7 +637,7 @@ def listed_alp_options():
 
         @st.dialog("APL重命名")
         def rename_apl():
-            relative_path = apl_archive.title_path_map.get(selected_title)
+            relative_path = apl_archive.title_file_name_map.get(selected_title)
             if relative_path in apl_archive.default_apl_map:
                 st.warning("警告：正在修改非自建APL，你需要知道自己在做什么", icon="⚠️")
             new_title = st.text_input("新标题", value=selected_title)
@@ -531,7 +689,9 @@ def listed_alp_options():
 
                 from datetime import datetime
 
-                now_str = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "+08:00"
+                now_str = (
+                    datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "+08:00"
+                )
 
                 new_apl_data["general"]["title"] = new_title
                 if new_author:
@@ -551,7 +711,9 @@ def listed_alp_options():
                 new_apl_data["general"]["latest_change_time"] = now_str
 
                 # 生成文件名 (简单处理，替换空格和特殊字符)
-                safe_filename = "".join(c for c in new_title if c.isalnum() or c in "-_ ").rstrip()
+                safe_filename = "".join(
+                    c for c in new_title if c.isalnum() or c in "-_ "
+                ).rstrip()
                 safe_filename = safe_filename.replace(" ", "_") + ".toml"
                 new_file_path = os.path.join(COSTOM_APL_DIR, safe_filename)
 
@@ -562,7 +724,9 @@ def listed_alp_options():
                     with open(new_file_path, "w", encoding="utf-8") as f:
                         toml.dump(new_apl_data, f)
 
-                    st.success(f"APL '{new_title}' 已成功创建并保存至 '{safe_filename}'")
+                    st.success(
+                        f"APL '{new_title}' 已成功创建并保存至 '{safe_filename}'"
+                    )
                     time.sleep(1)
                     # 刷新 APL 列表
                     apl_archive.refresh()
