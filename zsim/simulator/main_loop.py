@@ -35,7 +35,7 @@ preload: PreloadClass | None = None
 game_state: dict[str, object] | None = None
 
 
-def reset_sim_data(parallel_config: 'ParallelConfig' | None):
+def reset_sim_data(parallel_config: 'ParallelConfig | None'):
     """重置所有全局变量为初始状态。"""
     global \
         tick, \

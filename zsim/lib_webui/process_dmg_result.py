@@ -21,7 +21,7 @@ def _load_dmg_data(rid: int | str) -> pd.DataFrame | None:
         Optional[pd.DataFrame]: 加载的伤害数据DataFrame，如果文件未找到则返回None。
     """
     try:
-        csv_file_path = f"{results_dir}/{rid}/damage.csv"
+        csv_file_path = os.path.join(results_dir, rid, "damage.csv")
         return pd.read_csv(csv_file_path)
     except FileNotFoundError:
         st.error(f"未找到文件：{csv_file_path}")
@@ -584,7 +584,10 @@ def show_dmg_result(rid: int | str) -> None:
     Args:
         rid (int): 运行ID。
     """
+    st.subheader(f"{rid} 的伤害数据分析")
     prepared_data_dict = prepare_dmg_data_and_cache(rid)
+    if prepared_data_dict is None:
+        return
     uuid_df = prepared_data_dict["uuid_df"]
     char_chart_data = prepared_data_dict["char_chart_data"]
     dmg_result_df = prepared_data_dict["dmg_result_df"]

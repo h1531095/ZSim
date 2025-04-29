@@ -9,7 +9,7 @@ import copy
 
 class Buff0Manager:
     def __init__(self, name_box: list[str], judge_list_set: list[list[str]], weapon_dict: dict[str, list],
-                 cinema_dict: dict, char_obj_dict: dict):
+                 cinema_dict: dict, char_obj_dict: dict | None):
         # 加载文件
         self.EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col="BuffName")
         self.JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col="BuffName")
