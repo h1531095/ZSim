@@ -24,7 +24,6 @@ class ActionSubUnit(BaseSubConditionUnit):
 
     class StrictLinkedHandler(ActionCheckHandler):
         """强衔接判定，技能skill_tag符合的同时，还需要上一个动作刚好结束。"""
-
         @classmethod
         def handler(cls, char_cid: int, game_state, tick: int) -> str | None:
             char_stack = get_personal_node_stack(game_state).get(char_cid, None)
