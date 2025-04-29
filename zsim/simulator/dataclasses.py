@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from sim_progress import Buff
 from sim_progress.Character import Character, character_factory
 from sim_progress.data_struct import ActionStack
-import time
 from sim_progress.Buff.Buff0Manager import Buff0ManagerClass, change_name_box
 
 
@@ -99,7 +98,7 @@ class LoadData:
     name_dict: dict = field(default_factory=dict)
     all_name_order_box: dict = field(default_factory=dict)
     preload_tick_stamp: dict = field(default_factory=dict)
-    char_obj_dict: dict = None
+    char_obj_dict: dict | None = None
 
     def __post_init__(self):
         self.buff_0_manager = Buff0ManagerClass.Buff0Manager(self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict, self.char_obj_dict)

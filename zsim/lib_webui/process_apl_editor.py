@@ -381,7 +381,8 @@ def display_apl_details(
     # Title editing might need special handling due to its use as an identifier
     # For now, make it read-only or handle rename separately as per roadmap
     cols_general[0].markdown(
-        f"**标题:**  (重命名请使用上方按钮)</br>**{general_info.get('title', 'N/A')}**  ", unsafe_allow_html=True
+        f"**标题:**  (重命名请使用上方按钮)</br>**{general_info.get('title', 'N/A')}**  ",
+        unsafe_allow_html=True,
     )
     general_info["author"] = cols_general[1].text_input(
         "作者", value=general_info.get("author", "")
@@ -436,20 +437,20 @@ def display_apl_details(
             key=f"{session_key}_optional_chars",  # 添加唯一 key
         )
 
-        # 清理掉不在 selected_chars 中的角色配置
-        # 需要在这里重新获取最新的 selected_chars 列表
-        _selected_chars_for_cleanup = characters_info.get(
-            "required", []
-        ) + characters_info.get("optional", [])
-        _current_config_keys = list(characters_info.keys())
-        for _key in _current_config_keys:
-            if _key not in _selected_chars_for_cleanup and _key not in [
-                "required",
-                "optional",
-            ]:
-                # 确保 key 存在再删除，避免潜在错误
-                if _key in characters_info:
-                    del characters_info[_key]
+    # 清理掉不在 selected_chars 中的角色配置
+    # 需要在这里重新获取最新的 selected_chars 列表
+    _selected_chars_for_cleanup = characters_info.get(
+        "required", []
+    ) + characters_info.get("optional", [])
+    _current_config_keys = list(characters_info.keys())
+    for _key in _current_config_keys:
+        if _key not in _selected_chars_for_cleanup and _key not in [
+            "required",
+            "optional",
+        ]:
+            # 确保 key 存在再删除，避免潜在错误
+            if _key in characters_info:
+                del characters_info[_key]
 
     # --- 编辑角色配置 ---
     st.markdown("**角色配置编辑**")
