@@ -807,14 +807,20 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > <td><b>解释</b></td>
 > </tr>
 > <tr>
-> <td rowspan="5">1361</br>（扳机）</td>
+> <td rowspan="1">1361</br>（扳机）</td>
 > <td rowspan="5"><code>:</code></td>
-> <td><code>special_state</code></td>
+> <td rowspan="5"><code>special_state</code></td>
 > <td rowspan="5">→</td>
 > <td>狙击姿态</td>
-> <td rowspan="3"><span class="color-bool">布尔值比较</span></td>
+> <td><span class="color-bool">布尔值比较</span></td>
 > <td>检索扳机当前是否处于狙击姿态</td>
 > </tr>
+> <tr>
+> <td rowspan="4" >1331<br>（薇薇安）</td>
+> <td>护羽数量</td>
+> <td>数值比较</td>
+> <td>检索薇薇安当前的护羽数量</td>
+> </tr> 
 > </table>
 --------------------------------
 
