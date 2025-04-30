@@ -89,6 +89,37 @@ p {
     text-indent: 0; /* 继承父级缩进 */
     margin: 0.3em 0; /* 调整间距保持美观 */
 }
+
+
+:root {
+    --row-color-0: #FFE082;
+    --row-color-1: #FFCDD2;
+    --row-color-2: #81D4FA;
+    --row-color-3: #BBDEFB;
+    --row-color-4: #D1C4E9;
+    --row-color-5: #29B6F6;
+
+}
+.color-0 {
+    background-color: var(--row-color-0);
+}
+.color-1 {
+    background-color: var(--row-color-1);
+}
+.color-2 {
+    background-color: var(--row-color-2);
+}
+.color-3 {
+    background-color: var(--row-color-3);
+}
+.color-4 {
+    background-color: var(--row-color-4);
+}
+.color-5 {
+    background-color: var(--row-color-5);
+}
+
+
 /* 颜色标记 */
 .color-assult { color: #FFB74D; }
 .color-burn { color: #FF7043; }
@@ -97,12 +128,13 @@ p {
 .color-corruption { color: #673AB7; }
 .color-shock { color:  #1976D2}
 .color-str{ color: #9575CD}
-.color-bool{ color: #5C6BC0}
-.color-number{ color: #CDDC39}
+.color-bool{ color: #7986CB}
+.color-number{ color: #283593}
 .color-none{ color: #FF8A65}
 .color-enable{ color: #4CAF50}
 .color-disable{ color: #BDBDBD}
 </style>
+
 
 # ZSim APL设计书
 
@@ -807,20 +839,85 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > <td><b>解释</b></td>
 > </tr>
 > <tr>
-> <td rowspan="1">1361</br>（扳机）</td>
-> <td rowspan="5"><code>:</code></td>
-> <td rowspan="5"><code>special_state</code></td>
-> <td rowspan="5">→</td>
-> <td>狙击姿态</td>
-> <td><span class="color-bool">布尔值比较</span></td>
-> <td>检索扳机当前是否处于狙击姿态</td>
+> <td rowspan="1"; class="color-3">1361</br>（扳机）</td>
+> <td rowspan="20"><code>:</code></td>
+> <td rowspan="20"><code>special_state</code></td>
+> <td rowspan="20">→</td>
+> <td class="color-3">狙击姿态</td>
+> <td class="color-3"><span class="color-bool">布尔值比较</span></td>
+> <td class="color-3">检索 扳机当前是否处于狙击姿态</td>
 > </tr>
 > <tr>
-> <td rowspan="4" >1331<br>（薇薇安）</td>
-> <td>护羽数量</td>
-> <td>数值比较</td>
-> <td>检索薇薇安当前的护羽数量</td>
+> <td rowspan="4" class="color-4">1331<br>（薇薇安）</td>
+> <td class="color-4">护羽数量</td>
+> <td class="color-4"; rowspan=2><span class="color-number">数值比较</span></td>
+> <td class="color-4">检索 薇薇安当前的护羽数量</td>
 > </tr> 
+> <tr>
+> <td class="color-4">飞羽数量</td>
+> <td class="color-4">检索 薇薇安当前的飞羽数量</td>
+> </tr>
+> <tr>
+> <td class="color-4">裙裾浮游</td>
+> <td class="color-4"; rowspan=2><span class="color-bool">布尔值比较</span></td>
+> <td class="color-4">检索 薇薇安当前是否处于裙裾浮游状态</td>
+> </tr> 
+> <tr>
+> <td class="color-4">淑女礼仪</td>
+> <td class="color-4">检索 薇薇安当前是否处于淑女礼仪状态</td>
+> </tr>
+> <tr>
+> <td rowspan="2"; class="color-3">1221<br>（柳）</td>
+> <td class="color-3">当前架势</td>
+> <td class="color-3"; rowspan=2><font class="color-bool">布尔值比较</font></td>
+> <td class="color-3">检索 柳的当前架势，True为上弦，False为下弦</td>
+> </tr>
+> <tr>
+> <td class="color-3">森罗万象状态</td>
+> <td class="color-3">检索 柳当前的森罗万象状态的激活情况</td>
+> </tr>
+> <tr>
+> <td rowspan="1"; class="color-4">1311<br>（耀嘉音）</td>
+> <td class="color-4">咏叹华彩</td>
+> <td class="color-4"><span class="color-bool">布尔值比较</span></td>
+> <td class="color-4">检索 耀嘉音当前是否处于咏叹华彩状态</td>
+> </tr>
+> <tr>
+> <td rowspan="1"; class="color-2">1191<br>（艾莲）</td>
+> <td class="color-2"; colspan=3>该角色没有可以被检索的特殊状态</td>
+> </tr>
+> <tr>
+> <td rowspan="1"; class="color-5">1091<br>（雅）</td>
+> <td class="color-5"; colspan=3>该角色没有可以被检索的特殊状态</td>
+> </tr>
+> <tr>
+> <td rowspan="1"; class="color-1">1041<br>（11号）</td>
+> <td class="color-1"; colspan=3>该角色没有可以被检索的特殊状态</td>
+> </tr>
+> <tr>
+> <td rowspan="1"; class="color-4">1241<br>（朱鸢）</td>
+> <td class="color-4"; colspan=3>该角色没有可以被检索的特殊状态</td>
+> </tr>
+> <tr>
+> <td rowspan="1"; class="color-2">1131<br>（苍角）</td>
+> <td class="color-2"; colspan=3>该角色没有可以被检索的特殊状态</td>
+> </tr>
+> <tr>
+> <td rowspan="3"; class="color-0">1301<br>（简）</td>
+> <td class="color-0">狂热心流</td>
+> <td class="color-0"><font class="color-number">数值比较</font></td>
+> <td class="color-0">检索 简当前的狂热心流数值</td>
+> </tr>
+> <tr>
+> <td class="color-0">狂热状态</td>
+> <td class="color-0"><font class="color-bool">布尔值比较</font></td>
+> <td class="color-0">检索 简当前是否处于狂热状态</td>
+> </tr>
+> <tr>
+> <td class="color-0">萨霍夫跳剩余次数</td>
+> <td class="color-0"><font class="color-number">数值比较</font></td>
+> <td class="color-0">检索 简当前的萨霍夫跳的剩余可用次数</td>
+> </tr>
 > </table>
 --------------------------------
 
