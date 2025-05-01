@@ -1,6 +1,5 @@
 import json
 import os
-from typing import Any
 
 import plotly.express as px
 import polars as pl
@@ -80,11 +79,11 @@ def prepare_line_chart_data(dmg_result_df: pl.DataFrame) -> dict[str, pl.DataFra
     return {"line_chart_df": processed_df}
 
 
-def draw_line_chart(chart_data: dict[str, Any]) -> None:
+def draw_line_chart(chart_data: dict[str, pl.DataFrame]) -> None:
     """绘制伤害与失衡曲线图。
 
     Args:
-        chart_data (Dict[str, Any]): 包含绘制图表所需数据的字典。
+        chart_data (Dict[str, pl.DataFrame]): 包含绘制图表所需数据的字典。
     """
     df = chart_data["line_chart_df"]
     with st.expander("伤害与失衡曲线："):
@@ -271,7 +270,7 @@ def draw_char_chart(chart_data: dict[str, pl.DataFrame]) -> None:
             st.subheader("队伍伤害来源占比")
             if len(char_dmg_df) > 0:
                 fig_dmg_pie = px.pie(
-                    char_dmg_df.to_pandas(),
+                    char_dmg_df,
                     names="name",
                     values="dmg_expect_sum",
                     labels={"name": "来源", "dmg_expect_sum": "期望伤害总和"},
@@ -475,7 +474,7 @@ def draw_char_timeline(gantt_df: pl.DataFrame | None) -> None:
     with st.expander("异常时间线："):
         if gantt_df is not None and len(gantt_df) > 0:
             fig_timeline = px.bar(
-                gantt_df.to_pandas(),
+                gantt_df,
                 x="Duration",
                 y="Task",
                 base="Start",
