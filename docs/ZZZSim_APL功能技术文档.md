@@ -388,13 +388,13 @@ APL中每一种 <b>条件类型 </b>都有各自的 <b>检索目标 </b>，而�
 
 由于 <b>比较符 </b>与 <b>检索值 </b>的具体组合不可能穷举，为了方便理解，我们将APL中所有的比较行为分为四类。
 
-1、`<font class="color-bool"><b>`布尔值比较：`</b></font>`此类条件比较符只有两种：`<code>`==`</code>`以及 `<code>`!=`</code>`，与其对应的检索值为：`<code>`True `</code>`和 `<code>`False `</code>`；
+1、<font class="color-bool"><b>布尔值比较：</b></font>此类条件比较符只有两种：<code>==</code>以及 <code>!=</code>，与其对应的检索值为：<code>True </code>和 <code>False </code>；
 
-2、`<font class="color-number"><b>`数值比较：`</b></font>`此类条件比较支持6种类数值比较符：`<code>`>`</code>`、`<code>`<`</code>`、`<code>`==`</code>`、`<code>`!=`</code>`、`<code>`>=`</code>`、`<code>`<=`</code>`，与之对应的检索值类型为：`<code>`int `</code>`、`<code>`float `</code>`
+2、<font class="color-number"><b>数值比较：</b></font>此类条件比较支持6种类数值比较符：<code>></code>、<code><</code>、<code>==</code>、<code>!=</code>、<code>>=</code>、<code><=</code>，与之对应的检索值类型为：<code>int </code>、<code>float </code>
 
-3、`<font class="color-none"><b>`None比较：`</b></font>`此类条件比较符只有两种：`<code>`==`</code>`以及 `<code>`!=`</code>`，与其对应的检索值为：`<code>`None `</code>`
+3、<font class="color-none"><b>None比较：</b></font>此类条件比较符只有两种：<code>==</code>以及 <code>!=</code>，与其对应的检索值为：<code>None </code>
 
-4、`<font class="color-str"><b>`字符比较：`</b></font>`此类条件比较符只有两种：`<code>`==`</code>`以及 `<code>`!=`</code>`，与其对应的值检索类型为：`<code>`str `</code>`
+4、<font class="color-str"><b>字符比较：</b></font>此类条件比较符只有两种：<code>==</code>以及 <code>!=</code>，与其对应的值检索类型为：<code>str </code>
 
 ---
 
@@ -1171,13 +1171,13 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > 1091|action+=|1091_Q|attribute.1091:special_resource<4|attribute.1091:decibel==3000|status.enemy:stun==True
 > ```
 >
-> 和上一句的大招APL相比，这一句改变了豆子的判定，并且取消了能量的判定。只有满足以下条件（可以简单概括为：要么豆子数量不对，要么能量值不对），APL才的执行才会来到第四行（不满足的条件为 `<span style="color: orange">`橙色）：
+> 和上一句的大招APL相比，这一句改变了豆子的判定，并且取消了能量的判定。只有满足以下条件（可以简单概括为：要么豆子数量不对，要么能量值不对），APL才的执行才会来到第四行（不满足的条件为 <span style="color: orange">橙色）：
 >
-> <b>情况1：</b>满喧响（默认） | 豆子∈\(3, 6\]| `<span style="color: orange">`能量足够
+> <b>情况1：</b>满喧响（默认） | 豆子∈\(3, 6\]| <span style="color: orange">能量足够
 >
-> <b>情况2：</b>满喧响（默认） | `<span style="color: orange">`豆子∈[0, 3] | 能量不够
+> <b>情况2：</b>满喧响（默认） | <span style="color: orange">豆子∈[0, 3] | 能量不够
 >
-> <b>情况3：</b>满喧响（默认） | `<span style="color: orange">`豆子∈[0, 3] | `<span style="color: orange">`能量足够
+> <b>情况3：</b>满喧响（默认） | <span style="color: orange">豆子∈[0, 3] | <span style="color: orange">能量足够
 >
 > 而本条APL针对的恰好就是 <b>情况2 </b>，即在有没能量，且大招不会导致豆子溢出时开大。
 
@@ -1188,7 +1188,7 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 >
 > 这里展示的APL是雅在失衡期的泄能逻辑。如果你全局检查目前已经展示的5行APL，你就不难发现本行APL中藏着一个无效条件——能量判定。从上面的三种情况的列举可以看出，能够进入到这一行的APL，均是能量足够的情况。所以能量判定在这一行是无效的。
 >
-> 这也意味着，这一行APL的作用，就是“无脑泄蓝”，哪怕此时喧响值足够，也是优先打强化E。`<span style="color: gray">`（很明显，这个逻辑是不对的，在实战中我们面对豆子不满、且有能量、有大的情况，往往会先进行豆子判断。如果开大豆子不溢出，那就优先开大，如果开大豆子溢出，那就优先打E。）
+> 这也意味着，这一行APL的作用，就是“无脑泄蓝”，哪怕此时喧响值足够，也是优先打强化E。<span style="color: gray">（很明显，这个逻辑是不对的，在实战中我们面对豆子不满、且有能量、有大的情况，往往会先进行豆子判断。如果开大豆子不溢出，那就优先开大，如果开大豆子溢出，那就优先打E。）
 >
 > 根据上述推理，这一行的APL实际上可以优化为以下两行来执行。
 >
