@@ -2,8 +2,8 @@ import json
 import os
 from typing import Any
 
-import polars as pl
 import plotly.express as px
+import polars as pl
 import streamlit as st
 from define import ANOMALY_MAPPING
 from sim_progress.Character.skill_class import lookup_name_or_cid
@@ -68,7 +68,7 @@ def prepare_line_chart_data(dmg_result_df: pl.DataFrame) -> dict[str, pl.DataFra
         after_stun = processed_df.filter(pl.col("tick") > first_stun_tick)
 
         before_stun = before_stun.with_columns(
-            (pl.col("stun").cumsum() / pl.col("tick") * 60).alias("stun_efficiency")
+            (pl.col("stun").cum_sum() / pl.col("tick") * 60).alias("stun_efficiency")
         )
         after_stun = after_stun.with_columns(pl.lit(None).alias("stun_efficiency"))
         processed_df = pl.concat([before_stun, after_stun])
@@ -485,6 +485,7 @@ def draw_char_timeline(gantt_df: pl.DataFrame | None) -> None:
                     "Duration": "持续时间(帧)",
                     "Task": "状态类型",
                 },
+                height=250,
             )
             st.plotly_chart(fig_timeline)
         else:
@@ -515,9 +516,9 @@ def calculate_and_save_anomaly_attribution(
                 anomaly_damage_totals[anomaly_name] += row["dmg_expect_sum"]
 
     # 初始化一个包含所有角色的字典
-    all_characters = set(char_dmg_df[~char_dmg_df["is_anomaly"]]["name"]).union(
-        set(char_element_df["name"])
-    )
+    all_characters = set(
+        char_dmg_df.filter(~pl.col("is_anomaly"))["name"].to_list()
+    ).union(set(char_element_df["name"]))
 
     # 初始化角色伤害数据
     attribution_data: dict[str, str] = {
