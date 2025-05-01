@@ -5,20 +5,20 @@ import aiofiles
 import aiofiles.os
 from typing import Any
 
-import pandas as pd
+import polars as pl
 import plotly.graph_objects as go
 import streamlit as st
 from define import results_dir
 
 
-def _prepare_buff_timeline_data(df: pd.DataFrame) -> list[dict[str, Any]]:
-    """将包含时间序列BUFF数据的DataFrame转换为适用于Plotly时间线的格式。
+def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
+    """将包含时间序列BUFF数据的Polars DataFrame转换为适用于Plotly时间线的格式。
 
     Args:
-        df (pd.DataFrame): 输入的DataFrame，第一列应为 'time_tick'，
+        df (pl.DataFrame): 输入的Polars DataFrame，应包含 'time_tick' 列，
                            其余列为各个BUFF的状态，列名为BUFF名称。
                            单元格中的值代表该BUFF在对应time_tick的状态值，
-                           空值（NaN或None）表示BUFF在该tick不生效。
+                           null 值表示BUFF在该tick不生效。
 
     Returns:
         list[dict[str, Any]]: 转换后的数据列表，每个字典代表一个BUFF生效的时间段，
@@ -27,53 +27,64 @@ def _prepare_buff_timeline_data(df: pd.DataFrame) -> list[dict[str, Any]]:
     """
     timeline_data: list[dict[str, Any]] = []
     buff_columns = [col for col in df.columns if col != "time_tick"]
+    last_tick = df["time_tick"].max()  # 获取最后一个 tick
 
     for buff_name in buff_columns:
-        start_tick: int | None = None
-        current_value: Any = None
+        # 筛选出当前BUFF列非空的行
+        buff_df = df.select(["time_tick", buff_name]).filter(
+            pl.col(buff_name).is_not_null()
+        )
 
-        # 按行遍历每个tick
-        for index, row in df.iterrows():
-            tick = row["time_tick"]
-            value = row[buff_name]
+        if buff_df.height == 0:
+            continue
 
-            # 检查值是否为 NaN 或 None，用作判断
-            is_nan_or_none = pd.isna(value)
+        # 尝试将 BUFF 值列转换为数值类型，无法转换的设为 null
+        buff_df = buff_df.with_columns(pl.col(buff_name).cast(pl.Float64, strict=False))
 
-            if start_tick is None:  # 当前没有记录BUFF段
-                if not is_nan_or_none:  # 遇到新的有效值，开始记录
-                    start_tick = tick
-                    current_value = value
-            else:  # 当前正在记录BUFF段
-                # 值发生变化 或 遇到 NaN/None，结束上一段
-                if is_nan_or_none or value != current_value:
-                    timeline_data.append(
-                        dict(
-                            Task=buff_name,
-                            Start=int(start_tick),
-                            Finish=int(tick - 1),
-                            Value=current_value,
-                        )
-                    )
-                    # 如果当前值有效，则开始新的记录段
-                    if not is_nan_or_none:
-                        start_tick = tick
-                        current_value = value
-                    else:  # 遇到 NaN/None，重置状态
-                        start_tick = None
-                        current_value = None
+        # 计算值变化的点
+        buff_df = buff_df.with_columns(pl.col(buff_name).diff().alias("value_diff"))
 
-        # 处理文件末尾仍在生效的BUFF段
-        if start_tick is not None:
+        # 标记每个连续段的开始
+        # 条件：第一行，或者值发生变化
+        buff_df = buff_df.with_columns(
+            ((pl.arange(0, pl.count()) == 0) | (pl.col("value_diff") != 0)).alias(
+                "is_start"
+            )
+        )
+
+        # 为每个连续段分配一个ID
+        # 将布尔值转换为整数，以便进行累加
+        buff_df = buff_df.with_columns(
+            pl.col("is_start").cast(pl.Int32).cum_sum().alias("group_id")
+        )
+
+        # 按段聚合，找到起始tick、结束tick和对应的值
+        grouped = buff_df.group_by("group_id").agg(
+            pl.first("time_tick").alias("Start"),
+            pl.last("time_tick").alias("last_valid_tick"),
+            pl.first(buff_name).alias("Value"),
+        )
+
+        # 计算结束 tick (Finish)
+        # 下一段的 Start - 1，或者如果是最后一段，则为整个数据的 last_tick
+        grouped = grouped.with_columns(pl.col("Start").shift(-1).alias("next_start"))
+
+        grouped = grouped.with_columns(
+            pl.when(pl.col("next_start").is_null())
+            .then(last_tick)  # 如果是最后一段，结束于全局 last_tick
+            .otherwise(pl.col("next_start") - 1)  # 否则结束于下一段开始的前一tick
+            .alias("Finish")
+        )
+
+        # 转换结果为字典列表
+        for row in grouped.select(["Start", "Finish", "Value"]).iter_rows(named=True):
             timeline_data.append(
-                dict(
-                    Task=buff_name,
-                    Start=int(start_tick),  # 转换为 int
-                    Finish=int(
-                        df["time_tick"].iloc[-1]
-                    ),  # 结束于最后一个tick, 转换为 int
-                    Value=current_value,
-                )
+                {
+                    "Task": buff_name,
+                    "Start": int(row["Start"]),
+                    "Finish": int(row["Finish"]),
+                    "Value": row["Value"],
+                }
             )
 
     return timeline_data
@@ -90,16 +101,15 @@ def _draw_buff_timeline_charts(all_buff_data: dict[str, list[dict[str, Any]]]) -
             continue
 
         with st.expander(f"{file_key}"):
-            df_timeline = pd.DataFrame(buff_data)
-
-            # 确保时间列是数值类型
-            df_timeline["Start"] = pd.to_numeric(df_timeline["Start"])
-            df_timeline["Finish"] = pd.to_numeric(df_timeline["Finish"])
+            # Polars 处理后的数据已经是正确的类型，并且可以直接用于绘图
+            # Plotly 可以直接处理字典列表
+            df_timeline = pl.DataFrame(
+                buff_data
+            )  # 转换为 Polars DataFrame 以便后续操作
 
             # 准备悬停文本 - 仅使用 Value
-            df_timeline["hover_text"] = df_timeline.apply(
-                lambda row: f"层数: {row['Value']}",
-                axis=1,
+            df_timeline = df_timeline.with_columns(
+                pl.format("层数: {}", pl.col("Value")).alias("hover_text")
             )
             fig = go.Figure(
                 data=[
@@ -114,7 +124,7 @@ def _draw_buff_timeline_charts(all_buff_data: dict[str, list[dict[str, Any]]]) -
                         hovertext=row["hover_text"],
                         marker=dict(opacity=0.7),
                     )
-                    for _, row in df_timeline.iterrows()
+                    for row in df_timeline.iter_rows(named=True)
                 ]
             )
             fig.update_layout(
@@ -189,8 +199,9 @@ async def prepare_buff_data_and_cache(
         nonlocal all_buff_data, processed_csv_files
         csv_file_path = os.path.join(buff_log_path, filename)
         try:
-            # 使用 asyncio.to_thread 在单独的线程中运行同步的 pandas 操作
-            df = await asyncio.to_thread(pd.read_csv, csv_file_path)
+            # 使用 asyncio.to_thread 在单独的线程中运行同步的 polars 操作
+            # 注意：Polars 的 read_csv 默认是多线程的，但为了与 aiofiles 配合，仍使用 to_thread
+            df = await asyncio.to_thread(pl.read_csv, csv_file_path)
             file_key = filename.replace(".csv", "")
             # _prepare_buff_timeline_data 本身是同步的，可以在这里直接调用
             buff_data = _prepare_buff_timeline_data(df)
@@ -245,7 +256,7 @@ async def prepare_buff_data_and_cache(
 
 def show_buff_result(rid: int | str) -> None:
     """显示指定运行ID的BUFF结果，优先从缓存加载，否则处理CSV并缓存。"""
-    st.header(f"运行 {rid} 的 BUFF 分析")
+    st.subheader(f"{rid} 的 BUFF 数据分析")
 
     # 尝试加载缓存数据
     cached_data = _load_cached_buff_data(rid)

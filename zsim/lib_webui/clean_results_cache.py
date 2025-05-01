@@ -4,7 +4,7 @@ import os
 try:
     from define import NORMAL_MODE_ID_JSON
 except ModuleNotFoundError:
-    from .constants import ID_CACHE_JSON
+    pass
 
 from .constants import results_dir, IDDuplicateError
 

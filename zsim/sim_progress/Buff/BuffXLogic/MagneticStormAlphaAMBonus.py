@@ -1,4 +1,4 @@
-from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class MagneticStormAlphaAMBonusRecord:
@@ -10,6 +10,7 @@ class MagneticStormAlphaAMBonusRecord:
 
 class MagneticStormAlphaAMBonus(Buff.BuffLogic):
     """电磁暴1式判定逻辑"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -41,6 +42,7 @@ class MagneticStormAlphaAMBonus(Buff.BuffLogic):
             return False
         from sim_progress.Preload import SkillNode
         from sim_progress.Load import LoadingMission
+
         if isinstance(skill_node, SkillNode):
             pass
         elif isinstance(skill_node, LoadingMission):
@@ -51,7 +53,9 @@ class MagneticStormAlphaAMBonus(Buff.BuffLogic):
         if self.record.equipper != skill_node.char_name:
             return False
 
-        if skill_node.skill.anomaly_accumulation != 0 and skill_node.skill.element_damage_percent > 0:
+        if (
+            skill_node.skill.anomaly_accumulation != 0
+            and skill_node.skill.element_damage_percent > 0
+        ):
             return True
         return False
-

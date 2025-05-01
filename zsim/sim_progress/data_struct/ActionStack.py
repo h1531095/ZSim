@@ -1,5 +1,3 @@
-from openpyxl.styles.builtins import output
-
 from define import SWAP_CANCEL
 from collections import defaultdict
 

@@ -36,7 +36,9 @@ class MultiplierData:
             tuple(enemy_obj.dynamic.dynamic_debuff_list),
             tuple(enemy_obj.dynamic.dynamic_dot_list),
         )
-        cache_key = tuple((enemy_hashable, hashable_dynamic_buff, id(character_obj), id(judge_node)))
+        cache_key = tuple(
+            (enemy_hashable, hashable_dynamic_buff, id(character_obj), id(judge_node))
+        )
         if cache_key in cls.mul_data_cache:
             return cls.mul_data_cache[cache_key]
         else:

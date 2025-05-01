@@ -20,6 +20,7 @@ dependencies = [
     "pydantic>=2.11.3",
     "psutil>=7.0.0",
     "streamlit-ace>=0.1.1",
+    "polars>=1.28.1",
 ]
 
 [[tool.uv.index]]
@@ -33,13 +34,10 @@ zsim = "zsim.run:main"
 packages = { find = { where = ["."], exclude = ["tests", "results", "logs"] } }
 
 [tool.setuptools.package-data]
-"*" = ["*.json", "*.csv", "*.toml"]
+"*" = ["*.json", "*.csv", "*.toml", "*.md"]
 
 [tool.pytest.ini_options]
 pythonpath = ["./zsim/"]
-
-[options]
-include_package_data = true
 
 [dependency-groups]
 dev = [

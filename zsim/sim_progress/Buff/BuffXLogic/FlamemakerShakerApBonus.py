@@ -1,4 +1,4 @@
-from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class FlamemakerShakerApBonusRecord:
@@ -10,6 +10,7 @@ class FlamemakerShakerApBonusRecord:
 
 class FlamemakerShakerApBonus(Buff.BuffLogic):
     """灼心摇壶的精通增幅判定"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -35,15 +36,11 @@ class FlamemakerShakerApBonus(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         """检测到目标buff层数>=5时候放行"""
         self.check_record_module()
-        self.get_prepared(equipper="灼心摇壶", trigger_buff_0=('equipper', '灼心摇壶-增伤'))
+        self.get_prepared(
+            equipper="灼心摇壶", trigger_buff_0=("equipper", "灼心摇壶-增伤")
+        )
         if not self.record.trigger_buff_0.dy.active:
             return False
         if self.record.trigger_buff_0.dy.count < 5:
             return False
         return True
-
-
-
-
-
-

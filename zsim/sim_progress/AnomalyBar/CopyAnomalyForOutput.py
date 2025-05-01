@@ -18,7 +18,7 @@ class Disorder(AnomalyBar):
         # 复制父类的所有属性，主要是快照、积蓄总值、属性类型。
         self.source_uuid = self.UUID
         self.UUID = uuid.uuid4()
-    
+
     def __hash__(self):
         """使对象可哈希"""
         return hash(self.UUID)
@@ -28,17 +28,17 @@ class NewAnomaly(AnomalyBar):
     """
     普通的异常类，仅用于非紊乱的属性异常更新。
     """
+
     def __init__(self, Output_bar: AnomalyBar, active_by):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
         self.activate_by = active_by
         self.source_uuid = self.UUID
         self.UUID = uuid.uuid4()
-        
+
     def __hash__(self):
         """使对象可哈希"""
         return hash(self.UUID)
-    
 
 
 class PolarityDisorder(Disorder):
@@ -48,6 +48,7 @@ class PolarityDisorder(Disorder):
     极性紊乱伤害 = 紊乱伤害 * 本次极性紊乱倍率（解锁2命后可变）+ 附加3200% * 精通的伤害
     构造时，不仅需要提供被复制的异常条，还需要提供连击次数（用来计算极性紊乱比例），还需要提供触发者ID（CID或者enemy）
     """
+
     def __init__(self, Output_bar: AnomalyBar, _polarity_disorder_ratio, active_by):
         super().__init__(Output_bar, active_by=active_by)
         self.__dict__.update(Output_bar.__dict__)
@@ -59,7 +60,7 @@ class PolarityDisorder(Disorder):
         self.activate_by = active_by
         self.source_uuid = self.UUID
         self.UUID = uuid.uuid4()
-    
+
     def __hash__(self):
         """使对象可哈希"""
         return hash(self.UUID)
@@ -68,6 +69,7 @@ class PolarityDisorder(Disorder):
 class DirgeOfDestinyAnomaly(AnomalyBar):
     """薇薇安的核心被动「命运悲歌」会重复触发一次异常伤害，
     该伤害具有属性异常的全部相同参数，同时具有一个缩放倍率。"""
+
     def __init__(self, Output_bar: AnomalyBar, active_by):
         super().__init__()
         self.__dict__.update(Output_bar.__dict__)
@@ -75,7 +77,7 @@ class DirgeOfDestinyAnomaly(AnomalyBar):
         self.anomaly_dmg_ratio = 0  # 属性异常伤害的缩放倍率
         self.source_uuid = self.UUID
         self.UUID = uuid.uuid4()
-    
+
     def __hash__(self):
         """使对象可哈希"""
         return hash(self.UUID)

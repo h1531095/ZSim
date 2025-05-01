@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-import pandas as pd
+import polars as pl
 from define import (
     CHARACTER_DATA_PATH,
     EQUIP_2PC_DATA_PATH,
@@ -428,7 +428,10 @@ class Character:
         def __init__(self, char_instantce: Character):
             self.character = char_instantce
             self.lasting_node = LastingNode(self.character)
-            from sim_progress.data_struct.QuickAssistSystem.QuickAssistManager import QuickAssistManager
+            from sim_progress.data_struct.QuickAssistSystem.QuickAssistManager import (
+                QuickAssistManager,
+            )
+
             self.quick_assist_manager = QuickAssistManager(self.character)
             self.on_field = False  # 角色是否在前台
 
@@ -486,9 +489,12 @@ class Character:
         if not isinstance(char_name, str) or not char_name.strip():
             raise ValueError("角色名称必须是非空字符串")
         try:
-            df = pd.read_csv(CHARACTER_DATA_PATH)
-            # 查找与角色名称匹配的行，并转换为字典形式，每条记录一个字典
-            row: list[dict] = df[df["name"] == char_name].to_dict("records")
+            row = (
+                pl.scan_csv(CHARACTER_DATA_PATH)
+                .filter(pl.col("name") == char_name)
+                .collect()
+                .to_dicts()
+            )
             if row:
                 # 将对应记录提取出来，并赋值给角色对象
                 row_0: dict = row[0]
@@ -518,9 +524,6 @@ class Character:
         except FileNotFoundError:
             logging.error("找不到角色数据文件，请检查路径是否正确。")
             raise
-        except pd.errors.EmptyDataError:
-            logging.error("角色数据文件为空。")
-            raise
         except Exception as e:
             logging.error(f"初始化角色属性时发生未知错误：{e}")
             raise
@@ -530,10 +533,10 @@ class Character:
         if weapon is None:
             return
 
-        df = pd.read_csv(WEAPON_DATA_PATH)
-        row = df[df["中文名称"] == weapon]
-        if not row.empty:
-            row_0 = row.iloc[0]
+        df = pl.read_csv(WEAPON_DATA_PATH)
+        row = df.filter(pl.col("中文名称") == weapon)
+        if row.height > 0:
+            row_0 = row.row(0, named=True)
             base_atk = float(row_0["60级基础攻击力"])
             attr_value = row_0["60级高级属性值"]
             self.baseATK += base_atk
@@ -607,10 +610,12 @@ class Character:
             if equip_set4 in equip_set_all:  # 别删这个if，否则输入None会报错
                 equip_set_all.remove(equip_set4)
         if equip_set_all is not None:  # 全空则跳过
-            df = pd.read_csv(EQUIP_2PC_DATA_PATH)
+            lf = pl.scan_csv(EQUIP_2PC_DATA_PATH)
             for equip_2pc in equip_set_all:
                 if bool(equip_2pc):  # 若二件套非空，则继续
-                    row: list[dict] = df[df["set_ID"] == equip_2pc].to_dict("records")
+                    row: list[dict] = lf.filter(
+                        pl.col("set_ID") == equip_2pc
+                    ).collect().to_dicts()
                     if row:
                         row_0 = row[0]
                         self.__mapping_csv_to_attr(row_0)
@@ -703,9 +708,10 @@ class Character:
         )
         self.PEN_numeric += scPEN * SUB_STATS_MAPPING["scPEN"]
         if self.crit_balancing:
-            self.baseCRIT_score += ((scCRIT * SUB_STATS_MAPPING["scCRIT"]) + (
-                scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
-            )) * 100
+            self.baseCRIT_score += (
+                (scCRIT * SUB_STATS_MAPPING["scCRIT"])
+                + (scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"])
+            ) * 100
         else:
             self.CRIT_rate_numeric += scCRIT * SUB_STATS_MAPPING["scCRIT"]
             self.CRIT_damage_numeric += scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"]
@@ -893,7 +899,6 @@ class Character:
         self.decibel: float = 1000.0
         # 重置动态属性
         self.dynamic.reset()
-
 
 
 class LastingNode:

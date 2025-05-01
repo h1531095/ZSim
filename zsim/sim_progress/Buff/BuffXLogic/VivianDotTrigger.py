@@ -1,6 +1,7 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 from define import VIVIAN_REPORT
 
+
 class VivianDotTriggerRecord:
     def __init__(self):
         self.char = None
@@ -22,7 +23,9 @@ class VivianDotTrigger(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['薇薇安'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["薇薇安"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = VivianDotTriggerRecord()
         self.record = self.buff_0.history.record
@@ -31,14 +34,17 @@ class VivianDotTrigger(Buff.BuffLogic):
         """检测到敌人处于属性异常状态，并且是SNA2或者是协同攻击时，放行"""
         self.check_record_module()
         self.get_prepared(char_CID=1331, enemy=1)
-        skill_node = kwargs.get('skill_node', None)
+        skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f'{self.buff_instance.ft.index}的Xjudge函数获取到的skill_node不是SkillNode类型，请检查！')
+            raise TypeError(
+                f"{self.buff_instance.ft.index}的Xjudge函数获取到的skill_node不是SkillNode类型，请检查！"
+            )
         # 筛选出能够触发dot的SNA_2和生花
-        if skill_node.skill_tag not in ['1331_SNA_2', '1331_CoAttack_A']:
+        if skill_node.skill_tag not in ["1331_SNA_2", "1331_CoAttack_A"]:
             return False
 
         # 检测到当前tick有命中时，放行。
@@ -61,19 +67,12 @@ class VivianDotTrigger(Buff.BuffLogic):
             return
         from sim_progress.Update.UpdateAnomaly import spawn_normal_dot
         from sim_progress.Load import LoadingMission
-        dot = spawn_normal_dot('ViviansProphecy')
+
+        dot = spawn_normal_dot("ViviansProphecy")
         dot.start(find_tick())
         event_list = JudgeTools.find_event_list()
         dot.skill_node_data.loading_mission = LoadingMission(dot.skill_node_data)
         dot.skill_node_data.loading_mission.mission_start(find_tick())
         self.record.enemy.dynamic.dynamic_dot_list.append(dot)
         event_list.append(dot.skill_node_data)
-        print(f'核心被动：薇薇安对敌人施加Dot——薇薇安的预言') if VIVIAN_REPORT else None
-
-
-
-
-
-
-
-
+        print("核心被动：薇薇安对敌人施加Dot——薇薇安的预言") if VIVIAN_REPORT else None

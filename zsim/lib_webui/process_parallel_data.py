@@ -7,6 +7,8 @@ import aiofiles
 import plotly.graph_objects as go
 import streamlit as st
 from define import results_dir
+from lib_webui.process_buff_result import show_buff_result
+from lib_webui.process_dmg_result import show_dmg_result
 
 from .constants import stats_trans_mapping
 from .process_buff_result import prepare_buff_data_and_cache
@@ -52,7 +54,7 @@ def judge_parallel_result(rid: int | str) -> bool:
     return False
 
 
-async def _process_sub_directory(sub_rid: str) -> None:
+async def _process_sub_damage(sub_rid: str) -> None:
     """异步处理单个子目录的数据。
 
     Args:
@@ -60,7 +62,15 @@ async def _process_sub_directory(sub_rid: str) -> None:
     """
     # prepare_dmg_data_and_cache 不是异步函数，使用 to_thread
     await asyncio.to_thread(prepare_dmg_data_and_cache, sub_rid)
-    # await prepare_buff_data_and_cache(sub_rid)
+
+
+async def _process_sub_buff(sub_rid: str) -> None:
+    """异步处理单个子目录的数据。
+
+    Args:
+        sub_rid (str): 子运行ID。
+    """
+    await prepare_buff_data_and_cache(sub_rid)
 
 
 async def prepare_parallel_data_and_cache(rid: int | str) -> None:
@@ -93,7 +103,7 @@ async def prepare_parallel_data_and_cache(rid: int | str) -> None:
             if os.path.exists(sub_config_path):
                 sub_rid: str = os.path.join(str(rid), item)  # 子进程rid
                 # 创建异步任务
-                tasks.append(_process_sub_directory(sub_rid))
+                tasks.append(_process_sub_damage(sub_rid))
 
     # 并发执行所有任务
     if tasks:
@@ -101,7 +111,9 @@ async def prepare_parallel_data_and_cache(rid: int | str) -> None:
 
 
 # 统计并行模式的个子进程伤害归并结果
-def merge_parallel_dmg_data(rid: int | str) -> None:
+def merge_parallel_dmg_data(
+    rid: int | str,
+) -> dict[str, dict[str, dict[int | float, dict[str, float | None]]]]:
     """对并行模式的每一份报告进行数据预处理，并将结果缓存到本地。
 
     Args:
@@ -426,20 +438,69 @@ def process_parallel_result(rid: int | str) -> None:
     Args:
         rid (int): 运行ID。
     """
+    result_dir = os.path.join(results_dir, str(rid))
+
     # 1. 预处理每个子目录的数据（伤害、Buff等）
     with st.spinner(
         "开始预处理并行子目录数据，初次处理会持续一段时间...", show_time=True
     ):
-        try:
-            asyncio.run(prepare_parallel_data_and_cache(rid))
-        except Exception as e:
-            st.error(f"预处理子目录数据时出错: {e}")
-            return
+        asyncio.run(prepare_parallel_data_and_cache(rid))
+
 
     # 2. 合并需要聚合的数据（例如属性收益曲线）
     sc_merged_data = merge_parallel_dmg_data(rid)
     # 3. 绘制图表
     draw_sc_attr_graph(sc_merged_data)
+
+    # 4. 获取有效的子目录列表
+    sub_dirs = []
+    if os.path.isdir(result_dir):
+        for item in os.listdir(result_dir):
+            sub_dir_path = os.path.join(result_dir, item)
+            if os.path.isdir(sub_dir_path):
+                sub_config_path = os.path.join(sub_dir_path, "sub.parallel_config.json")
+                if os.path.exists(sub_config_path):
+                    sub_dirs.append(item)  # 添加子目录名称
+
+    st.markdown("--- ")
+    st.write("选择要查看的子进程报告")
+    col1, col2 = st.columns(2)
+    with col1:
+        # 5. 添加下拉选择框以选择子进程报告
+        if sub_dirs:
+            selected_sub_dir = st.selectbox(
+                "选择要查看的子进程报告",
+                options=sub_dirs,
+                key=f"selectbox_sub_dir_{rid}",
+                label_visibility="collapsed",
+            )
+            selected_key = f"{rid}\{selected_sub_dir}"
+
+        else:
+            st.info("未找到有效的子进程结果目录。")
+
+    with col2:
+        # 6. 提供按钮处理全部buff结果以节约储存
+        if st.button(
+            "处理全部BUFF结果",
+            key=f"toggle_buff_{selected_key}",
+            help="处理所有buff结果可以节约大量储存空间，但耗时较长",
+        ):
+            with st.spinner("开始处理所有子进程BUFF结果...", show_time=True):
+
+                async def process_all_sub_buff():
+                    """处理所有子进程的BUFF结果。"""
+                    tasks = []
+                    for sub_dir in sub_dirs:
+                        sub_rid = f"{rid}\{sub_dir}"
+                        tasks.append(_process_sub_buff(sub_rid))
+                    await asyncio.gather(*tasks)
+
+                asyncio.run(process_all_sub_buff())
+
+    if st.button("显示子进程伤害结果", key=f"toggle_dmg_{selected_key}"):
+        show_dmg_result(selected_key)
+        show_buff_result(selected_key)
 
     # TODO: 添加其他并行结果的处理逻辑，例如生成聚合报告、绘制对比图表等。
     st.warning("并行模式的结果合并与展示功能仍在开发中。", icon="⚠️")

@@ -13,6 +13,7 @@ class WeepingGeminiApBonusRecord:
 
 class WeepingGeminiApBonus(Buff.BuffLogic):
     """双生泣星的精通增幅判定。"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -41,13 +42,16 @@ class WeepingGeminiApBonus(Buff.BuffLogic):
         """检测到新属性异常触发，直接放行。"""
         self.check_record_module()
         self.get_prepared(equipper="双生泣星")
-        anomaly_bar = kwargs.get('anomaly_bar', None)
+        anomaly_bar = kwargs.get("anomaly_bar", None)
 
         if anomaly_bar is None:
             return False
         from sim_progress.AnomalyBar import AnomalyBar
+
         if not isinstance(anomaly_bar, AnomalyBar):
-            raise TypeError(f"{self.buff_instance.ft.index}的xjudge函数获取的{anomaly_bar}不是AnomalyBar类！")
+            raise TypeError(
+                f"{self.buff_instance.ft.index}的xjudge函数获取的{anomaly_bar}不是AnomalyBar类！"
+            )
         if anomaly_bar.activated_by:
             if self.record.equipper != anomaly_bar.activated_by.char_name:
                 return False
@@ -78,6 +82,5 @@ class WeepingGeminiApBonus(Buff.BuffLogic):
                 self.record.last_update_stun = enemy.dynamic.stun
                 # print(f'检测到敌人失衡状态的下降沿，Buff清空！')
                 return True
-        self.record.last_update_stun  = enemy.dynamic.stun
+        self.record.last_update_stun = enemy.dynamic.stun
         return False
-

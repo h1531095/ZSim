@@ -7,6 +7,11 @@ PAGES = {
         st.Page("page_simulator.py", title="模拟器"),
         st.Page("page_data_analysis.py", title="数据分析"),
         st.Page("page_apl_editor.py", title="APL编辑器"),
+    ],
+    "文档": [
+        st.Page("lib_webui/doc_pages/page_char_support.py", title="角色支持列表"),
+        st.Page("lib_webui/doc_pages/page_apl_doc.py", title="APL设计书"),
+        st.Page("lib_webui/doc_pages/page_contribution.py", title="贡献指南"),
     ]
 }
 

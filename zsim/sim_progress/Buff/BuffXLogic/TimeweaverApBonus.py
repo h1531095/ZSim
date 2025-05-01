@@ -10,6 +10,7 @@ class TimeweaverApBonusRecord:
 
 class TimeweaverApBonus(Buff.BuffLogic):
     """时流贤者的电属性积蓄相关Buff逻辑。"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -40,8 +41,11 @@ class TimeweaverApBonus(Buff.BuffLogic):
         if skill_node is None:
             return False
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f"{self.buff_instance.ft.index}的xjudge函数获取的skill_node不是SkillNode类！")
+            raise TypeError(
+                f"{self.buff_instance.ft.index}的xjudge函数获取的skill_node不是SkillNode类！"
+            )
 
         # 过滤不是自己的skill_node
         if self.record.char.NAME != skill_node.char_name:

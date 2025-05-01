@@ -25,10 +25,21 @@ if __name__ == "__main__":
         choices=[1, 2, 3],
         help="调整的角色相对位置",
     )
-    parser.add_argument("--sc-name", type=str, default=None, help="要调整的副词条名称 str")
-    parser.add_argument("--sc-value", type=int, default=None, help="要调整的副词条数量 int")
-    parser.add_argument("--run-turn-uuid", type=str, default=None, help="运行的uuid str")
-    parser.add_argument("--remove-equip", action='store_true', default=False, help="移除装备 (存在此标志时移除)")
+    parser.add_argument(
+        "--sc-name", type=str, default=None, help="要调整的副词条名称 str"
+    )
+    parser.add_argument(
+        "--sc-value", type=int, default=None, help="要调整的副词条数量 int"
+    )
+    parser.add_argument(
+        "--run-turn-uuid", type=str, default=None, help="运行的uuid str"
+    )
+    parser.add_argument(
+        "--remove-equip",
+        action="store_true",
+        default=False,
+        help="移除装备 (存在此标志时移除)",
+    )
 
     # 解析命令行参数
     args = parser.parse_args()

@@ -1,10 +1,11 @@
+import asyncio
 import os
 import queue
-import asyncio
-import aiofiles
+import uuid
 
+import aiofiles
 import numpy as np
-import pandas as pd
+import polars as pl
 from define import ANOMALY_MAPPING, ElementType
 
 result_queue: queue.Queue = queue.Queue()
@@ -16,6 +17,7 @@ def report_dmg_result(
     skill_tag: str | None = None,
     dmg_expect: float | np.float64 = 0,
     dmg_crit: float | np.float64 | None = None,
+    UUID: str | uuid.UUID = "",
     is_anomaly: bool = False,
     is_disorder: bool = False,
     **kwargs,
@@ -32,8 +34,9 @@ def report_dmg_result(
         "element_type": element_type,
         "is_anomaly": is_anomaly,
         "skill_tag": skill_tag,
-        "dmg_expect": float(dmg_expect),
-        "dmg_crit": float(dmg_crit),
+        "dmg_expect": dmg_expect,
+        "dmg_crit": dmg_crit,
+        "UUID": str(UUID),
     }
     result_dict.update(kwargs)
     result_queue.put(result_dict)
@@ -54,9 +57,9 @@ async def async_result_writer(result_id: str):
 
             if len(buffer) >= max_buffer_size or result_queue.empty():
                 if buffer:
-                    result_df = pd.DataFrame(buffer)
-                    csv_data = result_df.to_csv(
-                        index=False, header=new_file, encoding="utf-8-sig"
+                    result_df = pl.DataFrame(buffer)
+                    csv_data = result_df.write_csv(
+                        include_header=new_file, separator=","
                     )
                     mode = "w" if new_file else "a"
                     async with aiofiles.open(
@@ -70,10 +73,8 @@ async def async_result_writer(result_id: str):
             result_queue.task_done()
         except queue.Empty:
             if buffer:
-                result_df = pd.DataFrame(buffer)
-                csv_data = result_df.to_csv(
-                    index=False, header=new_file, encoding="utf-8-sig"
-                )
+                result_df = pl.DataFrame(buffer)
+                csv_data = result_df.write_csv(include_header=new_file, separator=",")
                 mode = "w" if new_file else "a"
                 async with aiofiles.open(
                     result_path, mode, encoding="utf-8-sig"

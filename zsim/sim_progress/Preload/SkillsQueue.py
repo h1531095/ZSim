@@ -42,7 +42,6 @@ class SkillNode:
             SkillNode._instance_counter += 1
             # 生成 UUID
             self.UUID = uuid.uuid4()
-            from sim_progress.Load import LoadingMission
 
             self.loading_mission = None
 

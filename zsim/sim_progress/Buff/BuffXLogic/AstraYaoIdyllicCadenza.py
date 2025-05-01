@@ -1,5 +1,4 @@
-from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
-from define import ASTRAYAO_REPORT
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class AstraYaoIdyllicCadenzaRecord:
@@ -22,7 +21,9 @@ class AstraYaoIdyllicCadenza(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['耀嘉音'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["耀嘉音"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = AstraYaoIdyllicCadenzaRecord()
         self.record = self.buff_0.history.record

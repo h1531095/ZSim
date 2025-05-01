@@ -95,7 +95,9 @@ class StatusSubUnit(BaseSubConditionUnit):
         @classmethod
         def handler(cls, char_cid, found_char_dict, game_state):
             char = find_char(found_char_dict, game_state, char_cid)
-            return char.dynamic.quick_assist_manager.assist_waiting_for_anwser(find_tick())
+            return char.dynamic.quick_assist_manager.assist_waiting_for_anwser(
+                find_tick()
+            )
 
     class ActiveAnomalyHandler(CheckHandler):
         @classmethod
@@ -153,7 +155,7 @@ class StatusSubUnit(BaseSubConditionUnit):
         "is_frost_frostbite": FrostFrostbiteHandler,
         "is_corruption": CorruptionHandler,
         "quick_assist_available": QuickAssistHandler,
-        "assist_waiting_for_anwser": WaitingAssistHandler
+        "assist_waiting_for_anwser": WaitingAssistHandler,
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):

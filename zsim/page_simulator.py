@@ -9,9 +9,15 @@ import streamlit as st
 from define import saved_char_config
 from lib_webui.constants import stats_trans_mapping
 from lib_webui.process_char_config import dialog_character_panels
-from lib_webui.process_simulator import generate_parallel_args
+from lib_webui.process_simulator import (
+    apl_selecter,
+    generate_parallel_args,
+    save_apl_selection,
+    show_apl_judge_result,
+)
 from run import go_parallel_subprocess, go_single_subprocess
 
+apl_legal = False
 # --- 常量定义 ---
 # 模拟器配置相关
 RUN_MODES: list[Literal["普通模式（单进程）", "并行模式（多进程）"]] = [
@@ -102,12 +108,25 @@ def page_simulator():
                 dialog_character_panels(name_box)
 
         with col3:
+
+            @st.dialog("APL选择", width="large")
+            def go_apl_select():
+                """APL选择对话框"""
+                selected_title: str = apl_selecter()
+                show_apl_judge_result(selected_title)
+
+                if st.button(
+                    "保存APL选择",
+                    use_container_width=True,
+                ):
+                    save_apl_selection(selected_title)
+
             if st.button(
-                "APL选择（未实装）",
+                "APL选择",
                 use_container_width=True,
                 disabled=st.session_state["simulation_running"],
             ):
-                pass
+                go_apl_select()
 
         with col4:
 
@@ -262,6 +281,10 @@ def page_simulator():
                     )
                     and not st.session_state["simulation_running"]
                 ):
+                    allow_simulation = show_apl_judge_result()
+                    if not allow_simulation:
+                        st.error("请先完成APL选择和角色配置")
+                        st.stop()
                     st.session_state["simulation_running"] = True
                     st.rerun(scope="fragment")
                 elif not st.session_state["simulation_running"]:
@@ -288,6 +311,10 @@ def page_simulator():
                     disabled=st.session_state["simulation_running"],
                     type="primary",
                 ):
+                    allow_simulation = show_apl_judge_result()
+                    if not allow_simulation:
+                        st.error("请先完成APL选择和角色配置")
+                        st.stop()
                     st.session_state["simulation_running"] = True
                     st.rerun(scope="fragment")
                 elif not st.session_state["simulation_running"]:

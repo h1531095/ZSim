@@ -95,5 +95,3 @@ class LoadingMission:
                 return True
             else:
                 return False
-
-

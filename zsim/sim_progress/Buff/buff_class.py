@@ -133,7 +133,9 @@ class Buff:
                 ]  # 复杂退出逻辑
                 self.index = config_dict["BuffName"]  # buff的英文名,也是buff的索引
                 self.is_weapon = config_dict["is_weapon"]  # buff是否是武器特效
-                self.is_additional_ability = config_dict["is_additional_ability"]       # Buff是否是组队被动Buff
+                self.is_additional_ability = config_dict[
+                    "is_additional_ability"
+                ]  # Buff是否是组队被动Buff
                 self.refinement = config_dict["refinement"]  # 武器特效的精炼等级
                 self.bufffrom = config_dict[
                     "from"
@@ -207,18 +209,22 @@ class Buff:
                 ——启发自  Buff 静听嘉音  
                 """
 
-                '''Buff标签'''
-                self.label: dict[str, list[str] | str] | None = self.__process_label_str(config_dict)
+                """Buff标签"""
+                self.label: dict[str, list[str] | str] | None = (
+                    self.__process_label_str(config_dict)
+                )
 
-                '''
+                """
                 标签生效规则：
                 None: 无标签时，该参数为None
                 0：所有标签都通过时，才生效，
                 n(0以外的任意int)：通过n个标签时，就生效。
-                '''
-                self.label_effect_rule: int | None = self.__process_label_rule(config_dict)
+                """
+                self.label_effect_rule: int | None = self.__process_label_rule(
+                    config_dict
+                )
 
-        def __process_label_rule(self,config_dict: dict) -> int | None:
+        def __process_label_rule(self, config_dict: dict) -> int | None:
             label_rule = config_dict.get("label_effect_rule", 0)
             if pd.isna(label_rule) or label_rule is None:
                 if self.label:
@@ -228,7 +234,9 @@ class Buff:
             else:
                 label_rule = int(label_rule)
                 if label_rule != 0 and label_rule > len(self.label.keys()):
-                    raise ValueError(f'{self.index}在初始化时填入的label_rule为{label_rule}，大于其label中填入的参数数量！self.ft.label = {self.label}')
+                    raise ValueError(
+                        f"{self.index}在初始化时填入的label_rule为{label_rule}，大于其label中填入的参数数量！self.ft.label = {self.label}"
+                    )
                 return label_rule
 
         def __process_label_str(self, config_dict: dict):
@@ -481,7 +489,9 @@ class Buff:
         _simple_start_buff_0 = sub_exist_buff_dict[self.ft.index]
         individule_settled_count = kwargs.get("individule_settled_count", 0)
         if individule_settled_count != 0 and not self.ft.individual_settled:
-            raise ValueError(f'对于层数不独立结算的{self.ft.index}，在调用simple_start函数时，不应传入individule_settled_count参数。')
+            raise ValueError(
+                f"对于层数不独立结算的{self.ft.index}，在调用simple_start函数时，不应传入individule_settled_count参数。"
+            )
         if individule_settled_count == 0:
             individule_settled_count = 1
         self.dy.active = True
@@ -492,7 +502,9 @@ class Buff:
         if not no_count:
             if self.ft.individual_settled:
                 for i in range(0, individule_settled_count):
-                    self.dy.built_in_buff_box.append((self.dy.startticks, self.dy.endticks))
+                    self.dy.built_in_buff_box.append(
+                        (self.dy.startticks, self.dy.endticks)
+                    )
                 while len(self.dy.built_in_buff_box) > self.ft.maxcount:
                     self.dy.built_in_buff_box.pop(0)
                 self.dy.count = len(self.dy.built_in_buff_box)

@@ -68,7 +68,9 @@ class SwapCancelStrategy(BasePreloadStrategy):
             or self.swap_cancel_engine.external_update_signal
         ):
             #  4、Confirm引擎 清理data.preload_action_list_before_confirm，
-            self.confirm_engine.run_myself(tick, apl_skill_node=apl_skill_node, apl_skill_tag=apl_skill_tag)
+            self.confirm_engine.run_myself(
+                tick, apl_skill_node=apl_skill_node, apl_skill_tag=apl_skill_tag
+            )
 
     def check_myself(self, enemy, tick, *args, **kwargs):
         self.data.chek_myself_before_start_preload(enemy, tick)

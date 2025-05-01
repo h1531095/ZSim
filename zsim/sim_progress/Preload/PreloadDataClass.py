@@ -47,7 +47,10 @@ class PreloadData:
             """若检测到当前stack中的最新node还未结束，但是SwapCancel还是放行了，那么就说明可能发生了node的顶替，
             此时应该先排除是附加伤害的可能性，因为附加伤害是可以被swapcancel轻易放行的，但是并不具备打断的效果。
             如果新来的node不是附加伤害，此时可以判断为强打断技能，再调用forcechange函数。"""
-            if not(node.skill.labels is not None and 'additional_damage' in node.skill.labels):
+            if not (
+                node.skill.labels is not None
+                and "additional_damage" in node.skill.labels
+            ):
                 self.force_change_action(node)
 
         self.personal_node_stack[char_cid].push(node)

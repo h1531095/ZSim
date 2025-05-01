@@ -9,6 +9,7 @@ class FlightOfFancyRecord:
 
 class FlightOfFancy(Buff.BuffLogic):
     """飞鸟星梦的复杂逻辑，监测到装备者造成以太伤害时叠层。"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -40,6 +41,7 @@ class FlightOfFancy(Buff.BuffLogic):
             return False
         from sim_progress.Preload import SkillNode
         from sim_progress.Load import LoadingMission
+
         if isinstance(skill_node, SkillNode):
             pass
         elif isinstance(skill_node, LoadingMission):

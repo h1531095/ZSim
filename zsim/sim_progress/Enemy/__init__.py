@@ -641,7 +641,11 @@ class Enemy:
 
         def get_active_anomaly(self) -> list[Type[AnomalyBar.AnomalyBar] | None]:
             if self.is_under_anomaly():
-                return [_anomaly_bar for _anomaly_bar in self.active_anomaly_bar_dict.values() if _anomaly_bar is not None and _anomaly_bar.active]
+                return [
+                    _anomaly_bar
+                    for _anomaly_bar in self.active_anomaly_bar_dict.values()
+                    if _anomaly_bar is not None and _anomaly_bar.active
+                ]
             else:
                 return []
 

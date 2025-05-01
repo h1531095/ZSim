@@ -1,7 +1,6 @@
 from functools import lru_cache
 import ast
-import numpy as np
-import pandas as pd
+import polars as pl
 from sim_progress import Report
 from define import CHARACTER_DATA_PATH, SKILL_DATA_PATH, DEFAULT_SKILL_PATH, ElementType
 
@@ -32,17 +31,17 @@ def lookup_name_or_cid(name: str = "", cid: int | str | None = None) -> tuple[st
     """
     try:
         # 读取角色数据
-        char_dataframe = pd.read_csv(CHARACTER_DATA_PATH, encoding="utf-8")
+        char_dataframe = pl.scan_csv(CHARACTER_DATA_PATH)
     except Exception as e:
         raise IOError(f"无法读取文件 {CHARACTER_DATA_PATH}: {e}")
 
     # 查找角色信息
     if name != "":
-        result = char_dataframe[char_dataframe["name"] == name].to_dict("records")
+        result = char_dataframe.filter(pl.col("name") == name).collect().to_dicts()
     elif cid is not None:
         # 确保cid是整数
         cid_int = int(cid) if cid is not None else None
-        result = char_dataframe[char_dataframe["CID"] == cid_int].to_dict("records")
+        result = char_dataframe.filter(pl.col("CID") == cid_int).collect().to_dicts()
     else:
         raise ValueError("角色名称与ID必须至少提供一个")
 
@@ -110,17 +109,66 @@ class Skill:
         # 核心技等级需要可读
         self.core_level = core_level
         # 最晚在这里创建DataFrame，优化不一点点，这玩意可大了
-        skill_dataframe = pd.read_csv(SKILL_DATA_PATH)
+        schema_dict = {
+            "CID": int,
+            "name": str,
+            "CN_TriggerLevel": str,
+            "skill_tag": str,
+            "CN_skill_tag": str,
+            "skill_text": str,
+            "INSTRUCTION": str,
+            "damage_ratio": float,
+            "damage_ratio_growth": float,
+            "D_LEVEL12": float,
+            "D_LEVEL14": float,
+            "D_LEVEL16": float,
+            "stun_ratio": float,
+            "stun_ratio_growth": float,
+            "S_LEVEL12": float,
+            "S_LEVEL14": float,
+            "S_LEVEL16": float,
+            "sp_threshold": int,
+            "sp_consume": int,
+            "sp_recovery": float,
+            "fever_recovery": float,
+            "self_fever_re": float,
+            "distance_attenuation": int,
+            "initial_level": int,
+            "anomaly_accumulation": float,
+            "skill_type": int,
+            "trigger_buff_level": int,
+            "element_type": int,
+            "element_damage_percent": float,
+            "diff_multiplier": float,
+            "ticks": int,
+            "hit_times": int,
+            "on_field": bool,
+            "anomaly_attack": bool,
+            "interruption_resistance": int,
+            "swap_cancel_ticks": int,
+            "labels": str,
+            "follow_up": str,
+            "follow_by": str,
+            "aid_direction": int,
+            "aid_lag_ticks": int,
+            "tick_list": str,
+            "force_add_condition_APL": str,
+            "heavy_attack": bool,
+            "max_repeat_times": int,
+            "do_immediately": bool,
+            "anomaly_update_list": str
+        }
+        all_skills_lf = pl.scan_csv(SKILL_DATA_PATH, schema_overrides=schema_dict)
 
         # 根据CID提取角色的技能数据
         try:
-            self.skill_dataframe = skill_dataframe[skill_dataframe["CID"] == self.CID]
+            self.skill_df = all_skills_lf.filter(pl.col("CID") == self.CID).collect()
             # 如果没有找到对应CID，则报错
-            if self.skill_dataframe.empty:
+            if self.skill_df.is_empty():
                 raise ValueError(f"找不到CID为 {self.CID} 的角色信息")
             # 提取dataframe中，每个索引为skill_tag的值，保存为keys
             else:
-                __keys = self.skill_dataframe["skill_tag"].unique()
+                __keys = self.skill_df["skill_tag"].unique()
         except KeyError:
             print(f"{SKILL_DATA_PATH} 中缺少 'skill_tag' 列")  # 虽然不可能
             return
@@ -132,7 +180,7 @@ class Skill:
         self.skills_dict = {}  # {技能名str:技能参数object:InitSkill}
         for key in __keys:
             skill = self.InitSkill(
-                skill_dataframe=self.skill_dataframe,
+                skill_dataframe=self.skill_df,
                 key=key,
                 normal_level=normal_level,
                 special_level=special_level,
@@ -171,7 +219,7 @@ class Skill:
         则会创建这些动作的默认实例。
         """
         # 定义需要检查是否初始化的动作列表
-        default_actions_dataframe = pd.read_csv(DEFAULT_SKILL_PATH)
+        default_actions_dataframe = pl.read_csv(DEFAULT_SKILL_PATH)
         by_default_actions = default_actions_dataframe["skill_tag"].unique()
 
         # 初始化每个动作的状态为 True
@@ -200,7 +248,7 @@ class Skill:
     class InitSkill:
         def __init__(
             self,
-            skill_dataframe,
+            skill_dataframe: pl.DataFrame,
             key,
             char_name: str,
             normal_level=12,
@@ -221,8 +269,9 @@ class Skill:
             self.char_obj = char_obj
 
             # 提取数据库内，该技能的数据
-            _raw_skill_data = skill_dataframe[skill_dataframe["skill_tag"] == key]
-            _raw_skill_data = _raw_skill_data.to_dict("records")
+            _raw_skill_data = skill_dataframe.filter(
+                pl.col("skill_tag") == key
+            ).to_dicts()
             if not _raw_skill_data:
                 raise ValueError("未找到技能")
             else:
@@ -264,7 +313,6 @@ class Skill:
             self.sp_consume: float = float(_raw_skill_data["sp_consume"])
             self.sp_recovery: float = float(_raw_skill_data["sp_recovery"])
             # 喧响值
-            self.fever_recovery: float = float(_raw_skill_data["fever_recovery"])
             self.self_fever_re: float = float(_raw_skill_data["self_fever_re"])
             # 距离衰减，不知道有啥用
             self.distance_attenuation: int = int(
@@ -289,7 +337,7 @@ class Skill:
             self.anomaly_attack: bool = bool(_raw_skill_data["anomaly_attack"])
             # 特殊标签
             labels_str = _raw_skill_data["labels"]
-            if pd.isna(labels_str) or not str(labels_str).strip():  # 判断空值或空字符串
+            if labels_str is None or not str(labels_str).strip():  # 判断空值或空字符串
                 labels = None
             else:
                 # 去除首尾空格后尝试解析字典
@@ -306,7 +354,7 @@ class Skill:
                 _raw_skill_data["swap_cancel_ticks"]
             )  # 可执行合轴操作的最短时间
             follow_up = _raw_skill_data["follow_up"]
-            if follow_up is np.nan or pd.isna(follow_up):
+            if follow_up is None:
                 self.follow_up: list = []
             else:
                 self.follow_up: list = _raw_skill_data["follow_up"].split(
@@ -314,7 +362,7 @@ class Skill:
                 )  # 技能发动后强制衔接的技能标签
 
             follow_by = _raw_skill_data["follow_by"]
-            if follow_by is np.nan or pd.isna(follow_by):
+            if follow_by is None:
                 self.follow_by: list = []
             else:
                 self.follow_by: list = _raw_skill_data["follow_by"].split(
@@ -331,7 +379,7 @@ class Skill:
                     _raw_skill_data["aid_lag_ticks"]
                 )  # 技能激活快速支援的滞后时间
             tick_value = _raw_skill_data["tick_list"]
-            if pd.isna(tick_value) or tick_value is np.nan:
+            if tick_value is None:
                 self.tick_list = None
             elif isinstance(tick_value, str):
                 # 处理空字符串或纯空格
@@ -363,7 +411,7 @@ class Skill:
             #  _raw_skill_data['ratio_distribution'].split(':') if _raw_skill_data['ratio_distribution'] else None
             self.force_add_condition_APL = []
             condition_value = _raw_skill_data["force_add_condition_APL"]
-            if condition_value is np.nan or pd.isna(condition_value):
+            if condition_value is None:
                 self.force_add_condition_APL = []
             else:
                 from sim_progress.Preload.APLModule.APLUnit import SimpleUnitForForceAdd
@@ -414,7 +462,7 @@ class Skill:
                 2、-1，则返回-1，那就按照每一跳处理；
                 3、a&b&c&d， 则返回[a, b, c, d]，那就按照这些跳数处理
             """
-            if anomaly_update_list_str is np.nan or pd.isna(anomaly_update_list_str):
+            if anomaly_update_list_str is None:
                 self.anomaly_update_rule = []  # None代表更新节点是最后一跳
             else:
                 try:

@@ -8,8 +8,14 @@ import copy
 
 
 class Buff0Manager:
-    def __init__(self, name_box: list[str], judge_list_set: list[list[str]], weapon_dict: dict[str, list],
-                 cinema_dict: dict, char_obj_dict: dict):
+    def __init__(
+        self,
+        name_box: list[str],
+        judge_list_set: list[list[str]],
+        weapon_dict: dict[str, list],
+        cinema_dict: dict,
+        char_obj_dict: dict | None,
+    ):
         # 加载文件
         self.EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col="BuffName")
         self.JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col="BuffName")
@@ -34,8 +40,10 @@ class Buff0Manager:
         self.char_equip_info: dict[str, dict[str, str]] = {}
         self.__process_judge_list_set()
 
-        self.total_judge_condition_list = list(
-            itertools.chain.from_iterable(self.judge_list_set)) + self.__equip_set2_box
+        self.total_judge_condition_list = (
+            list(itertools.chain.from_iterable(self.judge_list_set))
+            + self.__equip_set2_box
+        )
         self.__selector = self.__selector(self)
         self.__selector.select_buff_into_exist_buff_dict()
         self.__passively_updating_change()
@@ -47,9 +55,9 @@ class Buff0Manager:
     def __str__(self):
         output = ""
         for _char_name, _sub_dict in self.exist_buff_dict.items():
-            output += f'本次模拟中{_char_name}可能吃到的Buff为：\n'
+            output += f"本次模拟中{_char_name}可能吃到的Buff为：\n"
             for _i in _sub_dict.values():
-                output += f'  {_i.ft.index}\n'
+                output += f"  {_i.ft.index}\n"
         return output
 
     def __process_label(self):
@@ -58,7 +66,10 @@ class Buff0Manager:
             for _index, _buff_0 in _dict.items():
                 if not _buff_0.ft.label:
                     continue
-                if "only_active_by" in _buff_0.ft.label and _buff_0.ft.label["only_active_by"] == "self":
+                if (
+                    "only_active_by" in _buff_0.ft.label
+                    and _buff_0.ft.label["only_active_by"] == "self"
+                ):
                     char_obj = JudgeTools.find_char_from_name(_buff_0.ft.operator)
                     _buff_0.ft.label["only_active_by"] = char_obj.CID
 
@@ -70,18 +81,27 @@ class Buff0Manager:
             _equip_set4 = _sub_list[2]
             _equip_set2_a = _sub_list[3]
             if saved_char_config[_name]["equip_style"] == "4+2":
-                self.char_equip_info[_name] = {"weapon": _weapon, "equip_set4": _equip_set4,
-                                               "equip_set2_a": _equip_set2_a, "equip_style": "4+2"}
+                self.char_equip_info[_name] = {
+                    "weapon": _weapon,
+                    "equip_set4": _equip_set4,
+                    "equip_set2_a": _equip_set2_a,
+                    "equip_style": "4+2",
+                }
             elif saved_char_config[_name]["equip_style"] == "2+2+2":
                 _equip_set2_b = saved_char_config[_name]["equip_set2_b"]
                 _equip_set2_c = saved_char_config[_name]["equip_set2_c"]
-                self.char_equip_info[_name] = {"weapon": _weapon, "equip_set4": None, "equip_set2_a": _equip_set2_a,
-                                               "equip_set2_b": _equip_set2_b, "equip_set2_c": _equip_set2_c,
-                                               "equip_style": "2+2+2"}
+                self.char_equip_info[_name] = {
+                    "weapon": _weapon,
+                    "equip_set4": None,
+                    "equip_set2_a": _equip_set2_a,
+                    "equip_set2_b": _equip_set2_b,
+                    "equip_set2_c": _equip_set2_c,
+                    "equip_style": "2+2+2",
+                }
                 self.__equip_set2_box.append(_equip_set2_b)
                 self.__equip_set2_box.append(_equip_set2_c)
             else:
-                raise ValueError(f'无法解析的驱动盘装备策略！')
+                raise ValueError("无法解析的驱动盘装备策略！")
 
     def __process_additional_ability_data(self):
         """修改角色对象的组队被动激活参数"""
@@ -90,12 +110,14 @@ class Buff0Manager:
                 continue
             char_instance = self.char_obj_dict[_char_name]
             for _buff_index, _buff_instance in sub_exist_dict.items():
-                if _buff_instance.ft.is_additional_ability and _char_name == _buff_instance.ft.bufffrom:
+                if (
+                    _buff_instance.ft.is_additional_ability
+                    and _char_name == _buff_instance.ft.bufffrom
+                ):
                     char_instance.additional_abililty_active = True
                     break
             else:
                 char_instance.additional_abililty_active = False
-
 
     def change_name_box(self):
         """
@@ -135,11 +157,13 @@ class Buff0Manager:
             self.__select_strategy_map = {
                 "char_handler": None,
                 "weapon_handler": None,
-                "drive_handler": None
+                "drive_handler": None,
             }
             self.__special_set2_dict = {"如影相随": ["Buff-驱动盘-如影相随-二件套"]}
             self.__buff_0_pool: dict[str, tuple] = {}
-            self.__additional_ability_data = self.__additional_ability_data(self.buff_0_manager)
+            self.__additional_ability_data = self.__additional_ability_data(
+                self.buff_0_manager
+            )
             self.__get_buff_0_pool()
 
         class __additional_ability_data:
@@ -147,7 +171,12 @@ class Buff0Manager:
 
             def __init__(self, buff_0_manager_instance):
                 self.buff_0_manager: Buff0Manager = buff_0_manager_instance
-                self.condition_list = ["角色属性-中文", "角色阵营", "角色特性", "支援类型"]
+                self.condition_list = [
+                    "角色属性-中文",
+                    "角色阵营",
+                    "角色特性",
+                    "支援类型",
+                ]
                 self.additional_ability_judge_info = {}
                 self.__get_additional_ability_judge_info()
 
@@ -155,11 +184,20 @@ class Buff0Manager:
                 for _char_name in self.buff_0_manager.char_name_box:
                     sub_info_list = []
                     self.additional_ability_judge_info[_char_name] = {}
-                    self.additional_ability_judge_info[_char_name]["required_condition"] = (
-                        self.buff_0_manager.CHARACTER_FILE.loc[_char_name, "组队被动条件"])
+                    self.additional_ability_judge_info[_char_name][
+                        "required_condition"
+                    ] = self.buff_0_manager.CHARACTER_FILE.loc[
+                        _char_name, "组队被动条件"
+                    ]
                     for condition in self.condition_list:
-                        sub_info_list.append(self.buff_0_manager.CHARACTER_FILE.loc[_char_name, condition])
-                    self.additional_ability_judge_info[_char_name]["config_info"] = sub_info_list
+                        sub_info_list.append(
+                            self.buff_0_manager.CHARACTER_FILE.loc[
+                                _char_name, condition
+                            ]
+                        )
+                    self.additional_ability_judge_info[_char_name]["config_info"] = (
+                        sub_info_list
+                    )
 
             def addition_skill_info_trans(self, buff_from: str):
                 """
@@ -171,13 +209,19 @@ class Buff0Manager:
                 ['冰', '对空6课']
                 """
                 addition_skill_info = self.additional_ability_judge_info[buff_from]
-                required_condition_list = addition_skill_info["required_condition"].split("|")
+                required_condition_list = addition_skill_info[
+                    "required_condition"
+                ].split("|")
                 condition_list_after_trans = []
                 for conditions in required_condition_list:
                     if conditions == "同阵营":
-                        condition_list_after_trans.append(addition_skill_info["config_info"][1])
+                        condition_list_after_trans.append(
+                            addition_skill_info["config_info"][1]
+                        )
                     elif conditions == "同属性":
-                        condition_list_after_trans.append(addition_skill_info["config_info"][0])
+                        condition_list_after_trans.append(
+                            addition_skill_info["config_info"][0]
+                        )
                     elif conditions in ["异常", "强攻", "支援", "击破", "防护"]:
                         condition_list_after_trans.append(conditions)
                     elif conditions in ["招架", "回避"]:
@@ -192,29 +236,41 @@ class Buff0Manager:
                 buff_from = row_data["from"]
 
                 if row_data["is_weapon"]:
-                    '''武器Buff'''
+                    """武器Buff"""
                     for charname in self.buff_0_manager.weapon_dict:
-                        if (buff_from == self.buff_0_manager.weapon_dict[charname][0] and
-                                row_data["refinement"] == self.buff_0_manager.weapon_dict[charname][1]):
+                        if (
+                            buff_from == self.buff_0_manager.weapon_dict[charname][0]
+                            and row_data["refinement"]
+                            == self.buff_0_manager.weapon_dict[charname][1]
+                        ):
                             self.select_buffs(buff_name, row_data)
-                elif row_data["is_cinema"] and buff_from in self.buff_0_manager.cinema_dict.keys():
-                    '''影画Buff'''
-                    if row_data["refinement"] <= self.buff_0_manager.cinema_dict[buff_from]:
+                elif (
+                    row_data["is_cinema"]
+                    and buff_from in self.buff_0_manager.cinema_dict.keys()
+                ):
+                    """影画Buff"""
+                    if (
+                        row_data["refinement"]
+                        <= self.buff_0_manager.cinema_dict[buff_from]
+                    ):
                         self.select_buffs(buff_name, row_data)
                 else:
-                    '''角色Buff 和 Enemy'''
+                    """角色Buff 和 Enemy"""
                     if buff_from in self.buff_0_manager.weapon_dict:
-                        '''组队被动'''
+                        """组队被动"""
                         if row_data["is_additional_ability"]:
-                            '''获得【足以使组队被动激活的条件集合】'''
+                            """获得【足以使组队被动激活的条件集合】"""
                             condition_list_after_trans = self.__additional_ability_data.addition_skill_info_trans(
-                                buff_from)
+                                buff_from
+                            )
                             partner_condition_list = []
                             for other_key in self.__additional_ability_data.additional_ability_judge_info:
                                 if other_key != buff_from:
                                     partner_condition_list.extend(
-                                        self.__additional_ability_data.additional_ability_judge_info[other_key][
-                                            "config_info"])
+                                        self.__additional_ability_data.additional_ability_judge_info[
+                                            other_key
+                                        ]["config_info"]
+                                    )
                             # print(buff_name, condition_list_after_trans, partner_condition_list)
                             for conditions in condition_list_after_trans:
                                 if conditions in partner_condition_list:
@@ -242,10 +298,13 @@ class Buff0Manager:
                 buff_from = buff_info_tuple[0]["from"]
                 adding_code = str(int(buff_info_tuple[0]["add_buff_to"])).zfill(4)
                 if buff_from in self.buff_0_manager.char_name_box:
-                    '''如果buff来自于角色，那么buff_from就一定指向这个buff的真正来源，也就是buff的拥有者（并非buff的受益者）'''
+                    """如果buff来自于角色，那么buff_from就一定指向这个buff的真正来源，也就是buff的拥有者（并非buff的受益者）"""
                     current_name_box = self.buff_0_manager.name_order_box[buff_from]
-                    selected_characters = [current_name_box[i] for i in range(len(current_name_box)) if
-                                           adding_code[i] == "1"]
+                    selected_characters = [
+                        current_name_box[i]
+                        for i in range(len(current_name_box))
+                        if adding_code[i] == "1"
+                    ]
                     if buff_from not in selected_characters:
                         selected_characters.append(buff_from)
                     for _name in selected_characters:
@@ -262,9 +321,14 @@ class Buff0Manager:
                     """
                     如果buff不属于角色和enemy，那么buff肯定来自装备。
                     """
-                    for char_name, _sub_equip_info_dict in self.buff_0_manager.char_equip_info.items():
+                    for (
+                        char_name,
+                        _sub_equip_info_dict,
+                    ) in self.buff_0_manager.char_equip_info.items():
                         if buff_from in _sub_equip_info_dict.values():
-                            self.processor_equipment_buff(adding_code, buff_info_tuple, buff_name, char_name)
+                            self.processor_equipment_buff(
+                                adding_code, buff_info_tuple, buff_name, char_name
+                            )
 
         def initiate_buff(self, buff_info_tuple, buff_name, benifiter, buff_orner):
             """
@@ -283,31 +347,43 @@ class Buff0Manager:
             buff_new.ft.beneficiary = benifiter
             self.buff_0_manager.exist_buff_dict[benifiter][buff_name] = buff_new
 
-        def processor_equipment_buff(self, adding_code, buff_info_tuple, buff_name, equipment_carrier):
+        def processor_equipment_buff(
+            self, adding_code, buff_info_tuple, buff_name, equipment_carrier
+        ):
             """处理来源于装备的Buff"""
-            ''' 为了防止只佩戴了二件套的情况下，筛选出了拥有相同buff_from的四件套效果，之类需要进行额外的判断。'''
+            """ 为了防止只佩戴了二件套的情况下，筛选出了拥有相同buff_from的四件套效果，之类需要进行额外的判断。"""
             current_name_box = self.buff_0_manager.name_order_box[equipment_carrier]
             personal_equip_dict = self.buff_0_manager.char_equip_info[equipment_carrier]
             buff_from = buff_info_tuple[0]["from"]
             if personal_equip_dict["equip_style"] == "4+2":
-                if (personal_equip_dict["equip_set2_a"] in buff_name and
-                        personal_equip_dict["equip_set2_a"] not in self.__special_set2_dict):
-                    '''
+                if (
+                    personal_equip_dict["equip_set2_a"] in buff_name
+                    and personal_equip_dict["equip_set2_a"]
+                    not in self.__special_set2_dict
+                ):
+                    """
                     如果检测到装备者选择配装风格是4+2，并且装备者二件套的名字出现在Buff名中，
                     就说明是出现了“只佩戴了二件套但是错误地筛选出了四件套的情况”，
                     此时能够进入这一分支的情况有两种：
                     1、二件套确实附带了一个Buff——如影2，那么这个Buff就一定在__selector的豁免名单中。
                     2、二件套并未附带Buff，但是因为和四件套拥有相同的buff_from，所以错误地进入了这个分支，需要处理的，也正是这个分支。
-                    '''
+                    """
                     return
             elif personal_equip_dict["equip_style"] == "2+2+2":
-                '''当配装方案是2+2+2时，只要当前任意的二件套处于豁免范围，'''
+                """当配装方案是2+2+2时，只要当前任意的二件套处于豁免范围，"""
                 if "四件套" in buff_name:
                     return
-                '''筛除所有和豁免名单无关的套装，无论4、2件套；然后再筛除不在豁免名单上的二件套Buff'''
-                if not (buff_from in self.__special_set2_dict and buff_name in self.__special_set2_dict[buff_from]):
+                """筛除所有和豁免名单无关的套装，无论4、2件套；然后再筛除不在豁免名单上的二件套Buff"""
+                if not (
+                    buff_from in self.__special_set2_dict
+                    and buff_name in self.__special_set2_dict[buff_from]
+                ):
                     return
-            selected_characters = [current_name_box[i] for i in range(len(current_name_box)) if adding_code[i] == "1"]
+            selected_characters = [
+                current_name_box[i]
+                for i in range(len(current_name_box))
+                if adding_code[i] == "1"
+            ]
             if equipment_carrier not in selected_characters:
                 selected_characters.append(equipment_carrier)
             for _name in selected_characters:
