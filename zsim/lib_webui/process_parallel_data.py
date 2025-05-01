@@ -444,11 +444,8 @@ def process_parallel_result(rid: int | str) -> None:
     with st.spinner(
         "开始预处理并行子目录数据，初次处理会持续一段时间...", show_time=True
     ):
-        try:
-            asyncio.run(prepare_parallel_data_and_cache(rid))
-        except Exception as e:
-            st.error(f"预处理子目录数据时出错: {e}")
-            return
+        asyncio.run(prepare_parallel_data_and_cache(rid))
+
 
     # 2. 合并需要聚合的数据（例如属性收益曲线）
     sc_merged_data = merge_parallel_dmg_data(rid)

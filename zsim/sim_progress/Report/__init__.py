@@ -54,7 +54,8 @@ def regen_result_id(parallel_config: "ParallelConfig | None") -> None:
             # 更换角色相对位置为角色名
             index = config_dict["adjust_char"]
             from define import saved_char_config
-            config_dict["adjust_char"] = saved_char_config["name_box"][index-1]
+
+            config_dict["adjust_char"] = saved_char_config["name_box"][index - 1]
             with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(config_dict, f, indent=4, ensure_ascii=False)
         except TypeError as e:

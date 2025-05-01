@@ -171,7 +171,8 @@ def __check_special_anomly(buff: "Buff", anomly_node: "AnomalyBar") -> bool:
             if isinstance(label_value, list):
                 if any(
                     isinstance(anomly_node, SELECT_ANOMALY_MAP[sig_value])
-                    for sig_value in label_value if sig_value in SELECT_ANOMALY_MAP.keys()
+                    for sig_value in label_value
+                    if sig_value in SELECT_ANOMALY_MAP.keys()
                 ):
                     return True
     return False

@@ -62,18 +62,21 @@ class AstralVoice(Buff.BuffLogic):
         )
         tick_now = JudgeTools.find_tick()
 
-        skill_node = kwargs.get('skill_node', None)
+        skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
         from sim_progress.Preload import SkillNode
         from sim_progress.Load import LoadingMission
+
         if isinstance(skill_node, SkillNode):
             pass
         elif isinstance(skill_node, LoadingMission):
             skill_node = skill_node.mission_node
-        if self.record.trigger_buff_0.dy.active and skill_node.skill.trigger_buff_level == 7:
-            if skill_node.loading_mission.mission_dict.get(tick_now, None) == 'start':
-
+        if (
+            self.record.trigger_buff_0.dy.active
+            and skill_node.skill.trigger_buff_level == 7
+        ):
+            if skill_node.loading_mission.mission_dict.get(tick_now, None) == "start":
                 return True
             else:
                 return False

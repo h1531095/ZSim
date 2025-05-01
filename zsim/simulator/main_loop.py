@@ -35,7 +35,7 @@ preload: PreloadClass | None = None
 game_state: dict[str, object] | None = None
 
 
-def reset_sim_data(parallel_config: 'ParallelConfig | None'):
+def reset_sim_data(parallel_config: "ParallelConfig | None"):
     """重置所有全局变量为初始状态。"""
     global \
         tick, \
@@ -91,13 +91,15 @@ def reset_sim_data(parallel_config: 'ParallelConfig | None'):
     }
 
 
-def reset_simulator(parallel_config: 'ParallelConfig' | None):
+def reset_simulator(parallel_config: "ParallelConfig" | None):
     """重置程序为初始状态。"""
     reset_sim_data(parallel_config)  # 重置所有全局变量
     start_report_threads(parallel_config)  # 启动线程以处理日志和结果写入
 
 
-def main_loop(stop_tick: int = 10800, *, parallel_config: 'ParallelConfig' | None = None):
+def main_loop(
+    stop_tick: int = 10800, *, parallel_config: "ParallelConfig" | None = None
+):
     reset_simulator(parallel_config)
     global \
         tick, \

@@ -12,6 +12,7 @@ class TimeweaverDisorderDmgMulRecord:
 
 class TimeweaverDisorderDmgMul(Buff.BuffLogic):
     """时流贤者的精通AP检查相关Buff逻辑。"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -38,9 +39,17 @@ class TimeweaverDisorderDmgMul(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         """时流贤者的精通AP检查相关Buff的核心逻辑。"""
         self.check_record_module()
-        self.get_prepared(equipper="时流贤者", preload_data=1, dynamic_buff_list=1, enemy=1)
-        from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calculator as Cal
-        mul_data = Mul(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
+        self.get_prepared(
+            equipper="时流贤者", preload_data=1, dynamic_buff_list=1, enemy=1
+        )
+        from sim_progress.ScheduledEvent.Calculator import (
+            MultiplierData as Mul,
+            Calculator as Cal,
+        )
+
+        mul_data = Mul(
+            self.record.enemy, self.record.dynamic_buff_list, self.record.char
+        )
         ap = Cal.AnomalyMul.cal_ap(mul_data)
         return ap >= 375
 

@@ -36,7 +36,9 @@ class CalAnomaly:
 
         # 根据动态buff读取怪物面板
         self.data: MulData = MulData(
-            enemy_obj=self.enemy_obj, dynamic_buff=self.dynamic_buff, judge_node=anomaly_obj,
+            enemy_obj=self.enemy_obj,
+            dynamic_buff=self.dynamic_buff,
+            judge_node=anomaly_obj,
         )
 
         # 虚拟角色等级
@@ -240,8 +242,6 @@ class CalPolarityDisorder(CalDisorder):
 
 
 class CalAbloom(CalAnomaly):
-    def __init__(
-        self, abloom_obj: Abloom, enemy_obj: Enemy, dynamic_buff: dict
-    ):
+    def __init__(self, abloom_obj: Abloom, enemy_obj: Enemy, dynamic_buff: dict):
         super().__init__(abloom_obj, enemy_obj, dynamic_buff)
         self.final_multipliers[0] *= abloom_obj.anomaly_dmg_ratio

@@ -8,8 +8,6 @@ from sim_progress.data_struct import ActionStack
 from sim_progress.Buff.Buff0Manager import Buff0ManagerClass, change_name_box
 
 
-
-
 @dataclass
 class InitData:
     def __init__(self):
@@ -63,7 +61,7 @@ class InitData:
 class CharacterData:
     char_obj_list: list[Character] = field(init=False)
     init_data: InitData
-    parallel_config: 'ParallelConfig'
+    parallel_config: "ParallelConfig"
 
     def __post_init__(self):
         self.char_obj_list = []
@@ -71,7 +69,10 @@ class CharacterData:
             i = 0
             for _ in self.init_data.name_box:
                 char_dict = getattr(self.init_data, f"char_{i}")
-                if self.parallel_config is not None and self.parallel_config.adjust_char == i + 1:    # UI那边不是从0开始数数的
+                if (
+                    self.parallel_config is not None
+                    and self.parallel_config.adjust_char == i + 1
+                ):  # UI那边不是从0开始数数的
                     char_dict["parallel_config"] = self.parallel_config
                 char_obj: Character = character_factory(**char_dict)
                 self.char_obj_list.append(char_obj)
@@ -80,10 +81,10 @@ class CharacterData:
             char_obj.NAME: char_obj for char_obj in self.char_obj_list
         }
 
-
     def reset_myself(self):
         for obj in self.char_obj_list:
             obj.reset_myself()
+
 
 @dataclass
 class LoadData:
@@ -101,7 +102,13 @@ class LoadData:
     char_obj_dict: dict | None = None
 
     def __post_init__(self):
-        self.buff_0_manager = Buff0ManagerClass.Buff0Manager(self.name_box, self.Judge_list_set, self.weapon_dict, self.cinema_dict, self.char_obj_dict)
+        self.buff_0_manager = Buff0ManagerClass.Buff0Manager(
+            self.name_box,
+            self.Judge_list_set,
+            self.weapon_dict,
+            self.cinema_dict,
+            self.char_obj_dict,
+        )
         self.exist_buff_dict = self.buff_0_manager.exist_buff_dict
         self.all_name_order_box = change_name_box(self.name_box)
         # self.all_name_order_box = Buff.Buff0Manager.change_name_box()
@@ -161,14 +168,15 @@ class GlobalStats:
 
 class ParallelConfig(BaseModel):
     """并行模式下，作为子进程与主进程交互的参数
-    
+
     Attributes:
         adjust_char: 调整的角色 (接受: [1, 2, 3]) 表示角色站位
         sc_name: 调整的词条 (各种都行)
-        sc_value: 将词条值调整为 sc_value  
+        sc_value: 将词条值调整为 sc_value
         run_turn_uuid: 运行的轮次 uuid, 由主进程分配
         remove_equipt: 是否移除主词条、副词条
     """
+
     adjust_char: int | None
     sc_name: str | None
     sc_value: int | None

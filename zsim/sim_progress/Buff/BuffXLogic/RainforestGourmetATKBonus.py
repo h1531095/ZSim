@@ -12,6 +12,7 @@ class RainforestGourmetATKBonusRecord:
 
 class RainforestGourmetATKBonus(Buff.BuffLogic):
     """雨林饕客的局内攻击"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -43,6 +44,7 @@ class RainforestGourmetATKBonus(Buff.BuffLogic):
         if skill_node is None:
             return False
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
             raise TypeError
         if skill_node.char_name != self.record.char.NAME:
@@ -58,7 +60,8 @@ class RainforestGourmetATKBonus(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(equipper="雨林饕客", sub_exist_buff_dict=1)
         sp_consume = self.record.last_update_node.skill.sp_consume
-        count = math.floor(sp_consume/10)
-        self.buff_instance.simple_start(find_tick(), self.record.sub_exist_buff_dict, individule_settled_count=count)
+        count = math.floor(sp_consume / 10)
+        self.buff_instance.simple_start(
+            find_tick(), self.record.sub_exist_buff_dict, individule_settled_count=count
+        )
         # print(f'雨林饕客的buff触发了！当前层数{self.buff_instance.dy.count}')
-

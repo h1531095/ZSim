@@ -1,6 +1,8 @@
-from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
-from sim_progress.ScheduledEvent.Calculator import MultiplierData as Mul, Calculator as Cal
-import math
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
+from sim_progress.ScheduledEvent.Calculator import (
+    MultiplierData as Mul,
+    Calculator as Cal,
+)
 from define import VIVIAN_REPORT
 
 
@@ -30,16 +32,17 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
             2: 0.0108,
             3: 0.032,
             4: 0.0615,
-            5: 0.0108
+            5: 0.0108,
         }
-
 
     def get_prepared(self, **kwargs):
         return check_preparation(self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['薇薇安'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["薇薇安"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = VivianCorePassiveTriggerRecord()
         self.record = self.buff_0.history.record
@@ -51,13 +54,16 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         """
         self.check_record_module()
         self.get_prepared(char_CID=1331, enemy=1)
-        skill_node = kwargs.get('skill_node', None)
+        skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f'{self.buff_instance.ft.index}的xjudge函数获取到的skill_node 不是SkillNode类型')
-        if skill_node.skill_tag != '1331_CoAttack_A':
+            raise TypeError(
+                f"{self.buff_instance.ft.index}的xjudge函数获取到的skill_node 不是SkillNode类型"
+            )
+        if skill_node.skill_tag != "1331_CoAttack_A":
             return False
         if not self.record.enemy.dynamic.is_under_anomaly():
             return False
@@ -74,26 +80,44 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
     def special_effect_logic(self, **kwargs):
         """当Xjudge检测到AnomalyBar传入时通过判定，并且执行xeffect"""
         self.check_record_module()
-        self.get_prepared(char_CID=1361, preload_data=1, dynamic_buff_list=1, enemy=1, sub_exist_buff_dict=1)
+        self.get_prepared(
+            char_CID=1361,
+            preload_data=1,
+            dynamic_buff_list=1,
+            enemy=1,
+            sub_exist_buff_dict=1,
+        )
         from sim_progress.AnomalyBar import AnomalyBar
+
         get_result = self.record.enemy.dynamic.get_active_anomaly()
         if not get_result:
             raise ValueError(
-                f'{self.buff_instance.ft.index}的xeffect函数中，enemy.get_active_anomlay函数返回空列表，说明此时没有异常。但是xjudge函数却放行了。')
+                f"{self.buff_instance.ft.index}的xeffect函数中，enemy.get_active_anomlay函数返回空列表，说明此时没有异常。但是xjudge函数却放行了。"
+            )
         active_anomaly_bar = get_result[0]
         copyed_anomaly = AnomalyBar.create_new_from_existing(active_anomaly_bar)
         event_list = JudgeTools.find_event_list()
-        mul_data = Mul(self.record.enemy, self.record.dynamic_buff_list, self.record.char)
+        mul_data = Mul(
+            self.record.enemy, self.record.dynamic_buff_list, self.record.char
+        )
         ap = Cal.AnomalyMul.cal_ap(mul_data)
         from sim_progress.AnomalyBar.CopyAnomalyForOutput import DirgeOfDestinyAnomaly
-        dirge_of_destiny_anomaly = DirgeOfDestinyAnomaly(copyed_anomaly, active_by='1331')
+
+        dirge_of_destiny_anomaly = DirgeOfDestinyAnomaly(
+            copyed_anomaly, active_by="1331"
+        )
         ratio = self.ANOMALY_RATIO_MUL.get(copyed_anomaly.element_type)
         if self.record.cinema_ratio is None:
             self.record.cinema_ratio = 1 if self.record.char.cinema < 2 else 1.3
-        '''20250424参考波波獭视频，该倍率是每一点精通平滑收益，并非向下取整，故此调整模型，去掉floor。'''
-        '''final_ratio = math.floor(ap/10) * ratio * self.record.cinema_ratio'''
+        """20250424参考波波獭视频，该倍率是每一点精通平滑收益，并非向下取整，故此调整模型，去掉floor。"""
+        """final_ratio = math.floor(ap/10) * ratio * self.record.cinema_ratio"""
         final_ratio = ap / 10 * ratio * self.record.cinema_ratio
         dirge_of_destiny_anomaly.anomaly_dmg_ratio = final_ratio
-        dirge_of_destiny_anomaly.current_ndarray = dirge_of_destiny_anomaly.current_ndarray / dirge_of_destiny_anomaly.current_anomaly
+        dirge_of_destiny_anomaly.current_ndarray = (
+            dirge_of_destiny_anomaly.current_ndarray
+            / dirge_of_destiny_anomaly.current_anomaly
+        )
         event_list.append(dirge_of_destiny_anomaly)
-        print(f'核心被动：检测到【落羽生花】命中异常状态下的敌人，触发一次异放！！！') if VIVIAN_REPORT else None
+        print(
+            "核心被动：检测到【落羽生花】命中异常状态下的敌人，触发一次异放！！！"
+        ) if VIVIAN_REPORT else None

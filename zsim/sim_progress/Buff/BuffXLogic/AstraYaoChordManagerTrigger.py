@@ -23,7 +23,9 @@ class AstraYaoChordManagerTrigger(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['耀嘉音'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["耀嘉音"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = AstraYaoChordManagerTriggerRecord()
         self.record = self.buff_0.history.record
@@ -32,7 +34,7 @@ class AstraYaoChordManagerTrigger(Buff.BuffLogic):
         """放行所有的符合条件的技能"""
         self.check_record_module()
         self.get_prepared(char_CID=1311)
-        skill_node = kwargs['skill_node']
+        skill_node = kwargs["skill_node"]
         if skill_node.skill.trigger_buff_level in [5, 7, 8]:
             if find_tick() == skill_node.preload_tick:
                 self.record.last_update_node = skill_node
@@ -46,13 +48,13 @@ class AstraYaoChordManagerTrigger(Buff.BuffLogic):
         char = self.record.char
         skill_node = self.record.last_update_node
         from sim_progress.Character.AstraYao import AstraYao
+
         if not isinstance(char, AstraYao):
             raise TypeError("record.char is not AstraYao")
-        char.chord_manager.chord_trigger.try_spawn_chord_coattack(find_tick(), skill_node=skill_node)
+        char.chord_manager.chord_trigger.try_spawn_chord_coattack(
+            find_tick(), skill_node=skill_node
+        )
         if ASTRAYAO_REPORT:
-            print(f'检测到入场动作{skill_node.skill_tag}，尝试调用震音管理器，触发协同攻击！')
-
-
-
-
-
+            print(
+                f"检测到入场动作{skill_node.skill_tag}，尝试调用震音管理器，触发协同攻击！"
+            )

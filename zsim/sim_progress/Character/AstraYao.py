@@ -10,16 +10,17 @@ from define import ASTRAYAO_REPORT
 
 class AstraYao(Character):
     """耀佳音的特殊资源模块"""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.idyllic_cadenza = False        # 咏叹华彩状态
+        self.idyllic_cadenza = False  # 咏叹华彩状态
         self.chord_manager = ChordCoattackManager(self)
         chord: int
 
-    @ property
+    @property
     def chord(self) -> int:
         """每拥有25点能量，耀嘉音将拥有1点[和弦]"""
-        return math.floor(self.sp/25)
+        return math.floor(self.sp / 25)
 
     class Dynamic(Character.Dynamic):
         """
@@ -27,6 +28,7 @@ class AstraYao(Character):
         当咏叹华彩状态为True时，on_field属性永远返回True，
         而当它为False时，on_field属性返回存储的值。
         """
+
         def __init__(self, char_instantce: Character):
             super().__init__(char_instantce)
             self._on_field = False  # 初始化父类的普通属性
@@ -45,9 +47,9 @@ class AstraYao(Character):
 
     def __update_idyllic_cadenza(self, skill_node: SkillNode) -> None:
         """更新咏叹华彩状态"""
-        if skill_node.skill_tag in ['1311_E_A', '1311_QTE', '1311_Q']:
+        if skill_node.skill_tag in ["1311_E_A", "1311_QTE", "1311_Q"]:
             self.idyllic_cadenza = True
-        elif '1311_NA_3' in skill_node.skill_tag:
+        elif "1311_NA_3" in skill_node.skill_tag:
             self.idyllic_cadenza = False
 
     def special_resources(self, *args, **kwargs) -> None:
@@ -64,7 +66,7 @@ class AstraYao(Character):
         pass
 
 
-'''================================分割线=================================='''
+"""================================分割线=================================="""
 
 
 class ChordCoattackManager:
@@ -75,9 +77,12 @@ class ChordCoattackManager:
 
     class QuickAssistTriggerManager:
         """快速支援管理器"""
+
         def __init__(self, char_instance: AstraYao):
             self.char = char_instance
-            self.light_attack_trigger = self.BaseSingleTrigger(self, cd=180 if self.char.cinema < 4 else 60)
+            self.light_attack_trigger = self.BaseSingleTrigger(
+                self, cd=180 if self.char.cinema < 4 else 60
+            )
             self.heavy_attack_trigger = self.BaseSingleTrigger(self, cd=60)
             self.found_char_dict: dict[str, Character] = {}
             self.preload_data: PreloadData | None = None
@@ -113,8 +118,11 @@ class ChordCoattackManager:
 
         class BaseSingleTrigger:
             """单个触发器类"""
+
             def __init__(self, manager_instance, cd: int):
-                self.manager: ChordCoattackManager.QuickAssistTriggerManager = manager_instance
+                self.manager: ChordCoattackManager.QuickAssistTriggerManager = (
+                    manager_instance
+                )
                 self.cd = cd
                 self.last_update_tick = 0
 
@@ -133,7 +141,9 @@ class ChordCoattackManager:
                 2、下一个角色不是耀嘉音——正常触发下一位角色的快速支援。
                 """
                 _operating_node = self.manager.preload_data.get_on_field_node(tick)
-                all_name_order_box = self.manager.preload_data.load_data.all_name_order_box
+                all_name_order_box = (
+                    self.manager.preload_data.load_data.all_name_order_box
+                )
                 if _operating_node is None:
                     raise ValueError(
                         "想要触发耀嘉音的快速支援，则当前场上必须存在角色！"
@@ -162,7 +172,7 @@ class ChordCoattackManager:
             def try_active(self, tick: int, skill_node):
                 """尝试触发快速支援！这是给外部调用的接口。"""
                 if self.manager.char.chord < 1 or not self.manager.char.idyllic_cadenza:
-                    '''当耀嘉音的和弦数量不足、或不处于唱歌状态时，不予触发！'''
+                    """当耀嘉音的和弦数量不足、或不处于唱歌状态时，不予触发！"""
                     return False
 
                 if not self.is_ready(tick):
@@ -174,16 +184,18 @@ class ChordCoattackManager:
             self.manager: ChordCoattackManager = manager_instance
             self.preload_data: PreloadData | None = None
             # 震音：Tremolo；音簇：Tone Clusters
-            self.tremolo_tick = 35      # 震音的总时长
-            self.tone_clusters_tick = 50    # 音簇的总时长
-            self.coattack_base_count = 1 if not self.manager.char.additional_abililty_active else 2     # 震音的基础轮次
+            self.tremolo_tick = 35  # 震音的总时长
+            self.tone_clusters_tick = 50  # 音簇的总时长
+            self.coattack_base_count = (
+                1 if not self.manager.char.additional_abililty_active else 2
+            )  # 震音的基础轮次
             self.c2_update_tick = 0
             self.c2_trigger_cd = 180
-            self.core_passive_buff_index = 'Buff-角色-耀佳音-核心被动-攻击力'
-            self.last_chord_update_tick = 0     # 上一次调用和弦构造函数的时间点！
-            self.tremolo_tag = '1311_E_EX_A'
-            self.free_tremolo_tag = '1311_E_EX_A_FREE'
-            self.tone_clusters_tag = '1311_E_EX_C'
+            self.core_passive_buff_index = "Buff-角色-耀佳音-核心被动-攻击力"
+            self.last_chord_update_tick = 0  # 上一次调用和弦构造函数的时间点！
+            self.tremolo_tag = "1311_E_EX_A"
+            self.free_tremolo_tag = "1311_E_EX_A_FREE"
+            self.tone_clusters_tag = "1311_E_EX_C"
 
         def c2_ready(self, tick: int):
             return tick - self.c2_update_tick >= self.c2_trigger_cd
@@ -222,24 +234,32 @@ class ChordCoattackManager:
                     if self.c2_ready(tick):
                         self.c2_update_tick = tick
                     else:
-                        '''针对2画，这里需要注意内置CD的判断'''
+                        """针对2画，这里需要注意内置CD的判断"""
                         continue
                 if i == 0:
                     skill_tag_list = [self.tremolo_tag, self.tone_clusters_tag]
                 else:
                     skill_tag_list = [self.free_tremolo_tag, self.tone_clusters_tag]
-                skill_preload_tick_list = [preload_tick, preload_tick + self.tremolo_tick]
+                skill_preload_tick_list = [
+                    preload_tick,
+                    preload_tick + self.tremolo_tick,
+                ]
                 preload_tick += self.tremolo_tick + self.tone_clusters_tick
-                schedule_preload_event_factory(skill_tag_list=skill_tag_list,
-                                               preload_tick_list=skill_preload_tick_list,
-                                               preload_data=self.preload_data,
-                                               apl_priority_list=priority_list)
+                schedule_preload_event_factory(
+                    skill_tag_list=skill_tag_list,
+                    preload_tick_list=skill_preload_tick_list,
+                    preload_data=self.preload_data,
+                    apl_priority_list=priority_list,
+                )
 
         def __add_core_passive_buff(self, skill_node: SkillNode):
             """在触发第一次震音的时刻，也会给角色上Buff"""
             add_buff_list = [self.manager.char.NAME] + [skill_node.char_name]
             benifit_list = list(set(add_buff_list))
             from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
+
             buff_add_strategy(self.core_passive_buff_index, benifit_list=benifit_list)
             if ASTRAYAO_REPORT:
-                print(f'核心被动触发器激活！为{benifit_list}添加了{self.core_passive_buff_index}！')
+                print(
+                    f"核心被动触发器激活！为{benifit_list}添加了{self.core_passive_buff_index}！"
+                )

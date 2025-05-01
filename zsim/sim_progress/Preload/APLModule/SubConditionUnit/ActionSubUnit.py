@@ -35,7 +35,10 @@ class ActionSubUnit(BaseSubConditionUnit):
                     current_node = char_stack.peek_index(i)
                     if current_node is None:
                         return None
-                    if current_node.skill.labels is not None and 'additional_damage' in current_node.skill.labels:
+                    if (
+                        current_node.skill.labels is not None
+                        and "additional_damage" in current_node.skill.labels
+                    ):
                         continue
                     else:
                         if current_node.end_tick != tick:
@@ -54,7 +57,10 @@ class ActionSubUnit(BaseSubConditionUnit):
                 current_node = char_stack.peek_index(i)
                 if current_node is None:
                     return None
-                if current_node.skill.labels is not None and 'additional_damage' in current_node.skill.labels:
+                if (
+                    current_node.skill.labels is not None
+                    and "additional_damage" in current_node.skill.labels
+                ):
                     continue
                 else:
                     return current_node.skill_tag

@@ -129,6 +129,7 @@ def page_simulator():
                 go_apl_select()
 
         with col4:
+
             @st.dialog("模拟器配置", width="large")
             def go_config():
                 """模拟器配置对话框"""

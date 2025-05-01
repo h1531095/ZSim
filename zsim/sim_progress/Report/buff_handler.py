@@ -15,6 +15,7 @@ def report_buff_to_queue(
             buffered_data[character_name][time_tick][buff_name] += buff_count
 
 
+# TODO：切换为 polars
 def dump_buff_csv(result_id: str):
     for char_name in buffered_data:
         if char_name not in buffered_data:

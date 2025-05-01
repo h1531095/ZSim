@@ -18,7 +18,7 @@ __char_module_map = {
     "柳": "Yanagi",
     "简": "Jane",
     "薇薇安": "Vivian",
-    "耀嘉音": "AstraYao"
+    "耀嘉音": "AstraYao",
 }
 
 
@@ -48,7 +48,8 @@ def character_factory(
     sp_limit=120,  # 能量上限-默认120
     cinema=0,
     crit_balancing=True,  # 暴击配平开关，默认开
-    *, parallel_config=None,
+    *,
+    parallel_config=None,
 ) -> Character:
     name, CID = lookup_name_or_cid(name, CID)
     char_init_args = {

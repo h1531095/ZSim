@@ -1,9 +1,8 @@
 import json
 import os
-from typing import Any
 
-import polars as pl
 import plotly.express as px
+import polars as pl
 import streamlit as st
 from define import ANOMALY_MAPPING
 from sim_progress.Character.skill_class import lookup_name_or_cid
@@ -26,7 +25,10 @@ def _load_dmg_data(rid: int | str) -> pl.DataFrame | None:
         # 去除列名中的特殊字符
         schema_names = df.collect_schema().names()
         df = df.rename(
-            {col: col.replace("\r", "").replace("\n", "").strip() for col in schema_names}
+            {
+                col: col.replace("\r", "").replace("\n", "").strip()
+                for col in schema_names
+            }
         )
         return df.collect()
     except FileNotFoundError:
@@ -65,7 +67,7 @@ def prepare_line_chart_data(dmg_result_df: pl.DataFrame) -> dict[str, pl.DataFra
         after_stun = processed_df.filter(pl.col("tick") > first_stun_tick)
 
         before_stun = before_stun.with_columns(
-            (pl.col("stun").cumsum() / pl.col("tick") * 60).alias("stun_efficiency")
+            (pl.col("stun").cum_sum() / pl.col("tick") * 60).alias("stun_efficiency")
         )
         after_stun = after_stun.with_columns(pl.lit(None).alias("stun_efficiency"))
         processed_df = pl.concat([before_stun, after_stun])
@@ -77,11 +79,11 @@ def prepare_line_chart_data(dmg_result_df: pl.DataFrame) -> dict[str, pl.DataFra
     return {"line_chart_df": processed_df}
 
 
-def draw_line_chart(chart_data: dict[str, Any]) -> None:
+def draw_line_chart(chart_data: dict[str, pl.DataFrame]) -> None:
     """绘制伤害与失衡曲线图。
 
     Args:
-        chart_data (Dict[str, Any]): 包含绘制图表所需数据的字典。
+        chart_data (Dict[str, pl.DataFrame]): 包含绘制图表所需数据的字典。
     """
     df = chart_data["line_chart_df"]
     with st.expander("伤害与失衡曲线："):
@@ -268,7 +270,7 @@ def draw_char_chart(chart_data: dict[str, pl.DataFrame]) -> None:
             st.subheader("队伍伤害来源占比")
             if len(char_dmg_df) > 0:
                 fig_dmg_pie = px.pie(
-                    char_dmg_df.to_pandas(),
+                    char_dmg_df,
                     names="name",
                     values="dmg_expect_sum",
                     labels={"name": "来源", "dmg_expect_sum": "期望伤害总和"},
@@ -472,7 +474,7 @@ def draw_char_timeline(gantt_df: pl.DataFrame | None) -> None:
     with st.expander("异常时间线："):
         if gantt_df is not None and len(gantt_df) > 0:
             fig_timeline = px.bar(
-                gantt_df.to_pandas(),
+                gantt_df,
                 x="Duration",
                 y="Task",
                 base="Start",
@@ -482,6 +484,7 @@ def draw_char_timeline(gantt_df: pl.DataFrame | None) -> None:
                     "Duration": "持续时间(帧)",
                     "Task": "状态类型",
                 },
+                height=250,
             )
             st.plotly_chart(fig_timeline)
         else:
@@ -512,9 +515,9 @@ def calculate_and_save_anomaly_attribution(
                 anomaly_damage_totals[anomaly_name] += row["dmg_expect_sum"]
 
     # 初始化一个包含所有角色的字典
-    all_characters = set(char_dmg_df[~char_dmg_df["is_anomaly"]]["name"]).union(
-        set(char_element_df["name"])
-    )
+    all_characters = set(
+        char_dmg_df.filter(~pl.col("is_anomaly"))["name"].to_list()
+    ).union(set(char_element_df["name"]))
 
     # 初始化角色伤害数据
     attribution_data: dict[str, str] = {
