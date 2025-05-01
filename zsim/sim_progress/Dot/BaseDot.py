@@ -12,12 +12,13 @@ class Dot:
         self.anomaly_data = None
         self.skill_node_data = None
         if bar is not None and skill_tag is not None:
-            raise ValueError(f'Dot的构造函数不可以同时传入bar和skill_tag')
+            raise ValueError("Dot的构造函数不可以同时传入bar和skill_tag")
         if bar:
             self.anomaly_data = bar
         if skill_tag:
             from sim_progress.Preload.SkillsQueue import spawn_node
             from Buff import JudgeTools
+
             preload_data = JudgeTools.find_preload_data()
             tick = JudgeTools.find_tick()
             self.skill_node_data = spawn_node(skill_tag, tick, preload_data.skills)
@@ -34,6 +35,7 @@ class Dot:
         3：缓存式更新——依赖内置CD，以及Dot.Dynamic中的动态记录模块，来记录伤害积累。
         4：碎冰——只有含有重攻击的技能在end标签处才能触发。
         """
+
         update_cd: int | float = 0
         index: str = None
         name: str = None
@@ -43,7 +45,7 @@ class Dot:
         max_duration: int = None
         incremental_step: int = None
         max_effect_times: int = 30
-        count_as_skill_hit: bool = False        # dot生效时的伤害能否视作技能的一次命中（从而参与其他的命中类dot的触发）
+        count_as_skill_hit: bool = False  # dot生效时的伤害能否视作技能的一次命中（从而参与其他的命中类dot的触发）
         complex_exit_logic = False  # 复杂的结束判定
 
     @dataclass
@@ -89,9 +91,3 @@ class Dot:
 
     def exit_judge(self, **kwargs):
         pass
-
-
-
-
-
-

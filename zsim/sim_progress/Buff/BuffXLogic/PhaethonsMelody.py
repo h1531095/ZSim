@@ -9,6 +9,7 @@ class PhaethonsMelodyRecord:
 
 class PhaethonsMelody(Buff.BuffLogic):
     """法厄同之歌的复杂逻辑，以太增伤部分。"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -39,8 +40,11 @@ class PhaethonsMelody(Buff.BuffLogic):
         if skill_node is None:
             return False
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f"{self.buff_instance.ft.index}的xjudge函数获取的skill_node不是SkillNode类！")
+            raise TypeError(
+                f"{self.buff_instance.ft.index}的xjudge函数获取的skill_node不是SkillNode类！"
+            )
 
         # 滤去自己的技能
         if self.record.equipper == skill_node.char_name:

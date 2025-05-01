@@ -1,4 +1,4 @@
-from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class SharpenedStingerAnomalyBuildupBonusRecord:
@@ -13,6 +13,7 @@ class SharpenedStingerAnomalyBuildupBonusRecord:
 
 class SharpenedStingerAnomalyBuildupBonus(Buff.BuffLogic):
     """淬锋钳刺第二个特效的判断逻辑"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -39,7 +40,11 @@ class SharpenedStingerAnomalyBuildupBonus(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         """淬锋钳刺的第二特效触发逻辑：触发器Buff为3层时触发。"""
         self.check_record_module()
-        self.get_prepared(equipper="淬锋钳刺", preload_data=1, trigger_buff_0=("equipper", "淬锋钳刺-猎意"))
+        self.get_prepared(
+            equipper="淬锋钳刺",
+            preload_data=1,
+            trigger_buff_0=("equipper", "淬锋钳刺-猎意"),
+        )
         if self.record.trigger_buff_0.dy.count == 3:
             return True
         else:

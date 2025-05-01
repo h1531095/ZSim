@@ -1,4 +1,4 @@
-from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class MagneticStormCharlieSpRecoverRecord:
@@ -11,6 +11,7 @@ class MagneticStormCharlieSpRecoverRecord:
 
 class MagneticStormCharlieSpRecover(Buff.BuffLogic):
     """电磁暴3式判定逻辑"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -43,6 +44,7 @@ class MagneticStormCharlieSpRecover(Buff.BuffLogic):
             return False
         from sim_progress.Preload import SkillNode
         from sim_progress.Load import LoadingMission
+
         if isinstance(skill_node, SkillNode):
             pass
         elif isinstance(skill_node, LoadingMission):
@@ -53,7 +55,10 @@ class MagneticStormCharlieSpRecover(Buff.BuffLogic):
         if self.record.equipper != skill_node.char_name:
             return False
 
-        if skill_node.skill.anomaly_accumulation != 0 and skill_node.skill.element_damage_percent > 0:
+        if (
+            skill_node.skill.anomaly_accumulation != 0
+            and skill_node.skill.element_damage_percent > 0
+        ):
             return True
         return False
 
@@ -62,14 +67,15 @@ class MagneticStormCharlieSpRecover(Buff.BuffLogic):
         self.get_prepared(equipper="「电磁暴」-叁式", sub_exist_buff_dict=1)
         tick_now = JudgeTools.find_tick()
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
-        energy_value = self.record.energy_value_dict[int(self.buff_instance.ft.refinement)]
+        energy_value = self.record.energy_value_dict[
+            int(self.buff_instance.ft.refinement)
+        ]
         event_list = JudgeTools.find_event_list()
         from sim_progress.data_struct import ScheduleRefreshData
+
         refresh_data = ScheduleRefreshData(
             sp_target=(self.record.char.NAME,),
             sp_value=energy_value,
         )
         event_list.append(refresh_data)
-        print(f'电磁暴3式回能触发！')
-
-
+        print("电磁暴3式回能触发！")

@@ -26,7 +26,10 @@ def _load_dmg_data(rid: int | str) -> pl.DataFrame | None:
         # 去除列名中的特殊字符
         schema_names = df.collect_schema().names()
         df = df.rename(
-            {col: col.replace("\r", "").replace("\n", "").strip() for col in schema_names}
+            {
+                col: col.replace("\r", "").replace("\n", "").strip()
+                for col in schema_names
+            }
         )
         return df.collect()
     except FileNotFoundError:

@@ -109,7 +109,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                             return False
                         else:
                             """附加伤害additional_damage（类似于“白雷”）由于不需要占用角色，所以可以免于被挤掉的命运"""
-                            skill_info = obj.get_skill_info(skill_tag=_tag, attr_info="labels")
+                            skill_info = obj.get_skill_info(
+                                skill_tag=_tag, attr_info="labels"
+                            )
                             if skill_info is None:
                                 skill_info = {}
                             if "additional_damage" not in skill_info.keys():
@@ -140,7 +142,7 @@ class SwapCancelValidateEngine(BasePreloadEngine):
 
         """角色有空，当前前台技能是其他角色的，此时要针对切人CD和技能Tag进行检查"""
         if int(node_on_field.skill_tag.split("_")[0]) != cid:
-            '''当前前台技能本身就具有最高优先级，则不可切人。'''
+            """当前前台技能本身就具有最高优先级，则不可切人。"""
             if node_on_field.skill.do_immediately:
                 return False
 

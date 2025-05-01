@@ -27,32 +27,29 @@ def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
     """
     timeline_data: list[dict[str, Any]] = []
     buff_columns = [col for col in df.columns if col != "time_tick"]
-    last_tick = df["time_tick"].max() # 获取最后一个 tick
+    last_tick = df["time_tick"].max()  # 获取最后一个 tick
 
     for buff_name in buff_columns:
         # 筛选出当前BUFF列非空的行
-        buff_df = df.select(["time_tick", buff_name]).filter(pl.col(buff_name).is_not_null())
+        buff_df = df.select(["time_tick", buff_name]).filter(
+            pl.col(buff_name).is_not_null()
+        )
 
         if buff_df.height == 0:
             continue
 
         # 尝试将 BUFF 值列转换为数值类型，无法转换的设为 null
-        buff_df = buff_df.with_columns(
-            pl.col(buff_name).cast(pl.Float64, strict=False)
-        )
+        buff_df = buff_df.with_columns(pl.col(buff_name).cast(pl.Float64, strict=False))
 
         # 计算值变化的点
-        buff_df = buff_df.with_columns(
-            pl.col(buff_name).diff().alias("value_diff")
-        )
+        buff_df = buff_df.with_columns(pl.col(buff_name).diff().alias("value_diff"))
 
         # 标记每个连续段的开始
         # 条件：第一行，或者值发生变化
         buff_df = buff_df.with_columns(
-            (
-                (pl.arange(0, pl.count()) == 0) |
-                (pl.col("value_diff") != 0)
-            ).alias("is_start")
+            ((pl.arange(0, pl.count()) == 0) | (pl.col("value_diff") != 0)).alias(
+                "is_start"
+            )
         )
 
         # 为每个连续段分配一个ID
@@ -65,30 +62,30 @@ def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
         grouped = buff_df.group_by("group_id").agg(
             pl.first("time_tick").alias("Start"),
             pl.last("time_tick").alias("last_valid_tick"),
-            pl.first(buff_name).alias("Value")
+            pl.first(buff_name).alias("Value"),
         )
 
         # 计算结束 tick (Finish)
         # 下一段的 Start - 1，或者如果是最后一段，则为整个数据的 last_tick
-        grouped = grouped.with_columns(
-            pl.col("Start").shift(-1).alias("next_start")
-        )
+        grouped = grouped.with_columns(pl.col("Start").shift(-1).alias("next_start"))
 
         grouped = grouped.with_columns(
             pl.when(pl.col("next_start").is_null())
-            .then(last_tick) # 如果是最后一段，结束于全局 last_tick
-            .otherwise(pl.col("next_start") - 1) # 否则结束于下一段开始的前一tick
+            .then(last_tick)  # 如果是最后一段，结束于全局 last_tick
+            .otherwise(pl.col("next_start") - 1)  # 否则结束于下一段开始的前一tick
             .alias("Finish")
         )
 
         # 转换结果为字典列表
         for row in grouped.select(["Start", "Finish", "Value"]).iter_rows(named=True):
-            timeline_data.append({
-                "Task": buff_name,
-                "Start": int(row["Start"]),
-                "Finish": int(row["Finish"]),
-                "Value": row["Value"],
-            })
+            timeline_data.append(
+                {
+                    "Task": buff_name,
+                    "Start": int(row["Start"]),
+                    "Finish": int(row["Finish"]),
+                    "Value": row["Value"],
+                }
+            )
 
     return timeline_data
 
@@ -106,7 +103,9 @@ def _draw_buff_timeline_charts(all_buff_data: dict[str, list[dict[str, Any]]]) -
         with st.expander(f"{file_key}"):
             # Polars 处理后的数据已经是正确的类型，并且可以直接用于绘图
             # Plotly 可以直接处理字典列表
-            df_timeline = pl.DataFrame(buff_data) # 转换为 Polars DataFrame 以便后续操作
+            df_timeline = pl.DataFrame(
+                buff_data
+            )  # 转换为 Polars DataFrame 以便后续操作
 
             # 准备悬停文本 - 仅使用 Value
             df_timeline = df_timeline.with_columns(

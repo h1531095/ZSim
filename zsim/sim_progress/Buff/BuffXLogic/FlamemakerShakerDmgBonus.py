@@ -11,6 +11,7 @@ class FlamemakerShakerDmgBonusRecord:
 
 class FlamemakerShakerDmgBonus(Buff.BuffLogic):
     """灼心摇壶的增伤逻辑判定"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -43,6 +44,7 @@ class FlamemakerShakerDmgBonus(Buff.BuffLogic):
             return False
         from sim_progress.Preload import SkillNode
         from sim_progress.Load import LoadingMission
+
         if isinstance(skill_node, SkillNode):
             pass
         elif isinstance(skill_node, LoadingMission):
@@ -69,13 +71,17 @@ class FlamemakerShakerDmgBonus(Buff.BuffLogic):
         update_count: int
         if self.record.preload_data.operating_now != self.record.char.CID:
             # 说明此时角色正位于后台，更新两层。
-            self.buff_instance.simple_start(find_tick(), self.record.sub_exist_buff_dict, no_count=1)
-            self.buff_instance.dy.count = min(self.buff_instance.dy.count + 2, self.buff_instance.ft.maxcount)
+            self.buff_instance.simple_start(
+                find_tick(), self.record.sub_exist_buff_dict, no_count=1
+            )
+            self.buff_instance.dy.count = min(
+                self.buff_instance.dy.count + 2, self.buff_instance.ft.maxcount
+            )
             update_count = 2
         else:
-            self.buff_instance.simple_start(find_tick(), self.record.sub_exist_buff_dict)
+            self.buff_instance.simple_start(
+                find_tick(), self.record.sub_exist_buff_dict
+            )
             update_count = 1
         self.buff_instance.update_to_buff_0(self.buff_0)
         # print(f'灼心摇壶更新了{update_count}层，当前层数为：{self.buff_0.dy.count}')
-
-

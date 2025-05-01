@@ -73,7 +73,7 @@ main_stat6_options = [
 stats_trans_mapping = {
     "攻击力%": "scATK_percent",
     "攻击力": "scATK",
-    "生命值%": "scHP_percent", 
+    "生命值%": "scHP_percent",
     "生命值": "scHP",
     "防御力%": "scDEF_percent",
     "防御力": "scDEF",
@@ -81,11 +81,10 @@ stats_trans_mapping = {
     "穿透值": "scPEN",
     "暴击率": "scCRIT",
     "暴击伤害": "scCRIT_DMG",
-    
     "属性伤害加成": "DMG_BONUS",
-    "穿透率": "PEN_RATIO", 
+    "穿透率": "PEN_RATIO",
     "异常掌控": "ANOMALY_MASTERY",
-    "能量自动回复": "SP_REGEN"
+    "能量自动回复": "SP_REGEN",
 }
 
 SC_DATA_DISCRIPTION_MAPPING = {
@@ -99,7 +98,6 @@ SC_DATA_DISCRIPTION_MAPPING = {
     "scPEN": "9点/词条",
     "scCRIT": "2.4%暴击率或4.8%暴击伤害/词条",
     "scCRIT_DMG": "2.4%暴击率或4.8%暴击伤害/词条",
-    
     "DMG_BONUS": "3%/词条",
     "PEN_RATIO": "2.4%/词条",
     "ANOMALY_MASTERY": "3%/词条",

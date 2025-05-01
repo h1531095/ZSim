@@ -54,7 +54,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
         "special_resource": SpecialResourceValueHandler,
         "special_resource_type": SpecialResourceTypeHandler,
         "special_state": SpecialStateHandler,
-        "cinema": CinemaHandler
+        "cinema": CinemaHandler,
     }
 
     def check_myself(self, found_char_dict, game_state: dict, *args, **kwargs):
@@ -63,6 +63,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
         check_cid(self.check_target)
         if self.char is None:
             from sim_progress.Preload import find_char
+
             self.char = find_char(found_char_dict, game_state, int(self.check_target))
         handler_cls = self.AttributeHandlerMap.get(self.check_stat)
         handler = handler_cls() if handler_cls else None

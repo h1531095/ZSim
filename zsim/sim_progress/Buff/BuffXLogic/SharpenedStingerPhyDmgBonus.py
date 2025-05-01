@@ -12,6 +12,7 @@ class SharpenedStingerPhyDmgBonusRecord:
 
 class SharpenedStingerPhyDmgBonus(Buff.BuffLogic):
     """淬锋钳刺的 猎意复杂逻辑"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -43,8 +44,11 @@ class SharpenedStingerPhyDmgBonus(Buff.BuffLogic):
         if skill_node is None:
             return False
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f"{self.buff_instance.ft.index}的xjudge函数获取的skill_node不是SkillNode类！")
+            raise TypeError(
+                f"{self.buff_instance.ft.index}的xjudge函数获取的skill_node不是SkillNode类！"
+            )
 
         # 过滤不是自己的skill_node
         if self.record.char.NAME != skill_node.char_name:
@@ -53,7 +57,10 @@ class SharpenedStingerPhyDmgBonus(Buff.BuffLogic):
         if not self.buff_0.dy.ready:
             return False
 
-        if self.record.preload_data.personal_node_stack[self.record.char.CID].__len__() <= 1:
+        if (
+            self.record.preload_data.personal_node_stack[self.record.char.CID].__len__()
+            <= 1
+        ):
             self.record.update_signal = 1
             return True
 
@@ -72,8 +79,12 @@ class SharpenedStingerPhyDmgBonus(Buff.BuffLogic):
         if self.record.update_signal is None:
             return
         if self.record.update_signal == 0:
-            self.buff_instance.simple_start(find_tick(), self.record.sub_exist_buff_dict)
+            self.buff_instance.simple_start(
+                find_tick(), self.record.sub_exist_buff_dict
+            )
         elif self.record.update_signal == 1:
-            self.buff_instance.simple_start(find_tick(), self.record.sub_exist_buff_dict, no_count=1)
+            self.buff_instance.simple_start(
+                find_tick(), self.record.sub_exist_buff_dict, no_count=1
+            )
             self.buff_instance.dy.count = self.buff_instance.ft.maxcount
             self.buff_instance.update_to_buff_0(self.buff_0)

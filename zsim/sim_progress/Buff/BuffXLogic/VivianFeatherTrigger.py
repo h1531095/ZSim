@@ -22,7 +22,9 @@ class VivianFeatherTrigger(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()['薇薇安'][self.buff_instance.ft.index]
+            self.buff_0 = JudgeTools.find_exist_buff_dict()["薇薇安"][
+                self.buff_instance.ft.index
+            ]
         if self.buff_0.history.record is None:
             self.buff_0.history.record = VivianFeatherTriggerRecord()
         self.record = self.buff_0.history.record
@@ -31,15 +33,18 @@ class VivianFeatherTrigger(Buff.BuffLogic):
         """检测到最后一跳时放行"""
         self.check_record_module()
         self.get_prepared(char_CID=1331)
-        skill_node = kwargs.get('skill_node', None)
+        skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f'{self.buff_instance.ft.index}的xjudge函数获取的skill_node不是SkillNode类型')
+            raise TypeError(
+                f"{self.buff_instance.ft.index}的xjudge函数获取的skill_node不是SkillNode类型"
+            )
 
         # 过滤掉不是自己的skill_node
-        if '1331' not in skill_node.skill_tag:
+        if "1331" not in skill_node.skill_tag:
             return False
 
         # 放行所有正处于最后一跳的skill_node

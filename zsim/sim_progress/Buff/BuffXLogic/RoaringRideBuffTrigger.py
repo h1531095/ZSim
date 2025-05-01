@@ -11,6 +11,7 @@ class RoaringRideBuffTriggerRecord:
 
 class RoaringRideBuffTrigger(Buff.BuffLogic):
     """轰鸣座驾触发器"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -41,18 +42,21 @@ class RoaringRideBuffTrigger(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(equipper="轰鸣座驾", sub_exist_buff_dict=1)
         if self.record.buff_map is None:
-            self.record.buff_map = {0: f'Buff-武器-精{int(self.buff_instance.ft.refinement)}轰鸣座驾-攻击力',
-                                    1: f'Buff-武器-精{int(self.buff_instance.ft.refinement)}轰鸣座驾-精通提升',
-                                    2: f'Buff-武器-精{int(self.buff_instance.ft.refinement)}轰鸣座驾-属性异常积蓄'}
+            self.record.buff_map = {
+                0: f"Buff-武器-精{int(self.buff_instance.ft.refinement)}轰鸣座驾-攻击力",
+                1: f"Buff-武器-精{int(self.buff_instance.ft.refinement)}轰鸣座驾-精通提升",
+                2: f"Buff-武器-精{int(self.buff_instance.ft.refinement)}轰鸣座驾-属性异常积蓄",
+            }
         from sim_progress import RandomNumberGenerator
         from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
+
         rng = RandomNumberGenerator.RNG()
         seed = rng.r
-        seed = (seed / (2 ** 63 - 1) + 1) / 2
-        if 0 <= seed < 1/3:
+        seed = (seed / (2**63 - 1) + 1) / 2
+        if 0 <= seed < 1 / 3:
             buff_add_strategy(self.record.buff_map[0])
             # print(f'轰鸣座驾触发了攻击力Buff')
-        elif 1/3 <= seed < 2/3:
+        elif 1 / 3 <= seed < 2 / 3:
             buff_add_strategy(self.record.buff_map[1])
             # print(f'轰鸣座驾触发了精通Buff')
         else:
@@ -60,5 +64,3 @@ class RoaringRideBuffTrigger(Buff.BuffLogic):
             buff_add_strategy(self.record.buff_map[2])
 
         self.buff_instance.simple_start(find_tick(), self.record.sub_exist_buff_dict)
-
-

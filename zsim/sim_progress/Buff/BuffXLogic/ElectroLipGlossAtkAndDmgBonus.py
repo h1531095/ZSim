@@ -1,4 +1,4 @@
-from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
+from sim_progress.Buff import Buff, JudgeTools, check_preparation
 
 
 class ElectroLipGlossAtkAndDmgBonusRecord:
@@ -10,6 +10,7 @@ class ElectroLipGlossAtkAndDmgBonusRecord:
 
 class ElectroLipGlossAtkAndDmgBonus(Buff.BuffLogic):
     """触电唇彩判定逻辑"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -44,9 +45,3 @@ class ElectroLipGlossAtkAndDmgBonus(Buff.BuffLogic):
 
     def special_exit_logic(self, **kwargs):
         return not self.special_judge_logic()
-
-
-
-
-
-

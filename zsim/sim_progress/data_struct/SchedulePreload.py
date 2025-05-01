@@ -33,6 +33,7 @@ def schedule_preload_event_factory(
     """根据传入的参数，生成SchedulePreload事件"""
     event_count = len(skill_tag_list)
     from sim_progress.Buff import JudgeTools
+
     tick_now = JudgeTools.find_tick()
     event_list = JudgeTools.find_event_list()
     if len(preload_tick_list) != event_count:

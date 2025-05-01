@@ -10,6 +10,7 @@ class ElegantVanityDmgBonusRecord:
 
 class ElegantVanityDmgBonus(Buff.BuffLogic):
     """玲珑妆匣的全队增伤Buff逻辑。"""
+
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
         self.buff_instance = buff_instance
@@ -40,10 +41,15 @@ class ElegantVanityDmgBonus(Buff.BuffLogic):
         self.get_prepared(equipper="玲珑妆匣")
         skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
-            raise ValueError(f'{self.buff_instance.ft.index}的Xjudge函数获取到的skill_node为None！')
+            raise ValueError(
+                f"{self.buff_instance.ft.index}的Xjudge函数获取到的skill_node为None！"
+            )
         from sim_progress.Preload import SkillNode
+
         if not isinstance(skill_node, SkillNode):
-            raise TypeError(f'{self.buff_instance.ft.index}的Xjudge函数获取到的skill_node类型错误！')
+            raise TypeError(
+                f"{self.buff_instance.ft.index}的Xjudge函数获取到的skill_node类型错误！"
+            )
         # 过滤不是自己的skill_node
         if skill_node.char_name != self.record.char.NAME:
             return False
@@ -60,4 +66,3 @@ class ElegantVanityDmgBonus(Buff.BuffLogic):
                     # print(f'增伤Buff因{skill_node.skill_tag}触发！')
                     return True
         return False
-
