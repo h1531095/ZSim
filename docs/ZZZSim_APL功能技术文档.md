@@ -840,9 +840,9 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > </tr>
 > <tr>
 > <td rowspan="1"; class="color-3">1361</br>（扳机）</td>
-> <td rowspan="20"><code>:</code></td>
-> <td rowspan="20"><code>special_state</code></td>
-> <td rowspan="20">→</td>
+> <td rowspan="30"><code>:</code></td>
+> <td rowspan="30"><code>special_state</code></td>
+> <td rowspan="30">→</td>
 > <td class="color-3">狙击姿态</td>
 > <td class="color-3"><span class="color-bool">布尔值比较</span></td>
 > <td class="color-3">检索 扳机当前是否处于狙击姿态</td>
@@ -918,30 +918,222 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > <td class="color-0"><font class="color-number">数值比较</font></td>
 > <td class="color-0">检索 简当前的萨霍夫跳的剩余可用次数</td>
 > </tr>
+> <tr>
+> <td rowspan="1"; class="color-1">1161<br>（莱特）</td>
+> <td class="color-1">士气</td>
+> <td class="color-1"; rowspan=1><font class="color-number">数值比较</font></td>
+> <td class="color-1">检索 莱特当前的士气值</td>
+> </tr>
+> <tr>
+> <td rowspan="3"; class="color-3">1300<br>（青衣）</td>
+> <td class="color-3">闪络电压</td>
+> <td class="color-3"; rowspan=2><font class="color-number">数值比较</font></td>
+> <td class="color-3">检索 青衣当前的闪络电压值</td>
+> </tr>
+> <tr>
+> <td class="color-3">醉话月云转可用次数</td>
+> <td class="color-3">检索 青衣当前的<abbr title="青衣的重击分成5次突刺攻击和1次终结一击，这里检索的就是重击的突刺攻击的剩余次数，用于判断青衣是否要打完全部重击，或者直接结束收招打终结一击"><b>醉花月云转突刺攻击</b></abbr>的剩余可用次数</td>
+> </tr>
+> <tr>
+> <td class="color-3">闪络状态</td>
+> <td class="color-3"; rowspan=1><font class="color-bool">布尔值比较</font></td>
+> <td class="color-3">检索 青衣当前是否处于闪络状态</td>
+> </tr>
+> <tr>
+> <td rowspan="10"; class="color-3">1381<br>（零号·安比）</td>
+> <td class="color-3">白雷<font color="gray">(内部功能)</font></td>
+> <td class="color-3"; rowspan=6><font class="color-bool">布尔值比较</font></td>
+> <td class="color-3">检索 大安比的<abbr title="这是内置功能，基本没有被外部调用的可能性。大安比的白雷触发行为是比E技能命中晚1帧的，在ZSim内部，符合触发条件的E技能会打开白雷触发器，然后大安比的特殊资源模块会根据白雷触发器的状态，抛出白雷技能，白雷技能结算时，会关闭白雷触发器。所以白雷触发器为True时，就是E技能命中但是白雷尚未触发的时间点（其实这个状态值会持续1~2帧）"><b>白雷触发器</b></abbr>的开合状态</td>
+> </tr>
+> <tr>
+> <td class="color-3">雷殛<font color="gray">(内部功能)</font></td>
+> <td class="color-3">检索 大安比的<abbr title="这是内置功能，基本没有被外部调用的可能性。和白雷触发器一样，在白雷连续命中3次的时，第3个白雷在结算时会打开雷殛触发器，而特殊资源模块会根据雷殛触发器的状态抛出雷殛，雷殛在结算时会关闭触发器终止触发信号。"><b>雷殛触发器</b></abbr>的开合状态</td>
+> </tr>
+> <tr>
+> <td class="color-3">6画状态<font color="gray">(内部功能)</font></td>
+> <td class="color-3">检索 大安比的<abbr title="这是内置功能，基本没有被外部调用的可能性。连续6次的白雷会开启6画触发器，特殊资源模块会根据触发器状态抛出电磁涡流，电磁涡流结算时，关闭6画触发器。"><b>6画触发器</b></abbr>的开合状态</td>
+> </tr>
+> <tr>
+> <td class="color-3">1画状态<font color="gray">(内部功能)</font></td>
+> <td class="color-3">检索 大安比的<abbr title="这是内置功能，基本没有被外部调用的可能性。1画状态下，强化E首次命中时，1画触发器打开，3+1结束后，1画触发器关闭。"><b>1画触发器</b></abbr>的开合状态</td>
+> </tr>
+> <tr>
+> <td class="color-3">E连击</td>
+> <td class="color-3">检索 大安比是否处于连续释放E技能的状态</td>
+> </tr>
+> <tr>
+> <td class="color-3">满层</td>
+> <td class="color-3">检索 大安比的银星标记是否叠满</td>
+> </tr>
+> <tr>
+> <td class="color-3">白雷连击次数</td>
+> <td class="color-3"; rowspan=4><font class="color-number">数值比较</font></td>
+> <td class="color-3">检索 大安比的白雷连击次数</td>
+> </tr>
+> <tr>
+> <td class="color-3">2画_电鸣</td>
+> <td class="color-3">检索 大安比2画的电鸣的剩余可用次数</td>
+> </tr>
+> <tr>
+> <td class="color-3">6画_白雷次数</td>
+> <td class="color-3">检索 大安比6画的白雷计数器</td>
+> </tr>
+> <tr>
+> <td class="color-3">1画_白雷次数</td>
+> <td class="color-3">检索 大安比1画的白雷计数器</td>
+> </tr>
 > </table>
+>
+> 至此，所有ZSim当前支持角色的special_state相关的参数以及键值链就已经全部列出
+>
+> 这部分APL的书写示范如下：
+>
+> <details>
+> <summary class="details-summary">查看示例</summary>
+> <table>
+> <tr>
+> <td></td>
+> <td>示范1</td>
+> <td>示范2</td>
+> <td>示范3</td>
+> </tr>
+> <tr>
+> <td>APL含义</td>
+> <td># 青衣的醉话月云转突刺攻击剩余次数大于1次</td>
+> <td># 简不处于狂热状态下</td>
+> <td># 大安比正处于E连击状态下</td>
+> </tr>
+> <tr>
+> <td>APL代码</td>
+> <td>attribute.1300:special_state→醉花月云转可用次数>1</td>
+> <td>attribute.1301:special_state→狂热状态==False</td>
+> <td>attribute.1381:special_state→E连击==True</td>
+> </tr>
+> </table>
+> </details>
+> 
+> --------------------------
+>
+> ### ▶5.4 增减益效果类条件——buff
+>
+> APL还支持<b>buff</b>类条件，这类条件只有3个功能，针对Buff存在状态、 持续时间、当前层数的检查，语法如下：
+>
+> <table class="col-center-1-7"> 
+> <tr>
+> <td><b>检索目标</b></td>
+> <td><b>分隔符</b></td>
+> <td><b>检索内容</b></td>
+> <td><b>分隔符</b></td>
+> <td><b>嵌套结构键值链</b></td>
+> <td><b>比较类型</b></td>
+> <td><b>解释</b></td>
+> </tr>
+> <tr>
+> <td rowspan="3">CID<br>enemy</td>
+> <td rowspan="3"><code>:</code></td>
+> <td ><code>exist</code></td>
+> <td rowspan="3">→</td>
+> <td rowspan="3">buff名<br><font color=orange>xxx</font></td>
+> <td rowspan="1"><span class="color-bool">布尔值比较</span></td>
+> <td>检索 Buff（<font color=orange>xxx</font>）是否存在于角色（CID）或enemy身上</td>
+> </tr>
+> <tr>
+> <td ><code>duration</code></td>
+> <td rowspan="2"><span class="color-number">数值比较</span></td>
+> <td>检索 角色（CID）或enemy身上的Buff（<font color=orange>xxx</font>）的持续时间</td>
+> </tr>
+> <tr>
+> <td ><code>count</code></td>
+> <td>检索 角色（CID）或enemy身上 Buff（<font color=orange>xxx</font>）的层数</td>
+> </tr>
+> </table>
+>
+> <b>buff</b>类条件最重要的是确定buff名，考虑到ZSim中的Buff数量超过1000，在这里我就不一一展开，你可以前往data下的buff数据库（激活判断.csv、触发判断.csv、buff_effect.csv）进行查看。
+>
+> 这部分APL的书写规范如下：
+> <details>
+> <summary class="details-summary">查看示例</summary>
+> <table>
+> <tr>
+> <td></td>
+> <td>示范1</td>
+> <td>示范2</td>
+> </tr>
+> <tr>
+> <td>APL含义</td>
+> <td># 雅身上存在丽娜的穿透率Buff</td>
+> <td># 柳身上存在耀嘉音的攻击力Buff</td>
+> </tr>
+> <tr>
+> <td>APL代码</td>
+> <td>buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True</td>
+> <td>buff.1221:Buff-角色-耀佳音-核心被动-攻击力==True</td>
+> </tr>
+> </table>
+> </details>
+>
+> ------------------------------
+> ### ▶5.5 特殊类条件——special
+>
+> <b>special</b>类条件目前还处于开发阶段，当前该类条件只支持查询<b>当前操作角色</b>
+> 
+> 示范：
+> 
+> \# 当前当前操作角色的是柳
+>
+> special.preload_data:operatin_char==1221
 --------------------------------
 
-## 7、示例及讲解
+## 6、应用示范及讲解
 
- 接下来是APL代码的展示与讲解环节。我选择了一段 青衣、丽娜、雅队伍的爆发期APL来进行展示。注意，为了方便大家理解APL的运行逻辑以及优化流程，这套展示给大家看的APL代码并非是最优解。
+ 接下来是APL代码的展示与讲解环节。我选择了一段 青衣、丽娜、雅队伍的爆发期APL来进行展示。注意，为了方便大家理解APL的运行逻辑以及优化流程，这套展示给大家看的APL代码并非是最优解，有着较多的可优化空间。
+ 
 
- 在逐行讲解的过程中，我将为大家详细讲解APL的具体作用和逻辑，以及多条APL相互组合时的效果。
+```
+#失衡期间丽娜要满覆盖buff
+1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True|status.enemy:QTE_activation_available==False
 
-> ```APL
+#满豆自动放满蓄力普攻
+1091|action+=|1091_SNA_3|attribute.1091:special_resource==6|buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True|status.enemy:stun==True
+
+#能量不够时应优先大招
+1091|action+=|1091_Q|attribute.1091:special_resource>3|attribute.1091:decibel==3000|status.enemy:stun==True|attribute.1091:energy<40
+
+#豆子相差很远时，也优先开大
+1091|action+=|1091_Q|attribute.1091:special_resource<4|attribute.1091:decibel==3000|status.enemy:stun==True
+
+#有能量、有大时，根据豆子数量判断大招如何释放。
+1091|action+=|1091_E_EX_A_1|status.enemy:stun==True|attribute.1091:special_resource<6|attribute.1091:special_resource>4|attribute.1091:decibel==3000
+1091|action+=|1091_Q|status.enemy:stun==True|attribute.1091:special_resource<3|attribute.1091:decibel==3000
+
+#泄能逻辑
+1091|action+=|1091_E_EX_B_1|status.enemy:stun==True|attribute.1091:energy>=40|attribute.1091:special_resource<6|action.1091:strict_linked_after==1091_E_EX_A_2
+1091|action+=|1091_E_EX_A_1|status.enemy:stun==True|attribute.1091:energy>=40|attribute.1091:special_resource<6
+
+#剩余情况都是后置开大
+1091|action+=|1091_Q|attribute.1091:special_resource<4|attribute.1091:decibel==3000|status.enemy:stun==True
+
+```
+
+接下来，我将针对上面展示的这部分APL代码进行逐行讲解，
+
+在逐行讲解的过程中，我将为大家详细讲解APL的具体作用和逻辑，以及多条APL相互组合时的效果。
+
+> ```
 > #失衡期间丽娜要满覆盖buff
 > 1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True
 > ```
 >
->  在失衡期，如果发现丽娜Buff断了（注意上面的`!`符号表示了反义），那么就要切出丽娜来A一下，续上穿透率Buff。这里不用E的原因是为了省时间。（当然，在合轴模式下，或许E技能更优）
+>  在失衡期，如果发现丽娜Buff断了，那么就要切出丽娜来A一下，续上穿透率Buff。这里不用E的原因是为了省时间，在实战中，我们也能在竞速视频中观察到选手使用丽娜的A1来快速续Buff的操作。
 
 > ```APL
 > #满豆自动放满蓄力普攻
 > 1091|action+=|1091_SNA_3|attribute.1091:special_resource==6|buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True|status.enemy:stun==True
 > ```
 >
->  在失衡期，雅在拥有6个豆子时，只会在身上有丽娜穿透率Buff的时候释放满蓄力普攻。换言之，如果雅的豆子满了，但是身上没有Buff，那么本行APL的判定就不通过，是不会释放满蓄力普攻的。
+>  在失衡期，雅在拥有6个豆子时，只会在身上有丽娜穿透率Buff的时候释放满蓄力普攻。换言之，如果雅的豆子满了，但是身上没有Buff，那么本行APL的判定就不通过，是不会释放满蓄力普攻的。这一行APL是为了防止雅打出低质量的满蓄普攻。
 
-> ```APL
+> ```
 > #能量不够时应优先大招
 > 1091|action+=|1091_Q|attribute.1091:special_resource>3|attribute.1091:decibel==3000|status.enemy:stun==True|attribute.1091:energy<40
 > ```
@@ -962,31 +1154,30 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > >     <p style="text-indent: 2em; color: gray">有的读者可能又注意到了新的问题。“那如果身上恰好没有Buff，且满豆，那APL的执行不就漏到第三行了吗？”</br></p>
 > >     <p style="text-indent: 2em; color: gray">放心，这个情况也是不会出现的。因为在失衡期，身上没有Buff的情况会被第一行APL拦下来。</br></p>
 > >     <p style="text-indent: 2em; color: gray">总之，如果APL的运行来到了第三行，那么就说明当前起码是：有穿透率Buff且不满豆的状态，也就是说，我们补写的那个条件判定，在第三行的位置上，是永远不会起到作用的。</br></p>
-> >     <p style="text-indent: 2em; color: gray">可见，APL的优先级思维要求大家以全新的视角来拆分、看待自己的游戏逻辑，在稍后的章节中，我会给出一些书写APL的小方法，来帮助大家梳理优先级。</p>
+> >     <p style="text-indent: 2em; color: gray">可见，APL的优先级思维要求大家以全新的视角来拆分、看待自己的游戏逻辑。</p>
 > > </details>
 
-> ```APL
+> ```
 > #豆子相差很远时，也优先开大
 > 1091|action+=|1091_Q|attribute.1091:special_resource<4|attribute.1091:decibel==3000|status.enemy:stun==True
-> 
 > ```
 >
->  这一句APL就更有意思了。和上一句的大招APL相比，这一句改变了豆子的判定，并且取消了能量的判定。只有满足以下条件（可以简单概括为：要么豆子数量不对，要么能量值不对），APL才的执行才会来到第四行（不满足的条件为<span style="color: orange">橙色</span>）：
+>  和上一句的大招APL相比，这一句改变了豆子的判定，并且取消了能量的判定。只有满足以下条件（可以简单概括为：要么豆子数量不对，要么能量值不对），APL才的执行才会来到第四行（不满足的条件为<span style="color: orange">橙色</span>）：
 >
->  **情况1：**满喧响（默认） | 豆子∈(3, 6) | <span style="color: orange">能量足够</span>
+>  <b>情况1：</b>满喧响（默认） | 豆子∈\(3, 6\]| <span style="color: orange">能量足够</span>
 >
->  **情况2：**满喧响（默认） | <span style="color: orange">豆子∈[0, 3]</span> | 能量不够
+>  <b>情况2：</b>满喧响（默认） | <span style="color: orange">豆子∈[0, 3]</span> | 能量不够
 >
->  **情况3：**满喧响（默认） | <span style="color: orange">豆子∈[0, 3]</span> | <span style="color: orange">能量足够</span>
+>  <b>情况3：</b>满喧响（默认） | <span style="color: orange">豆子∈[0, 3]</span> | <span style="color: orange">能量足够</span>
 >
->  而本条APL针对的恰好就是**情况2**，即在有没能量，且大招不会导致豆子溢出时开大。
+>  而本条APL针对的恰好就是<b>情况2</b>，即在有没能量，且大招不会导致豆子溢出时开大。
 
-> ```APL
+> ```
 > #泄能逻辑
 > 1091|action+=|1091_E_EX_A_1|status.enemy:stun==True|attribute.1091:energy>=40|attribute.1091:special_resource<6
 > ```
 >
->  这里展示的APL是雅在失衡期的泄能逻辑。如果你全局检查目前已经展示的5行APL，你就不难发现本行APL中藏着一个无效条件，对，就是能量判定。从上面的三种情况的列举可以看出，能够进入到这一行的APL，均是能量足够的情况。所以能量判定在这一行是无效的。
+>  这里展示的APL是雅在失衡期的泄能逻辑。如果你全局检查目前已经展示的5行APL，你就不难发现本行APL中藏着一个无效条件——能量判定。从上面的三种情况的列举可以看出，能够进入到这一行的APL，均是能量足够的情况。所以能量判定在这一行是无效的。
 >
 >  这也意味着，这一行APL的作用，就是“无脑泄蓝”，哪怕此时喧响值足够，也是优先打强化E。<span style="color: gray">（很明显，这个逻辑是不对的，在实战中我们面对豆子不满、且有能量、有大的情况，往往会先进行豆子判断。如果开大豆子不溢出，那就优先开大，如果开大豆子溢出，那就优先打E。）</span>
 >
@@ -997,4 +1188,29 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > 1091|action+=|1091_Q|status.enemy:stun==True|attribute.1091:special_resource<3
 > ```
 >
->  顺便，诸位读者可能已经发现了，这两行APL如果调换先后顺序，实际上起到的效果是完全相同的。这也是APL的一个核心特点：当情况的分类讨论抵达最后一层时，最后一层的APL先后顺序不影响实际效果。因为它们本质上是同优先级的APL。
+>  这两行APL如果调换先后顺序，实际上起到的效果是完全相同的。这也是APL的一个核心特点：位于分类讨论末端的几种情况的APL先后顺序不影响实际效果，因为它们本质上是同优先级的APL。
+
+## 7、结尾
+
+通过本文档，我们详细介绍了ZSim中APL模块的设计原理、语法规则以及实际应用示例。
+
+APL作为ZSim的核心功能之一，能够帮助玩家精确模拟角色的输出逻辑，优化战斗策略。希望本文档能够为开发者和使用者提供清晰的指导，帮助大家更好地理解和使用APL功能。
+
+#### 后续计划
+
+- 编写一个可视化的修改APL代码的前端工具
+- 开发APL语法检查器
+- 支持“或”逻辑：当前版本的APL仅支持“与”逻辑，未来我们将优先开发“或”逻辑的支持，以简化复杂条件的编写。
+- 扩展条件类型：我们计划增加更多的条件类型，以支持更复杂的战斗场景和角色机制。
+- 优化性能：进一步提升APL的解析和执行效率，确保在大规模模拟中的稳定性。
+  
+
+####  反馈与支持
+如果您在使用过程中遇到任何问题，或有任何建议和反馈，欢迎通过以下方式联系我们：
+
+邮箱：1012399286@qq.com   
+
+GitHub：https://github.com/Steinwaysj/ZZZ_Calculator
+
+感谢您对ZSim的支持，我们将持续改进和优化，为您提供更好的模拟体验。
+

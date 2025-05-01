@@ -124,7 +124,7 @@ class Soldier0_Anby(Character):
         所以，在之前的debug中，我总能观察到C6的协同攻击被大幅度延后，以至于C6计数器都出现了问题。
         在后来的更新中，我将C6等价为雷殛的后置技能，从而摆脱了抢队问题。
 
-        经验：同一个技能的多个follow up必须是互斥的，如果存在一个tick通过多个follow up 判定的可能，就要做特殊处理。否则一定会以为抢队出问题。
+        经验：同一个技能的多个follow up必须是互斥的，如果存在一个tick通过多个follow up 判定的可能，就要做特殊处理。否则一定会因为抢队出问题。
         """
         if self.cinema == 6:
             self.c6_counter += 1
@@ -189,7 +189,7 @@ class Soldier0_Anby(Character):
             "雷殛": self.thunder_smite_answer,
             "6画状态": self.c6_answer,
             "1画状态": self.c1_answer,
-            "白雷连击": self.continuing_white_thunder_counter,
+            "白雷连击次数": self.continuing_white_thunder_counter,
             "E连击": self.continuing_e,
             "6画_白雷次数": self.c6_counter,
             "1画_白雷次数": self.c1_counter,
