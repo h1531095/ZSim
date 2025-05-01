@@ -63,7 +63,7 @@ class AstraYao(Character):
         return "咏叹华彩", self.idyllic_cadenza
 
     def get_special_stats(self, *args, **kwargs) -> dict[str, int | float | bool]:
-        pass
+        return {"和弦": self.chord}
 
 
 """================================分割线=================================="""
