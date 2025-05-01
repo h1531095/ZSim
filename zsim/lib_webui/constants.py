@@ -1,4 +1,4 @@
-import pandas as pd
+import polars as pl
 from define import ElementType
 
 
@@ -6,13 +6,9 @@ from define import ElementType
 def _init_char_mapping() -> dict:
     """初始化角色CID和名称的映射关系"""
     try:
-        df = pd.read_csv("./zsim/data/character.csv")
-        mapping = {}
-        for _, row in df.iterrows():
-            cid = str(row["CID"])
-            name = row["name"]
-            mapping[name] = cid
-        return mapping
+        df = pl.scan_csv("./zsim/data/character.csv")
+        mapping = df.select(["name", "CID"]).collect().to_dict(as_series=False)
+        return {name: str(cid) for name, cid in zip(mapping["name"], mapping["CID"])}
     except Exception as e:
         print(f"Warning: Failed to load character mapping: {e}")
         return {}
@@ -26,16 +22,23 @@ default_chars = [
     "丽娜",
     "零号·安比",
 ]  # 这个值其实没啥意义，但是必须是三个角色，否则可能会报错
-__df = pd.read_csv("./zsim/data/character.csv")
-char_options = __df["name"].drop_duplicates().tolist()
+__lf = pl.scan_csv("./zsim/data/character.csv")
+char_options = __lf.select("name").unique().collect().to_series().to_list()
 
 # 武器选项
-__df = pd.read_csv("./zsim/data/weapon.csv")
-weapon_options = __df["中文名称"].drop_duplicates().tolist()
+__lf = pl.scan_csv("./zsim/data/weapon.csv")
+weapon_options = __lf.select("中文名称").unique().collect().to_series().to_list()
 
 # 驱动盘套装选项
-__df = pd.read_csv("./zsim/data/equip_set_2pc.csv")
-equip_set_ids = __df["set_ID"].drop_duplicates().dropna().tolist()
+__lf = pl.scan_csv("./zsim/data/equip_set_2pc.csv")
+equip_set_ids = (
+    __lf.select("set_ID")
+    .filter(pl.col("set_ID").is_not_null())
+    .unique()
+    .collect()
+    .to_series()
+    .to_list()
+)
 equip_set4_options = equip_set2_options = equip_set_ids
 
 # 主词条选项
@@ -129,4 +132,4 @@ class IDDuplicateError(Exception):
     pass
 
 
-del __df  # 确保在文件末尾删除临时变量
+del __lf  # 确保在文件末尾删除临时变量

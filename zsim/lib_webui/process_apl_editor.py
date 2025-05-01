@@ -13,7 +13,6 @@ from define import (
     DEFAULT_APL_DIR,
     saved_char_config,
     CHARACTER_DATA_PATH,
-    DOCS_DIR,
 )
 
 from .constants import CHAR_CID_MAPPING
@@ -542,24 +541,7 @@ def display_apl_details(
     # --- APL Logic 编辑 ---
     st.markdown("**APL 逻辑**")
 
-    # 定义 Markdown 文件路径
-    apl_doc_path = os.path.abspath(os.path.join(DOCS_DIR, "ZZZSim_APL功能技术文档.md"))
-
-    # 创建按钮，点击时打开文档对话框
-    if st.button("查看 APL 技术文档"):
-        try:
-            with open(apl_doc_path, "r", encoding="utf-8") as f:
-                apl_doc_content = f.read()
-
-            @st.dialog("APL 技术文档", width="large")
-            def show_apl_doc():
-                st.markdown(apl_doc_content, unsafe_allow_html=True)
-
-            show_apl_doc()
-        except FileNotFoundError:
-            st.error(f"错误：找不到 APL 技术文档文件 '{apl_doc_path}'")
-        except Exception as e:
-            st.error(f"读取 APL 技术文档时出错：{e}")
+    st.page_link("lib_webui/doc_pages/page_apl_doc.py", icon = "📖", label="APL设计书")
 
     apl_logic_info = edited_data.get("apl_logic", {})
     st.write("逻辑编写：")
