@@ -21,6 +21,7 @@ dependencies = [
     "psutil>=7.0.0",
     "streamlit-ace>=0.1.1",
     "polars>=1.28.1",
+    "pywebview>=5.4",
 ]
 
 [[tool.uv.index]]
