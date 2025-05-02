@@ -26,6 +26,22 @@ def go_webui():
         sys.exit(1)
 
 
+def go_webview_app():
+    """启动 pywebview 应用。"""
+    try:
+        # 直接执行 webview_app.py 脚本
+        subprocess.run([sys.executable, "zsim/webview_app.py"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"错误：启动 Webview 应用失败 - {e}")
+        sys.exit(1)
+    except FileNotFoundError:
+        print("错误：找不到 zsim/webview_app.py。请确保文件存在。")
+        sys.exit(1)
+    except Exception as e:
+        print(f"错误：启动 Webview 应用时发生未知错误 - {str(e)}")
+        sys.exit(1)
+
+
 def go_cli(args: MainArgs = MainArgs()):
     """启动命令行界面，并根据提供的 MainArgs 对象传递参数。
 
@@ -97,16 +113,18 @@ def go_help():
     """显示帮助信息"""
     print("ZZZ模拟器")
     print("命令列表：")
-    print("  run: 启动webui")
-    print("  c: 使用main.py运行保存的配置")
+    print("  run: 启动 Streamlit WebUI (浏览器)")
+    print("  app: 启动桌面应用 (Webview)")
+    print("  c: 使用 main.py 运行命令行模拟")
     confirm_launch()
 
 
 def confirm_launch():
     """交互式确认启动"""
-    # 注意：这里调用 go_cli 时未使用参数，如果需要从交互式输入获取参数，需修改
-    CHOICES = {"run": go_webui, "c": go_cli, "help": go_help}
-    choice = input("输入run启动模拟器页面，输入c运行命令行，输入help查看选项：").lower()
+    CHOICES = {"run": go_webui, "app": go_webview_app, "c": go_cli, "help": go_help}
+    choice = input(
+        "输入 run 启动 WebUI, 输入 app 启动桌面应用, 输入 c 运行命令行："
+    ).lower()
     if choice in CHOICES.keys():
         if choice == "c":
             # 如果选择 'c'，调用 go_cli 时不传递特定参数，使用默认值
@@ -121,13 +139,19 @@ def confirm_launch():
 def main():
     parser = argparse.ArgumentParser(description="ZZZ Simulator")
     parser.add_argument(
-        "command", nargs="?", default=None, help="子命令（例如：run, c）"
+        "command",
+        nargs="?",
+        default=None,
+        help="子命令（例如：run, app, c）",
+        choices=["run", "app", "c", None],
     )
     # 未来可以扩展这里，使其能解析 main.py 的参数并传递给 go_cli
     args = parser.parse_args()
 
     if args.command == "run":
         go_webui()
+    elif args.command == "app":
+        go_webview_app()
     elif args.command == "c":
         # 调用 go_cli 时不传递特定参数，使用默认值
         go_cli()
