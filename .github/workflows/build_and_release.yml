@@ -49,7 +49,7 @@ jobs:
     # --macos-create-app-bundle: (仅 macOS) 创建 .app 包
     - name: Build GUI App with Nuitka (webview_app.py)
       run: |
-        python -m nuitka --standalone --output-dir=dist/zsim-app-${{ matrix.os }} \
+        python -m nuitka --standalone --output-dir=dist/zsim-app-${{ matrix.os }} --assume-yes-for-downloads --experimental=no-ccache \
           --include-package=zsim \
           --include-package-data=zsim \
           --include-data-dir=zsim/data=zsim/data \
@@ -67,7 +67,7 @@ jobs:
     # 参数与 GUI 构建类似，但不包含窗口禁用/App Bundle 选项
     - name: Build CLI App with Nuitka (run.py)
       run: |
-        python -m nuitka --standalone --output-dir=dist/zsim-cli-${{ matrix.os }} \
+        python -m nuitka --standalone --output-dir=dist/zsim-cli-${{ matrix.os }} --assume-yes-for-downloads --experimental=no-ccache \
           --include-package=zsim \
           --include-package-data=zsim \
           --include-data-dir=zsim/data=zsim/data \
