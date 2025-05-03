@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zzz-simulator"
-version = "0.1.2"
+version = "0.1.7a1"
 description = "A simulator for ZZZ game"
 requires-python = ">=3.12"
 dependencies = [
@@ -42,7 +42,9 @@ pythonpath = ["./zsim/"]
 
 [dependency-groups]
 dev = [
+    "nuitka>=2.7",
     "openpyxl>=3.1.5",
+    "pyinstaller>=6.13.0",
     "pytest>=8.3.5",
     "viztracer>=1.0.3",
 ]
