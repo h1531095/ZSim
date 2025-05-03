@@ -31,39 +31,31 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install . nuitka
+          pip install . pyinstaller
 
-      # 步骤 4: 使用 Nuitka 构建 GUI 应用 (webview_app.py)
-      - name: Build GUI App with Nuitka (webview_app.py)
+      # 步骤 4: 使用 PyInstaller 构建 GUI 应用 (webview_app.py)
+      - name: Build GUI App with PyInstaller (webview_app.py)
         run: |
-          python -m nuitka --standalone --output-dir=dist/zsim-app-${{ matrix.os }} --assume-yes-for-downloads --experimental=no-ccache \
-            --include-package=zsim \
-            --include-package-data=zsim \
-            --include-data-dir=zsim/data=zsim/data \
-            --include-data-dir=docs=docs \
-            --include-module=zsim.webui \
-            --include-module=zsim.main \
-            --enable-plugin=pywebview \
-            --disable-plugin=anti-bloat \
-            --low-memory \
-            ${{ matrix.os == 'windows-latest' && '--windows-disable-console' || '' }} \
-            ${{ matrix.os == 'macos-latest' && '--macos-create-app-bundle' || '' }} \
+          pyinstaller --noconfirm --clean --distpath dist/zsim-app-${{ matrix.os }} \
+            --name "ZZZ-Simulator" \
+            --add-data "zsim/data:zsim/data" \
+            --add-data "docs:docs" \
+            --hidden-import=zsim.webui \
+            --hidden-import=zsim.main \
+            ${{ matrix.os == 'windows-latest' && '--noconsole --windowed' || '' }} \
+            ${{ matrix.os == 'macos-latest' && '--windowed --osx-bundle-identifier com.zzz.simulator' || '' }} \
             zsim/webview_app.py
         shell: bash # 使用 bash 以确保跨平台命令换行符一致性
 
-      # 步骤 5: 使用 Nuitka 构建 CLI 应用 (run.py)
-      - name: Build CLI App with Nuitka (run.py)
+      # 步骤 5: 使用 PyInstaller 构建 CLI 应用 (run.py)
+      - name: Build CLI App with PyInstaller (run.py)
         run: |
-          python -m nuitka --standalone --output-dir=dist/zsim-cli-${{ matrix.os }} --assume-yes-for-downloads --experimental=no-ccache \
-            --include-package=zsim \
-            --include-package-data=zsim \
-            --include-data-dir=zsim/data=zsim/data \
-            --include-data-dir=docs=docs \
-            --include-module=zsim.webui \
-            --include-module=zsim.main \
-            --enable-plugin=pywebview \
-            --disable-plugin=anti-bloat \
-            --low-memory \
+          pyinstaller --noconfirm --clean --distpath dist/zsim-cli-${{ matrix.os }} \
+            --name "zzz-simulator-cli" \
+            --add-data "zsim/data:zsim/data" \
+            --add-data "docs:docs" \
+            --hidden-import=zsim.webui \
+            --hidden-import=zsim.main \
             zsim/run.py
         shell: bash
 

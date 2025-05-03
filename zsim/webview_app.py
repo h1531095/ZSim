@@ -128,7 +128,7 @@ def on_closed() -> None:
     stop_streamlit()
 
 
-if __name__ == "__main__":
+def main():
     # 在单独的线程中启动 Streamlit
     # start_streamlit 会更新全局变量 streamlit_port
     streamlit_thread = threading.Thread(target=start_streamlit, daemon=True)
@@ -147,3 +147,7 @@ if __name__ == "__main__":
     webview.start(debug=True)
 
     print("应用程序退出。")
+
+
+if __name__ == "__main__":
+    main()
