@@ -4,7 +4,7 @@ name: Build and Release ZZZ Simulator
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build:
@@ -14,86 +14,74 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        # 根据你的 pyproject.toml 设置 Python 版本
-        python-version: ['3.12']
+        python-version: ["3.12"]
 
     steps:
-    # 步骤 1: 检出代码
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      # 步骤 1: 检出代码
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # 步骤 2: 设置 Python 环境
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      # 步骤 2: 设置 Python 环境
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    # 步骤 3: 安装项目依赖和 Nuitka
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        # 安装 pyproject.toml 中定义的依赖以及 nuitka
-        pip install . nuitka
+      # 步骤 3: 安装项目依赖和 Nuitka
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install . nuitka
 
-    # 步骤 4: 使用 Nuitka 构建 GUI 应用 (webview_app.py)
-    # --standalone: 创建独立文件夹
-    # --output-dir: 指定输出目录
-    # --include-package=zsim: 包含整个 zsim 包
-    # --include-package-data=zsim: 包含 zsim 包内的数据文件 (根据 setup.py/pyproject.toml)
-    # --include-data-dir=zsim/data=zsim/data: 强制包含 data 目录及其内容
-    # --include-data-dir=docs=docs: 强制包含 docs 目录及其内容
-    # --include-module=zsim.webui: 确保 webui 模块被包含 (因为是 subprocess 调用的)
-    # --include-module=zsim.main: 确保 main 模块被包含 (因为 run.py 会调用)
-    # --enable-plugin=pywebview: 启用 pywebview 插件，处理其特殊需求
-    # --windows-disable-console: (仅 Windows) 创建无控制台窗口的应用
-    # --macos-create-app-bundle: (仅 macOS) 创建 .app 包
-    - name: Build GUI App with Nuitka (webview_app.py)
-      run: |
-        python -m nuitka --standalone --output-dir=dist/zsim-app-${{ matrix.os }} --assume-yes-for-downloads --experimental=no-ccache \
-          --include-package=zsim \
-          --include-package-data=zsim \
-          --include-data-dir=zsim/data=zsim/data \
-          --include-data-dir=docs=docs \
-          --include-module=zsim.webui \
-          --include-module=zsim.main \
-          --enable-plugin=pywebview \
-          --disable-plugin=anti-bloat \
-          ${{ matrix.os == 'windows-latest' && '--windows-disable-console' || '' }} \
-          ${{ matrix.os == 'macos-latest' && '--macos-create-app-bundle' || '' }} \
-          zsim/webview_app.py
-      shell: bash # 使用 bash 以确保跨平台命令换行符一致性
+      # 步骤 4: 使用 Nuitka 构建 GUI 应用 (webview_app.py)
+      - name: Build GUI App with Nuitka (webview_app.py)
+        run: |
+          python -m nuitka --standalone --output-dir=dist/zsim-app-${{ matrix.os }} --assume-yes-for-downloads --experimental=no-ccache \
+            --include-package=zsim \
+            --include-package-data=zsim \
+            --include-data-dir=zsim/data=zsim/data \
+            --include-data-dir=docs=docs \
+            --include-module=zsim.webui \
+            --include-module=zsim.main \
+            --enable-plugin=pywebview \
+            --disable-plugin=anti-bloat \
+            --low-memory \
+            ${{ matrix.os == 'windows-latest' && '--windows-disable-console' || '' }} \
+            ${{ matrix.os == 'macos-latest' && '--macos-create-app-bundle' || '' }} \
+            zsim/webview_app.py
+        shell: bash # 使用 bash 以确保跨平台命令换行符一致性
 
-    # 步骤 5: 使用 Nuitka 构建 CLI 应用 (run.py)
-    # 参数与 GUI 构建类似，但不包含窗口禁用/App Bundle 选项
-    - name: Build CLI App with Nuitka (run.py)
-      run: |
-        python -m nuitka --standalone --output-dir=dist/zsim-cli-${{ matrix.os }} --assume-yes-for-downloads --experimental=no-ccache \
-          --include-package=zsim \
-          --include-package-data=zsim \
-          --include-data-dir=zsim/data=zsim/data \
-          --include-data-dir=docs=docs \
-          --include-module=zsim.webui \
-          --include-module=zsim.main \
-          --enable-plugin=pywebview \
-          --disable-plugin=anti-bloat \
-          zsim/run.py
-      shell: bash
+      # 步骤 5: 使用 Nuitka 构建 CLI 应用 (run.py)
+      - name: Build CLI App with Nuitka (run.py)
+        run: |
+          python -m nuitka --standalone --output-dir=dist/zsim-cli-${{ matrix.os }} --assume-yes-for-downloads --experimental=no-ccache \
+            --include-package=zsim \
+            --include-package-data=zsim \
+            --include-data-dir=zsim/data=zsim/data \
+            --include-data-dir=docs=docs \
+            --include-module=zsim.webui \
+            --include-module=zsim.main \
+            --enable-plugin=pywebview \
+            --disable-plugin=anti-bloat \
+            --low-memory \
+            zsim/run.py
+        shell: bash
 
-    # 步骤 6: 归档 GUI 构建结果 (上传整个文件夹内容)
-    - name: Archive GUI artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: zsim-app-${{ matrix.os }}
-        # 上传 dist/zsim-app-<os> 目录下的所有内容
-        path: dist/zsim-app-${{ matrix.os }}/**
+      # 步骤 6: 归档 GUI 构建结果 (上传整个文件夹内容)
+      - name: Archive GUI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zsim-app-${{ matrix.os }}
+          # 上传 dist/zsim-app-<os> 目录下的所有内容
+          path: dist/zsim-app-${{ matrix.os }}/**
 
-    # 步骤 7: 归档 CLI 构建结果 (上传整个文件夹内容)
-    - name: Archive CLI artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: zsim-cli-${{ matrix.os }}
-        # 上传 dist/zsim-cli-<os> 目录下的所有内容
-        path: dist/zsim-cli-${{ matrix.os }}/**
+      # 步骤 7: 归档 CLI 构建结果 (上传整个文件夹内容)
+      - name: Archive CLI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zsim-cli-${{ matrix.os }}
+          # 上传 dist/zsim-cli-<os> 目录下的所有内容
+          path: dist/zsim-cli-${{ matrix.os }}/**
 
   # 发布 Job：在所有平台的 build job 成功后运行
   release:
@@ -104,116 +92,116 @@ jobs:
       contents: write # 需要写权限来创建 Release 和上传资源
 
     steps:
-    # 步骤 1: 检出代码 (可选，如果需要在 Release Note 中引用代码)
-    - name: Checkout code
-      uses: actions/checkout@v4
+      # 步骤 1: 检出代码 (可选，如果需要在 Release Note 中引用代码)
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # 步骤 2: 下载所有构建产物
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      # 将所有 artifact 下载到 artifacts/ 目录下，每个 artifact 一个子目录
-      with:
-        path: artifacts
+      # 步骤 2: 下载所有构建产物
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        # 将所有 artifact 下载到 artifacts/ 目录下，每个 artifact 一个子目录
+        with:
+          path: artifacts
 
-    # 步骤 3: 从触发工作流的 ref 中提取 tag 名称
-    - name: Get tag name
-      id: get_tag
-      run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      # 步骤 3: 从触发工作流的 ref 中提取 tag 名称
+      - name: Get tag name
+        id: get_tag
+        run: echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
-    # 步骤 4: 将下载的 artifact 文件夹压缩成 zip 文件
-    - name: Zip artifacts
-      run: |
-        cd artifacts
-        # 遍历 artifacts 目录下的所有子目录 (即每个平台的构建结果)
-        for dir in *; do
-          if [ -d "$dir" ]; then
-            # 将目录压缩成同名的 zip 文件
-            zip -r "${dir}.zip" "$dir"
-          fi
-        done
-        cd .. # 返回上一级目录
+      # 步骤 4: 将下载的 artifact 文件夹压缩成 zip 文件
+      - name: Zip artifacts
+        run: |
+          cd artifacts
+          # 遍历 artifacts 目录下的所有子目录 (即每个平台的构建结果)
+          for dir in *; do
+            if [ -d "$dir" ]; then
+              # 将目录压缩成同名的 zip 文件
+              zip -r "${dir}.zip" "$dir"
+            fi
+          done
+          cd .. # 返回上一级目录
 
-    # 步骤 5: 创建 GitHub Release
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        # GITHUB_TOKEN 是 GitHub Actions 自动提供的 secret
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        # 使用提取的 tag 名称
-        tag_name: ${{ steps.get_tag.outputs.tag_name }}
-        # Release 的标题
-        release_name: Release ${{ steps.get_tag.outputs.tag_name }}
-        # Release 的描述内容
-        body: |
-          Automated release for version ${{ steps.get_tag.outputs.tag_name }}.
-          Contains builds for Windows, macOS, and Linux (GUI and CLI).
-        draft: false      # 不是草稿
-        prerelease: false # 不是预发布版本
+      # 步骤 5: 创建 GitHub Release
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          # GITHUB_TOKEN 是 GitHub Actions 自动提供的 secret
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # 使用提取的 tag 名称
+          tag_name: ${{ steps.get_tag.outputs.tag_name }}
+          # Release 的标题
+          release_name: Release ${{ steps.get_tag.outputs.tag_name }}
+          # Release 的描述内容
+          body: |
+            Automated release for version ${{ steps.get_tag.outputs.tag_name }}.
+            Contains builds for Windows, macOS, and Linux (GUI and CLI).
+          draft: false # 不是草稿
+          prerelease: false # 不是预发布版本
 
-    # 步骤 6: 上传 Windows GUI App 压缩包
-    - name: Upload Release Asset (App Windows)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # 从上一步获取上传 URL
-        asset_path: ./artifacts/zsim-app-windows-latest.zip        # 压缩文件的路径
-        asset_name: zzz-simulator-app-windows.zip                  # 在 Release 中显示的文件名
-        asset_content_type: application/zip                        # 文件类型
+      # 步骤 6: 上传 Windows GUI App 压缩包
+      - name: Upload Release Asset (App Windows)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # 从上一步获取上传 URL
+          asset_path: ./artifacts/zsim-app-windows-latest.zip # 压缩文件的路径
+          asset_name: zzz-simulator-app-windows.zip # 在 Release 中显示的文件名
+          asset_content_type: application/zip # 文件类型
 
-    # 步骤 7: 上传 Windows CLI App 压缩包
-    - name: Upload Release Asset (CLI Windows)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/zsim-cli-windows-latest.zip
-        asset_name: zzz-simulator-cli-windows.zip
-        asset_content_type: application/zip
+      # 步骤 7: 上传 Windows CLI App 压缩包
+      - name: Upload Release Asset (CLI Windows)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/zsim-cli-windows-latest.zip
+          asset_name: zzz-simulator-cli-windows.zip
+          asset_content_type: application/zip
 
-    # 步骤 8: 上传 macOS GUI App 压缩包
-    - name: Upload Release Asset (App macOS)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/zsim-app-macos-latest.zip
-        asset_name: zzz-simulator-app-macos.zip
-        asset_content_type: application/zip
+      # 步骤 8: 上传 macOS GUI App 压缩包
+      - name: Upload Release Asset (App macOS)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/zsim-app-macos-latest.zip
+          asset_name: zzz-simulator-app-macos.zip
+          asset_content_type: application/zip
 
-    # 步骤 9: 上传 macOS CLI App 压缩包
-    - name: Upload Release Asset (CLI macOS)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/zsim-cli-macos-latest.zip
-        asset_name: zzz-simulator-cli-macos.zip
-        asset_content_type: application/zip
+      # 步骤 9: 上传 macOS CLI App 压缩包
+      - name: Upload Release Asset (CLI macOS)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/zsim-cli-macos-latest.zip
+          asset_name: zzz-simulator-cli-macos.zip
+          asset_content_type: application/zip
 
-    # 步骤 10: 上传 Linux GUI App 压缩包
-    - name: Upload Release Asset (App Linux)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/zsim-app-ubuntu-latest.zip
-        asset_name: zzz-simulator-app-linux.zip
-        asset_content_type: application/zip
+      # 步骤 10: 上传 Linux GUI App 压缩包
+      - name: Upload Release Asset (App Linux)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/zsim-app-ubuntu-latest.zip
+          asset_name: zzz-simulator-app-linux.zip
+          asset_content_type: application/zip
 
-    # 步骤 11: 上传 Linux CLI App 压缩包
-    - name: Upload Release Asset (CLI Linux)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./artifacts/zsim-cli-ubuntu-latest.zip
-        asset_name: zzz-simulator-cli-linux.zip
-        asset_content_type: application/zip
+      # 步骤 11: 上传 Linux CLI App 压缩包
+      - name: Upload Release Asset (CLI Linux)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/zsim-cli-ubuntu-latest.zip
+          asset_name: zzz-simulator-cli-linux.zip
+          asset_content_type: application/zip
