@@ -16,14 +16,17 @@ def cal_buff_total_bonus(
     enabled_buff: Sequence["Buff"],
     judge_node: "SkillNode" | "AnomalyBar" | None = None,
 ) -> dict[str, float]:
-    """
-    计算角色buff的总加成。
+    """过滤并计算buff总加成。
 
-    该方法首先读取buff效果的键值对，然后遍历角色身上的所有buff。
+    该方法首先读取buff效果的键值对，然后遍历提供列表的所有buff（一般为特定角色+怪物，具体参考调用方式）
     对于每个buff，检查其是否为Buff类型，然后根据buff的计数（count）来计算总加成。
 
     参数:
-    - char_buff: 包含角色所有buff的列表。
+    - enabled_buff: 包含需要处理的buff的列表。
+    - judge_node: 可选的技能节点或异常状态，用于过滤buff。
+
+    返回:
+    - dict[str, float]: 包含所有buff总加成的键值对。
     """
 
     # 初始化动态语句字典，用于累加buff效果的值
@@ -89,7 +92,7 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
     # 定义允许的标签类型
     ALLOWED_LABELS = ["only_skill", "only_label"]
     # 获取buff的标签列表
-    buff_labels: dict[str, Any] = buff.ft.label
+    buff_labels: dict[str, list[str] | str] = buff.ft.label
     # 如果buff没有标签限制，则直接返回True
     if not buff_labels:
         return True

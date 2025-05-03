@@ -12,12 +12,26 @@ PAGES = {
         st.Page("lib_webui/doc_pages/page_char_support.py", title="角色支持列表"),
         st.Page("lib_webui/doc_pages/page_apl_doc.py", title="APL设计书"),
         st.Page("lib_webui/doc_pages/page_contribution.py", title="贡献指南"),
-    ]
+    ],
 }
 
 
 def main():
     st.set_page_config(layout="wide")
+    st.markdown(
+        """
+        <style>
+            .reportview-container {
+                margin-top: -2em;
+            }
+            #MainMenu {visibility: hidden;}
+            .stDeployButton {display:none;}
+            footer {visibility: hidden;}
+            #stDecoration {display:none;}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     pg = st.navigation(PAGES, expanded=True)
     pg.run()
 

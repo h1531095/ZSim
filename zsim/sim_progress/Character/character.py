@@ -534,7 +534,7 @@ class Character:
             return
 
         df = pl.read_csv(WEAPON_DATA_PATH)
-        row = df.filter(pl.col("中文名称") == weapon)
+        row = df.filter(pl.col("名称") == weapon)
         if row.height > 0:
             row_0 = row.row(0, named=True)
             base_atk = float(row_0["60级基础攻击力"])
