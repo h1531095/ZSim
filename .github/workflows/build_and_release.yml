@@ -58,6 +58,7 @@ jobs:
           --include-module=zsim.main \
           --enable-plugin=pywebview \
           --disable-plugin=anti-bloat \
+          --no-caching \
           ${{ matrix.os == 'windows-latest' && '--windows-disable-console' || '' }} \
           ${{ matrix.os == 'macos-latest' && '--macos-create-app-bundle' || '' }} \
           zsim/webview_app.py
@@ -76,6 +77,7 @@ jobs:
           --include-module=zsim.main \
           --enable-plugin=pywebview \
           --disable-plugin=anti-bloat \
+          --no-caching \
           zsim/run.py
       shell: bash
 
