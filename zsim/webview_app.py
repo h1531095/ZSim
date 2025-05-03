@@ -64,8 +64,6 @@ def start_streamlit() -> None:
             "true",
             "--server.port",
             str(streamlit_port),
-            "--toolbar.deployButton",
-            "false"
         ]
 
         streamlit_process = subprocess.Popen(
@@ -137,9 +135,8 @@ if __name__ == "__main__":
     streamlit_thread.start()
 
     # 创建 pywebview 窗口
-    # Streamlit 默认运行在 8501 端口
     window = webview.create_window(
-        "ZZZ 模拟器 WebUI", f"http://localhost:{streamlit_port}", width=1280, height=720
+        "ZZZ 模拟器", f"http://localhost:{streamlit_port}", width=1280, height=720
     )
 
     # 注册窗口关闭事件
@@ -147,6 +144,6 @@ if __name__ == "__main__":
 
     # 启动 pywebview 事件循环
     # 使用 debug=True 可以在开发时提供更多信息
-    webview.start()
+    webview.start(debug=True)
 
     print("应用程序退出。")
