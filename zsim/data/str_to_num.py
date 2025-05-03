@@ -24,11 +24,11 @@ def process_cell(value):
     if is_percentage(value):
         try:
             return convert_percentage(value)
-        except:
+        except Exception:
             return value
     try:
         return eval(value)
-    except:
+    except Exception:
         return value
 
 
@@ -65,6 +65,7 @@ if __name__ == "__main__":
     # path = './data'
     # process_all_csv_files(path)
     process_csv_file("./zsim/data/skill.csv")
-    # process_csv_file("./zsim/data/character.csv")
-    # process_csv_file("./zsim/data/enemy.csv")
-    # process_csv_file("./zsim/data/enemy_adjustment.csv")
+    process_csv_file("./zsim/data/character.csv")
+    process_csv_file("./zsim/data/enemy.csv")
+    process_csv_file("./zsim/data/enemy_adjustment.csv")
+    process_csv_file("./zsim/data/weapon.csv")
