@@ -285,6 +285,7 @@ class Skill:
             self.cid = CID
             self.skill_tag = f"{CID}_{key}" if str(CID) not in key else key
             self.CN_skill_tag: str = _raw_skill_data["CN_skill_tag"]
+            self.skill_text: str = _raw_skill_data["skill_text"]
             # 确定使用的技能等级
             self.skill_type: int = int(_raw_skill_data["skill_type"])
             self.skill_level: int = self.__init_skill_level(

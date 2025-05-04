@@ -19,6 +19,7 @@ __char_module_map = {
     "简": "Jane",
     "薇薇安": "Vivian",
     "耀嘉音": "AstraYao",
+    "雨果": "Hugo"
 }
 
 

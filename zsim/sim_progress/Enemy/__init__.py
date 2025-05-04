@@ -505,6 +505,8 @@ class Enemy:
             self.dynamic.stun_update_tick = _tick
             if single_hit:
                 decibel_manager_instance.update(single_hit=single_hit, key="stun")
+                from sim_progress.data_struct import listener_manager_instance
+                listener_manager_instance.broadcast_event(single_hit, stun_event=1)
 
         return self.dynamic.stun
 
