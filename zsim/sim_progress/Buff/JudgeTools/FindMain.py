@@ -59,7 +59,10 @@ def find_load_data():
     load_data = main_module.load_data
     return load_data
 
-
+def find_schedule_data():
+    main_module = find_main()
+    schedule_data = main_module.schedule_data
+    return schedule_data
 def find_preload_data():
     main_module = find_main()
     preload_data = main_module.preload.preload_data
