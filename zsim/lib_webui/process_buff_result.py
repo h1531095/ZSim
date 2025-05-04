@@ -101,9 +101,13 @@ def _draw_buff_timeline_charts(all_buff_data: dict[str, list[dict[str, Any]]]) -
                 buff_data
             )  # 转换为 Polars DataFrame 以便后续操作
 
-            # 准备悬停文本 - 仅使用 Value
+            # 准备悬停文本 - 包含Value、Start和Finish信息
             df_timeline = df_timeline.with_columns(
-                pl.format("层数: {}", pl.col("Value")).alias("hover_text")
+                pl.format("层数: {} ({}~{})", 
+                    pl.col("Value"), 
+                    pl.col("Start"), 
+                    pl.col("Finish")
+                ).alias("hover_text")
             )
             fig = go.Figure(
                 data=[
