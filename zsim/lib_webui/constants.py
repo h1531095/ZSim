@@ -27,7 +27,7 @@ char_options = __lf.select("name").unique().collect().to_series().to_list()
 
 # 武器选项
 __lf = pl.scan_csv("./zsim/data/weapon.csv")
-weapon_options = __lf.select("中文名称").unique().collect().to_series().to_list()
+weapon_options = __lf.select("名称").unique().collect().to_series().to_list()
 
 # 驱动盘套装选项
 __lf = pl.scan_csv("./zsim/data/equip_set_2pc.csv")

@@ -129,12 +129,13 @@
   "招架支援积蓄效率增加": "defensive_aid_anomaly_buildup_bonus",
   "支援突击积蓄效率增加": "assault_aid_anomaly_buildup_bonus",
 
-  "强击伤害增幅": "assault_dmg_mul",
-  "灼烧伤害增幅": "burn_dmg_mul",
-  "冻结伤害增幅": "freeze_dmg_mul",
-  "感电伤害增幅": "shock_dmg_mul",
-  "混沌伤害增幅": "chaos_dmg_mul",
-  "紊乱伤害增幅": "disorder_dmg_mul",
+  "强击额外伤害增幅": "assault_dmg_mul",
+  "灼烧额外伤害增幅": "burn_dmg_mul",
+  "冻结额外伤害增幅": "freeze_dmg_mul",
+  "感电额外伤害增幅": "shock_dmg_mul",
+  "侵蚀额外伤害增幅": "chaos_dmg_mul",
+  "紊乱额外伤害增幅": "disorder_dmg_mul",
+  "全属性异常额外伤害增幅": "all_anomaly_dmg_mul",
 
   "特殊乘区": "special_multiplier_zone",
 
@@ -165,6 +166,11 @@
   "强击暴击伤害增加": "strike_crit_dmg_increase",
   "强击无视防御": "strike_ignore_defense",
 
-  "紊乱倍率增加": "disorder_basic_mul",
-  "侵蚀紊乱伤害提升": "chaos_disorder_dmg_mul"
+  "紊乱倍率增加": "all_disorder_basic_mul",
+  
+  "强击紊乱伤害提升": "strike_disorder_basic_mul",
+  "灼烧紊乱伤害提升": "burn_disorder_basic_mul",
+  "霜寒紊乱伤害提升": "frostbite_disorder_basic_mul",
+  "感电紊乱伤害提升": "shock_disorder_basic_mul",
+  "侵蚀紊乱伤害提升": "chaos_disorder_basic_mul"
 }

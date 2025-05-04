@@ -40,8 +40,6 @@ jobs:
             --name "ZZZ-Simulator" \
             --add-data "zsim/data:zsim/data" \
             --add-data "docs:docs" \
-            --hidden-import=zsim.webui \
-            --hidden-import=zsim.main \
             ${{ matrix.os == 'windows-latest' && '--noconsole --windowed' || '' }} \
             ${{ matrix.os == 'macos-latest' && '--windowed --osx-bundle-identifier com.zzz.simulator' || '' }} \
             zsim/webview_app.py
@@ -54,8 +52,6 @@ jobs:
             --name "zzz-simulator-cli" \
             --add-data "zsim/data:zsim/data" \
             --add-data "docs:docs" \
-            --hidden-import=zsim.webui \
-            --hidden-import=zsim.main \
             zsim/run.py
         shell: bash
 
