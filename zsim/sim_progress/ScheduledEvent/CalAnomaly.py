@@ -22,6 +22,9 @@ class CalAnomaly:
         Schedule 节点对于异常伤害的分支逻辑，用于计算异常伤害
 
         调用方法 cal_anomaly_dmg() 输出.伤害期望
+
+        异常伤害快照以 array 形式储存，顺序为：
+        [基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透]
         """
         self.enemy_obj = enemy_obj
         self.anomaly_obj = anomaly_obj
@@ -179,15 +182,30 @@ class CalAnomaly:
 
 class CalDisorder(CalAnomaly):
     def __init__(self, disorder_obj: Disorder, enemy_obj: Enemy, dynamic_buff: dict):
+        """
+        异常伤害快照以 array 形式储存，顺序为：
+        [基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透]
+        """
         super().__init__(disorder_obj, enemy_obj, dynamic_buff)
+        self.mul = MulData(
+            enemy_obj=self.enemy_obj,
+            dynamic_buff=self.dynamic_buff,
+            judge_node=self.anomaly_obj,
+        )
         self.final_multipliers[0] = self.cal_disorder_base_dmg(
             np.float64(self.final_multipliers[0])
         )
+        self.final_multipliers[4] = self.cal_disorder_extra_mul()
 
-    # TODO：后续需要添加紊乱基础倍率提升的计算
     def cal_disorder_base_dmg(self, base_mul: np.float64) -> np.float64:
+        """
+        计算紊乱的基础伤害
+
+        紊乱基础伤害 = (各属性异常剩余倍率 + 各属性紊乱基础倍率) * (1 + 紊乱基础倍率增幅)
+        """
         t_s = np.float64(self.anomaly_obj.remaining_tick() / 60)
         disorder_base_dmg: np.float64
+        # 计算紊乱基础伤害
         match self.element_type:
             case 0:  # 强击紊乱
                 disorder_base_dmg = (base_mul / 7.13) * (np.floor(t_s) * 0.075 + 4.5)
@@ -205,7 +223,20 @@ class CalDisorder(CalAnomaly):
                 disorder_base_dmg = (base_mul / 5) * (np.floor(t_s) * 0.75 + 6)
             case _:
                 assert False, f"Invalid Element Type {self.element_type}"
+        # 计算紊乱基础倍率增幅
+        disorder_basic_mul_map = self.mul.dynamic.disorder_basic_mul_map
+        disorder_base_dmg *= 1 + (
+            disorder_basic_mul_map[self.element_type] + disorder_basic_mul_map["all"]
+        )
         return np.float64(disorder_base_dmg)
+
+    def cal_disorder_extra_mul(self) -> np.float64:
+        """计算紊乱的异常额外增伤区
+
+        异常额外增伤区 = 1 + 对应属性异常额外增伤
+        """
+        map = self.mul.dynamic.ano_extra_bonus
+        return 1 + map[-1]
 
     def cal_disorder_stun(self) -> np.float64:
         imp = self.final_multipliers[9]

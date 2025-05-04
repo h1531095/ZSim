@@ -73,7 +73,9 @@ def start_streamlit() -> None:
             preexec_fn=preexec_fn,
             creationflags=creationflags,
         )
-        print(f"Streamlit 进程已在端口 {streamlit_port} 启动，PID: {streamlit_process.pid}")
+        print(
+            f"Streamlit 进程已在端口 {streamlit_port} 启动，PID: {streamlit_process.pid}"
+        )
         # 等待一段时间确保 Streamlit 启动
         time.sleep(5)
     except Exception as e:
@@ -128,7 +130,12 @@ def on_closed() -> None:
     stop_streamlit()
 
 
-if __name__ == "__main__":
+def main():
+    # 检查是否已有窗口实例运行
+    if webview.windows:
+        print("已有窗口实例运行，请勿重复启动")
+        return
+
     # 在单独的线程中启动 Streamlit
     # start_streamlit 会更新全局变量 streamlit_port
     streamlit_thread = threading.Thread(target=start_streamlit, daemon=True)
@@ -143,7 +150,12 @@ if __name__ == "__main__":
     window.events.closed += on_closed
 
     # 启动 pywebview 事件循环
-    # 使用 debug=True 可以在开发时提供更多信息
-    webview.start(debug=True)
+    webview.start()
 
     print("应用程序退出。")
+    # 确保主线程退出
+    os._exit(0)
+
+
+if __name__ == "__main__":
+    main()

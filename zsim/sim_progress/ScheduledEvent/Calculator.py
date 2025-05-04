@@ -315,7 +315,7 @@ class MultiplierData:
             self.disorder_dmg_mul: float = 0.0
             self.all_anomaly_dmg_mul: float = 0.0
 
-            self.anomaly_bonus: dict[ElementType | str, float] = {
+            self.ano_extra_bonus: dict[ElementType | str, float] = {
                 0: self.assault_dmg_mul,
                 1: self.burn_dmg_mul,
                 2: self.freeze_dmg_mul,
@@ -381,8 +381,22 @@ class MultiplierData:
             self.strike_crit_dmg_increase: float = 0.0
             self.strike_ignore_defense: float = 0.0
 
-            self.disorder_basic_mul: float = 0.0
-            self.chaos_disorder_dmg_mul: float = 0.0
+            self.all_disorder_basic_mul: float = 0.0
+            self.strike_disorder_basic_mul: float = 0.0
+            self.burn_disorder_basic_mul:float = 0.0
+            self.frostbite_disorder_basic_mul: float = 0.0
+            self.shock_disorder_basic_mul: float = 0.0
+            self.chaos_disorder_basic_mul: float = 0.0
+            
+            self.disorder_basic_mul_map: dict[ElementType | str, float] = {
+                0: self.strike_disorder_basic_mul,
+                1: self.burn_disorder_basic_mul,
+                2: self.frostbite_disorder_basic_mul,
+                3: self.shock_disorder_basic_mul,
+                4: self.chaos_disorder_basic_mul,
+                5: self.frostbite_disorder_basic_mul,
+                "all": self.all_disorder_basic_mul,
+            }
 
             self.__read_dynamic_statement(dynamic_statement)
 
@@ -763,69 +777,17 @@ class Calculator:
                 report_to_log(f"角色等级{attacker_level}过高，将被设置为60")
                 attacker_level = 60
             # 攻击方等级系数
+            # fmt: off
             values: list[int] = [
-                0,
-                50,
-                54,
-                58,
-                62,
-                66,
-                71,
-                76,
-                82,
-                88,
-                94,
-                100,
-                107,
-                114,
-                121,
-                129,
-                137,
-                145,
-                153,
-                162,
-                172,
-                181,
-                191,
-                201,
-                211,
-                222,
-                233,
-                245,
-                258,
-                268,
-                281,
-                293,
-                306,
-                319,
-                333,
-                347,
-                362,
-                377,
-                393,
-                409,
-                421,
-                436,
-                452,
-                469,
-                485,
-                502,
-                519,
-                537,
-                556,
-                573,
-                592,
-                612,
-                629,
-                649,
-                669,
-                689,
-                709,
-                730,
-                751,
-                772,
-                794,
+                0, 50, 54, 58, 62, 66, 71, 76, 82, 88, 94, 
+                100, 107, 114, 121, 129, 137, 145, 153, 162, 
+                172, 181, 191, 201, 211, 222, 233, 245, 258, 
+                268, 281, 293, 306, 319, 333, 347, 362, 377, 
+                393, 409, 421, 436, 452, 469, 485, 502, 519, 
+                537, 556, 573, 592, 612, 629, 649, 669, 689, 
+                709, 730, 751, 772, 794,
             ]
+            # fmt: on
             k_attacker = values[attacker_level]
             return k_attacker
 
@@ -936,7 +898,8 @@ class Calculator:
         """
         负责计算与储存与异常伤害有关的属性
 
-        异常伤害快照以 array 形式储存，顺序为：基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透
+        异常伤害快照以 array 形式储存，顺序为：
+        [基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透]
 
         异常积蓄值 = 基础积蓄值 * 异常掌控/100 * (1 + 属性异常积蓄效率提升) * (1 - 属性异常积蓄抗性)
         基础伤害区 = 攻击力 * 对应属性的异常伤害倍率
@@ -955,7 +918,7 @@ class Calculator:
             self.dmg_bonus: float = self.cal_dmg_bonus(data)
             self.ap_mul: float = self.cal_ap_mul(data)
             self.level: int = data.char_level if data.char_level is not None else 0
-            self.anomaly_bonus: float = self.cal_ano_dmg_mul(data)
+            self.anomaly_bonus: float = self.cal_ano_extra_mul(data)
             self.anomaly_crit: float = self.cal_anomaly_crit(data)
             self.pen_ratio: float = data.static.pen_ratio + data.dynamic.pen_ratio
             self.pen_numeric: float = data.static.pen_numeric + data.dynamic.pen_numeric
@@ -1165,11 +1128,11 @@ class Calculator:
             return ap
 
         @staticmethod
-        def cal_ano_dmg_mul(data: MultiplierData) -> float:
+        def cal_ano_extra_mul(data: MultiplierData) -> float:
             """异常额外增伤区 = 1 + 对应属性异常额外增伤"""
             element_type = data.judge_node.skill.element_type
-            map = data.dynamic.anomaly_bonus
-            ano_dmg_mul = map.get(element_type, 0) + map["all"] + 1
+            map = data.dynamic.ano_extra_bonus
+            ano_dmg_mul = 1 + map.get(element_type, 0) + map["all"]
             return ano_dmg_mul
 
         def cal_anomaly_crit(self, data: MultiplierData) -> float:
