@@ -187,11 +187,6 @@ class CalDisorder(CalAnomaly):
         [基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透]
         """
         super().__init__(disorder_obj, enemy_obj, dynamic_buff)
-        self.mul = MulData(
-            enemy_obj=self.enemy_obj,
-            dynamic_buff=self.dynamic_buff,
-            judge_node=self.anomaly_obj,
-        )
         self.final_multipliers[0] = self.cal_disorder_base_dmg(
             np.float64(self.final_multipliers[0])
         )
@@ -224,7 +219,7 @@ class CalDisorder(CalAnomaly):
             case _:
                 assert False, f"Invalid Element Type {self.element_type}"
         # 计算紊乱基础倍率增幅
-        disorder_basic_mul_map = self.mul.dynamic.disorder_basic_mul_map
+        disorder_basic_mul_map = self.data.dynamic.disorder_basic_mul_map
         disorder_base_dmg *= 1 + (
             disorder_basic_mul_map[self.element_type] + disorder_basic_mul_map["all"]
         )
@@ -235,7 +230,7 @@ class CalDisorder(CalAnomaly):
 
         异常额外增伤区 = 1 + 对应属性异常额外增伤
         """
-        map = self.mul.dynamic.ano_extra_bonus
+        map = self.data.dynamic.ano_extra_bonus
         return 1 + map[-1]
 
     def cal_disorder_stun(self) -> np.float64:

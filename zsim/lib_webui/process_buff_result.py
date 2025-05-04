@@ -27,7 +27,6 @@ def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
     """
     timeline_data: list[dict[str, Any]] = []
     buff_columns = [col for col in df.columns if col != "time_tick"]
-    last_tick = df["time_tick"].max()  # 获取最后一个 tick
 
     for buff_name in buff_columns:
         # 筛选出当前BUFF列非空的行
@@ -39,7 +38,7 @@ def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
             continue
 
         # 尝试将 BUFF 值列转换为数值类型，无法转换的设为 null
-        buff_df = buff_df.with_columns(pl.col(buff_name).cast(pl.Float64, strict=False))
+        buff_df = buff_df.with_columns(pl.col(buff_name).cast(pl.Float32, strict=False))
 
         # 计算值变化的点
         buff_df = buff_df.with_columns(pl.col(buff_name).diff().alias("value_diff"))
@@ -66,14 +65,9 @@ def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
         )
 
         # 计算结束 tick (Finish)
-        # 下一段的 Start - 1，或者如果是最后一段，则为整个数据的 last_tick
-        grouped = grouped.with_columns(pl.col("Start").shift(-1).alias("next_start"))
-
+        # 使用当前段的最后一个有效tick作为结束点
         grouped = grouped.with_columns(
-            pl.when(pl.col("next_start").is_null())
-            .then(last_tick)  # 如果是最后一段，结束于全局 last_tick
-            .otherwise(pl.col("next_start") - 1)  # 否则结束于下一段开始的前一tick
-            .alias("Finish")
+            pl.col("last_valid_tick").alias("Finish")
         )
 
         # 转换结果为字典列表
