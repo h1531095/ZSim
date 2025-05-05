@@ -513,6 +513,7 @@ class Character:
                 self.PEN_numeric = float(row_0.get("基础穿透值", 0))
                 self.base_sp_regen = float(row_0.get("基础能量自动回复", 0))
                 self.base_sp_get_ratio = float(row_0.get("基础能量获取效率", 1))
+                self.speicalty = row_0.get("角色特性", None)  # 角色特性，强攻、击破等
                 self.element_type = row_0.get("角色属性", None)
                 if self.element_type is None or self.element_type < 0:
                     raise NotImplementedError(f"角色{char_name}的属性类型未定义")
@@ -613,9 +614,9 @@ class Character:
             lf = pl.scan_csv(EQUIP_2PC_DATA_PATH)
             for equip_2pc in equip_set_all:
                 if bool(equip_2pc):  # 若二件套非空，则继续
-                    row: list[dict] = lf.filter(
-                        pl.col("set_ID") == equip_2pc
-                    ).collect().to_dicts()
+                    row: list[dict] = (
+                        lf.filter(pl.col("set_ID") == equip_2pc).collect().to_dicts()
+                    )
                     if row:
                         row_0 = row[0]
                         self.__mapping_csv_to_attr(row_0)

@@ -466,7 +466,7 @@ class Enemy:
         self.qte_manager.receive_hit(single_hit)
 
     # 遥远的需求：
-    # TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
+    #  TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
 
     def get_hp_percentage(self) -> float:
         """获取当前生命值百分比的方法"""
@@ -475,6 +475,11 @@ class Enemy:
     def get_stun_percentage(self) -> float:
         """获取当前失衡值百分比的方法"""
         return self.dynamic.stun_bar / self.max_stun
+
+    def get_stun_rest_time(self) -> float:
+        """获取当前剩余失衡时间的方法"""
+        #  TODO：未完全实现！连携技返还失衡时间部分尚未完成。
+        return self.stun_recovery_time - self.dynamic.stun_tick
 
     def stun_judge(self, _tick: int, **kwargs) -> bool:
         """判断敌人是否处于 失衡 状态，并更新 失衡 状态"""
@@ -506,6 +511,7 @@ class Enemy:
             if single_hit:
                 decibel_manager_instance.update(single_hit=single_hit, key="stun")
                 from sim_progress.data_struct import listener_manager_instance
+
                 listener_manager_instance.broadcast_event(single_hit, stun_event=1)
 
         return self.dynamic.stun

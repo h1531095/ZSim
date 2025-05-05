@@ -24,6 +24,7 @@ def buff_add_strategy(*args, **kwargs):
     """
     buff_name_list: list[str] = _buff_filter(*args, **kwargs)
     benifit_list: list[str] | None = kwargs.get("benifit_list", None)
+    buff_count = kwargs.get("buff_count", None)
     main_module = sys.modules["simulator.main_loop"]
     all_name_order_box = main_module.load_data.all_name_order_box
     # name_box = main_module.load_data.name_box
@@ -54,12 +55,17 @@ def buff_add_strategy(*args, **kwargs):
                     # if buff_name == 'Buff-角色-苍角-核心被动-2':
                     #     print(name_box_now, adding_buff_code, selected_characters)
                     for names in selected_characters:
-                        buff_new = Buff.create_new_from_existing(copyed_buff)
+                        from copy import deepcopy
+                        buff_new = deepcopy(copyed_buff)
+                        # buff_new = Buff.create_new_from_existing(copyed_buff)
                         if (
                             copyed_buff.ft.simple_start_logic
                             and buff_new.ft.simple_effect_logic
                         ):
-                            buff_new.simple_start(tick, sub_exist_buff_dict)
+                            if buff_count is not None:
+                                buff_new.simple_start(tick, sub_exist_buff_dict, specified_count=buff_count)
+                            else:
+                                buff_new.simple_start(tick, sub_exist_buff_dict)
                         elif not copyed_buff.ft.simple_start_logic:
                             buff_new.logic.xstart(benifit=names)
                         elif not copyed_buff.ft.simple_effect_logic:
