@@ -179,6 +179,20 @@ class ScheduledEvent:
             else:
                 return False
         return True
+    
+    def get_executee_tick(self, event):
+        """获取事件的执行tick"""
+        tick_attr = self.execute_tick_key_map.get(type(event), None)
+        if tick_attr is None:
+            """获取不到属性时，说明该event并不具备计划事件的需求，所以这种事件是必须在当前tick被清空的，直接返回False"""
+            return None
+        execute_tick = getattr(event, tick_attr, None)
+        if execute_tick is None:
+            raise AttributeError(f"{type(event)} 没有属性 {tick_attr}")
+
+
+
+
 
     def update_anomaly_bar_after_skill_event(self, event):
         """在Schedule阶段，处理完一个SkillEvent后，都要进行一次异常条更新。"""
@@ -437,6 +451,11 @@ class ScheduledEvent:
             self.data.event_list.append(event)
             return
         event.execute_myself()
+
+    def select_processable_event(self):
+        _output_event_list = []
+        for _event in self.data.event_list:
+            pass
 
 
 if __name__ == "__main__":
