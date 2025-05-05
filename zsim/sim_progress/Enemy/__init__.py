@@ -476,13 +476,14 @@ class Enemy:
         """获取当前失衡值百分比的方法"""
         return self.dynamic.stun_bar / self.max_stun
 
-    def get_stun_rest_time(self) -> float:
+    def get_stun_rest_tick(self) -> float:
         """获取当前剩余失衡时间的方法"""
         #  TODO：未完全实现！连携技返还失衡时间部分尚未完成。
         return self.stun_recovery_time - self.dynamic.stun_tick
 
     def stun_judge(self, _tick: int, **kwargs) -> bool:
         """判断敌人是否处于 失衡 状态，并更新 失衡 状态"""
+
         single_hit = kwargs.get("single_hit", None)
         if not self.able_to_be_stunned:
             self.dynamic.stun_update_tick = _tick

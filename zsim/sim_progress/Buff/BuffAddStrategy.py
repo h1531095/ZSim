@@ -24,7 +24,7 @@ def buff_add_strategy(*args, **kwargs):
     """
     buff_name_list: list[str] = _buff_filter(*args, **kwargs)
     benifit_list: list[str] | None = kwargs.get("benifit_list", None)
-    buff_count = kwargs.get("buff_count", None)
+    specified_count = kwargs.get("specified_count", None)
     main_module = sys.modules["simulator.main_loop"]
     all_name_order_box = main_module.load_data.all_name_order_box
     # name_box = main_module.load_data.name_box
@@ -62,8 +62,8 @@ def buff_add_strategy(*args, **kwargs):
                             copyed_buff.ft.simple_start_logic
                             and buff_new.ft.simple_effect_logic
                         ):
-                            if buff_count is not None:
-                                buff_new.simple_start(tick, sub_exist_buff_dict, specified_count=buff_count)
+                            if specified_count is not None:
+                                buff_new.simple_start(tick, sub_exist_buff_dict, specified_count=specified_count)
                             else:
                                 buff_new.simple_start(tick, sub_exist_buff_dict)
                         elif not copyed_buff.ft.simple_start_logic:

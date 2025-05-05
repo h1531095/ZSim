@@ -7,3 +7,4 @@ from .DecibelManager import decibel_manager_instance
 from .QuickAssistSystem import QuickAssistEvent, QuickAssistSystem
 from .SchedulePreload import schedule_preload_event_factory, SchedulePreload
 from .BattleEventListener import ListenerManger, listener_manager_instance
+from .StunForcedTerminationEvent import StunForcedTerminationEvent

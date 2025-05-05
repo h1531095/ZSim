@@ -90,7 +90,7 @@ class ScheduledEvent:
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
-
+            # TODO：处理高优先级事件的功能尚未实现。
             # 其余事件挨个处理
             for _ in range(len(self.data.event_list)):
                 event = self.data.event_list.pop(0)
@@ -122,6 +122,8 @@ class ScheduledEvent:
                             self.enemy.dynamic.dynamic_dot_list,
                             self.data.event_list,
                         )
+                    else:
+                        self.data.event_list.append(event)
                 elif isinstance(event, Abloom):
                     self.abloom_event(event)
                     # self.judge_required_info_dict["abloom"] = event
