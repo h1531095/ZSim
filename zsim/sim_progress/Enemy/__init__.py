@@ -5,7 +5,6 @@ import pandas as pd
 
 from sim_progress.AnomalyBar import AnomalyBar
 from define import ENEMY_ADJUSTMENT_PATH, ENEMY_DATA_PATH
-from sim_progress import AnomalyBar
 from sim_progress.data_struct import SingleHit, decibel_manager_instance
 from sim_progress.Report import report_to_log
 
@@ -230,6 +229,7 @@ class Enemy:
         """更新失衡延长的时间，负责接收 Calculator 的 buff"""
         if self.__last_stun_increase_tick is None:
             self.__last_stun_increase_tick = increase_tick
+            self.stun_recovery_time += increase_tick
         else:
             if increase_tick >= self.__last_stun_increase_tick:
                 self.__last_stun_increase_tick = increase_tick

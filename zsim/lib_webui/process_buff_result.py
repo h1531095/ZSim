@@ -66,9 +66,7 @@ def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
 
         # 计算结束 tick (Finish)
         # 使用当前段的最后一个有效tick作为结束点
-        grouped = grouped.with_columns(
-            pl.col("last_valid_tick").alias("Finish")
-        )
+        grouped = grouped.with_columns(pl.col("last_valid_tick").alias("Finish"))
 
         # 转换结果为字典列表
         for row in grouped.select(["Start", "Finish", "Value"]).iter_rows(named=True):
@@ -103,10 +101,11 @@ def _draw_buff_timeline_charts(all_buff_data: dict[str, list[dict[str, Any]]]) -
 
             # 准备悬停文本 - 包含Value、Start和Finish信息
             df_timeline = df_timeline.with_columns(
-                pl.format("层数: {} ({}~{})", 
-                    pl.col("Value"), 
-                    pl.col("Start"), 
-                    pl.col("Finish")
+                pl.format(
+                    "层数: {} ({}~{})",
+                    pl.col("Value"),
+                    pl.col("Start"),
+                    pl.col("Finish"),
                 ).alias("hover_text")
             )
             fig = go.Figure(
