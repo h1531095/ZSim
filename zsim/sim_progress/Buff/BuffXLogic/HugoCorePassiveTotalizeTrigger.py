@@ -95,17 +95,30 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
                 "雨果的决算触发器的Xjudge函数有放行了，但是敌人并未处于失衡状态"
             )
         rest_tick = self.record.enemy.dynamic.get_stun_rest_tick()
-        ratio = 1000 + min(300, rest_tick) / 60 * 280 + min(600, max(rest_tick - 300, 0)) / 60 * 100
-        print(f'决算触发了！本次决算结算的失衡时间为{rest_tick}，结算倍率为{ratio}')
+        ratio = (
+            1000
+            + min(300, rest_tick) / 60 * 280
+            + min(600, max(rest_tick - 300, 0)) / 60 * 100
+        )
+        print(f"决算触发了！本次决算结算的失衡时间为{rest_tick}，结算倍率为{ratio}")
         from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
+
         if self.record.active_signal == 2:
             buff_index = self.record.E_totalize_tag
         elif self.record.active_signal == 6:
             buff_index = self.record.Q_totalize_tag
         else:
-            raise ValueError(f'无法解析的触发信号:{self.record.active_signal}！')
-        buff_add_strategy(buff_index, specified_count=ratio)
+            raise ValueError(f"无法解析的触发信号:{self.record.active_signal}！")
+        buff_add_strategy(buff_index, specified_count=ratio, benifit_list=["雨果"])
         stun_value_feed_back_ratio = min(rest_tick / 60, 5) * 0.05
-        
-        self.record.active_signal = None
+        from sim_progress.data_struct import StunForcedTerminationEvent
 
+        stun_event = StunForcedTerminationEvent(
+            self.record.enemy,
+            stun_value_feed_back_ratio,
+            execute_tick=find_tick(),
+            event_source="雨果",
+        )
+        event_list = JudgeTools.find_event_list()
+        event_list.append(stun_event)
+        self.record.active_signal = None
