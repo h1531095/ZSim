@@ -9,6 +9,8 @@ class HugoCorePassiveTotalizeTriggerRecord:
         self.active_signal = None
         self.E_totalize_tag = "1291_CorePassive_E_EX"
         self.Q_totalize_tag = "1291_CorePassive_Q"
+        self.totalize_buff_index = "Buff-角色-雨果-决算倍率增幅"
+        self.preload_data = None
 
 
 class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
@@ -36,7 +38,7 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         """敌人处于失衡状态时，强化E、大招触发"""
         self.check_record_module()
-        self.get_prepared(char_CID=1291, enemy=1)
+        self.get_prepared(char_CID=1291, enemy=1, preload_data=1)
         skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
@@ -85,7 +87,7 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
     def special_hit_logic(self, **kwargs):
         """结算E、大招"""
         self.check_record_module()
-        self.get_prepared(char_CID=1291, enemy=1)
+        self.get_prepared(char_CID=1291, enemy=1, preload_data=1)
         if self.record.active_signal is None:
             raise ValueError(
                 "雨果的决算触发器的Xjudge函数放行了，但是Xhit函数却没有获取到触发信号"
@@ -94,6 +96,9 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
             raise ValueError(
                 "雨果的决算触发器的Xjudge函数有放行了，但是敌人并未处于失衡状态"
             )
+
+        """准备数据"""
+        event_list = JudgeTools.find_event_list()
         rest_tick = self.record.enemy.dynamic.get_stun_rest_tick()
         ratio = (
             1000
@@ -101,16 +106,29 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
             + min(600, max(rest_tick - 300, 0)) / 60 * 100
         )
         print(f"决算触发了！本次决算结算的失衡时间为{rest_tick}，结算倍率为{ratio}")
+
+        """先处理Buff"""
         from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
 
-        if self.record.active_signal == 2:
-            buff_index = self.record.E_totalize_tag
-        elif self.record.active_signal == 6:
-            buff_index = self.record.Q_totalize_tag
-        else:
-            raise ValueError(f"无法解析的触发信号:{self.record.active_signal}！")
+        buff_index = self.record.totalize_buff_index
         buff_add_strategy(buff_index, specified_count=ratio, benifit_list=["雨果"])
         stun_value_feed_back_ratio = min(rest_tick / 60, 5) * 0.05
+
+        """再生成决算的skill_node"""
+        from sim_progress.Preload.SkillsQueue import spawn_node
+
+        if self.record.active_signal == 2:
+            node_tag = self.record.E_totalize_tag
+        elif self.record.active_signal == 6:
+            node_tag = self.record.Q_totalize_tag
+        else:
+            raise ValueError(
+                "雨果的决算触发器的Xjudge函数放行了，但是给出的信号不是强化E、大招"
+            )
+        totalize_node = spawn_node(node_tag, find_tick(), self.preload_data.skills)
+        event_list.append(totalize_node)
+
+        """失衡状态强制结算事件"""
         from sim_progress.data_struct import StunForcedTerminationEvent
 
         stun_event = StunForcedTerminationEvent(
@@ -119,6 +137,7 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
             execute_tick=find_tick(),
             event_source="雨果",
         )
-        event_list = JudgeTools.find_event_list()
         event_list.append(stun_event)
+
+        """重置信号"""
         self.record.active_signal = None

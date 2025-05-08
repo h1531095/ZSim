@@ -14,6 +14,7 @@ from sim_progress.data_struct import (
     SPUpdateData,
     QuickAssistEvent,
     SchedulePreload,
+    StunForcedTerminationEvent,
 )
 from sim_progress.Load.LoadDamageEvent import ProcessHitUpdateDots
 from sim_progress.Load.loading_mission import LoadingMission
@@ -103,7 +104,6 @@ class ScheduledEvent:
                 elif isinstance(event, Preload.SkillNode | LoadingMission):
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
-                        # self.judge_required_info_dict["skill_node"] = event
                         """
                         在2025.4.14的更新中，在skill_event分支新增了下面这个函数，
                         这是经过改良后的新的更新异常条的节点。
@@ -129,17 +129,13 @@ class ScheduledEvent:
                         )
                 elif isinstance(event, Abloom):
                     self.abloom_event(event)
-                    # self.judge_required_info_dict["abloom"] = event
                 elif isinstance(event, PolarityDisorder):
                     self.polarity_disorder_event(event)
-                    # self.judge_required_info_dict["polarity_disorder"] = event
                 elif isinstance(event, Disorder):
                     # print(f'检测到{event.element_type}属性的紊乱，快照为：{event.current_ndarray}')
                     self.disorder_event(event)
-                    # self.judge_required_info_dict["disorder"] = event
                 elif isinstance(event, AnB):
                     self.anomaly_event(event)
-                    # self.judge_required_info_dict["anb"] = event
                     ScheduleBuffSettle(
                         self.tick,
                         self.exist_buff_dict,
@@ -150,12 +146,12 @@ class ScheduledEvent:
                     )
                 elif isinstance(event, ScheduleRefreshData):
                     self.refresh_event(event)
-                    # self.judge_required_info_dict["refresh"] = event
                 elif isinstance(event, QuickAssistEvent):
                     self.quick_assist_event(event)
                 elif isinstance(event, SchedulePreload):
                     self.preload_event(event)
-                    # self.judge_required_info_dict["preload"] = event
+                elif isinstance(event, StunForcedTerminationEvent):
+                    self.stun_forced_termination_event(event)
                 else:
                     raise NotImplementedError(
                         f"{type(event)}，目前不应存在于 event_list"
@@ -443,6 +439,14 @@ class ScheduledEvent:
 
     def preload_event(self, event: SchedulePreload):
         """用于处理SchedulePreload事件的函数！"""
+        if self.tick < event.execute_tick:
+            # 发现现在处理还太早，塞回去。
+            self.data.event_list.append(event)
+            return
+        event.execute_myself()
+
+    def stun_forced_termination_event(self, event: StunForcedTerminationEvent):
+        """用于处理被强制终止的异常事件的函数！"""
         if self.tick < event.execute_tick:
             # 发现现在处理还太早，塞回去。
             self.data.event_list.append(event)

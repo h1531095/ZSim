@@ -20,7 +20,8 @@ class StunForcedTerminationEvent:
         self.schedule_priority = 999
         self.source = event_source
 
-    def execute(self):
+    def execute_myself(self):
+        """执行事件"""
         if not self.enemy.dynamic.stun:
             raise ValueError(
                 f"执行强制结束失衡状态事件时，怪物{self.enemy.name}未处于失衡状态"
