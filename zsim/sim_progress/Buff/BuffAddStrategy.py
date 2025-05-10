@@ -88,6 +88,7 @@ def buff_add_strategy(
                         )
                         if buff_existing_check:
                             dynamic_buff_list.remove(buff_existing_check)
+                        # print(f'强制添加Buff函数执行，本次添加的Buff为：{buff_new.ft.index}，激活状态为：{buff_new.dy.active}，开始时间为：{buff_new.dy.startticks}，结束时间为：{buff_new.dy.endticks}，层数：{buff_new.dy.count}')
                         dynamic_buff_list.append(buff_new)
 
                         # 如果是敌人，更新动态 Debuff 列表

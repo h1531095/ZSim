@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 @lru_cache(maxsize=128)
 def cal_buff_total_bonus(
     enabled_buff: Sequence["Buff"],
-    judge_node: "SkillNode" | "AnomalyBar" | None = None,
+    judge_obj: "SkillNode" | "AnomalyBar" | None = None,
 ) -> dict[str, float]:
     """过滤并计算buff总加成。
 
@@ -23,7 +23,7 @@ def cal_buff_total_bonus(
 
     参数:
     - enabled_buff: 包含需要处理的buff的列表。
-    - judge_node: 可选的技能节点或异常状态，用于过滤buff。
+    - judge_obj: 可选的技能节点或异常状态，用于过滤buff。
 
     返回:
     - dict[str, float]: 包含所有buff总加成的键值对。
@@ -31,6 +31,7 @@ def cal_buff_total_bonus(
 
     # 初始化动态语句字典，用于累加buff效果的值
     dynamic_statement: dict[str, float] = {}
+    effect_buff_list: list[str] = []
     # 遍历角色身上的所有buff
     from sim_progress.AnomalyBar import AnomalyBar
     from sim_progress.Buff import Buff
@@ -49,19 +50,29 @@ def cal_buff_total_bonus(
                 )
                 continue
             # 检查buff的标签是否与技能节点匹配
-            if judge_node is not None:
-                if isinstance(judge_node, SkillNode) and not __check_skill_node(
-                    buff_obj, judge_node
+            if judge_obj is not None:
+                """
+                下面两个continue作用：筛选掉无法对当前judge_obj生效的buff。
+                一般来说，buff都是默认对所有的judge_obj产生效果的，但是有一类buff不是。
+                这类的buff通常带有标签，比如only_skill或者only_anomaly，或者only_label，
+                这些buff只有在特定条件被满足的情况下才会对当前技能生效——__check_skill_node() 和 __check_special_anomlay()方法就是用来检查这个的。
+                所以，被continue跳过的Buff一定自带label或是其他的特殊判定条件，并且和当前的检查对象——judge_obj不相符，导致它对当前检测对象无法生效。
+                """
+                if isinstance(judge_obj, SkillNode) and not __check_skill_node(
+                    buff_obj, judge_obj
                 ):
                     continue
-                if isinstance(judge_node, AnomalyBar) and not __check_special_anomly(
-                    buff_obj, judge_node
+                if isinstance(judge_obj, AnomalyBar) and not __check_special_anomly(
+                    buff_obj, judge_obj
                 ):
                     continue
             # 获取buff的层数
             count = buff_obj.dy.count
             count = count if count > 0 else 0
             # 遍历buff的每个效果和对应的值，并将其累加
+            # if buff_obj.ft.label and judge_obj is not None:
+            #     if 'only_label' in buff_obj.ft.label.keys():
+            #         print(f'{buff_obj.ft.index}通过了判定，享受该buff加成的对象为：{judge_obj}')
 
             for key, value in buff_obj.effect_dct.items():
                 # 如果键值对在动态语句字典中，则累加值，否则初始化并赋值
@@ -71,6 +82,14 @@ def cal_buff_total_bonus(
                     )
                 except TypeError:
                     continue
+            effect_buff_list.append(buff_obj.ft.index)
+    # if judge_obj is not None and isinstance(judge_obj, SkillNode):
+    #     if "1291_CorePassive" in judge_obj.skill_tag:
+    #         print("===============分割线===============")
+    #         print(f'数据分析模块检测到决算node传入{judge_obj.skill_tag}！情况如下：')
+    #         for buffs in effect_buff_list:
+    #             print(buffs)
+    #         print("===============分割线===============")
     return dynamic_statement
 
 
@@ -123,11 +142,17 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
                 """
                 if skill_labels is None:
                     continue
-                if any(
-                    _sub_label in skill_labels.keys() for _sub_label in label_value
-                ):
-                    # print(f'在技能 {skill_tag} 中，成功找到标签 {label_value}，')
-                    return True
+                # if any(
+                #     _sub_label in skill_labels.keys() for _sub_label in label_value
+                # ):
+                #     # print(f'在技能 {skill_tag} 中，成功找到标签 {label_value}，')
+                #     return True
+                for _sub_label in label_value:
+                    if _sub_label in skill_labels.keys():
+                        print(f'在技能 {skill_tag} 中，成功找到标签 {label_value}，')
+                        return True
+                    # else:
+                    #     print(skill_node.skill_tag, skill_labels, _sub_label, label_value)
     return False
 
 
