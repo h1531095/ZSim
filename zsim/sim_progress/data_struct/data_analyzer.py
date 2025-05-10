@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Sequence
 from sim_progress.Report import report_to_log
 
 if TYPE_CHECKING:
-    from sim_progress.AnomalyBar import AnomalyBar
+    from sim_progress.anomaly_bar import AnomalyBar
     from sim_progress.Buff import Buff
     from sim_progress.Preload.SkillsQueue import SkillNode
 
@@ -32,7 +32,7 @@ def cal_buff_total_bonus(
     # 初始化动态语句字典，用于累加buff效果的值
     dynamic_statement: dict[str, float] = {}
     # 遍历角色身上的所有buff
-    from sim_progress.AnomalyBar import AnomalyBar
+    from sim_progress.anomaly_bar import AnomalyBar
     from sim_progress.Buff import Buff
     from sim_progress.Preload.SkillsQueue import SkillNode
 
@@ -135,10 +135,10 @@ def __check_special_anomly(buff: "Buff", anomly_node: "AnomalyBar") -> bool:
         bool: 如果buff标签与异常状态节点匹配则返回True，否则返回False
     """
     # 导入异常状态相关的类
-    from sim_progress.AnomalyBar.CopyAnomalyForOutput import (
+    from sim_progress.anomaly_bar.CopyAnomalyForOutput import (
         DirgeOfDestinyAnomaly as Abloom,
     )
-    from sim_progress.AnomalyBar.CopyAnomalyForOutput import (
+    from sim_progress.anomaly_bar.CopyAnomalyForOutput import (
         Disorder,
         PolarityDisorder,
     )

@@ -46,7 +46,7 @@ class WeepingGeminiApBonus(Buff.BuffLogic):
 
         if anomaly_bar is None:
             return False
-        from sim_progress.AnomalyBar import AnomalyBar
+        from sim_progress.anomaly_bar import AnomalyBar
 
         if not isinstance(anomaly_bar, AnomalyBar):
             raise TypeError(
