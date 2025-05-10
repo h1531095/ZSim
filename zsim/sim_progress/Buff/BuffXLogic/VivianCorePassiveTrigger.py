@@ -87,7 +87,7 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
             enemy=1,
             sub_exist_buff_dict=1,
         )
-        from sim_progress.AnomalyBar import AnomalyBar
+        from sim_progress.anomaly_bar import AnomalyBar
 
         get_result = self.record.enemy.dynamic.get_active_anomaly()
         if not get_result:
@@ -101,7 +101,7 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
             self.record.enemy, self.record.dynamic_buff_list, self.record.char
         )
         ap = Cal.AnomalyMul.cal_ap(mul_data)
-        from sim_progress.AnomalyBar.CopyAnomalyForOutput import DirgeOfDestinyAnomaly
+        from sim_progress.anomaly_bar.CopyAnomalyForOutput import DirgeOfDestinyAnomaly
 
         dirge_of_destiny_anomaly = DirgeOfDestinyAnomaly(
             copyed_anomaly, active_by="1331"

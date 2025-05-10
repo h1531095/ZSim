@@ -1,6 +1,6 @@
 import sys
 
-from sim_progress.AnomalyBar import Disorder
+import sim_progress.anomaly_bar
 from sim_progress.Preload import SkillNode
 from sim_progress.Report import report_to_log
 from .utils.filters import _skill_node_filter
@@ -11,10 +11,10 @@ def _disorder_counter(*args, **kwargs) -> int:
     """用于计算输入中紊乱的次数"""
     counter: int = 0
     for arg in args:
-        if isinstance(arg, Disorder):
+        if isinstance(arg, sim_progress.anomaly_bar.Disorder):
             counter += 1
     for value in kwargs.values():
-        if isinstance(value, Disorder):
+        if isinstance(value, sim_progress.anomaly_bar.Disorder):
             counter += 1
     return counter
 

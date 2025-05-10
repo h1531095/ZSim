@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sim_progress.AnomalyBar.CopyAnomalyForOutput import NewAnomaly
+    from sim_progress.anomaly_bar.CopyAnomalyForOutput import NewAnomaly
     from sim_progress.data_struct import SPUpdateData
     from sim_progress.Preload import SkillNode
     from sim_progress.ScheduledEvent.Calculator import MultiplierData
@@ -53,7 +53,7 @@ def _sp_update_data_filter(*args, **kwargs) -> list["SPUpdateData"]:
 
 def _anomaly_filter(*args, **kwargs) -> list["NewAnomaly"]:
     """过滤出输入的异常类！并作为列表返回"""
-    from sim_progress.AnomalyBar.CopyAnomalyForOutput import NewAnomaly
+    from sim_progress.anomaly_bar.CopyAnomalyForOutput import NewAnomaly
 
     anomaly_bar_list: list[NewAnomaly] = []
     for arg in args:
