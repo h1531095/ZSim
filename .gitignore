@@ -4,6 +4,8 @@ __pycache__
 *.pyd
 *.so
 *.dll
+*.exe
+*.app
 
 # 日志和配置文件
 logs
@@ -29,8 +31,8 @@ node_modules/
 test.py
 
 # 运行时生成的文件
-build
-dist
+build*
+dist*
 *.egg-info/
 *.egg
 *.spec

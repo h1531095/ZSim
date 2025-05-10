@@ -1,14 +1,15 @@
-import webview
+import multiprocessing
+import os
+import signal
+import socket
 import subprocess
 import sys
 import threading
 import time
-import signal
-import os
-import socket
-from typing import Optional
 
-streamlit_process: Optional[subprocess.Popen[bytes]] = None
+import webview
+
+streamlit_process: subprocess.Popen[bytes] | None = None
 streamlit_port: int = 8501  # 默认端口
 
 
@@ -158,4 +159,5 @@ def main():
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()
