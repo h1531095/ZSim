@@ -1,3 +1,17 @@
+[build-system]
+requires = ["setuptools>=75.1.0", "wheel>=0.41.2", "cx_Freeze>=6.15.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.cxfreeze]
+executables = [
+    {script = "zzz_simulator.py", base = "gui"}
+]
+
+[tool.cxfreeze.build_exe]
+excludes = ["tkinter", "unittest", "ipykernel", "pytest", "pyinstaller", "viztracer"]
+include_files = ["zsim", "docs"]
+
+
 [project]
 name = "zzz-simulator"
 version = "0.1.7a2"
@@ -34,4 +48,5 @@ dev = [
     "pyinstaller>=6.13.0",
     "pytest>=8.3.5",
     "viztracer>=1.0.3",
+    "cx-freeze>=6.15.0",
 ]

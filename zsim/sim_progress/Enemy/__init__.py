@@ -1,4 +1,4 @@
-from typing import Literal, Type
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -641,7 +641,7 @@ class Enemy:
                 ]
             )
 
-        def get_active_anomaly(self) -> list[Type[AnomalyBar.AnomalyBar] | None]:
+        def get_active_anomaly(self) -> list[AnomalyBar | None]:
             if self.is_under_anomaly():
                 return [
                     _anomaly_bar
