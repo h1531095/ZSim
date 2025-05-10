@@ -29,8 +29,8 @@ node_modules/
 test.py
 
 # 运行时生成的文件
-build
-dist
+build*
+dist*
 *.egg-info/
 *.egg
 *.spec
