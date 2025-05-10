@@ -156,7 +156,7 @@ class Skill:
             "heavy_attack": bool,
             "max_repeat_times": int,
             "do_immediately": bool,
-            "anomaly_update_list": str
+            "anomaly_update_list": str,
         }
         all_skills_lf = pl.scan_csv(SKILL_DATA_PATH, schema_overrides=schema_dict)
 
@@ -401,11 +401,11 @@ class Skill:
             if self.tick_list:
                 if max(self.tick_list) >= self.ticks:
                     raise ValueError(
-                        f"{self.skill_tag}的精确帧数分布的最大值超过技能总帧数！请检查数据正确性"
+                        f"{self.skill_tag}的精确帧数分布的最大值超过技能总帧数！请检查数据正确性，{self.tick_list, self.ticks}"
                     )
                 if len(self.tick_list) != self.hit_times:
                     raise ValueError(
-                        f"{self.skill_tag}的精确帧数分布所包含的命中数与技能的命中总数不符！请检查数据正确性"
+                        f"{self.skill_tag}的精确帧数分布所包含的命中数与技能的命中总数不符！请检查数据正确性，{self.tick_list, self.hit_times}"
                     )
 
             self.ratio_distribution: list | None = None  # 技能的精确倍率分布
@@ -517,7 +517,7 @@ class Skill:
             if skill_type in skill_levels:
                 return skill_levels[skill_type]
             else:
-                raise ValueError(f"Invalid skill_type: {skill_type}")
+                raise ValueError(f"非法的技能种类（skill_type）：{skill_type}")
 
         def __str__(self) -> str:
             return self.skill_tag

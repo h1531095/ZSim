@@ -103,8 +103,13 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
 
     # 遍历buff的所有标签进行检查
     for label_key, label_value in buff_labels.items():
+        """注意，在Buff端，label总是以 {str, list[str]}的形式存在的，这里要针对这一特性进行处理。"""
         if not label_value:
             continue
+        if not isinstance(label_value, list):
+            raise TypeError(
+                f"Buff {buff} 的标签 {label_key} 的值存在，对应Value为：{label_value} ，但不是列表类型，请检查初始化或者数据库。"
+            )
         if label_key in ALLOWED_LABELS:
             # 检查是否为特定技能限制
             if label_key == "only_skill":
@@ -112,7 +117,16 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
                     return True
             # 检查是否为特定标签限制
             elif label_key == "only_label":
-                if label_value in skill_labels.keys():
+                """
+                当被检查技能完全不存在label属性时，说明该技能是无标签的普通技能。
+                而当前分支检查的是“技能是否具有Buff指定的标签”，所以这里无需继续遍历，直接continue。
+                """
+                if skill_labels is None:
+                    continue
+                if any(
+                    _sub_label in skill_labels.keys() for _sub_label in label_value
+                ):
+                    # print(f'在技能 {skill_tag} 中，成功找到标签 {label_value}，')
                     return True
     return False
 

@@ -25,7 +25,7 @@ class HugoAdditionalAbilityExtraQTEDmgBonus(Buff.BuffLogic):
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
-            self.buff_0.history.record = HugoAdditionalAbilityExtraQTEDmgBonus()
+            self.buff_0.history.record = HugoAdditionalAbilityExtraQTEDmgBonusRecord()
         self.record = self.buff_0.history.record
 
     def special_judge_logic(self, **kwargs):

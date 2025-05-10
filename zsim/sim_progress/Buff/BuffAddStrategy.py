@@ -72,6 +72,7 @@ def buff_add_strategy(
                             else:
                                 buff_new.simple_start(tick, sub_exist_buff_dict)
                         elif not copyed_buff.ft.simple_start_logic:
+                            # print(buff_new.ft.index)
                             buff_new.logic.xstart(benifit=names)
                         elif not copyed_buff.ft.simple_effect_logic:
                             buff_new.logic.xeffect()

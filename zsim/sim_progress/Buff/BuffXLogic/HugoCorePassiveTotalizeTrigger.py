@@ -1,5 +1,6 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation, find_tick
 from sim_progress.Enemy import Enemy
+from define import HUGO_REPORT
 
 
 class HugoCorePassiveTotalizeTriggerRecord:
@@ -99,13 +100,15 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
 
         """准备数据"""
         event_list = JudgeTools.find_event_list()
-        rest_tick = self.record.enemy.dynamic.get_stun_rest_tick()
+        rest_tick = self.record.enemy.get_stun_rest_tick()
         ratio = (
             1000
             + min(300, rest_tick) / 60 * 280
             + min(600, max(rest_tick - 300, 0)) / 60 * 100
         )
-        print(f"决算触发了！本次决算结算的失衡时间为{rest_tick}，结算倍率为{ratio}")
+        print(
+            f"决算触发了，触发源为{"大招" if self.record.active_signal == 6 else "强化E"}！本次决算结算的失衡时间为{rest_tick}，结算倍率为{ratio}，"
+        ) if HUGO_REPORT else None
 
         """先处理Buff"""
         from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
@@ -116,6 +119,7 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
 
         """再生成决算的skill_node"""
         from sim_progress.Preload.SkillsQueue import spawn_node
+        from sim_progress.Load import LoadingMission
 
         if self.record.active_signal == 2:
             node_tag = self.record.E_totalize_tag
@@ -125,7 +129,12 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
             raise ValueError(
                 "雨果的决算触发器的Xjudge函数放行了，但是给出的信号不是强化E、大招"
             )
-        totalize_node = spawn_node(node_tag, find_tick(), self.preload_data.skills)
+        totalize_node = spawn_node(
+            node_tag, find_tick(), self.record.preload_data.skills
+        )
+        """给予技能节点一个loading_mission"""
+        totalize_node.loading_mission = LoadingMission(totalize_node)
+        totalize_node.loading_mission.mission_start(find_tick())
         event_list.append(totalize_node)
 
         """失衡状态强制结算事件"""

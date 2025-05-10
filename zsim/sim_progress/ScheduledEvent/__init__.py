@@ -232,6 +232,10 @@ class ScheduledEvent:
         所以，直接调用loading_mission.hitted_count数量就可以获得当前正在被结算的Hit次数。"""
         should_update = False
         if not _node.skill.anomaly_update_rule:
+            if _node.loading_mission is None:
+                raise ValueError(
+                    f"技能{_node.skill_tag}没有loadimg_mission属性，该技能可能是强制添加的，并未通过Load阶段，所以错过了Loading_misssion的构造！请检查该技能的构造环节，以规避这一问题。"
+                )
             if self.tick - 1 < _node.loading_mission.get_last_hit() <= self.tick:
                 should_update = True
         else:

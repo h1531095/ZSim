@@ -496,13 +496,17 @@ class Buff:
         no_start = kwargs.get("no_start", False)
         no_end = kwargs.get("no_end", False)
         no_count = kwargs.get("no_count", False)
-        specified_count = kwargs.get("specified_count", None)       # 外部定制层数——层数不独立结算的Buff
+        specified_count = kwargs.get(
+            "specified_count", None
+        )  # 外部定制层数——层数不独立结算的Buff
         _simple_start_buff_0 = sub_exist_buff_dict[self.ft.index]
         individule_settled_count = kwargs.get("individule_settled_count", 0)
         if no_count and any([individule_settled_count, specified_count]):
-            raise ValueError('在传入no_count参数时，同时传入了其他控制层数的参数。')
+            raise ValueError("在传入no_count参数时，同时传入了其他控制层数的参数。")
         if specified_count and self.ft.individual_settled:
-            raise ValueError('企图使用specified_count参数来控制层数，但该buff不是层数独立结算的。')
+            raise ValueError(
+                "企图使用specified_count参数来控制层数，但该buff不是层数独立结算的。"
+            )
         if individule_settled_count != 0 and not self.ft.individual_settled:
             raise ValueError(
                 f"对于层数不独立结算的{self.ft.index}，在调用simple_start函数时，不应传入individule_settled_count参数。"
@@ -530,6 +534,7 @@ class Buff:
             else:
                 if specified_count:
                     self.dy.count = specified_count
+                    print(f"{self.ft.index}的层数被设定为{specified_count}")
                 else:
                     self.dy.count = min(
                         _simple_start_buff_0.dy.count + self.ft.step, self.ft.maxcount

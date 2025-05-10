@@ -946,5 +946,25 @@
     "Buff-武器-精5「电磁暴」-叁式-回能": {
         "module": ".BuffXLogic.MagneticStormCharlieSpRecover",
         "class": "MagneticStormCharlieSpRecover"
+    },
+    "Buff-角色-雨果-核心被动-单击破攻击力": {
+        "module": ".BuffXLogic.HugoCorePassiveSingleStunAtkBonus",
+        "class": "HugoCorePassiveSingleStunAtkBonus"
+    },
+    "Buff-角色-雨果-核心被动-双击破攻击力": {
+        "module": ".BuffXLogic.HugoCorePassiveDoubleStunAtkBonus",
+        "class": "HugoCorePassiveDoubleStunAtkBonus"
+    },
+    "Buff-角色-雨果-决算触发器": {
+        "module": ".BuffXLogic.HugoCorePassiveTotalizeTrigger",
+        "class": "HugoCorePassiveTotalizeTrigger"
+    },
+    "Buff-角色-雨果-核心被动-强化E失衡值提升": {
+        "module": ".BuffXLogic.HugoCorePassiveEXStunBonus",
+        "class": "HugoCorePassiveEXStunBonus"
+    },
+    "Buff-角色-雨果-额外能力-连携技对普通敌人伤害提升": {
+        "module": ".BuffXLogic.HugoAdditionalAbilityExtraQTEDmgBonus",
+        "class": "HugoAdditionalAbilityExtraQTEDmgBonus"
     }
 }
