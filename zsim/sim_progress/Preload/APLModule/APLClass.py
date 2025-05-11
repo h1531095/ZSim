@@ -37,11 +37,14 @@ class APLClass:
             self.get_game_state()
         if self.apl_operator is None:
             self.apl_operator = APLOperator(self.actions_list, self.game_state)
-        cid, skill_tag, apl_priority = self.apl_operator.spawn_next_action(tick)
+        cid, skill_tag, apl_priority, apl_unit = self.apl_operator.spawn_next_action(
+            tick
+        )
         final_result = self.perform_action(cid, skill_tag, tick)
+        # FIXME: 这里的优先级修改可能存在问题，需要重新考虑一下。
         if final_result != skill_tag:
             apl_priority = 0
-        return final_result, apl_priority
+        return final_result, apl_priority, apl_unit
 
     def get_game_state(self) -> dict | None:
         if self.game_state is None:

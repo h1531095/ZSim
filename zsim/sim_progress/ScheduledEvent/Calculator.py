@@ -209,6 +209,7 @@ class MultiplierData:
             self.field_sp_regen: float = 0.0
             self.field_sp_get_ratio: float = 0.0
             self.field_sp_limit: float = 0.0
+            self.extra_damage_ratio: float = 0.0  # 基础伤害倍率
 
             self.phy_crit_dmg_bonus: float = 0.0
             self.fire_crit_dmg_bonus: float = 0.0
@@ -383,11 +384,11 @@ class MultiplierData:
 
             self.all_disorder_basic_mul: float = 0.0
             self.strike_disorder_basic_mul: float = 0.0
-            self.burn_disorder_basic_mul:float = 0.0
+            self.burn_disorder_basic_mul: float = 0.0
             self.frostbite_disorder_basic_mul: float = 0.0
             self.shock_disorder_basic_mul: float = 0.0
             self.chaos_disorder_basic_mul: float = 0.0
-            
+
             self.disorder_basic_mul_map: dict[ElementType | str, float] = {
                 0: self.strike_disorder_basic_mul,
                 1: self.burn_disorder_basic_mul,
@@ -584,7 +585,7 @@ class Calculator:
                 )
             else:
                 assert False, INVALID_ELEMENT_ERROR
-            base_dmg = (dmg_ratio * attr) * (
+            base_dmg = ((dmg_ratio + data.dynamic.extra_damage_ratio) * attr) * (
                 1 + data.dynamic.base_dmg_increase_percentage
             ) + data.dynamic.base_dmg_increase
             return base_dmg
@@ -1254,6 +1255,8 @@ class Calculator:
         """计算伤害期望"""
         multipliers: np.ndarray = self.regular_multipliers.get_array_expect()
         dmg_expect = np.prod(multipliers)
+        # if "1291_CorePassive" in self.skill_tag:
+        #     print(f"检测到决算技能，当前乘区状态为{multipliers}")
         return dmg_expect
 
     def cal_dmg_crit(self) -> np.float64:

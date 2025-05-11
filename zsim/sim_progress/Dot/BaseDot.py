@@ -48,6 +48,9 @@ class Dot:
         count_as_skill_hit: bool = False  # dot生效时的伤害能否视作技能的一次命中（从而参与其他的命中类dot的触发）
         complex_exit_logic = False  # 复杂的结束判定
 
+        def __str__(self):
+            return str(self.__dict__)
+
     @dataclass
     class DotDynamic:
         start_ticks: int = 0

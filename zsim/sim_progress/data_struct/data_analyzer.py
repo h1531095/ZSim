@@ -31,7 +31,7 @@ def cal_buff_total_bonus(
 
     # 初始化动态语句字典，用于累加buff效果的值
     dynamic_statement: dict[str, float] = {}
-    effect_buff_list: list[str] = []
+    # effect_buff_list: list[str] = []
     # 遍历角色身上的所有buff
     from sim_progress.AnomalyBar import AnomalyBar
     from sim_progress.Buff import Buff
@@ -82,14 +82,13 @@ def cal_buff_total_bonus(
                     )
                 except TypeError:
                     continue
-            effect_buff_list.append(buff_obj.ft.index)
+        # effect_buff_list.append(buff_obj)
     # if judge_obj is not None and isinstance(judge_obj, SkillNode):
     #     if "1291_CorePassive" in judge_obj.skill_tag:
-    #         print("===============分割线===============")
-    #         print(f'数据分析模块检测到决算node传入{judge_obj.skill_tag}！情况如下：')
-    #         for buffs in effect_buff_list:
-    #             print(buffs)
-    #         print("===============分割线===============")
+    #         print(f"检测到决算{judge_obj.skill_tag}, 其享受的buff列表为：")
+    #         for _buff in effect_buff_list:
+    #             print(f"{_buff.ft.index}: {_buff.effect_dct}")
+
     return dynamic_statement
 
 
@@ -142,17 +141,15 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
                 """
                 if skill_labels is None:
                     continue
-                # if any(
-                #     _sub_label in skill_labels.keys() for _sub_label in label_value
-                # ):
-                #     # print(f'在技能 {skill_tag} 中，成功找到标签 {label_value}，')
-                #     return True
-                for _sub_label in label_value:
-                    if _sub_label in skill_labels.keys():
-                        print(f'在技能 {skill_tag} 中，成功找到标签 {label_value}，')
-                        return True
-                    # else:
-                    #     print(skill_node.skill_tag, skill_labels, _sub_label, label_value)
+                if any(_sub_label in skill_labels.keys() for _sub_label in label_value):
+                    # print(f'在技能 {skill_tag} 中，成功找到标签 {label_value}，')
+                    return True
+                # for _sub_label in label_value:
+                #     if _sub_label in skill_labels.keys():
+                #         print(f'在技能 {skill_tag} 中，成功找到标签 {label_value}，')
+                #         return True
+                #     else:
+                #         print(skill_node.skill_tag, skill_labels, _sub_label, label_value)
     return False
 
 

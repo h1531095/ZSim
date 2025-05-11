@@ -70,7 +70,7 @@
     "char_report": {
         "Vivian": false,
         "AstraYao": false,
-        "Hugo": true
+        "Hugo": false
     },
     "na_mode_level": {
         "Hugo": 0

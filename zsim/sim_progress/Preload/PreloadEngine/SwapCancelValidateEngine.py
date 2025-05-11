@@ -67,14 +67,14 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         cid = int(skill_tag.split("_")[0])
         char_stack = self.data.personal_node_stack.get(cid, None)
         if char_stack is None:
-            """角色当前没有正在发生的Node，有空"""
+            """角色的动作栈都尚未创建，说明角色当前没有任何动作，角色有空。"""
             return True
         char_latest_node = char_stack.get_effective_node()
         # char_latest_active_node = char_stack.get_on_field_node(tick)
         # if char_latest_active_node is not None:
         #     print(char_latest_node.skill_tag, char_latest_active_node.skill_tag)
         if char_latest_node is None:
-            """角色当前没有正在发生的Node，有空"""
+            """角色栈已经创建但是上一个动作为空，说明本动作是角色的第一个动作，角色有空。"""
             return True
         # print([_stacknode.skill_tag for _stacknode in char_stack.stack])
         # print(f'APL：{apl_skill_node.skill_tag, apl_skill_node.apl_priority}， 上个技能：{char_latest_node.skill_tag, char_latest_node.apl_priority, char_latest_node.end_tick}')
@@ -136,7 +136,7 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         if not isinstance(node_on_field, SkillNode):
             raise TypeError
 
-        """角色有空，当前场上虽然存在技能，但是技能并不需求前台释放，那么等同于当前角色可用。"""
+        """角色有空，当前场上其他角色正在释放技能，但是本技能并不需求前台释放，那么等同于当前角色可用。"""
         if not node_on_field.skill.on_field:
             return True
 
@@ -144,6 +144,17 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         if int(node_on_field.skill_tag.split("_")[0]) != cid:
             """当前前台技能本身就具有最高优先级，则不可切人。"""
             if node_on_field.skill.do_immediately:
+                return False
+
+            if (
+                node_on_field.apl_unit is not None
+                and node_on_field.apl_unit.apl_unit_type == "action.no_swap_cancel+="
+            ):
+                """
+                当前台技能的apl_unit非空（意味着前台技能来自于APL模块），
+                并且apl_unit的种类为“action.no_swap_cancel+=”，即合轴禁止类型，则不可切人。
+                """
+                # FIXME:node_on_field没有被准确获取到。
                 return False
 
             if tick - char_latest_node.end_tick < 60:

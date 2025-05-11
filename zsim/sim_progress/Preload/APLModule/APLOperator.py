@@ -7,11 +7,13 @@ class APLOperator:
     def __init__(self, all_apl_unit_list, game_state: dict):
         self.game_state = game_state
         self.found_char_dict = {}  # 用于装角色实例，键值是CID
+        self.leagal_apl_type_list = ["action+=", "action.no_swap_cancel+="]
         self.apl_unit_inventory: dict[
             int, APLUnit
         ] = {}  # 用于装已经解析过的apl子条件实例。
         for unit_dict in all_apl_unit_list:
-            self.apl_unit_inventory[unit_dict["priority"]] = apl_unit_factory(unit_dict)
+            self.apl_unit_inventory[unit_dict["priority"]] = self.apl_unit_factory(unit_dict)
+            # print(unit_dict["priority"], unit_dict)
 
     def spawn_next_action(self, tick):
         """APL执行器的核心功能函数——筛选出优先级最高的下一个动作"""
@@ -21,27 +23,40 @@ class APLOperator:
                     self.found_char_dict, self.game_state, tick=tick
                 )
                 if not result:
-                    # if priority in [0, 1, 2]:
-                    #     print(f'这次不通过的APL优先级为{priority}， 判定结果为：{result_box}')
+                    # if priority in [13]:
+                    #     print(
+                    #         f"这次不通过的APL优先级为{priority}，内容为{apl_unit.result} 判定结果为：{result_box}"
+                    #     )
                     continue
                 else:
                     if apl_unit.break_when_found_action:
-                        # print(f'APL找到了新的最高优先级的动作！优先级为：{apl_unit.priority}，输出动作：{apl_unit.result}')
+                        # print(
+                        #     f"APL找到了新的最高优先级的动作！优先级为：{apl_unit.priority}，输出动作：{apl_unit.result}"
+                        # )
                         return (
                             int(apl_unit.char_CID),
                             apl_unit.result,
                             apl_unit.priority,
+                            apl_unit,
                         )
                     else:
                         continue
         else:
             raise ValueError("没有找到符合要求的APL！")
 
-
-def apl_unit_factory(apl_unit_dict):
-    """构造APL子单元的工厂函数"""
-    if apl_unit_dict["type"] == "action+=":
-        return ActionAPLUnit(apl_unit_dict)
+    def apl_unit_factory(self, apl_unit_dict):
+        """构造APL子单元的工厂函数"""
+        if apl_unit_dict["type"] in self.leagal_apl_type_list:
+            return ActionAPLUnit(apl_unit_dict)
+        elif all(
+            code_str in apl_unit_dict["type"]
+            for code_str in ["a", "c", "t", "i", "o", "n"]
+        ):
+            raise ValueError(
+                f'貌似是拼写错误，当前输入的APL类型为：{apl_unit_dict["type"]}'
+            )
+        else:
+            raise ValueError(f'无法识别的APL类型：{apl_unit_dict["type"]}')
         # # Optimized Code:
         #
         # if "enemy" not in judge_code:

@@ -32,6 +32,7 @@ class Lighter(Character):
                 sp_consume = node.skill.sp_consume
                 if sp_consume > 0:
                     self.morale += sp_consume * 26
+                    print(f"莱特士气更新！当前士气：{self.morale / 100:.2f}")
 
             if "1161" not in node.skill_tag:
                 continue

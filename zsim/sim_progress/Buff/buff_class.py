@@ -534,7 +534,7 @@ class Buff:
             else:
                 if specified_count:
                     self.dy.count = specified_count
-                    print(f"{self.ft.index}的层数被设定为{specified_count}")
+                    # print(f"{self.ft.index}的层数被设定为{specified_count}")
                 else:
                     self.dy.count = min(
                         _simple_start_buff_0.dy.count + self.ft.step, self.ft.maxcount
