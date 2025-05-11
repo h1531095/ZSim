@@ -5,9 +5,12 @@
 1361|action+=|1361_SNA_0|attribute.1361:special_resource<5|status.enemy:stun==False
 
 # 莱特消耗士气的逻辑
-1161|action.no_swap_cancel+=|1161_NA_5_EnEndH_EX|action.1161:strict_linked_after==1161_NA_5_CoH_EX|status.enemy:stun==False
-1161|action.no_swap_cancel+=|1161_NA_5_CoH_EX|action.1161:strict_linked_after==1161_NA_5_SH_EX|status.enemy:stun==False
-1161|action.no_swap_cancel+=|1161_NA_5_SH_EX|action.1161:strict_linked_after==1161_BH_Aid|status.enemy:stun==False
+1161|action+=|wait|action.1161:is_performing==1161_BH_Aid
+1161|action+=|1161_NA_5_EnEndH_EX|action.1161:strict_linked_after==1161_NA_5_CoH_EX|status.enemy:stun==False
+1161|action+=|1161_NA_5_CoH_EX|action.1161:strict_linked_after==1161_NA_5_SH_EX|status.enemy:stun==False
+1161|action+=|1161_NA_5_SH_EX|action.1161:strict_linked_after==1161_BH_Aid|status.enemy:stun==False
+
+
 
 # 失衡期爆发逻辑
 1291|action+=|1291_Q|attribute.1291:decibel>=3000|status.enemy:stun==True

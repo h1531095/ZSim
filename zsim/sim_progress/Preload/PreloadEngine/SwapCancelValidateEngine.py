@@ -132,7 +132,7 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         """角色有空，并且当前前台技能是None，那么直接通过"""
         if node_on_field is None:
             return True
-
+        # print(f'当前前台技能为：{node_on_field.skill_tag}，APL抛出的技能为 {apl_skill_node.skill_tag}')
         if not isinstance(node_on_field, SkillNode):
             raise TypeError
 

@@ -77,12 +77,31 @@ class ActionSubUnit(BaseSubConditionUnit):
                 if current_node is None:
                     return True
             return False
+        
+    class IsPerformingHandler(ActionCheckHandler):
+        @classmethod
+        def handler(cls, char_cid: int, game_state, tick: int) -> None | str:
+            """该函数的主要作用是尝试获取角色正在释放的某个技能的skill_tag。如果角色现在有空，则直接返回None"""
+            char_stack = get_personal_node_stack(game_state).get(char_cid, None)
+            if char_stack is None:
+                return None
+            last_node = char_stack.peek()
+            if last_node is None:
+                return None
+            else:
+                if last_node.end_tick >= tick:
+                    return last_node.skill_tag
+                else:
+                    return None
+            
+
 
     ActionHandlerMap = {
         "skill_tag": LatestActionTagHandler,
         "strict_linked_after": StrictLinkedHandler,
         "lenient_linked_after": LenientLinkedHandler,
         "first_action": FirstActionHandler,
+        "is_performing": IsPerformingHandler
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
