@@ -3,7 +3,7 @@ from define import ElementType
 
 
 # 角色与CID映射表
-def _init_char_mapping() -> dict:
+def _init_char_mapping() -> dict[str, dict[str, str | int]]:
     """初始化角色CID和名称的映射关系"""
     try:
         df = pl.scan_csv("./zsim/data/character.csv")
@@ -14,7 +14,7 @@ def _init_char_mapping() -> dict:
         return {}
 
 
-CHAR_CID_MAPPING = _init_char_mapping()
+CHAR_CID_MAPPING: dict[str, dict[str, str | int]] = _init_char_mapping()
 
 # 角色配置常量
 default_chars = [

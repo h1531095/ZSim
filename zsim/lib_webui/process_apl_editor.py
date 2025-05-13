@@ -20,11 +20,11 @@ from .constants import CHAR_CID_MAPPING
 
 @dataclass
 class APLArchive:
-    default_apl_map: dict[str, dict] = None  # {relative_path: apl_toml}
-    custom_apl_map: dict[str, dict] = None  # {relative_path: apl_toml}
-    options: Sequence[str] = None
-    title_apl_map: dict[str, dict] = None  # {title: apl_toml}
-    title_file_name_map: dict[str, str] = None  # {title: APL file name}
+    default_apl_map: dict[str, dict] | None = None  # {relative_path: apl_toml}
+    custom_apl_map: dict[str, dict] | None = None  # {relative_path: apl_toml}
+    options: Sequence[str] | None = None
+    title_apl_map: dict[str, dict] | None = None  # {title: apl_toml}
+    title_file_name_map: dict[str, str] | None = None  # {title: APL file name}
 
     def __post_init__(self):
         self.refresh()
@@ -43,9 +43,9 @@ class APLArchive:
             apl.get("general", {}).get("title", None): relative_path
             for relative_path, apl in all_apl_map.items()
         }
-        self.options = (
+        self.options = [
             title for title in self.title_apl_map.keys() if title is not None
-        )
+        ]
 
     def save_apl_data(self, title: str, edited_data: dict[str, Any]):
         """保存编辑后的APL数据到对应的TOML文件。
@@ -541,7 +541,7 @@ def display_apl_details(
     # --- APL Logic 编辑 ---
     st.markdown("**APL 逻辑**")
 
-    st.page_link("lib_webui/doc_pages/page_apl_doc.py", icon = "📖", label="APL设计书")
+    st.page_link("lib_webui/doc_pages/page_apl_doc.py", icon="📖", label="APL设计书")
 
     apl_logic_info = edited_data.get("apl_logic", {})
     st.write("逻辑编写：")

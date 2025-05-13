@@ -30,7 +30,6 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             self._validate_swap_tick,
             self._validate_qte_activation,
         ]
-
     @property
     def external_update_signal(self):
         return True if self.data.preload_action_list_before_confirm else False

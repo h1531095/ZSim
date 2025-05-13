@@ -113,7 +113,7 @@ async def prepare_parallel_data_and_cache(rid: int | str) -> None:
 # 统计并行模式的个子进程伤害归并结果
 def merge_parallel_dmg_data(
     rid: int | str,
-) -> dict[str, dict[str, dict[int | float, dict[str, float | None]]]]:
+) -> dict[str, dict[str, dict[int | float, dict[str, float | None]]]] | None:
     """对并行模式的每一份报告进行数据预处理，并将结果缓存到本地。
 
     Args:
@@ -307,8 +307,8 @@ async def merge_parallel_sc_data(
             }
         }
     """
-    result_dir = os.path.join(results_dir, str(rid))
-    all_sc_data: dict[str, dict[str, dict[int | float, float]]] = {}
+    result_dir: str = os.path.join(results_dir, str(rid))
+    all_sc_data: dict[str, dict[str, dict[int | float| None, float | None]]] = {}
     tasks = []
     sub_dir_paths_map: dict[int, str] = {}  # 存储 task index 到 sub_dir_path 的映射
 
@@ -396,7 +396,7 @@ async def merge_parallel_sc_data(
             )
 
         # 存储原始结果
-        all_sc_data[adjust_char][sc_name][sc_value] = {
+        all_sc_data[adjust_char][sc_name][sc_value] = { # type: ignore
             "result": sc_result,
             "rate": None,
         }

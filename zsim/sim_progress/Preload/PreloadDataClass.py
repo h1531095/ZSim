@@ -10,7 +10,7 @@ class PreloadData:
         load_data = kwargs.get("load_data")
         self.preload_action: list[SkillNode] = []  # 最终return返回给外部申请的数据结构
         self.skills: list = skills  # 用于创建SkillNode，是SkillNode构造函数的必要参数。
-        self.personal_node_stack: dict[int:NodeStack] = {}  # 个人的技能栈
+        self.personal_node_stack: dict[int, NodeStack] = {}  # 个人的技能栈
         self.current_node_stack: NodeStack = NodeStack(
             length=5
         )  # Preload阶段的总技能栈

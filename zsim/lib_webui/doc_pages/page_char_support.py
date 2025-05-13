@@ -1,11 +1,89 @@
 import streamlit as st
 import polars as pl
-from lib_webui.constants import CHAR_CID_MAPPING
+
 
 # 显示角色与CID对应表
-def show_char_cid_mapping():
-    st.markdown("### 附：角色与CID对应表")
+def show_char_cid_mapping() -> None:
+    """
+    显示角色与CID对应表。
+
+    该函数会从 CSV 文件构建一个 Polars DataFrame，计算“角色支持度”，
+    并将“角色支持度”、“技能测帧”、“Buff支持”、“影画支持”列的数值转换为图标，
+    然后按照指定的列顺序（角色名, CID, 角色支持度, 技能测帧, Buff支持, 影画支持）
+    在 Streamlit 界面上展示该表格。
+
+    计算角色支持度列
+    规则：
+    -1: 不支持
+     0: 不完全支持 (当“动作建模”为0且“Buff支持”为0时)
+     1: 完全支持 (当“动作建模”、“Buff支持”、“影画支持”都为1时)
+
+    详细逻辑：
+    1. 如果“动作建模”=1、“Buff支持”=1、“影画支持”=1，则“角色支持度”为 1。
+    2. 否则，如果“动作建模”=0 且“Buff支持”=0，则“角色支持度”为 0。
+    3. 其他所有情况，“角色支持度”为 -1。
+
+    """
+    st.markdown("### 角色支持列表")
     st.caption("角色与CID的对应关系仅与本模拟器内部功能有关")
-    st.dataframe(pl.DataFrame(CHAR_CID_MAPPING))
-    
+
+    # 从 character.csv 加载数据
+    lf = pl.scan_csv("./zsim/data/character.csv")
+
+    def map_support_to_icon(value: float | int) -> str:
+        """将支持度数值转换为图标"""
+        if value >= 1:
+            return "✅ 完全"
+        elif value <= -1:
+            return "❌ 不支持"
+        else:
+            return "⚠️ 不完全"
+
+    lf_with_support_level = lf.with_columns(
+        pl.when(
+            (pl.col("动作建模") >= 1)
+            & (pl.col("Buff支持") >= 1)
+            & (pl.col("影画支持") >= 1)
+        )
+        .then(pl.lit(1))
+        .when((pl.col("动作建模") >= 0) & (pl.col("Buff支持") >= 0))
+        .then(pl.lit(0))
+        .otherwise(pl.lit(-1))
+        .alias("角色支持度")
+    )
+
+    # 将支持度相关列的数值转换为图标
+    lf_with_icons = lf_with_support_level.with_columns(
+        pl.col("角色支持度")
+        .map_elements(map_support_to_icon, return_dtype=pl.String)
+        .alias("角色支持度"),
+        pl.col("动作建模")
+        .map_elements(map_support_to_icon, return_dtype=pl.String)
+        .alias("动作建模"),
+        pl.col("精细测帧")
+        .map_elements(map_support_to_icon, return_dtype=pl.String)
+        .alias("精细测帧"),
+        pl.col("Buff支持")
+        .map_elements(map_support_to_icon, return_dtype=pl.String)
+        .alias("Buff支持"),
+        pl.col("影画支持")
+        .map_elements(map_support_to_icon, return_dtype=pl.String)
+        .alias("影画支持"),
+    )
+
+    # 选择最终显示的列，并转换为字典格式以供 Streamlit DataFrame 使用
+    # 列顺序: 角色名 (name), CID, 角色支持度, 动作建模, 精细测帧, Buff支持, 影画支持
+    selected_columns = [
+        "name",
+        "CID",
+        "角色支持度",
+        "动作建模",
+        "精细测帧",
+        "Buff支持",
+        "影画支持",
+    ]
+    df = lf_with_icons.select(selected_columns).collect().to_dict(as_series=False)
+    st.dataframe(df)
+
+
 show_char_cid_mapping()
