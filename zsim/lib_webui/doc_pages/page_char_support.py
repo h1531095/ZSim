@@ -1,5 +1,17 @@
-import streamlit as st
+from pathlib import Path
+
 import polars as pl
+import streamlit as st
+from define import DOCS_DIR
+
+
+@st.dialog("关于：角色支持列表", width="large")
+def dialog_about_char_support() -> None:
+    docs_path = Path(DOCS_DIR)
+    about_doc_path = docs_path / "角色支持介绍.md"
+    with open(about_doc_path, "r", encoding="utf-8") as f:
+        md_content = f.read()
+    st.markdown(md_content, unsafe_allow_html=True)
 
 
 # 显示角色与CID对应表
@@ -12,15 +24,15 @@ def show_char_cid_mapping() -> None:
     然后按照指定的列顺序（角色名, CID, 角色支持度, 技能测帧, Buff支持, 影画支持）
     在 Streamlit 界面上展示该表格。
 
-    计算角色支持度列
+    计算角色支持度
     规则：
     -1: 不支持
-     0: 不完全支持 (当“动作建模”为0且“Buff支持”为0时)
-     1: 完全支持 (当“动作建模”、“Buff支持”、“影画支持”都为1时)
+     0: 不完全支持
+     1: 完全支持
 
     详细逻辑：
-    1. 如果“动作建模”=1、“Buff支持”=1、“影画支持”=1，则“角色支持度”为 1。
-    2. 否则，如果“动作建模”=0 且“Buff支持”=0，则“角色支持度”为 0。
+    1. 如果“动作建模”>=1、“Buff支持”>=1、“影画支持”>=1，则“角色支持度”为 1。
+    2. 否则，如果“动作建模”>=0 且“Buff支持”>=0，则“角色支持度”为 0。
     3. 其他所有情况，“角色支持度”为 -1。
 
     """
@@ -54,6 +66,7 @@ def show_char_cid_mapping() -> None:
 
     # 将支持度相关列的数值转换为图标
     lf_with_icons = lf_with_support_level.with_columns(
+        pl.col("name").alias("角色名称"),
         pl.col("角色支持度")
         .map_elements(map_support_to_icon, return_dtype=pl.String)
         .alias("角色支持度"),
@@ -71,10 +84,9 @@ def show_char_cid_mapping() -> None:
         .alias("影画支持"),
     )
 
-    # 选择最终显示的列，并转换为字典格式以供 Streamlit DataFrame 使用
     # 列顺序: 角色名 (name), CID, 角色支持度, 动作建模, 精细测帧, Buff支持, 影画支持
     selected_columns = [
-        "name",
+        "角色名称",
         "CID",
         "角色支持度",
         "动作建模",
@@ -82,8 +94,11 @@ def show_char_cid_mapping() -> None:
         "Buff支持",
         "影画支持",
     ]
-    df = lf_with_icons.select(selected_columns).collect().to_dict(as_series=False)
-    st.dataframe(df)
+    selected_lf = lf_with_icons.select(selected_columns)
+    st.dataframe(selected_lf)
+
+    if st.button("关于"):
+        dialog_about_char_support()
 
 
 show_char_cid_mapping()
