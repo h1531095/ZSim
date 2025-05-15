@@ -7,7 +7,7 @@ import streamlit as st
 from define import ANOMALY_MAPPING
 from sim_progress.Character.skill_class import lookup_name_or_cid
 
-from .constants import element_mapping, results_dir
+from .constants import element_mapping, results_dir, SKILL_TAG_MAPPING
 
 
 def _load_dmg_data(rid: int | str) -> pl.DataFrame | None:
@@ -133,6 +133,16 @@ def draw_line_chart(chart_data: dict[str, pl.DataFrame]) -> None:
         )
         st.plotly_chart(fig_stun_eff)
 
+def _get_cn_skill_tag(skill_tag: str) -> str:
+    """根据技能标签获取技能中文名。
+
+    Args:
+        skill_tag (str): 技能标签。
+
+    Returns:
+        str: 技能中文名。
+    """
+    return SKILL_TAG_MAPPING.get(skill_tag, skill_tag)
 
 def sort_df_by_UUID(dmg_result_df: pl.DataFrame) -> pl.DataFrame:
     """按UUID对伤害数据进行分组和聚合。
@@ -175,14 +185,18 @@ def sort_df_by_UUID(dmg_result_df: pl.DataFrame) -> pl.DataFrame:
 
         cid: int | str | None = None
         name: str | None = None
+        skill_cn_name: str | None = None
         if skill_tag:
             cid_str = skill_tag[0:4]
+            skill_cn_name = _get_cn_skill_tag(skill_tag) # 获取技能中文名
             try:
                 name, cid_lookup = lookup_name_or_cid(cid=cid_str)
                 cid = cid_lookup
             except ValueError:
                 name = skill_tag  # 如果查找失败，使用skill_tag作为名字
                 cid = None
+        else:
+            skill_cn_name = "Unknown" # 如果没有skill_tag，则设为Unknown
 
         result_data.append(
             {
@@ -192,6 +206,7 @@ def sort_df_by_UUID(dmg_result_df: pl.DataFrame) -> pl.DataFrame:
                 "is_anomaly": is_anomaly,
                 "cid": cid,
                 "skill_tag": skill_tag,
+                "skill_cn_name": skill_cn_name, # 添加技能中文名
                 "dmg_expect_sum": dmg_expect_sum,
                 "stun_sum": stun_sum,
                 "buildup_sum": buildup_sum,
@@ -230,7 +245,7 @@ def prepare_char_chart_data(uuid_df: pl.DataFrame) -> dict[str, pl.DataFrame]:
 
     # 角色技能输出占比
     filtered_skill_df = uuid_df.filter(pl.col("cid").is_not_null())
-    char_skill_dmg_df = filtered_skill_df.group_by(["name", "skill_tag"]).agg(
+    char_skill_dmg_df = filtered_skill_df.group_by(["name", "skill_cn_name"]).agg(
         [
             pl.col("dmg_expect_sum").sum(),
             pl.col("buildup_sum").sum(),
@@ -305,10 +320,10 @@ def draw_char_chart(chart_data: dict[str, pl.DataFrame]) -> None:
                     st.caption(f"{name}")
                     fig_skill_pie = px.pie(
                         group,
-                        names="skill_tag",
+                        names="skill_cn_name",
                         values="dmg_expect_sum",
                         labels={
-                            "skill_tag": "技能标签",
+                            "skill_cn_name": "技能名称",
                             "dmg_expect_sum": "期望伤害总和",
                         },
                     )
@@ -329,10 +344,10 @@ def draw_char_chart(chart_data: dict[str, pl.DataFrame]) -> None:
                     st.caption(f"{name}")
                     fig_skill_ano_pie = px.pie(
                         group,
-                        names="skill_tag",
+                        names="skill_cn_name",
                         values="buildup_sum",
                         labels={
-                            "skill_tag": "技能标签",
+                            "skill_cn_name": "技能名称",
                             "buildup_sum": "异常值总和",
                         },
                     )
@@ -353,10 +368,10 @@ def draw_char_chart(chart_data: dict[str, pl.DataFrame]) -> None:
                     st.caption(f"{name}")
                     fig_skill_stun_pie = px.pie(
                         group,
-                        names="skill_tag",
+                        names="skill_cn_name",
                         values="stun_sum",
                         labels={
-                            "skill_tag": "技能标签",
+                            "skill_cn_name": "技能名称",
                             "stun_sum": "失衡值总和",
                         },
                     )

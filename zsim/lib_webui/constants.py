@@ -2,6 +2,32 @@ import polars as pl
 from define import ElementType
 
 
+def _init_skill_tag_mapping() -> dict[str, str]:
+    """初始化技能标签映射关系"""
+    try:
+        df = pl.scan_csv(
+            "./zsim/data/skill.csv",
+            schema_overrides={"skill_tag": str, "skill_text": str, "INSTRUCTION": str},
+        )
+        mapping = (
+            df.select("skill_tag", "skill_text", "INSTRUCTION")
+            .collect()
+            .to_dict(as_series=False)
+        )
+        return {
+            skill_tag: f"{skill_text if skill_text else ''}{f' - {INSTRUCTION}' if INSTRUCTION else ''}"
+            for skill_tag, skill_text, INSTRUCTION in zip(
+                mapping["skill_tag"], mapping["skill_text"], mapping["INSTRUCTION"]
+            )
+        }
+    except Exception as e:
+        print(f"Warning: Failed to load skill mapping: {e}")
+        return {}
+
+
+SKILL_TAG_MAPPING: dict[str, str] = _init_skill_tag_mapping()
+
+
 # 角色与CID映射表
 def _init_char_mapping() -> dict[str, dict[str, str | int]]:
     """初始化角色CID和名称的映射关系"""

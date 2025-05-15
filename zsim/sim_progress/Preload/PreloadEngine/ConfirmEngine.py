@@ -1,11 +1,16 @@
-from sim_progress.Preload.PreloadEngine import BasePreloadEngine
-from sim_progress.Preload import SkillsQueue, PreloadData, SkillNode
-from sim_progress.Report import report_to_log
+from typing import TYPE_CHECKING
+
 from sim_progress.data_struct import decibel_manager_instance
+from sim_progress.Preload.PreloadEngine import BasePreloadEngine
+from sim_progress.Preload import SkillNode, SkillsQueue
+from sim_progress.Report import report_to_log
+
+if TYPE_CHECKING:
+    from sim_progress.Preload import PreloadData
 
 
 class ConfirmEngine(BasePreloadEngine):
-    def __init__(self, data: PreloadData):
+    def __init__(self, data: "PreloadData"):
         """
         这个引擎的主要功能有：
         1、将各环节产生的需要进行Preload的skill_tag，构造成SkillNode，
