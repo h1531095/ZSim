@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from sim_progress.AnomalyBar.AnomalyBarClass import AnomalyBar
+from .AnomalyBarClass import AnomalyBar
 
 
 @dataclass

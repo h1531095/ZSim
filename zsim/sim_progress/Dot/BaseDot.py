@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sim_progress import AnomalyBar
+from sim_progress.anomaly_bar import AnomalyBar
 
 
 class Dot:

@@ -5,8 +5,8 @@ from define import ElementType
 from sim_progress.Character.Yanagi import Yanagi
 from sim_progress.Enemy import Enemy
 from sim_progress.Report import report_to_log
-from sim_progress.AnomalyBar import AnomalyBar
-from sim_progress.AnomalyBar.CopyAnomalyForOutput import (
+from sim_progress.anomaly_bar import AnomalyBar
+from sim_progress.anomaly_bar.CopyAnomalyForOutput import (
     Disorder,
     DirgeOfDestinyAnomaly as Abloom,
     PolarityDisorder,
