@@ -18,6 +18,10 @@ def ScheduleBuffSettle(
     """
     preload_data = JudgeTools.find_preload_data()
     action_now = preload_data.get_on_field_node(time_tick)
+    if action_now is None:
+        print("Warnning！！！ScheduleBuffSettle函数没有找到action_now！")
+        # FIXME: 修复这个问题！！！
+        return
     char_on_field = action_now.char_name
     all_name_order_box = JudgeTools.find_all_name_order_box()
     name_box_on_field = all_name_order_box[char_on_field]

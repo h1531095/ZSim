@@ -16,6 +16,7 @@ class SkillNode:
         skill: Skill.InitSkill,
         preload_tick: int,
         active_generation: bool = False,
+        apl_unit=None,
         **kwargs,
     ):
         """
@@ -27,7 +28,7 @@ class SkillNode:
         """
         with SkillNode._counter_lock:
             self.apl_priority: int = kwargs.get("apl_priority", 0)
-            self.apl_unit = kwargs.get("apl_unit", None)
+            self.apl_unit = apl_unit
             self.skill_tag: str = skill.skill_tag
             self.char_name: str = skill.char_name
             self.preload_tick: int = preload_tick

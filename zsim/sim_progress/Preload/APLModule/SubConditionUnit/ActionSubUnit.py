@@ -24,6 +24,7 @@ class ActionSubUnit(BaseSubConditionUnit):
 
     class StrictLinkedHandler(ActionCheckHandler):
         """强衔接判定，技能skill_tag符合的同时，还需要上一个动作刚好结束。"""
+
         @classmethod
         def handler(cls, char_cid: int, game_state, tick: int) -> str | None:
             char_stack = get_personal_node_stack(game_state).get(char_cid, None)
@@ -31,7 +32,7 @@ class ActionSubUnit(BaseSubConditionUnit):
                 return None
             else:
                 for i in range(char_stack.length):
-                    current_node = char_stack.peek_index(i)
+                    current_node = char_stack.peek_index(i + 1)
                     if current_node is None:
                         return None
                     if (
@@ -39,10 +40,9 @@ class ActionSubUnit(BaseSubConditionUnit):
                         and "additional_damage" in current_node.skill.labels
                     ):
                         continue
-                    else:
-                        if current_node.end_tick != tick:
-                            return None
-                        return current_node.skill_tag
+                    if current_node.end_tick != tick:
+                        return None
+                    return current_node.skill_tag
                 else:
                     return None
 
@@ -77,7 +77,7 @@ class ActionSubUnit(BaseSubConditionUnit):
                 if current_node is None:
                     return True
             return False
-        
+
     class IsPerformingHandler(ActionCheckHandler):
         @classmethod
         def handler(cls, char_cid: int, game_state, tick: int) -> None | str:
@@ -93,15 +93,13 @@ class ActionSubUnit(BaseSubConditionUnit):
                     return last_node.skill_tag
                 else:
                     return None
-            
-
 
     ActionHandlerMap = {
         "skill_tag": LatestActionTagHandler,
         "strict_linked_after": StrictLinkedHandler,
         "lenient_linked_after": LenientLinkedHandler,
         "first_action": FirstActionHandler,
-        "is_performing": IsPerformingHandler
+        "is_performing": IsPerformingHandler,
     }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):

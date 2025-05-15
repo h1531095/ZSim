@@ -1,9 +1,13 @@
 import math
+
+from polars import last
 from .BasePreloadEngine import BasePreloadEngine
 from sim_progress.Preload import SkillNode
 from define import (
     SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT as SCK,
     SWAP_CANCEL_MODE_LAG_TIME as SCLT,
+    SWAP_CANCEL_MODE_DEBUG,
+    SWAP_CANCEL_DEBUG_TARGET_SKILL,
 )
 
 # EXPLAIN：关于SCK和LT的作用：
@@ -27,43 +31,82 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         super().__init__(data)
         self.validators = [
             self._validate_char_avaliable,
+            self._validate_char_task_conflict,
             self._validate_swap_tick,
             self._validate_qte_activation,
+            self._validate_wait_event,
+            self._validate_swap_state_check,
+            self._validate_swap_strategy_check,
         ]
+        self.__report_tag = None
 
     @property
     def external_update_signal(self):
         return True if self.data.preload_action_list_before_confirm else False
 
-    def run_myself(self, skill_tag: str, tick: int, **kwargs) -> bool:
+    def run_myself(
+        self,
+        skill_tag: str,
+        tick: int,
+        apl_priority: int = 0,
+        apl_skill_node: SkillNode | None = None,
+        **kwargs,
+    ) -> bool:
         """合轴可行性分析基本分为以下几个步骤：
         1、当前涉及角色是否有空
         2、合轴时间是否符合
         3、确认合轴后，将skill_tag和主动参数 打包成tuple"""
-        apl_priority = kwargs.get("apl_priority", 0)
-        apl_skill_node = kwargs.get("apl_skill_node", None)
         self.active_signal = False
+
+        """若当前APL动作为等待，那么直接返回False，不做任何操作。"""
+        if self._validate_wait_event(apl_skill_tag=skill_tag):
+            self._swap_cancel_debug_print(mode=1)
+            return False
+
+        """检测对应角色是否有空——当前tick是否存在未完成动作"""
         if not self._validate_char_avaliable(
             skill_tag=skill_tag, tick=tick, apl_skill_node=apl_skill_node
         ):
+            self._swap_cancel_debug_print(mode=1, skill_tag=skill_tag)
             return False
-        if not self._validate_swap_tick(skill_tag=skill_tag, tick=tick):
+
+        """检测当前tick的APL输出是否与角色自身的任务冲突——动作的顶替判定"""
+        if not self._validate_char_task_conflict(
+            skill_tag=skill_tag, apl_skill_node=apl_skill_node, tick=tick
+        ):
+            self._swap_cancel_debug_print(mode=2, skill_tag=skill_tag)
             return False
+
+        """QTE状态过滤器——QTE阶段不支持任何合轴"""
         if self._validate_qte_activation(tick=tick):
             return False
+
+        """检测当前tick的角色状态是否支持合轴——切人CD检测、高优先级动作判定"""
+        if not self._validate_swap_state_check(
+            tick=tick, skill_tag=skill_tag, apl_skill_node=apl_skill_node
+        ):
+            self._swap_cancel_debug_print(mode=3, skill_tag=skill_tag)
+            return False
+
+        """检测当前的tick是否满足合轴操作的需求"""
+        if not self._validate_swap_tick(skill_tag=skill_tag, tick=tick):
+            self._swap_cancel_debug_print(mode=4, skill_tag=skill_tag)
+            return False
+
+        """检测当前的前台动作是否允许进行合轴——合轴策略过滤"""
+        if not self._validate_swap_strategy_check(tick=tick, skill_tag=skill_tag):
+            return False
+
         self.data.preload_action_list_before_confirm.append(
             (skill_tag, True, apl_priority)
         )
         self.active_signal = True
         return True
 
-    def _validate_char_avaliable(self, **kwargs) -> bool:
+    def _validate_char_avaliable(
+        self, skill_tag: str, apl_skill_node: SkillNode, tick: int
+    ) -> bool:
         """角色是否可以获取的判定"""
-        skill_tag = kwargs["skill_tag"]
-        apl_skill_node: SkillNode = kwargs["apl_skill_node"]
-        if skill_tag == "wait":
-            return False
-        tick = kwargs["tick"]
         cid = int(skill_tag.split("_")[0])
         char_stack = self.data.personal_node_stack.get(cid, None)
         if char_stack is None:
@@ -89,84 +132,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                 return True
             else:
                 return False
-
-        """
-        虽然角色目前有空，但是当前tick正好添加了一个Ta的动作，
-        不管这个动作是主动的还是被动的，都意味着当前tick本角色没空
-        ——但是，大招、QTE等技能，会导致本tick安排的强制动作被挤掉，
-        """
-        for _tuples in self.data.preload_action_list_before_confirm:
-            _tag = _tuples[0]
-            if cid == int(_tag.split("_")[0]):
-                if apl_skill_node.skill.do_immediately:
-                    for obj in self.data.skills:
-                        if not obj.CID == cid:
-                            continue
-                        if obj.get_skill_info(
-                            skill_tag=_tag, attr_info="do_immediately"
-                        ):
-                            """如果当前tick被force_add添加的skill_tag本来就是do_immediately类型，那么就没法抢队了"""
-                            return False
-                        else:
-                            """附加伤害additional_damage（类似于“白雷”）由于不需要占用角色，所以可以免于被挤掉的命运"""
-                            skill_info = obj.get_skill_info(
-                                skill_tag=_tag, attr_info="labels"
-                            )
-                            if skill_info is None:
-                                skill_info = {}
-                            if "additional_damage" not in skill_info.keys():
-                                """但若当前tick被force_add 添加的skill_tag只是个普通技能，那么就要执行顶替。"""
-                                self.data.preload_action_list_before_confirm.remove(
-                                    _tuples
-                                )
-                                return True
-                            break
-                    else:
-                        raise ValueError(f"没找到{cid}对应的角色！")
-                else:
-                    return False
-
-        """此时，角色有空，且没有强制任务，接下来要根据当前前台的技能情况来继续展开讨论"""
-        node_on_field = self.data.get_on_field_node(tick)
-
-        """角色有空，并且当前前台技能是None，那么直接通过"""
-        if node_on_field is None:
+        else:
+            """角色上一个动作已经结束，说明角色有空。"""
             return True
-        # print(f'当前前台技能为：{node_on_field.skill_tag}，APL抛出的技能为 {apl_skill_node.skill_tag}')
-        if not isinstance(node_on_field, SkillNode):
-            raise TypeError
-
-        """角色有空，当前场上其他角色正在释放技能，但是本技能并不需求前台释放，那么等同于当前角色可用。"""
-        if not node_on_field.skill.on_field:
-            return True
-
-        """角色有空，当前前台技能是其他角色的，此时要针对切人CD和技能Tag进行检查"""
-        if int(node_on_field.skill_tag.split("_")[0]) != cid:
-            """当前前台技能本身就具有最高优先级，则不可切人。"""
-            if node_on_field.skill.do_immediately:
-                return False
-
-            if (
-                node_on_field.apl_unit is not None
-                and node_on_field.apl_unit.apl_unit_type == "action.no_swap_cancel+="
-            ):
-                """
-                当前台技能的apl_unit非空（意味着前台技能来自于APL模块），
-                并且apl_unit的种类为“action.no_swap_cancel+=”，即合轴禁止类型，则不可切人。
-                """
-                # FIXME:node_on_field没有被准确获取到。
-                return False
-
-            if tick - char_latest_node.end_tick < 60:
-                """查了一下时间，竟然是1秒内刚切下去的"""
-                if "Aid" not in skill_tag or "QTE" not in skill_tag:
-                    """如果不是支援类和连携技这种无视切人CD的技能，那么此时角色是切不出来的"""
-                    return True
-                else:
-                    return False
-
-        """其他剩下的所有情况，都返回True"""
-        return True
 
     @staticmethod
     def spawn_lag_time(node: SkillNode) -> int:
@@ -204,11 +172,205 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             node_now = stack.peek()
             if node_now.end_tick > tick:
                 if "QTE" in node_now.skill_tag:
+                    # FIXME: 由于伊芙琳的QTE是可以进行合轴的，这里一定会遇到Bug。
                     return True
             continue
         else:
             return False
 
+    def _validate_wait_event(self, apl_skill_tag: str = None) -> bool:
+        """用于检测传入的apl动作是否为wait。"""
+        if apl_skill_tag == "wait":
+            return True
+        else:
+            return False
+
+    def _validate_char_task_conflict(
+        self, skill_tag: str, apl_skill_node: SkillNode, tick: int
+    ) -> bool:
+        """
+        针对角色自身的任务冲突的检测——尽管角色当前tick有空
+        但并不意味着apl抛出的动作就可以直接执行。
+        APL抛出的动作还需要和角色自身的任务进行冲突检测，相互竞争和覆盖。
+        """
+        cid = int(skill_tag.split("_")[0])
+        for _tuples in self.data.preload_action_list_before_confirm:
+            _tuples: tuple[str, bool, int]
+            """
+            preload_data中，preload_action_list_before_confirm是一个列表，
+            其中记录了当前tick要被抛出的动作，其中，每个元素是一个元组，
+            元组的第一个元素是技能的tag，第二个元素是技能的主动类型，第三个元素是APL的优先级。
+            """
+            _tag = _tuples[0]
+            if cid == int(_tag.split("_")[0]):
+                """如果角色在当前tick有forceadd的任务，并且APL抛出的动作并非do_immediately，则返回False"""
+                if not apl_skill_node.skill.do_immediately:
+                    return False
+
+                for obj in self.data.skills:
+                    if not obj.CID == cid:
+                        continue
+                    if obj.get_skill_info(skill_tag=_tag, attr_info="do_immediately"):
+                        """如果当前tick被force_add添加的skill_tag本来就是do_immediately类型，那么就没法抢队了"""
+                        return False
+                    else:
+                        """附加伤害additional_damage（类似于“白雷”）由于不需要占用角色，所以可以免于被挤掉的命运"""
+                        skill_info = obj.get_skill_info(
+                            skill_tag=_tag, attr_info="labels"
+                        )
+                        if skill_info is None:
+                            skill_info = {}
+                        if "additional_damage" not in skill_info.keys():
+                            """但若当前tick被force_add 添加的skill_tag只是个普通技能，那么就要执行顶替。"""
+                            self.data.preload_action_list_before_confirm.remove(_tuples)
+                            return True
+                        break
+                else:
+                    raise ValueError(f"没找到{cid}对应的角色！")
+            else:
+                continue
+        else:
+            return True
+
+    def _validate_swap_state_check(
+        self, tick: int, skill_tag: str, apl_skill_node: SkillNode
+    ):
+        """检查角色当前的状态是否允许当前技能进行合轴"""
+        cid = int(skill_tag.split("_")[0])
+        node_on_field: SkillNode | None = self.data.get_on_field_node(tick)
+        char_node_stack = self.data.personal_node_stack.get(cid, None)
+        char_latest_node: SkillNode | None = (
+            char_node_stack.peek() if char_node_stack else None
+        )
+        char_change_cd: bool
+        last_actively_generated_node: SkillNode | None = (
+            self.data.latest_active_generation_node
+        )
+        if node_on_field and not node_on_field.active_generation:
+            """
+            由于get_on_field_node函数只会尽量返回台前的主动技能，
+            而当场上仅存在一个被动技能时，该技能也会被函数获取并且返回。
+            这里需要检测返回结果的主动生成状态，若为False，则说明当前前台技能是被动技能，
+            此时，node_on_field等同于None
+            """
+            node_on_field = None
+        if char_latest_node is None:
+            char_change_cd = True
+        else:
+            tick_delta = tick - char_latest_node.end_tick
+            char_change_cd = tick_delta >= 60
+
+        """当前台存在一个高优先级技能时，合轴操作都是不可用的"""
+        if node_on_field is not None and node_on_field.skill.do_immediately:
+            return False
+
+        """第一个主动动作时，直接放行"""
+        if last_actively_generated_node is None:
+            return True
+
+        """当前台不存在技能或是前台技能并非高优先级时，那么可以进行合轴的进一步判定"""
+        if str(cid) not in last_actively_generated_node.skill_tag:
+            """当动作涉及切人时，需要进行切人CD的检测"""
+            if char_change_cd:
+                """当前角色的切人CD已经冷却完毕，则直接放行。"""
+                return True
+            else:
+                if (
+                    "Aid" in skill_tag
+                    or "QTE" in skill_tag
+                    or apl_skill_node.skill.do_immediately
+                ):
+                    """如果是支援类和连携技这种无视切人CD的技能，那么此时角色可以切出"""
+                    return True
+                else:
+                    return False
+        else:
+            """当动作不涉及切人时，直接放行"""
+            return True
+
+    def _validate_swap_strategy_check(self, tick: int, skill_tag: str):
+        """该函数用于检测当前技能的合轴策略是否允许合轴——在场的主动动作是否允许合轴。"""
+        cid = skill_tag.split("_")[0]
+        last_actively_generated_node: SkillNode | None = (
+            self.data.latest_active_generation_node
+        )
+        if (
+            last_actively_generated_node is None
+            or last_actively_generated_node.end_tick < tick
+        ):
+            return True
+
+        if cid in last_actively_generated_node.skill_tag:
+            return True
+        else:
+            if last_actively_generated_node.apl_unit is None:
+                raise ValueError(
+                    f"{last_actively_generated_node.skill_tag}作为主动动作但是却没有APLUnit！"
+                )
+            if (
+                last_actively_generated_node.apl_unit.apl_unit_type
+                == "action.no_swap_cancel+="
+            ):
+                """
+                当前台技能的apl_unit非空（意味着前台技能来自于APL模块），
+                并且apl_unit的种类为“action.no_swap_cancel+=”，即合轴禁止类型，则不可切人。
+                """
+                self._swap_cancel_debug_print(
+                    mode=5,
+                    skill_tag=skill_tag,
+                    last_actively_generated_node=last_actively_generated_node,
+                )
+                return False
+            return True
+
     def check_myself(self):
         if self.data.preload_action_list_before_confirm:
             self.active_signal = True
+
+    def _swap_cancel_debug_print(
+        self,
+        mode: int,
+        skill_tag: str,
+        last_actively_generated_node: SkillNode | None = None,
+    ):
+        if not SWAP_CANCEL_MODE_DEBUG:
+            return
+        if self.__report_tag == skill_tag:
+            return
+        self.__report_tag = skill_tag
+        skill_compare = True if SWAP_CANCEL_DEBUG_TARGET_SKILL else False
+
+        if mode == 1:
+            print(f"{skill_tag}所涉及角色当前没空！") if not skill_compare else print(
+                f"{skill_tag}所涉及角色当前没空！"
+            ) if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL else None
+        elif mode == 2:
+            print(
+                f"{skill_tag}所涉及角色当前tick存在任务冲突，合轴失败！"
+            ) if not skill_compare else (
+                print(
+                    f"{skill_tag}所涉所涉及角色当前tick存在任务冲突，合轴失败！及角色当前没空！"
+                )
+                if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL
+                else None
+            )
+        elif mode == 3:
+            print(
+                f"{skill_tag}所涉及角色切人CD未就绪  或是 技能优先级低于前台技能，合轴失败！"
+            ) if not skill_compare else print(
+                f"{skill_tag}所涉及角色切人CD未就绪  或是 技能优先级低于前台技能，合轴失败！"
+            ) if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL else None
+        elif mode == 4:
+            print(
+                f"当前tick不满足{skill_tag}合轴所需的时间！"
+            ) if not skill_compare else print(
+                f"当前tick不满足{skill_tag}合轴所需的时间！"
+            ) if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL else None
+        elif mode == 5:
+            print(
+                f"{skill_tag}的上一个主动动作{last_actively_generated_node.skill.skill_tag}不支持合轴！"
+            ) if not skill_compare else print(
+                f"{skill_tag}的上一个主动动作{last_actively_generated_node.skill.skill_tag}不支持合轴！"
+            ) if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL else None
+        else:
+            raise ValueError("mode参数错误！")

@@ -221,6 +221,7 @@ class Enemy:
         self.dynamic.stun = False
         self.dynamic.stun_bar = 0
         self.dynamic.stun_tick = 0
+        self.dynamic.stun_tick_feed_back_from_QTE = 0
         self.__restore_stun_recovery_time()
         if self.qte_manager is None:
             self.qte_manager = QTEManager(self)
@@ -479,7 +480,13 @@ class Enemy:
     def get_stun_rest_tick(self) -> float:
         """获取当前剩余失衡时间的方法"""
         #  TODO：未完全实现！连携技返还失衡时间部分尚未完成。
-        return self.stun_recovery_time - self.dynamic.stun_tick
+        if not self.dynamic.stun:
+            return 0
+        return (
+            self.stun_recovery_time
+            - self.dynamic.stun_tick
+            + self.dynamic.stun_tick_feed_back_from_QTE
+        )
 
     def stun_judge(self, _tick: int, **kwargs) -> bool:
         """判断敌人是否处于 失衡 状态，并更新 失衡 状态"""
@@ -491,7 +498,10 @@ class Enemy:
 
         if self.dynamic.stun:
             # 如果已经是失衡状态，则判断是否恢复
-            if self.stun_recovery_time <= self.dynamic.stun_tick:
+            if (
+                self.stun_recovery_time + self.dynamic.stun_tick_feed_back_from_QTE
+                <= self.dynamic.stun_tick
+            ):
                 self.dynamic.stun_update_tick = _tick
                 self.restore_stun()
             else:
@@ -501,7 +511,12 @@ class Enemy:
                     )
                 self.dynamic.stun_bar = 0  # 避免 log 差错
                 self.dynamic.stun_update_tick = _tick
-                self.dynamic.stun_tick += 1
+
+                # 若怪物当前处于冻结状态，则不增加stun_tick
+                if not self.dynamic.frozen:
+                    self.dynamic.stun_tick += 1
+                # else:
+                #     print("检测到怪物当前处于冻结状态，所以不会增加stun_tick！！")
         elif self.dynamic.stun_bar >= self.max_stun:
             # 若是检测到失衡状态的上升沿，则应该开启彩色失衡状态。
             self.qte_manager.qte_data.reset()
@@ -587,6 +602,7 @@ class Enemy:
             self.stun_bar = 0  # 累计失衡条
             self.lost_hp = 0  # 已损生命值
             self.stun_tick = 0  # 失衡已进行时间
+            self.stun_tick_feed_back_from_QTE = 0  # 从QTE中返还的失衡时间
 
             self.frozen_tick = 0
             self.frostbite_tick = 0
@@ -634,6 +650,7 @@ class Enemy:
             self.shock_tick = 0
             self.burn_tick = 0
             self.corruption_tick = 0
+            self.stun_tick_feed_back_from_QTE = 0
 
         def is_under_anomaly(self) -> bool:
             """若敌人正处于任意一种异常状态下，都会返回True"""

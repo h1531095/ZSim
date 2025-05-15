@@ -23,7 +23,7 @@ class HugoCorePassiveBuffListener(BaseListener):
 
         if HUGO_REPORT:
             print(
-                f"雨果的失衡事件监听器监听到了雨果的技能{event.skill_tag}（{event.skill_node.skill.name}）使怪物陷入失衡状态，根据核心被动，触发一次【暗渊回响】Buff"
+                f"雨果的失衡事件监听器监听到了雨果的技能{event.skill_tag}（{event.skill_node.skill.skill_text}）使怪物陷入失衡状态，根据核心被动，触发一次【暗渊回响】Buff"
             )
 
     def listener_active(self):

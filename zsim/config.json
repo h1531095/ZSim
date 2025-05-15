@@ -12,7 +12,7 @@
         "crit_balancing": true
     },
     "enemy": {
-        "index_ID": 11414,
+        "index_ID": 11195,
         "adjust_ID": 22412,
         "difficulty": 8.74
     },
@@ -31,7 +31,9 @@
     "swap_cancel_mode": {
         "enabled": true,
         "completion_coefficient": 0.3,
-        "lag_time": 20
+        "lag_time": 20,
+        "debug": false,
+        "debug_target_skill": "1161_NA_5_SH_EX"
     },
     "database": {
         "CHARACTER_DATA_PATH": "./zsim/data/character.csv",
@@ -70,7 +72,7 @@
     "char_report": {
         "Vivian": false,
         "AstraYao": false,
-        "Hugo": false
+        "Hugo": true
     },
     "na_mode_level": {
         "Hugo": 0

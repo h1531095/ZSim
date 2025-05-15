@@ -966,5 +966,9 @@
     "Buff-角色-雨果-额外能力-连携技对普通敌人伤害提升": {
         "module": ".BuffXLogic.HugoAdditionalAbilityExtraQTEDmgBonus",
         "class": "HugoAdditionalAbilityExtraQTEDmgBonus"
+    },
+    "Buff-驱动盘-激素朋克-全局攻击力": {
+        "module": ".BuffXLogic.HormonePunkAtkBonus",
+        "class": "HormonePunkAtkBonus"
     }
 }

@@ -2,6 +2,10 @@ from sim_progress.Preload.PreloadEngine import BasePreloadEngine
 from sim_progress.Preload import SkillsQueue, PreloadDataClass, SkillNode
 from sim_progress.Report import report_to_log
 from sim_progress.data_struct import decibel_manager_instance
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sim_progress.Character import Character
 
 
 class ConfirmEngine(BasePreloadEngine):
@@ -27,7 +31,10 @@ class ConfirmEngine(BasePreloadEngine):
         for i in range(len(self.data.preload_action_list_before_confirm)):
             tuples = self.data.preload_action_list_before_confirm.pop()
             #  1、创建node
-            node = self.spawn_node_from_tag(tick, tuples)
+            node = self.spawn_node_from_tag(
+                tick, tuples, template_node_from_apl=apl_skill_node
+            )
+            print(node.skill_tag) if node.apl_unit is None else None
             #  2、可行性验证
             if self.validate_node_execution(node, tick):
                 # 3、内部数据交互
@@ -42,16 +49,24 @@ class ConfirmEngine(BasePreloadEngine):
             else:
                 pass
 
-    def spawn_node_from_tag(self, tick: int, tuples: tuple[str, bool, int]):
+    def spawn_node_from_tag(
+        self,
+        tick: int,
+        tuples: tuple[str, bool, int],
+        template_node_from_apl: SkillNode | None = None,
+    ):
         """通过skill_tag构造Node"""
         skill_tag = tuples[0]
         active_generation = tuples[1] if tuples[1] else False
+        if template_node_from_apl:
+            apl_unit = template_node_from_apl.apl_unit
         node = SkillsQueue.spawn_node(
             skill_tag,
             tick,
             self.data.skills,
             active_generation=active_generation,
             apl_priority=tuples[2],
+            apl_unit=apl_unit,
         )
         return node
 
@@ -73,6 +88,7 @@ class ConfirmEngine(BasePreloadEngine):
 
     def switch_char(self, this_node: SkillNode, char_data) -> None:
         name_box = self.data.name_box
+        old_name_box = name_box.copy()
         name_index = name_box.index(this_node.char_name)
         # 更改前台角色（切人逻辑）
         if name_index == 1:
@@ -84,8 +100,16 @@ class ConfirmEngine(BasePreloadEngine):
             name_switch = name_box.pop(0)
             name_box.append(name_switch)
         for char in char_data.char_obj_list:
+            char: "Character"
             if name_box[0] == char.NAME:
-                char.dynamic.on_field = True
+                if name_box[0] != old_name_box[0]:
+                    from sim_progress.data_struct import listener_manager_instance
+
+                    """在更新name_box的时候，将切人事件对所有监听器进行广播。"""
+                    listener_manager_instance.broadcast_event(
+                        char, switching_in_event=1
+                    )
+                    char.dynamic.on_field = True
             else:
                 char.dynamic.on_field = False
 

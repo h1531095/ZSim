@@ -459,6 +459,18 @@ class Buff:
             if timenow - self.dy.startticks >= self.ft.cd:
                 self.dy.ready = True
 
+    def is_ready(self, tick: int) -> bool:
+        """
+        用来判断buff是否可以被触发
+        """
+        if self.ft.cd == 0:
+            return True
+        else:
+            if tick - self.dy.startticks >= self.ft.cd:
+                return True
+            else:
+                return False
+
     def end(self, timenow, exist_buff_dict: dict):
         """
         用来执行buff的结束

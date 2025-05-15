@@ -12,7 +12,9 @@ class APLOperator:
             int, APLUnit
         ] = {}  # 用于装已经解析过的apl子条件实例。
         for unit_dict in all_apl_unit_list:
-            self.apl_unit_inventory[unit_dict["priority"]] = self.apl_unit_factory(unit_dict)
+            self.apl_unit_inventory[unit_dict["priority"]] = self.apl_unit_factory(
+                unit_dict
+            )
             # print(unit_dict["priority"], unit_dict)
 
     def spawn_next_action(self, tick):
@@ -23,7 +25,7 @@ class APLOperator:
                     self.found_char_dict, self.game_state, tick=tick
                 )
                 if not result:
-                    # if priority in [13]:
+                    # if priority in [4] and tick <= 1200:
                     #     print(
                     #         f"这次不通过的APL优先级为{priority}，内容为{apl_unit.result} 判定结果为：{result_box}"
                     #     )

@@ -58,6 +58,10 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
         if skill_node.skill.trigger_buff_level not in [2, 6]:
             return False
 
+        # 过滤掉无法触发决算的第一段强化E
+        if skill_node.skill_tag == "1291_E_EX_1":
+            return False
+
         # 过滤掉可能进入Buff循环的决算？？大概率不可能吧，决算能进BuffLoad那真的是见鬼了
         if skill_node.skill.labels is not None:
             if "totalize" in skill_node.skill.labels:
@@ -107,7 +111,7 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
             + min(600, max(rest_tick - 300, 0)) / 60 * 100
         )
         print(
-            f"决算触发了，触发源为{"大招" if self.record.active_signal == 6 else "强化E"}！本次决算结算的失衡时间为{rest_tick}，结算倍率为{ratio}，"
+            f"雨果使用{"大招" if self.record.active_signal == 6 else "强化E"}触发了决算！本次决算结算的失衡时间为{rest_tick/60:.2f}秒，结算倍率为{ratio:.2f}%，"
         ) if HUGO_REPORT else None
 
         """先处理Buff"""
