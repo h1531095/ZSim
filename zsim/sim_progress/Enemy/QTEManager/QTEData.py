@@ -186,7 +186,7 @@ class SingleQTE:
         if not _single_hit.proactive:  # 如果传进来的是一个非主动动作，也直接return
             return
 
-        """无论传进来的是哪一个hit的第一跳，都意味着响应了QTE"""
+        """无论传进来的是哪一个技能的第一跳，都意味着响应了QTE"""
         self.qte_triggered_times += 1
 
         if "QTE" not in _single_hit.skill_tag:
