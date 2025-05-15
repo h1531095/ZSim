@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 from sim_progress.data_struct import NodeStack
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from sim_progress.Preload import PreloadData
 
 class BasePreloadEngine(ABC):
     @abstractmethod
-    def __init__(self, data):
+    def __init__(self, data: "PreloadData"):
         self.data = data
         self.active_signal = False  # 用于记录当前引擎在当前tick是否运行过。
 
