@@ -1,10 +1,20 @@
 [build-system]
-requires = ["setuptools>=75.1.0", "wheel"]
+requires = ["setuptools>=75.1.0", "wheel>=0.41.2", "cx_Freeze>=6.15.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.cxfreeze]
+executables = [
+    {script = "zzz_simulator.py", base = "gui"}
+]
+
+[tool.cxfreeze.build_exe]
+excludes = ["tkinter", "unittest", "ipykernel", "pytest", "pyinstaller", "viztracer"]
+include_files = ["zsim", "docs"]
+
 
 [project]
 name = "zzz-simulator"
-version = "0.1.7a1"
+version = "0.1.7a2"
 description = "A simulator for ZZZ game"
 requires-python = ">=3.12"
 dependencies = [
@@ -31,19 +41,12 @@ default = true
 [project.scripts]
 zsim = "zsim.run:main"
 
-[tool.setuptools]
-packages = { find = { where = ["."], exclude = ["tests", "results", "logs"] } }
-
-[tool.setuptools.package-data]
-"*" = ["*.json", "*.csv", "*.toml", "*.md"]
-
-[tool.pytest.ini_options]
-pythonpath = ["./zsim/"]
-
 [dependency-groups]
 dev = [
+    "ipykernel>=6.29.5",
     "openpyxl>=3.1.5",
     "pyinstaller>=6.13.0",
     "pytest>=8.3.5",
     "viztracer>=1.0.3",
+    "cx-freeze>=6.15.0",
 ]

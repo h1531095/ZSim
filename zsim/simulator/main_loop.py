@@ -8,7 +8,8 @@ if TYPE_CHECKING:
 import gc
 
 from define import APL_MODE, ENEMY_ADJUST_ID, ENEMY_DIFFICULTY, ENEMY_INDEX_ID
-from sim_progress import Buff, Load, update_dynamic_bufflist
+from sim_progress import Buff, Load
+from sim_progress.Update.Update_Buff import update_dynamic_bufflist
 from sim_progress import ScheduledEvent as ScE
 from sim_progress.Character.skill_class import Skill
 from sim_progress.data_struct import ActionStack

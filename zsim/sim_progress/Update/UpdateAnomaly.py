@@ -1,8 +1,8 @@
 import importlib
 from copy import deepcopy
 from sim_progress.data_struct import decibel_manager_instance
-from sim_progress.AnomalyBar import AnomalyBar
-from sim_progress.AnomalyBar.CopyAnomalyForOutput import (
+from sim_progress.anomaly_bar import AnomalyBar
+from sim_progress.anomaly_bar.CopyAnomalyForOutput import (
     Disorder,
     NewAnomaly,
     PolarityDisorder,

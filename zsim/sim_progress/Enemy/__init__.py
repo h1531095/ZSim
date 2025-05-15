@@ -1,13 +1,19 @@
-from typing import Literal, Type
+from typing import Literal
 
+from sim_progress.anomaly_bar import (
+    PhysicalAnomaly,
+    FireAnomaly,
+    IceAnomaly,
+    ElectricAnomaly,
+    EtherAnomaly,
+    FrostAnomaly,
+)
 import numpy as np
 import pandas as pd
-
-from sim_progress.AnomalyBar import AnomalyBar
 from define import ENEMY_ADJUSTMENT_PATH, ENEMY_DATA_PATH
-from sim_progress import AnomalyBar
 from sim_progress.data_struct import SingleHit, decibel_manager_instance
 from sim_progress.Report import report_to_log
+from zsim.sim_progress.anomaly_bar.AnomalyBarClass import AnomalyBar
 
 from .EnemyAttack import EnemyAttackMethod
 from .EnemyUniqueMechanic import unique_mechanic_factory
@@ -169,12 +175,12 @@ class Enemy:
         }
 
         # enemy实例化的时候，6种异常积蓄条也随着一起实例化
-        self.frost_anomaly_bar = AnomalyBar.FrostAnomaly()
-        self.ice_anomaly_bar = AnomalyBar.IceAnomaly()
-        self.fire_anomaly_bar = AnomalyBar.FireAnomaly()
-        self.physical_anomaly_bar = AnomalyBar.PhysicalAnomaly()
-        self.ether_anomaly_bar = AnomalyBar.EtherAnomaly()
-        self.electric_anomaly_bar = AnomalyBar.ElectricAnomaly()
+        self.frost_anomaly_bar = FrostAnomaly()
+        self.ice_anomaly_bar = IceAnomaly()
+        self.fire_anomaly_bar = FireAnomaly()
+        self.physical_anomaly_bar = PhysicalAnomaly()
+        self.ether_anomaly_bar = EtherAnomaly()
+        self.electric_anomaly_bar = ElectricAnomaly()
         """
         由于在AnomalyBar的init中有一个update_anomaly函数，
         该函数可以根据传入new_snap_shot: tuple 的第0位的属性标号，
@@ -184,7 +190,7 @@ class Enemy:
         所以将其挪到Enemy的init中，这样，这个dict只在Enemy实例化时被创建一次，
         然后update_anomaly函数将通过enemy.anomaly_bars_dict来调出对应的anomaly_bars实例。
         """
-        self.anomaly_bars_dict: dict[int, AnomalyBar.AnomalyBar] = {
+        self.anomaly_bars_dict: dict[int, AnomalyBar] = {
             0: self.physical_anomaly_bar,
             1: self.fire_anomaly_bar,
             2: self.ice_anomaly_bar,
@@ -231,6 +237,7 @@ class Enemy:
         """更新失衡延长的时间，负责接收 Calculator 的 buff"""
         if self.__last_stun_increase_tick is None:
             self.__last_stun_increase_tick = increase_tick
+            self.stun_recovery_time += increase_tick
         else:
             if increase_tick >= self.__last_stun_increase_tick:
                 self.__last_stun_increase_tick = increase_tick
@@ -596,7 +603,7 @@ class Enemy:
             self.dynamic_debuff_list = []  # 用来装debuff的list
             self.dynamic_dot_list = []  # 用来装dot的list
             self.active_anomaly_bar_dict = {
-                number: AnomalyBar.AnomalyBar for number in range(6)
+                number: AnomalyBar for number in range(6)
             }  # 用来装激活属性异常的字典。
 
             self.stun_bar = 0  # 累计失衡条
@@ -665,7 +672,7 @@ class Enemy:
                 ]
             )
 
-        def get_active_anomaly(self) -> list[Type[AnomalyBar.AnomalyBar] | None]:
+        def get_active_anomaly(self) -> list[AnomalyBar | None]:
             if self.is_under_anomaly():
                 return [
                     _anomaly_bar

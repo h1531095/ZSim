@@ -78,7 +78,7 @@
         "Hugo": 0
     },
     "parallel_mode": {
-        "enabled": true,
+        "enabled": false,
         "adjust_char": 2,
         "adjust_sc": {
             "enabled": true,

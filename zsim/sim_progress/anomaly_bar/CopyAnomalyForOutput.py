@@ -1,5 +1,5 @@
 import uuid
-from sim_progress.AnomalyBar.AnomalyBarClass import AnomalyBar
+from .AnomalyBarClass import AnomalyBar
 
 
 class Disorder(AnomalyBar):

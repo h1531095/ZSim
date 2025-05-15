@@ -6,7 +6,7 @@ from sim_progress.Character.utils.filters import (
     _sp_update_data_filter,
 )
 from sim_progress.Character import Character
-from sim_progress.AnomalyBar.CopyAnomalyForOutput import NewAnomaly
+from sim_progress.anomaly_bar.CopyAnomalyForOutput import NewAnomaly
 from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
 
 

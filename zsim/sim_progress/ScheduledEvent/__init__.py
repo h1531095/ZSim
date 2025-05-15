@@ -1,6 +1,6 @@
 from sim_progress import Buff, Preload, Report
-from sim_progress.AnomalyBar import AnomalyBar as AnB
-from sim_progress.AnomalyBar.CopyAnomalyForOutput import (
+from sim_progress.anomaly_bar import AnomalyBar as AnB
+from sim_progress.anomaly_bar.CopyAnomalyForOutput import (
     Disorder,
     DirgeOfDestinyAnomaly as Abloom,
     PolarityDisorder,
