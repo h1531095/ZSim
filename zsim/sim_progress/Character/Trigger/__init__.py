@@ -1,6 +1,6 @@
 from sim_progress.Preload import SkillNode
 from sim_progress.Character.utils.filters import _skill_node_filter
-from sim_progress import Character
+from ..character import Character
 from .AfterShockManager import AfterShockManager
 
 

@@ -30,6 +30,7 @@ class ActionAPLUnit(APLUnit):
         super().__init__()
         self.char_CID = apl_unit_dict["CID"]
         self.priority = apl_unit_dict["priority"]
+        self.apl_unit_type = apl_unit_dict["type"]
         self.break_when_found_action = True
         self.result = apl_unit_dict["action"]
         for condition_str in apl_unit_dict["conditions"]:

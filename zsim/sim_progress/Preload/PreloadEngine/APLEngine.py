@@ -23,7 +23,7 @@ class APLEngine(BasePreloadEngine):
 
     def run_myself(self, tick) -> SkillNode | None:
         """APL模块运行的最终结果：技能名、最终通过的APL代码优先级"""
-        skill_tag, apl_priority = self.apl.execute(tick, mode=0)
+        skill_tag, apl_priority, apl_unit = self.apl.execute(tick, mode=0)
         if skill_tag == "wait":
             return None
         node = SkillsQueue.spawn_node(
@@ -32,6 +32,7 @@ class APLEngine(BasePreloadEngine):
             self.data.skills,
             active_generation=True,
             apl_priority=apl_priority,
+            apl_unit=apl_unit,
         )
         return node
 

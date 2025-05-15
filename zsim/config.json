@@ -12,7 +12,7 @@
         "crit_balancing": true
     },
     "enemy": {
-        "index_ID": 11414,
+        "index_ID": 11195,
         "adjust_ID": 22412,
         "difficulty": 8.74
     },
@@ -25,12 +25,15 @@
         "enemy_attack_action_data": "./zsim/data/enemy_attack_action.csv",
         "default_apl_dir": "./zsim/data/APLData",
         "custom_apl_dir": "./zsim/data/APLData/custom",
-        "Yanagi": "./zsim/data/DefaultConfig/1221.json"
+        "Yanagi": "./zsim/data/DefaultConfig/1221.json",
+        "Hugo": "./zsim/data/DefaultConfig/1291.json"
     },
     "swap_cancel_mode": {
         "enabled": true,
         "completion_coefficient": 0.3,
-        "lag_time": 20
+        "lag_time": 20,
+        "debug": false,
+        "debug_target_skill": "1161_NA_5_SH_EX"
     },
     "database": {
         "CHARACTER_DATA_PATH": "./zsim/data/character.csv",
@@ -69,7 +72,10 @@
     "char_report": {
         "Vivian": false,
         "AstraYao": false,
-        "Hugo": false
+        "Hugo": true
+    },
+    "na_mode_level": {
+        "Hugo": 0
     },
     "parallel_mode": {
         "enabled": false,

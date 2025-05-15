@@ -14,6 +14,7 @@ from sim_progress.data_struct import (
     SPUpdateData,
     QuickAssistEvent,
     SchedulePreload,
+    StunForcedTerminationEvent,
 )
 from sim_progress.Load.LoadDamageEvent import ProcessHitUpdateDots
 from sim_progress.Load.loading_mission import LoadingMission
@@ -90,10 +91,11 @@ class ScheduledEvent:
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
-
+            # 筛选出可处理的事件，并且按照优先级排序，然后开始遍历执行。
+            _processable_event_list = self.select_processable_event()
             # 其余事件挨个处理
-            for _ in range(len(self.data.event_list)):
-                event = self.data.event_list.pop(0)
+            for _ in range(len(_processable_event_list)):
+                event = _processable_event_list.pop(0)
                 # 添加buff
                 if isinstance(event, Buff.Buff):
                     raise NotImplementedError(
@@ -102,7 +104,6 @@ class ScheduledEvent:
                 elif isinstance(event, Preload.SkillNode | LoadingMission):
                     if event.preload_tick <= self.tick:
                         self.skill_event(event)
-                        # self.judge_required_info_dict["skill_node"] = event
                         """
                         在2025.4.14的更新中，在skill_event分支新增了下面这个函数，
                         这是经过改良后的新的更新异常条的节点。
@@ -122,19 +123,19 @@ class ScheduledEvent:
                             self.enemy.dynamic.dynamic_dot_list,
                             self.data.event_list,
                         )
+                    else:
+                        raise ValueError(
+                            f"event_start主循环正在尝试处理一个名为{event.skill_tag}的未来事件"
+                        )
                 elif isinstance(event, Abloom):
                     self.abloom_event(event)
-                    # self.judge_required_info_dict["abloom"] = event
                 elif isinstance(event, PolarityDisorder):
                     self.polarity_disorder_event(event)
-                    # self.judge_required_info_dict["polarity_disorder"] = event
                 elif isinstance(event, Disorder):
                     # print(f'检测到{event.element_type}属性的紊乱，快照为：{event.current_ndarray}')
                     self.disorder_event(event)
-                    # self.judge_required_info_dict["disorder"] = event
                 elif isinstance(event, AnB):
                     self.anomaly_event(event)
-                    # self.judge_required_info_dict["anb"] = event
                     ScheduleBuffSettle(
                         self.tick,
                         self.exist_buff_dict,
@@ -145,17 +146,18 @@ class ScheduledEvent:
                     )
                 elif isinstance(event, ScheduleRefreshData):
                     self.refresh_event(event)
-                    # self.judge_required_info_dict["refresh"] = event
                 elif isinstance(event, QuickAssistEvent):
                     self.quick_assist_event(event)
                 elif isinstance(event, SchedulePreload):
                     self.preload_event(event)
-                    # self.judge_required_info_dict["preload"] = event
+                elif isinstance(event, StunForcedTerminationEvent):
+                    self.stun_forced_termination_event(event)
                 else:
                     raise NotImplementedError(
                         f"{type(event)}，目前不应存在于 event_list"
                     )
-
+                # 代码运行到这一行意味着事件已经被处理完毕，所以要将其从event_list中删除
+                self.data.event_list.remove(event)
             # 计算过程中如果又有新的事件生成，则继续循环
             if self.data.event_list:
                 if not self.check_all_event():
@@ -165,18 +167,25 @@ class ScheduledEvent:
         """检查所有残留事件是否到期，只要有一个残留事件已经到期，直接返回False，激活递归。"""
         for event in self.data.event_list:
             # 获取事件类型对应的tick属性名
-            tick_attr = self.execute_tick_key_map.get(type(event), None)
-            if tick_attr is None:
-                """获取不到属性时，说明该event并不具备计划事件的需求，所以这种事件是必须在当前tick被清空的，直接返回False"""
-                return False
-            execute_tick = getattr(event, tick_attr, None)
+            execute_tick = self.get_executee_tick(event)
             if execute_tick is None:
-                raise AttributeError(f"{type(event)} 没有属性 {tick_attr}")
+                return False
             if execute_tick > self.tick:  # 严格大于当前tick才视为未到期
                 continue
             else:
                 return False
         return True
+
+    def get_executee_tick(self, event) -> int | None:
+        """获取事件的执行tick，获取不到则返回None"""
+        tick_attr = self.execute_tick_key_map.get(type(event), None)
+        if tick_attr is None:
+            """获取不到属性时，说明该event并不具备计划事件的需求，所以这种事件是必须在当前tick被清空的，直接返回None"""
+            return None
+        execute_tick = getattr(event, tick_attr, None)
+        if execute_tick is None:
+            raise AttributeError(f"{type(event)} 没有属性 {tick_attr}")
+        return execute_tick
 
     def update_anomaly_bar_after_skill_event(self, event):
         """在Schedule阶段，处理完一个SkillEvent后，都要进行一次异常条更新。"""
@@ -223,6 +232,10 @@ class ScheduledEvent:
         所以，直接调用loading_mission.hitted_count数量就可以获得当前正在被结算的Hit次数。"""
         should_update = False
         if not _node.skill.anomaly_update_rule:
+            if _node.loading_mission is None:
+                raise ValueError(
+                    f"技能{_node.skill_tag}没有loadimg_mission属性，该技能可能是强制添加的，并未通过Load阶段，所以错过了Loading_misssion的构造！请检查该技能的构造环节，以规避这一问题。"
+                )
             if self.tick - 1 < _node.loading_mission.get_last_hit() <= self.tick:
                 should_update = True
         else:
@@ -435,6 +448,32 @@ class ScheduledEvent:
             self.data.event_list.append(event)
             return
         event.execute_myself()
+
+    def stun_forced_termination_event(self, event: StunForcedTerminationEvent):
+        """用于处理被强制终止的异常事件的函数！"""
+        if self.tick < event.execute_tick:
+            # 发现现在处理还太早，塞回去。
+            self.data.event_list.append(event)
+            return
+        event.execute_myself()
+
+    def select_processable_event(self):
+        """筛选当前可执行的事件，并且按照优先级排序，获取不到优先级的默认为0，"""
+        _output_event_list = []
+        for _event in self.data.event_list:
+            execute_tick = self.get_executee_tick(_event)
+            if execute_tick is None or execute_tick <= self.tick:
+                """说明事件不存在execute_tick或已到期，需要被立刻执行。"""
+                schedule_priority = getattr(_event, "schedule_priority", 0)
+                # 使用bisect模块进行高效插入
+                import bisect
+
+                priorities = [
+                    getattr(e, "schedule_priority", 0) for e in _output_event_list
+                ]
+                insert_pos = bisect.bisect_right(priorities, schedule_priority)
+                _output_event_list.insert(insert_pos, _event)
+        return _output_event_list
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ class Buff:
     @staticmethod
     def create_new_from_existing(existing_instance):
         """
+        已经弃用。
         通过复制已有实例的状态来创建新实例
         该方法主要用于BuffAddStrategy函数。
         """
@@ -46,6 +47,8 @@ class Buff:
             self.logic = self.BuffLogic(self)
             self.history = self.BuffHistory()
             self.effect_dct = self.__lookup_buff_effect(self.ft.index)
+            self.feature_config = config
+            self.judge_config = judge_config
         else:
             self.history.active_times += 1
         # 调用特殊的逻辑加载函数
@@ -108,6 +111,7 @@ class Buff:
                     config_dict: dict = dict(meta_config)
                 except TypeError:
                     raise TypeError(f"{meta_config} is not a mapping")
+                self.buff = None
                 self.simple_judge_logic = config_dict[
                     "simple_judge_logic"
                 ]  # 复杂判断逻辑,
@@ -342,6 +346,7 @@ class Buff:
             cls.sjc_instance_cache[cache_key] = instance
 
         def __init__(self, judgeconfig):
+            self.buff = None
             self.id = judgeconfig["id"]
             self.oname = judgeconfig["OfficialName"]
             self.sp = judgeconfig["SpConsumption"]
@@ -381,6 +386,11 @@ class Buff:
             self.last_update_tick = 0
             self.last_update_resource = 0
             self.record = None
+
+    def __deepcopy__(self, memo):
+        new_obj = Buff(self.feature_config, self.judge_config)
+        memo[id(self)] = new_obj
+        return new_obj
 
     @property
     def durtation(self):
@@ -449,6 +459,18 @@ class Buff:
             if timenow - self.dy.startticks >= self.ft.cd:
                 self.dy.ready = True
 
+    def is_ready(self, tick: int) -> bool:
+        """
+        用来判断buff是否可以被触发
+        """
+        if self.ft.cd == 0:
+            return True
+        else:
+            if tick - self.dy.startticks >= self.ft.cd:
+                return True
+            else:
+                return False
+
     def end(self, timenow, exist_buff_dict: dict):
         """
         用来执行buff的结束
@@ -486,11 +508,24 @@ class Buff:
         no_start = kwargs.get("no_start", False)
         no_end = kwargs.get("no_end", False)
         no_count = kwargs.get("no_count", False)
+        specified_count = kwargs.get(
+            "specified_count", None
+        )  # 外部定制层数——层数不独立结算的Buff
         _simple_start_buff_0 = sub_exist_buff_dict[self.ft.index]
         individule_settled_count = kwargs.get("individule_settled_count", 0)
+        if no_count and any([individule_settled_count, specified_count]):
+            raise ValueError("在传入no_count参数时，同时传入了其他控制层数的参数。")
+        if specified_count and self.ft.individual_settled:
+            raise ValueError(
+                "企图使用specified_count参数来控制层数，但该buff不是层数独立结算的。"
+            )
         if individule_settled_count != 0 and not self.ft.individual_settled:
             raise ValueError(
                 f"对于层数不独立结算的{self.ft.index}，在调用simple_start函数时，不应传入individule_settled_count参数。"
+            )
+        if individule_settled_count and specified_count:
+            raise ValueError(
+                "同时传入了individule_settled_count和specified_count参数。"
             )
         if individule_settled_count == 0:
             individule_settled_count = 1
@@ -509,9 +544,13 @@ class Buff:
                     self.dy.built_in_buff_box.pop(0)
                 self.dy.count = len(self.dy.built_in_buff_box)
             else:
-                self.dy.count = min(
-                    _simple_start_buff_0.dy.count + self.ft.step, self.ft.maxcount
-                )
+                if specified_count:
+                    self.dy.count = specified_count
+                    # print(f"{self.ft.index}的层数被设定为{specified_count}")
+                else:
+                    self.dy.count = min(
+                        _simple_start_buff_0.dy.count + self.ft.step, self.ft.maxcount
+                    )
         self.dy.is_changed = True
         self.dy.ready = False
         self.update_to_buff_0(_simple_start_buff_0)

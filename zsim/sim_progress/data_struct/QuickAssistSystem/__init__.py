@@ -38,9 +38,11 @@ class QuickAssistSystem:
             if not self.quick_assist_manager_group[
                 skill_node.char_name
             ].quick_assist_available:
-                raise ValueError(
-                    f"在{skill_node.char_name}的快速支援没有亮起的情况下，打出了快速支援！"
-                )
+                if skill_node.char_name != "莱特":
+                    """这里需要放行莱特，因为莱特会自己触发快速支援。"""
+                    raise ValueError(
+                        f"在{skill_node.char_name}的快速支援没有亮起的情况下，打出了快速支援！"
+                    )
             self.answer_assist(tick, skill_node)
 
     def answer_assist(self, tick: int, skill_node):

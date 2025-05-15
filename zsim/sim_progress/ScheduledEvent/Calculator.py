@@ -209,6 +209,7 @@ class MultiplierData:
             self.field_sp_regen: float = 0.0
             self.field_sp_get_ratio: float = 0.0
             self.field_sp_limit: float = 0.0
+            self.extra_damage_ratio: float = 0.0  # 基础伤害倍率
 
             self.phy_crit_dmg_bonus: float = 0.0
             self.fire_crit_dmg_bonus: float = 0.0
@@ -383,11 +384,11 @@ class MultiplierData:
 
             self.all_disorder_basic_mul: float = 0.0
             self.strike_disorder_basic_mul: float = 0.0
-            self.burn_disorder_basic_mul:float = 0.0
+            self.burn_disorder_basic_mul: float = 0.0
             self.frostbite_disorder_basic_mul: float = 0.0
             self.shock_disorder_basic_mul: float = 0.0
             self.chaos_disorder_basic_mul: float = 0.0
-            
+
             self.disorder_basic_mul_map: dict[ElementType | str, float] = {
                 0: self.strike_disorder_basic_mul,
                 1: self.burn_disorder_basic_mul,
@@ -584,7 +585,7 @@ class Calculator:
                 )
             else:
                 assert False, INVALID_ELEMENT_ERROR
-            base_dmg = (dmg_ratio * attr) * (
+            base_dmg = ((dmg_ratio + data.dynamic.extra_damage_ratio) * attr) * (
                 1 + data.dynamic.base_dmg_increase_percentage
             ) + data.dynamic.base_dmg_increase
             return base_dmg
@@ -664,6 +665,10 @@ class Calculator:
                 + label_dmg_bonus
                 + data.dynamic.all_dmg_bonus
             )
+            # if "1291_CorePassive" in data.judge_node.skill_tag:
+            #     print(
+            #         f"元素类增伤：{element_dmg_bonus}, 技能类型增伤：{trigger_dmg_bonus}, 标签增伤：{label_dmg_bonus}, 全类型增伤：{data.dynamic.all_dmg_bonus}",
+            #     )
             return dmg_bonus
 
         @staticmethod
@@ -727,7 +732,7 @@ class Calculator:
             防御区 = 攻击方等级基数 / (受击方有效防御 + 攻击方等级基数)
 
             受击方有效防御 = 受击方防御 * (1 - 攻击方穿透率%) - 攻击方穿透值 ≥ 0
-            受击方防御 = (基础防御 * (1 + 战斗外防御%) + 战斗外固定防御) * (1 + 防御加成%) + 固定防御
+            受击方防御 = (基础防御 * (1 + 战斗外防御%) + 战斗外固定防御) * (1 + 防御加成% - 防御降低%) + 固定防御
             """
             attacker_level: int = data.char_level if data.char_level is not None else 1
             # 攻击方等级系数
@@ -761,6 +766,13 @@ class Calculator:
             effective_def: float = (
                 recipient_def * (1 - pen_ratio - addon_pen_ratio) - pen_numeric
             )
+            # if (
+            #     isinstance(data.judge_node, SkillNode)
+            #     and "1291_CorePassive" in data.judge_node.skill_tag
+            # ):
+            #     print(
+            #         f"百分比减防：{data.dynamic.percentage_def_reduction}, 固定减防： {data.dynamic.def_reduction}，穿透率：{pen_ratio}, 穿透值：{pen_numeric}, 有效防御：{effective_def}"
+            #     )
             return effective_def
 
         @staticmethod
@@ -1254,6 +1266,19 @@ class Calculator:
         """计算伤害期望"""
         multipliers: np.ndarray = self.regular_multipliers.get_array_expect()
         dmg_expect = np.prod(multipliers)
+        # if "1291_CorePassive" in self.skill_tag:
+        #     tag_list = [
+        #         "基础乘区",
+        #         "增伤区",
+        #         "双暴区",
+        #         "防御区",
+        #         "抗性区",
+        #         "易伤区",
+        #         "失衡易伤区",
+        #         "特殊乘区",
+        #     ]
+        #     for __tag, __value in zip(tag_list, multipliers):
+        #         print(f"{__tag}：{__value}")
         return dmg_expect
 
     def cal_dmg_crit(self) -> np.float64:

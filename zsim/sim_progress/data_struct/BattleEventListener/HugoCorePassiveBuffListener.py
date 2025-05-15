@@ -3,6 +3,7 @@ from .BaseListenerClass import BaseListener
 
 class HugoCorePassiveBuffListener(BaseListener):
     """这个监听器的作用是，尝试监听雨果致使怪物失衡的事件，并且触发一次核心被动Buff"""
+
     def __init__(self, listener_id: str = None):
         super().__init__(listener_id)
         self.buff_index = "Buff-角色-雨果-核心被动-暗渊回响"
@@ -12,21 +13,21 @@ class HugoCorePassiveBuffListener(BaseListener):
         if "stun_event" not in kwargs:
             return
         from sim_progress.data_struct import SingleHit
+
         if not isinstance(event, SingleHit):
             return
-        if '1291' not in event.skill_tag:
+        if "1291" not in event.skill_tag:
             return
         self.listener_active()
         from define import HUGO_REPORT
+
         if HUGO_REPORT:
-            print(f"雨果的失衡事件监听器监听到了雨果的技能{event.skill_tag}（{event.skill_node.skill.name}）使怪物陷入失衡状态，根据核心被动，触发一次【暗渊回响】Buff")
+            print(
+                f"雨果的失衡事件监听器监听到了雨果的技能{event.skill_tag}（{event.skill_node.skill.skill_text}）使怪物陷入失衡状态，根据核心被动，触发一次【暗渊回响】Buff"
+            )
 
     def listener_active(self):
+        """触发核心被动Buff，通过BuffAddStrategy来暴力添加Buff"""
         from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
-        buff_add_strategy(self.buff_index, benifit_list=['雨果'])
 
-
-
-
-
-
+        buff_add_strategy(self.buff_index, benifit_list=["雨果"])
