@@ -474,7 +474,7 @@ def process_parallel_result(rid: int | str) -> None:
                 key=f"selectbox_sub_dir_{rid}",
                 label_visibility="collapsed",
             )
-            selected_key = f"{rid}\{selected_sub_dir}"
+            selected_key = f"{rid}/{selected_sub_dir}"
 
         else:
             st.info("未找到有效的子进程结果目录。")
@@ -492,7 +492,7 @@ def process_parallel_result(rid: int | str) -> None:
                     """处理所有子进程的BUFF结果。"""
                     tasks = []
                     for sub_dir in sub_dirs:
-                        sub_rid = f"{rid}\{sub_dir}"
+                        sub_rid = f"{rid}/{sub_dir}"
                         tasks.append(_process_sub_buff(sub_rid))
                     await asyncio.gather(*tasks)
 

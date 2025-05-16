@@ -1,7 +1,58 @@
 import polars as pl
+import streamlit as st
 from define import ElementType
 
 
+@st.cache_data
+def _init_buff_effect_mapping() -> dict[str, str]:
+    """初始化BUFF效果映射关系"""
+    try:
+        df = pl.scan_csv("./zsim/data/buff_effect.csv")
+        mapping = df.collect().to_dict(as_series=False)
+        buff_effect_map: dict[str, str] = {}
+        for i in range(len(mapping["名称"])):
+            name = mapping["名称"][i]
+            effect_str = ""
+            # 动态的找键值对数量
+            max_key_index = 0
+            for col_name in mapping.keys():
+                if col_name.startswith("key"):
+                    try:
+                        index = int(col_name[3:])
+                        if index > max_key_index:
+                            max_key_index = index
+                    except ValueError:
+                        # 忽略不符合 keyN 格式的列名
+                        pass
+
+            for j in range(1, max_key_index + 1):
+                key_col = f"key{j}"
+                value_col = f"value{j}"
+                if key_col in mapping and value_col in mapping:
+                    key = mapping[key_col][i]
+                    value = mapping[value_col][i]
+                    if key and value is not None:
+                        try:
+                            effect_str += f"{key}: {float(value)}; "
+                        except ValueError:
+                            # Handle cases where value is not a valid float
+                            print(
+                                f"Warning: Could not convert value '{value}' to float for buff '{name}', key '{key}'. Skipping this effect."
+                            )
+                            continue
+            if effect_str:
+                # Remove trailing semicolon and space if present
+                buff_effect_map[name] = effect_str.rstrip("; ")
+        return buff_effect_map
+    except Exception as e:
+        print(f"Warning: Failed to load buff effect mapping: {e}")
+        return {}
+
+
+BUFF_EFFECT_MAPPING: dict[str, str] = _init_buff_effect_mapping()
+
+
+@st.cache_data
 def _init_skill_tag_mapping() -> dict[str, str]:
     """初始化技能标签映射关系"""
     try:
@@ -15,8 +66,8 @@ def _init_skill_tag_mapping() -> dict[str, str]:
             .to_dict(as_series=False)
         )
         return {
-            skill_tag: f"{skill_text if skill_text else ''}{f' - {INSTRUCTION}' if INSTRUCTION else ''}"
-            for skill_tag, skill_text, INSTRUCTION in zip(
+            _tag: f"{_text if _text else ''}{f' - {_instruction}' if _instruction else ''}"
+            for _tag, _text, _instruction in zip(
                 mapping["skill_tag"], mapping["skill_text"], mapping["INSTRUCTION"]
             )
         }
@@ -28,7 +79,7 @@ def _init_skill_tag_mapping() -> dict[str, str]:
 SKILL_TAG_MAPPING: dict[str, str] = _init_skill_tag_mapping()
 
 
-# 角色与CID映射表
+@st.cache_data
 def _init_char_mapping() -> dict[str, dict[str, str | int]]:
     """初始化角色CID和名称的映射关系"""
     try:
