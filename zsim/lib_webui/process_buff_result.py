@@ -9,6 +9,7 @@ import polars as pl
 import plotly.graph_objects as go
 import streamlit as st
 from define import results_dir
+from .constants import BUFF_EFFECT_MAPPING
 
 
 def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
@@ -29,9 +30,9 @@ def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
     buff_columns = [col for col in df.columns if col != "time_tick"]
 
     for buff_name in buff_columns:
-        # 筛选出当前BUFF列非空的行
-        buff_df = df.select(["time_tick", buff_name]).filter(
-            pl.col(buff_name).is_not_null()
+        # 将空值填充为0.0并筛选出来
+        buff_df = df.select(["time_tick", buff_name]).with_columns(
+            pl.col(buff_name).fill_null(0.0)
         )
 
         if buff_df.height == 0:
@@ -70,20 +71,27 @@ def _prepare_buff_timeline_data(df: pl.DataFrame) -> list[dict[str, Any]]:
 
         # 转换结果为字典列表
         for row in grouped.select(["Start", "Finish", "Value"]).iter_rows(named=True):
-            timeline_data.append(
-                {
-                    "Task": buff_name,
-                    "Start": int(row["Start"]),
-                    "Finish": int(row["Finish"]),
-                    "Value": row["Value"],
-                }
-            )
+            # 过滤掉 Value 为 null 的行
+            if row["Value"]:
+                timeline_data.append(
+                    {
+                        "Task": buff_name,
+                        "Start": int(row["Start"]),
+                        "Finish": int(row["Finish"]),
+                        "Value": row["Value"],
+                    }
+                )
 
     return timeline_data
 
 
 def _draw_buff_timeline_charts(all_buff_data: dict[str, list[dict[str, Any]]]) -> None:
-    """根据处理后的BUFF数据绘制多个时间线图表。"""
+    """根据处理后的BUFF数据绘制多个时间线图表。
+
+    Args:
+        all_buff_data (dict[str, list[dict[str, Any]]]): 包含BUFF时间线数据的字典，
+                                                        键为文件标识符，值为时间线数据列表。
+    """
     if not all_buff_data:
         st.warning("没有可用于绘制图表的BUFF数据。")
         return
@@ -93,19 +101,21 @@ def _draw_buff_timeline_charts(all_buff_data: dict[str, list[dict[str, Any]]]) -
             continue
 
         with st.expander(f"{file_key}"):
-            # Polars 处理后的数据已经是正确的类型，并且可以直接用于绘图
-            # Plotly 可以直接处理字典列表
-            df_timeline = pl.DataFrame(
-                buff_data
-            )  # 转换为 Polars DataFrame 以便后续操作
+            # Plotly 加载时直接获取 buff 效果映射关系
+            df_timeline = pl.DataFrame(buff_data).with_columns(
+                pl.col("Task")
+                .replace(BUFF_EFFECT_MAPPING, default=None)
+                .alias("Effect")
+            )
 
-            # 准备悬停文本 - 包含Value、Start和Finish信息
+            # 准备悬停文本 - 包含Value、Start、Finish 以及 Effect 信息
             df_timeline = df_timeline.with_columns(
                 pl.format(
-                    "层数: {} ({}~{})",
+                    "层数: {} ({}~{})\n每层效果: {}",
                     pl.col("Value"),
                     pl.col("Start"),
                     pl.col("Finish"),
+                    pl.col("Effect"),
                 ).alias("hover_text")
             )
             fig = go.Figure(
@@ -263,20 +273,7 @@ def show_buff_result(rid: int | str) -> None:
         all_buff_data = cached_data
     else:
         st.info("未找到缓存，正在处理BUFF日志文件...")
-        # 注意：Streamlit 本身不是异步框架，直接 await 会阻塞
-        # 需要在 Streamlit 环境中运行异步代码，通常使用 asyncio.run() 或类似机制
-        # 但这会阻塞 Streamlit 的执行线程。更好的方法是启动一个后台任务
-        # 或者，如果此函数总是在异步上下文中调用，则可以直接 await
-        # 假设此函数可能在同步上下文被调用，我们需要处理这种情况
-        try:
-            # 尝试获取或创建事件循环来运行异步函数
-            loop = asyncio.get_running_loop()
-            # 如果在异步环境，直接 await
-            all_buff_data = loop.run_until_complete(prepare_buff_data_and_cache(rid))
-        except RuntimeError:  # 没有正在运行的事件循环
-            # 在同步环境，需要创建一个新的事件循环来运行
-            all_buff_data = asyncio.run(prepare_buff_data_and_cache(rid))
-
+        all_buff_data = asyncio.run(prepare_buff_data_and_cache(rid))
         if all_buff_data is None:
             st.error("处理BUFF日志文件失败。")
             return
