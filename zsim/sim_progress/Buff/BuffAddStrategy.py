@@ -17,13 +17,16 @@ def _buff_filter(*args, **kwargs):
     return buff_name_list
 
 
-def buff_add_strategy(*args, **kwargs):
+def buff_add_strategy(
+    *added_buffs: str | Buff,
+    benifit_list: list[str] | None = None,
+    specified_count: int | None = None,
+):
     """
     这个函数是暴力添加buff用的，比如霜寒、畏缩等debuff，
     又比如核心被动强行添加buff的行为，都可以通过这个函数来实现。
     """
-    buff_name_list: list[str] = _buff_filter(*args, **kwargs)
-    benifit_list: list[str] | None = kwargs.get("benifit_list", None)
+    buff_name_list: list[str] = _buff_filter(*added_buffs)
     main_module = sys.modules["simulator.main_loop"]
     all_name_order_box = main_module.load_data.all_name_order_box
     # name_box = main_module.load_data.name_box
@@ -37,7 +40,7 @@ def buff_add_strategy(*args, **kwargs):
     是在Load阶段以外暴力互动DYNAMIC_BUFF_DICT的通用方式。
     """
     for buff_name in buff_name_list:
-        # 优化：直接访问 exist_buff_dict 中的内容，避免重复查找
+        # FIXME: 这里可能存在Bug，指定受益人（benifit_list）可能与自动查找的逻辑冲突。
         for char_name, sub_exist_buff_dict in exist_buff_dict.items():
             if buff_name in sub_exist_buff_dict:
                 copyed_buff = sub_exist_buff_dict[buff_name]
@@ -51,16 +54,25 @@ def buff_add_strategy(*args, **kwargs):
                         if benifit_list is None
                         else benifit_list
                     )
-                    # if buff_name == 'Buff-角色-苍角-核心被动-2':
-                    #     print(name_box_now, adding_buff_code, selected_characters)
                     for names in selected_characters:
-                        buff_new = Buff.create_new_from_existing(copyed_buff)
+                        from copy import deepcopy
+
+                        buff_new = deepcopy(copyed_buff)
+                        # buff_new = Buff.create_new_from_existing(copyed_buff)
                         if (
                             copyed_buff.ft.simple_start_logic
                             and buff_new.ft.simple_effect_logic
                         ):
-                            buff_new.simple_start(tick, sub_exist_buff_dict)
+                            if specified_count is not None:
+                                buff_new.simple_start(
+                                    tick,
+                                    sub_exist_buff_dict,
+                                    specified_count=specified_count,
+                                )
+                            else:
+                                buff_new.simple_start(tick, sub_exist_buff_dict)
                         elif not copyed_buff.ft.simple_start_logic:
+                            # print(buff_new.ft.index)
                             buff_new.logic.xstart(benifit=names)
                         elif not copyed_buff.ft.simple_effect_logic:
                             buff_new.logic.xeffect()
@@ -76,6 +88,7 @@ def buff_add_strategy(*args, **kwargs):
                         )
                         if buff_existing_check:
                             dynamic_buff_list.remove(buff_existing_check)
+                        # print(f'强制添加Buff函数执行，本次添加的Buff为：{buff_new.ft.index}，激活状态为：{buff_new.dy.active}，开始时间为：{buff_new.dy.startticks}，结束时间为：{buff_new.dy.endticks}，层数：{buff_new.dy.count}')
                         dynamic_buff_list.append(buff_new)
 
                         # 如果是敌人，更新动态 Debuff 列表

@@ -25,6 +25,7 @@ def check_preparation(buff_0, **kwargs):
     event_list = kwargs.get("event_list")
     trigger_buff_0 = kwargs.get("trigger_buff_0")
     preload_data = kwargs.get("preload_data")
+    char_obj_list = kwargs.get("char_obj_list")
 
     # 参数正确性检查
     if (
@@ -81,6 +82,9 @@ def check_preparation(buff_0, **kwargs):
     if preload_data:
         if record.preload_data is None:
             record.preload_data = find_preload_data()
+    if char_obj_list:
+        if record.char_obj_list is None:
+            record.char_obj_list = find_char_list()
 
 
 def trigger_buff_0_handler(record, trigger_buff_0):

@@ -54,7 +54,7 @@ def anomaly_effect_active(
         for debuff in bar.accompany_debuff:
             buff_add_strategy(debuff)
     if bar.accompany_dot:
-        new_dot = spawn_anomaly_dot(element_type, timenow, new_anomaly)
+        new_dot = spawn_anomaly_dot(element_type, timenow, bar=new_anomaly)
         if new_dot:
             for dots in enemy.dynamic.dynamic_dot_list[:]:
                 if dots.ft.index == new_dot.ft.index:

@@ -56,6 +56,9 @@ class AstraYaoCorePassiveAtkBonus(Buff.BuffLogic):
                 return
             # last_update_duration = self.record.update_info_box[benifit]["endticks"] - last_update_tick
             last_update_end_tick = self.record.update_info_box[benifit]["endticks"]
+            '''如果本次buff更新的受益者曾在很久之前被加过buff，但是buff早就掉了，那么就当成第一次触发处理。'''
+            if last_update_end_tick < tick:
+                last_update_end_tick = tick
             self.buff_instance.simple_start(
                 tick, self.record.sub_exist_buff_dict, no_start=1, no_count=1, no_end=1
             )
@@ -64,6 +67,9 @@ class AstraYaoCorePassiveAtkBonus(Buff.BuffLogic):
             self.buff_instance.dy.endticks = min(
                 last_update_end_tick + 1200, self.buff_instance.ft.maxduration + tick
             )
+            # if self.buff_instance.dy.startticks > self.buff_instance.dy.endticks:
+            #     print(self.buff_instance.dy.startticks, self.buff_instance.dy.endticks, benifit)
+            #     print(self.record.update_info_box[benifit])
         else:
             self.buff_instance.simple_start(
                 tick, self.record.sub_exist_buff_dict, no_count=1, no_end=1
@@ -72,6 +78,8 @@ class AstraYaoCorePassiveAtkBonus(Buff.BuffLogic):
                 tick + self.record.duration_added_per_active
             )
         self.buff_instance.dy.count = count
+        # if self.buff_instance.dy.startticks > self.buff_instance.dy.endticks:
+        #     print(self.buff_instance.dy.startticks, self.buff_instance.dy.endticks, benifit)
         self.record.update_info_box[benifit] = {
             "startticks": tick,
             "endticks": self.buff_instance.dy.endticks,

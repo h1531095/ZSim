@@ -1,3 +1,4 @@
+from typing import Self
 from sim_progress.Dot import Dot
 from dataclasses import dataclass
 import sys
@@ -30,5 +31,5 @@ class Ignite(Dot):
         if "柏妮思" in char_name_box:
             max_duration: int = 600 + 180
         else:
-            max_duration = 600
+            max_duration: int = 600
         max_effect_times = 30

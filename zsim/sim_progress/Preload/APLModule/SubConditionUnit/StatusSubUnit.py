@@ -136,13 +136,13 @@ class StatusSubUnit(BaseSubConditionUnit):
 
     HANDLE_MAP = {
         "stun": StunHandler,
-        "QTE_triggerable_times": QTETriggerableHandler,
-        "QTE_triggered_times": QTETriggeredHandler,
+        "QTE_triggerable_times": QTETriggerableHandler,  # 可连携次数
+        "QTE_triggered_times": QTETriggeredHandler,  # 已连携次数
         "anomaly_pct": AnomalyPctHandler,
         "lasting_node_tag": CharLastingNodeTagHandler,
         "lasting_node_tick": CharLastingNodeTickHandler,
         "on_field": CharOnFieldHandler,
-        "QTE_activation_available": QTEActivationAvailableHandler,
+        "QTE_activation_available": QTEActivationAvailableHandler,  # 彩色失衡状态
         "single_qte": SingleQTEHandler,
         "repeat_times": CharRepeatTimesHandler,
         "stun_pct": StunPctHandler,

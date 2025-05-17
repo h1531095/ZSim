@@ -181,8 +181,8 @@ class NodeStack:
 
     def get_on_field_node(self, tick_now: int):
         """
-        这个函数是NodeStack的内置方法，用来获取当前Stack中的前台技能。
-        在合轴模式中，想要获取当前的前台技能，需要进行分类讨论。
+        这个函数是NodeStack的内置方法，用来获取当前Stack中的前台技能
+        鉴于合轴模式中，各角色的技能情况比较复杂，所以这个函数返回的结果并不一定准确。
         1、当目前场上没有node时，返回None
         2、当目前场上只有1个ndoe时，无论这个node是什么类型，都返回该node
         3、当目前场上存在多个node时，应返回最新的那个主动动作的SkillNode

@@ -22,3 +22,17 @@ class YanagiNAManager(BaseNAManager):
         return (
             "1221_NA_1" if self.char.get_special_stats()["当前架势"] else "1221_SNA_1"
         )
+
+
+class HugoNAManager(BaseNAManager):
+    def __init__(self, char_obj, rule_inventory_dict: dict):
+        super().__init__(char_obj, rule_inventory_dict)
+        self.char = char_obj
+        self.na_rule_inventory = rule_inventory_dict
+        from define import HUGO_NA_MODE_LEVEL
+
+        self.RULE_MAP = {
+            "default": lambda: HUGO_NA_MODE_LEVEL == 0,
+            "balanced_mode": lambda: HUGO_NA_MODE_LEVEL == 1,
+            "perfection_mode": lambda: HUGO_NA_MODE_LEVEL == 2,
+        }

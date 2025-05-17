@@ -44,6 +44,8 @@ ENEMY_ATTACK_ACTION: str = _config["apl_mode"]["enemy_attack_action_data"]
 DEFAULT_APL_DIR: str = _config["apl_mode"]["default_apl_dir"]
 COSTOM_APL_DIR: str = _config["apl_mode"]["custom_apl_dir"]
 YANAGI_NA_ORDER: str = _config["apl_mode"]["Yanagi"]
+HUGO_NA_ORDER: str = _config["apl_mode"]["Hugo"]
+HUGO_NA_MODE_LEVEL: int = _config["na_mode_level"]["Hugo"]
 
 #: 合轴操作完成度系数->根据前一个技能帧数的某个比例来延后合轴
 SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT: float = _config["swap_cancel_mode"][
@@ -52,6 +54,8 @@ SWAP_CANCEL_MODE_COMPLETION_COEFFICIENT: float = _config["swap_cancel_mode"][
 
 #: 操作滞后系数->合轴操作延后的另一种迟滞方案，即固定值延后。
 SWAP_CANCEL_MODE_LAG_TIME: float = _config["swap_cancel_mode"]["lag_time"]
+SWAP_CANCEL_MODE_DEBUG: bool = _config["swap_cancel_mode"]["debug"]
+SWAP_CANCEL_DEBUG_TARGET_SKILL: str = _config["swap_cancel_mode"]["debug_target_skill"]
 CHARACTER_DATA_PATH: str = _config["database"]["CHARACTER_DATA_PATH"]
 WEAPON_DATA_PATH: str = _config["database"]["WEAPON_DATA_PATH"]
 EQUIP_2PC_DATA_PATH: str = _config["database"]["EQUIP_2PC_DATA_PATH"]

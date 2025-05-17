@@ -16,6 +16,7 @@ class SkillNode:
         skill: Skill.InitSkill,
         preload_tick: int,
         active_generation: bool = False,
+        apl_unit=None,
         **kwargs,
     ):
         """
@@ -27,6 +28,7 @@ class SkillNode:
         """
         with SkillNode._counter_lock:
             self.apl_priority: int = kwargs.get("apl_priority", 0)
+            self.apl_unit = apl_unit
             self.skill_tag: str = skill.skill_tag
             self.char_name: str = skill.char_name
             self.preload_tick: int = preload_tick
@@ -60,6 +62,7 @@ def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:
     """
     active_generation = kwargs.get("active_generation", False)
     apl_priority = kwargs.get("apl_priority", 0)
+    apl_unit = kwargs.get("apl_unit", None)
     for obj in skills:
         if tag in obj.skills_dict.keys():
             node = SkillNode(
@@ -67,6 +70,7 @@ def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:
                 preload_tick,
                 active_generation,
                 apl_priority=apl_priority,
+                apl_unit=apl_unit,
             )
             return node
     else:
