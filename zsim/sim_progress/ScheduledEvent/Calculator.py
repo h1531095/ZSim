@@ -806,31 +806,31 @@ class Calculator:
                 element_res = (
                     data.enemy_obj.PHY_damage_resistance
                     - data.dynamic.physical_dmg_res_decrease
-                    + data.dynamic.physical_res_pen_increase
+                    - data.dynamic.physical_res_pen_increase
                 )
             elif element_type == 1:
                 element_res = (
                     data.enemy_obj.FIRE_damage_resistance
                     - data.dynamic.fire_dmg_res_decrease
-                    + data.dynamic.fire_res_pen_increase
+                    - data.dynamic.fire_res_pen_increase
                 )
             elif element_type == 2 or element_type == 5:
                 element_res = (
                     data.enemy_obj.ICE_damage_resistance
                     - data.dynamic.ice_dmg_res_decrease
-                    + data.dynamic.ice_res_pen_increase
+                    - data.dynamic.ice_res_pen_increase
                 )
             elif element_type == 3:
                 element_res = (
                     data.enemy_obj.ELECTRIC_damage_resistance
                     - data.dynamic.electric_dmg_res_decrease
-                    + data.dynamic.electric_res_pen_increase
+                    - data.dynamic.electric_res_pen_increase
                 )
             elif element_type == 4:
                 element_res = (
                     data.enemy_obj.ETHER_damage_resistance
                     - data.dynamic.ether_dmg_res_decrease
-                    + data.dynamic.ether_res_pen_increase
+                    - data.dynamic.ether_res_pen_increase
                 )
             else:
                 assert False, INVALID_ELEMENT_ERROR
@@ -839,7 +839,7 @@ class Calculator:
                 - element_res
                 + data.dynamic.all_dmg_res_decrease
                 + data.dynamic.all_res_pen_increase
-                - snapshot_res_pen
+                + snapshot_res_pen
             )
             return res_mul
 
