@@ -55,6 +55,26 @@ class SkillNode:
         """获取当前skill_node的唯一ID，该ID在skill_node被构造时就已经确定"""
         return cls._instance_counter
 
+    def is_heavy_hit(self, tick: int) -> bool:
+        """判断当前技能是否为重击"""
+        if not self.skill.heavy_attack:
+            return False
+        tick_list = []
+        if self.skill.tick_list:
+            for hit_tick in self.skill.tick_list:
+                tick_key = self.preload_tick + hit_tick
+                tick_list.append(tick_key)
+        else:
+            time_step = (self.skill.ticks - 1) / (self.hit_times + 1)
+            for i in range(self.hit_times):
+                tick_key = self.preload_tick + time_step * (i + 1)
+                tick_list.append(tick_key)
+        last_hit = tick_list[-1]
+        if tick - 1 < last_hit <= tick:
+            return True
+        else:
+            return False
+
 
 def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:
     """

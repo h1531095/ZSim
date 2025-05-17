@@ -1,4 +1,4 @@
-﻿BuffName,id,OfficialName,From,SpConsumption,SpRecovery_hit,Sp_Threshold,FeverRecovery,ElementAbnormalAccumulation,SkillType,TriggerBuffLevel,ElementType,TimeCost,HitNumber,DmgRelated_Attributes,StunRelated_Attributes,Interruption_Resistance
+BuffName,id,OfficialName,From,SpConsumption,SpRecovery_hit,Sp_Threshold,FeverRecovery,ElementAbnormalAccumulation,SkillType,TriggerBuffLevel,ElementType,TimeCost,HitNumber,DmgRelated_Attributes,StunRelated_Attributes,Interruption_Resistance
 Buff-角色-艾莲-核心被动,,,,,,,,,,,2,,,,,
 Buff-角色-艾莲-额外能力,,,,,,,,,,0,2,,,,,
 Buff-武器-精1深海访客-冰伤,,,,,,,,,,,2,,,,,
@@ -585,7 +585,7 @@ Buff-角色-雨果-额外能力-决算招式增伤,,,,,,,,,,,,,,,,
 Buff-角色-雨果-额外能力-强化E回能触发器,,,,,,,,,,,,,,,,
 Buff-角色-雨果-1画-决算招式双暴增幅,,,,,,,,,,,,,,,,
 Buff-角色-雨果-2画-决算招式无视防御力,,,,,,,,,,,,,,,,
-Buff-角色-雨果-4画-蓄力射击减冰抗,,,,,,,,,,,,,,,,
+Buff-角色-雨果-4画-蓄力射击减冰抗,1291_SNA_2_FC|1291_SCA_FC|1291_NA_A_FC|1291_BH_Aid_A_FC|1291_SNA_2_NFC|1291_SCA|1291_NA_A|1291_BH_Aid_A,,,,,,,,,,,,,,,
 Buff-角色-雨果-6画-决算招式增伤,,,,,,,,,,,,,,,,
 Buff-武器-精1千面日陨-常驻暴伤,,,,,,,,,,,,,,,,
 Buff-武器-精2千面日陨-常驻暴伤,,,,,,,,,,,,,,,,

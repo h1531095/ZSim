@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sim_progress.Character import Character
-
+    from sim_progress.Preload.PreloadDataClass import PreloadData
 
 
 class ConfirmEngine(BasePreloadEngine):

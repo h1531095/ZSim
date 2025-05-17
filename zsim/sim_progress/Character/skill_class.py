@@ -512,7 +512,9 @@ class Skill:
                 3: chain_level,
                 4: core_level,
                 5: assist_level,
+                6: assist_level,  # 暂时过度一下，防止报错
             }
+            # FIXME：修复数据库中支援技skill_type的问题！
 
             if skill_type in skill_levels:
                 return skill_levels[skill_type]

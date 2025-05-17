@@ -65,7 +65,7 @@ def update_dynamic_bufflist(
                         charname, timetick, _.ft.index, _.dy.count, True, level=4
                     )
             else:
-                if timetick >= _.dy.endticks:
+                if timetick > _.dy.endticks:
                     # 层数不独立的buff，时间到点了就要结束。满足该条件的buff统一执行KickOut.
                     KickOutBuff(
                         DYNAMIC_BUFF_DICT,

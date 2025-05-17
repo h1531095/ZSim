@@ -554,6 +554,11 @@ class Buff:
         self.dy.is_changed = True
         self.dy.ready = False
         self.update_to_buff_0(_simple_start_buff_0)
+        # if (
+        #     self.ft.index == "Buff-角色-雨果-1画-决算招式双暴增幅"
+        #     or self.ft.index == "Buff-角色-雨果-2画-决算招式无视防御力"
+        # ):
+        #     print(f"{self.ft.index}触发了，层数为：{self.dy.count}")
 
     def individual_setteled_update(self, duration, timenow):
         """

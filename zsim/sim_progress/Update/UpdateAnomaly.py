@@ -90,9 +90,9 @@ def update_anomaly(
     bar.max_anomaly = getattr(
         enemy, f"max_anomaly_{enemy.trans_element_number_to_str[element_type]}"
     )
-    assert bar.max_anomaly is not None and bar.current_anomaly is not None, (
-        "当前异常值或最大异常值为None！"
-    )
+    assert (
+        bar.max_anomaly is not None and bar.current_anomaly is not None
+    ), "当前异常值或最大异常值为None！"
 
     if bar.current_anomaly >= bar.max_anomaly:
         bar.is_full = True
@@ -132,8 +132,9 @@ def update_anomaly(
                     """
                     if enemy.dynamic.frozen:
                         event_list.append(new_anomaly)
-                        # print(f'新的冰异常触发导致老碎冰直接结算')
+                        # print("新的冰异常触发导致老碎冰直接结算")
                     enemy.dynamic.frozen = True
+                    # print("触发了新的冰异常！")
                 else:
                     """
                     只要不是冰和烈霜异常，就直接向eventlist里面添加即可。
@@ -165,6 +166,7 @@ def update_anomaly(
 
                 if element_type in [2, 5]:
                     enemy.dynamic.frozen = True
+                    # print("触发了新的冰异常！")
 
                 # 旧的激活异常拿出来复制，变成disorder后，从enemy身上清空。
                 disorder = spawn_output(

@@ -1,8 +1,9 @@
 from .. import Dot
-
-# import Enemy
 from .loading_mission import LoadingMission
+# import Enemy
+
 from sim_progress.Report import report_to_log
+from sim_progress.Preload import SkillNode
 
 
 def SpawnDamageEvent(mission: LoadingMission | Dot.Dot, event_list: list):
@@ -65,24 +66,48 @@ def ProcessHitUpdateDots(timetick: int, dot_list: list, event_list: list):
                 dot.dy.effect_times += 1
 
 
-def ProcessFreezLikeDots(timetick: int, enemy, event_list: list):
+def ProcessFreezLikeDots(timetick: int, enemy, event_list: list, event):
     """
     所有碎冰类逻辑的dot都用此函数结算。
     """
     dot_list = enemy.dynamic.dynamic_dot_list
+    skill_tag: str
+    is_heavy_attack: bool
+    if isinstance(event, LoadingMission):
+        skill_tag = event.mission_tag
+        if not event.is_heavy_hit(timetick):
+            is_heavy_attack = False
+        else:
+            is_heavy_attack = True
+    elif isinstance(event, SkillNode):
+        skill_tag = event.skill_tag
+        if not event.is_heavy_hit(timetick):
+            is_heavy_attack = False
+        else:
+            is_heavy_attack = True
+    else:
+        raise TypeError(
+            f"ProcessFreezLikeDots函数接收到的{event}不是LoadingMission或是SkillNode类！"
+        )
+    if not is_heavy_attack:
+        if "1291_CorePassive" not in skill_tag:
+            return
     for dot in dot_list[:]:
         if not isinstance(dot, Dot.Dot):
             raise TypeError(f"{dot}不是Dot类！")
-        if dot.ft.effect_rules == 4:
-            dot.ready_judge(timetick)
-            if dot.dy.ready:
-                SpawnDamageEvent(dot, event_list)
-                dot.dy.ready = False
-                dot.dy.last_effect_ticks = timetick
-                dot.dy.effect_times += 1
-                dot_list.remove(dot)
-                enemy.dynamic.frozen = False
-                return True
+        if dot.ft.effect_rules != 4:
+            continue
+        dot.ready_judge(timetick)
+        if dot.dy.ready:
+            print(f"{skill_tag}结算了碎冰！")
+            SpawnDamageEvent(dot, event_list)
+            dot.dy.ready = False
+            dot.dy.last_effect_ticks = timetick
+            dot.dy.effect_times += 1
+            dot_list.remove(dot)
+            enemy.dynamic.frozen = False
+            return True
+
 
 
 def DamageEventJudge(

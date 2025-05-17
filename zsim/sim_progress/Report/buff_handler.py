@@ -12,7 +12,8 @@ def report_buff_to_queue(
 ):
     if DEBUG and DEBUG_LEVEL <= level:
         if all_match:
-            buffered_data[character_name][time_tick][buff_name] += buff_count
+            # 由于Buff的log录入总是在下个tick的开头，所以这里的time_tick要-1
+            buffered_data[character_name][time_tick - 1][buff_name] += buff_count
 
 
 # TODO：切换为 polars

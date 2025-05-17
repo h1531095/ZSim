@@ -16,7 +16,7 @@ from sim_progress.data_struct import (
     SchedulePreload,
     StunForcedTerminationEvent,
 )
-from sim_progress.Load.LoadDamageEvent import ProcessHitUpdateDots
+from sim_progress.Load.LoadDamageEvent import ProcessHitUpdateDots, ProcessFreezLikeDots
 from sim_progress.Load.loading_mission import LoadingMission
 from sim_progress.Preload import SkillNode
 from sim_progress.Update import update_anomaly
@@ -122,6 +122,12 @@ class ScheduledEvent:
                             self.tick,
                             self.enemy.dynamic.dynamic_dot_list,
                             self.data.event_list,
+                        )
+                        ProcessFreezLikeDots(
+                            timetick=self.tick,
+                            enemy=self.enemy,
+                            event_list=self.data.event_list,
+                            event=event,
                         )
                     else:
                         raise ValueError(

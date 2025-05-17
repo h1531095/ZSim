@@ -35,4 +35,5 @@ class HugoNAManager(BaseNAManager):
             "default": lambda: HUGO_NA_MODE_LEVEL == 0,
             "balanced_mode": lambda: HUGO_NA_MODE_LEVEL == 1,
             "perfection_mode": lambda: HUGO_NA_MODE_LEVEL == 2,
+            "only_full_charge_na": lambda: HUGO_NA_MODE_LEVEL == 3,
         }
