@@ -151,11 +151,11 @@ class Buff:
                 self.durationtype = config_dict[
                     "durationtype"
                 ]  # buff的持续时间类型,如果是True,就是有持续时间的,如果是False,就没有持续时间类型,属于瞬时buff.
-                self.maxduration = config_dict["maxduration"]  # buff最大持续时间
-                self.maxcount = config_dict["maxcount"]  # buff允许被叠加的最大层数
-                self.step = config_dict[
-                    "incrementalstep"
-                ]  # buff的自增步长,也可以理解为叠层事件发生时的叠层效率.
+                self.maxduration = int(config_dict["maxduration"])  # buff最大持续时间
+                self.maxcount = int(config_dict["maxcount"])  # buff允许被叠加的最大层数
+                self.step = int(
+                    config_dict["incrementalstep"]
+                )  # buff的自增步长,也可以理解为叠层事件发生时的叠层效率.
                 self.prejudge = config_dict[
                     "prejudge"
                 ]  # buff的抬手判定类型,True是攻击抬手时会产生判定；False则是不会产生判定
@@ -171,7 +171,7 @@ class Buff:
                 self.hitincrease = config_dict[
                     "hitincrease"
                 ]  # buff的层数增长类型,True就增长层数 = 命中次数,而False是增长层数为固定值,取决于step数据;
-                self.cd = config_dict["increaseCD"]  # buff的叠层内置CD
+                self.cd = int(config_dict["increaseCD"])  # buff的叠层内置CD
                 self.add_buff_to = config_dict["add_buff_to"]  # 记录了buff会被添加给谁?
                 self.is_debuff = config_dict[
                     "is_debuff"
@@ -279,6 +279,7 @@ class Buff:
             该buff虽然没有改变属性，但是无条件执行了update_to_buff_0，
             从而污染了源头数据。导致部分叠层、以及其他属性变更出现问题。
             """
+            self.effect_available_times = 0  # 剩余的生效次数
 
         def reset_myself(self):
             """更新Buff.dynamic"""

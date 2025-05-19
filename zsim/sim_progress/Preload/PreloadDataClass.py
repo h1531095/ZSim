@@ -52,7 +52,11 @@ class PreloadData:
                 and "additional_damage" in node.skill.labels
             ):
                 self.force_change_action(node)
+        if self.personal_node_stack[char_cid].is_empty():
+            from sim_progress.data_struct import listener_manager_instance
 
+            """检测角色的第一个动作抛出。"""
+            listener_manager_instance.broadcast_event(event=node, enter_battle_event=1)
         self.personal_node_stack[char_cid].push(node)
         if node.active_generation:
             self.latest_active_generation_node = node

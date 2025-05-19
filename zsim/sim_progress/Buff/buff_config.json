@@ -970,5 +970,145 @@
     "Buff-驱动盘-激素朋克-全局攻击力": {
         "module": ".BuffXLogic.HormonePunkAtkBonus",
         "class": "HormonePunkAtkBonus"
+    },
+    "Buff-武器-精1防暴者Ⅵ型-普攻增伤": {
+        "module": ".BuffXLogic.RiotSuppressorMarkVI",
+        "class": "RiotSuppressorMarkVI"
+    },
+    "Buff-武器-精2防暴者Ⅵ型-普攻增伤": {
+        "module": ".BuffXLogic.RiotSuppressorMarkVI",
+        "class": "RiotSuppressorMarkVI"
+    },
+    "Buff-武器-精3防暴者Ⅵ型-普攻增伤": {
+        "module": ".BuffXLogic.RiotSuppressorMarkVI",
+        "class": "RiotSuppressorMarkVI"
+    },
+    "Buff-武器-精4防暴者Ⅵ型-普攻增伤": {
+        "module": ".BuffXLogic.RiotSuppressorMarkVI",
+        "class": "RiotSuppressorMarkVI"
+    },
+    "Buff-武器-精5防暴者Ⅵ型-普攻增伤": {
+        "module": ".BuffXLogic.RiotSuppressorMarkVI",
+        "class": "RiotSuppressorMarkVI"
+    },
+    "Buff-武器-精1残心青囊-条件暴击率": {
+        "module": ".BuffXLogic.ZanshinHerbCase",
+        "class": "ZanshinHerbCase"
+    },
+    "Buff-武器-精2残心青囊-条件暴击率": {
+        "module": ".BuffXLogic.ZanshinHerbCase",
+        "class": "ZanshinHerbCase"
+    },
+    "Buff-武器-精3残心青囊-条件暴击率": {
+        "module": ".BuffXLogic.ZanshinHerbCase",
+        "class": "ZanshinHerbCase"
+    },
+    "Buff-武器-精4残心青囊-条件暴击率": {
+        "module": ".BuffXLogic.ZanshinHerbCase",
+        "class": "ZanshinHerbCase"
+    },
+    "Buff-武器-精5残心青囊-条件暴击率": {
+        "module": ".BuffXLogic.ZanshinHerbCase",
+        "class": "ZanshinHerbCase"
+    },
+    "Buff-武器-精1心弦夜响-无视火抗": {
+        "module": ".BuffXLogic.HeartstringNocturne",
+        "class": "HeartstringNocturne"
+    },
+    "Buff-武器-精2心弦夜响-无视火抗": {
+        "module": ".BuffXLogic.HeartstringNocturne",
+        "class": "HeartstringNocturne"
+    },
+    "Buff-武器-精3心弦夜响-无视火抗": {
+        "module": ".BuffXLogic.HeartstringNocturne",
+        "class": "HeartstringNocturne"
+    },
+    "Buff-武器-精4心弦夜响-无视火抗": {
+        "module": ".BuffXLogic.HeartstringNocturne",
+        "class": "HeartstringNocturne"
+    },
+    "Buff-武器-精5心弦夜响-无视火抗": {
+        "module": ".BuffXLogic.HeartstringNocturne",
+        "class": "HeartstringNocturne"
+    },
+    "Buff-武器-精1街头巨星-终结技增伤": {
+        "module": ".BuffXLogic.StreetSuperstar",
+        "class": "StreetSuperstar"
+    },
+    "Buff-武器-精2街头巨星-终结技增伤": {
+        "module": ".BuffXLogic.StreetSuperstar",
+        "class": "StreetSuperstar"
+    },
+    "Buff-武器-精3街头巨星-终结技增伤": {
+        "module": ".BuffXLogic.StreetSuperstar",
+        "class": "StreetSuperstar"
+    },
+    "Buff-武器-精4街头巨星-终结技增伤": {
+        "module": ".BuffXLogic.StreetSuperstar",
+        "class": "StreetSuperstar"
+    },
+    "Buff-武器-精5街头巨星-终结技增伤": {
+        "module": ".BuffXLogic.StreetSuperstar",
+        "class": "StreetSuperstar"
+    },
+    "Buff-武器-精1强音热望-额外攻击力加成": {
+        "module": ".BuffXLogic.MarcatoDesireAtkBonus",
+        "class": "MarcatoDesireAtkBonus"
+    },
+    "Buff-武器-精2强音热望-额外攻击力加成": {
+        "module": ".BuffXLogic.MarcatoDesireAtkBonus",
+        "class": "MarcatoDesireAtkBonus"
+    },
+    "Buff-武器-精3强音热望-额外攻击力加成": {
+        "module": ".BuffXLogic.MarcatoDesireAtkBonus",
+        "class": "MarcatoDesireAtkBonus"
+    },
+    "Buff-武器-精4强音热望-额外攻击力加成": {
+        "module": ".BuffXLogic.MarcatoDesireAtkBonus",
+        "class": "MarcatoDesireAtkBonus"
+    },
+    "Buff-武器-精5强音热望-额外攻击力加成": {
+        "module": ".BuffXLogic.MarcatoDesireAtkBonus",
+        "class": "MarcatoDesireAtkBonus"
+    },
+    "Buff-武器-精1加农转子-附加伤害触发器": {
+        "module": ".BuffXLogic.CannonRotor",
+        "class": "CannonRotor"
+    },
+    "Buff-武器-精2加农转子-附加伤害触发器": {
+        "module": ".BuffXLogic.CannonRotor",
+        "class": "CannonRotor"
+    },
+    "Buff-武器-精3加农转子-附加伤害触发器": {
+        "module": ".BuffXLogic.CannonRotor",
+        "class": "CannonRotor"
+    },
+    "Buff-武器-精4加农转子-附加伤害触发器": {
+        "module": ".BuffXLogic.CannonRotor",
+        "class": "CannonRotor"
+    },
+    "Buff-武器-精5加农转子-附加伤害触发器": {
+        "module": ".BuffXLogic.CannonRotor",
+        "class": "CannonRotor"
+    },
+    "Buff-武器-精1「月相」-朔-回能触发器": {
+        "module": ".BuffXLogic.LunarNoviluna",
+        "class": "LunarNoviluna"
+    },
+    "Buff-武器-精2「月相」-朔-回能触发器": {
+        "module": ".BuffXLogic.LunarNoviluna",
+        "class": "LunarNoviluna"
+    },
+    "Buff-武器-精3「月相」-朔-回能触发器": {
+        "module": ".BuffXLogic.LunarNoviluna",
+        "class": "LunarNoviluna"
+    },
+    "Buff-武器-精4「月相」-朔-回能触发器": {
+        "module": ".BuffXLogic.LunarNoviluna",
+        "class": "LunarNoviluna"
+    },
+    "Buff-武器-精5「月相」-朔-回能触发器": {
+        "module": ".BuffXLogic.LunarNoviluna",
+        "class": "LunarNoviluna"
     }
 }

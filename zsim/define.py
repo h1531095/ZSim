@@ -64,6 +64,8 @@ ENEMY_DATA_PATH: str = _config["database"]["ENEMY_DATA_PATH"]
 ENEMY_ADJUSTMENT_PATH: str = _config["database"]["ENEMY_ADJUSTMENT_PATH"]
 DEFAULT_SKILL_PATH: str = _config["database"]["DEFAULT_SKILL_PATH"]
 CRIT_BALANCING: bool = _config["character"]["crit_balancing"]
+BACK_ATTACK_RATE: bool = _config["character"]["back_attack_rate"]
+# FIXME：背击暂时用几率控制。
 DEBUG: bool = _config["debug"]["enabled"]
 DEBUG_LEVEL: int = _config["debug"]["level"]
 JUDGE_FILE_PATH: str = _config["database"]["JUDGE_FILE_PATH"]

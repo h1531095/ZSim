@@ -35,7 +35,7 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
         if self.equipper is None:
             self.equipper = JudgeTools.find_equipper("牺牲洁纯")
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["零号·安比"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:

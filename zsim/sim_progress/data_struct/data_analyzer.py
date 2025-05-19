@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Sequence
-
+from define import BACK_ATTACK_RATE
 from sim_progress.Report import report_to_log
 
 if TYPE_CHECKING:
@@ -108,7 +108,12 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
         bool: 如果buff标签与技能节点匹配则返回True，否则返回False
     """
     # 定义允许的标签类型
-    ALLOWED_LABELS = ["only_skill", "only_label"]
+    ALLOWED_LABELS = [
+        "only_skill",
+        "only_label",
+        "only_trigger_buff_level",
+        "only_back_attack",
+    ]
     # 获取buff的标签列表
     buff_labels: dict[str, list[str] | str] = buff.ft.label
     # 如果buff没有标签限制，则直接返回True
@@ -150,6 +155,18 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
                 #         return True
                 #     else:
                 #         print(skill_node.skill_tag, skill_labels, _sub_label, label_value)
+            elif label_key == "only_trigger_buff_level":
+                if skill_node.skill.trigger_buff_level in label_value:
+                    print(f"{buff.ft.index}对技能{skill_tag}成功生效！")
+                    return True
+            elif label_key == "only_back_attack":
+                from sim_progress.RandomNumberGenerator import RNG
+
+                rng = RNG()
+                seed = rng.r
+                seed = (seed / (2**63 - 1) + 1) / 2
+                if seed <= BACK_ATTACK_RATE:
+                    return True
     return False
 
 

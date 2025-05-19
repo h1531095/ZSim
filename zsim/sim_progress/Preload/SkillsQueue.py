@@ -44,6 +44,17 @@ class SkillNode:
             SkillNode._instance_counter += 1
             # 生成 UUID
             self.UUID = uuid.uuid4()
+            tick_list = []
+            if self.skill.tick_list:
+                for hit_tick in self.skill.tick_list:
+                    tick_key = self.preload_tick + hit_tick
+                    tick_list.append(tick_key)
+            else:
+                time_step = (self.skill.ticks - 1) / (self.hit_times + 1)
+                for i in range(self.hit_times):
+                    tick_key = self.preload_tick + time_step * (i + 1)
+                    tick_list.append(tick_key)
+            self.tick_list = tick_list
 
             self.loading_mission = None
 
@@ -59,21 +70,22 @@ class SkillNode:
         """判断当前技能是否为重击"""
         if not self.skill.heavy_attack:
             return False
-        tick_list = []
-        if self.skill.tick_list:
-            for hit_tick in self.skill.tick_list:
-                tick_key = self.preload_tick + hit_tick
-                tick_list.append(tick_key)
-        else:
-            time_step = (self.skill.ticks - 1) / (self.hit_times + 1)
-            for i in range(self.hit_times):
-                tick_key = self.preload_tick + time_step * (i + 1)
-                tick_list.append(tick_key)
-        last_hit = tick_list[-1]
+        last_hit = self.tick_list[-1]
+
         if tick - 1 < last_hit <= tick:
             return True
         else:
             return False
+
+    def is_hit_now(self, tick: int) -> bool:
+        """判断当前技能是否命中"""
+        for tick_key in self.tick_list:
+            if tick - 1 < tick_key <= tick:
+                return True
+            continue
+        else:
+            return False
+
 
 
 def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:

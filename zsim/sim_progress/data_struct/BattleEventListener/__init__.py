@@ -10,6 +10,8 @@ class ListenerManger:
         self.__listener_map: dict[str, str] = {
             "Hugo_1": "HugoCorePassiveBuffListener",
             "Hormone_Punk_1": "HormonePunkListener",
+            "Zenshin_Herb_Case_1": "ZanshinHerbCaseListener",
+            "Heartstring_Nocturne_1": "HeartstringNocturneListener",
         }
 
     def add_listener(self, listener: BaseListener):

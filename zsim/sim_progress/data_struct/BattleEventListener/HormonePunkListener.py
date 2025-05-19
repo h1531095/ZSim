@@ -10,7 +10,7 @@ class HormonePunkListener(BaseListener):
 
     def listening_event(self, event_obj, **kwargs):
         """监听到佩戴者的进场后，记录更新信号"""
-        if "switching_in_event" not in kwargs:
+        if "switching_in_event" not in kwargs and "enter_battle_event" not in kwargs:
             return
         from sim_progress.Character import Character
 

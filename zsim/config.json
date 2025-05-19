@@ -9,7 +9,8 @@
         "level": 4
     },
     "character": {
-        "crit_balancing": true
+        "crit_balancing": true,
+        "back_attack_rate": 1
     },
     "enemy": {
         "index_ID": 11195,
