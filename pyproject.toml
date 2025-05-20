@@ -38,6 +38,9 @@ dependencies = [
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true
 
+[tool.pytest.ini_options]
+pythonpath = ["./zsim/"]
+
 [project.scripts]
 zsim = "zsim.run:main"
 
