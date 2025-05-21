@@ -20,7 +20,7 @@ class APLParser:
             if file_path.endswith(".toml"):
                 import toml
 
-                with open(file_path, "r") as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     toml_dict: dict = toml.load(f)
                     # 如果存在apl_logic表的logic，返回其内容，否则返回空字符串
                     return toml_dict.get("apl_logic", {}).get("logic", "")
