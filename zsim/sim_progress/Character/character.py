@@ -16,7 +16,7 @@ from .skill_class import Skill, lookup_name_or_cid
 from .utils.filters import _skill_node_filter, _sp_update_data_filter
 
 if TYPE_CHECKING:
-    from simulator.dataclasses import ParallelConfig
+    from simulator.dataclasses import SimCfg
 
 
 class Character:
@@ -48,7 +48,7 @@ class Character:
         cinema=0,
         crit_balancing=True,  # 暴击配平开关，默认开
         *,
-        parallel_config: "ParallelConfig" | None = None,
+        sim_cfg: "SimCfg" | None = None,
     ):
         """
         调用时，会生成包含全部角色基础信息的对象，自动从数据库中查找全部信息
@@ -252,20 +252,28 @@ class Character:
         self._init_base_attribute(name)
         # fmt: off
         # 如果并行配置没有移除套装，就初始化套装效果和主副词条
-        if parallel_config is not None:
-            if not parallel_config.remove_equip:
+        if sim_cfg is not None:
+            if sim_cfg.func == "attr_curve":
+                if not sim_cfg.remove_equip:
+                    self.__init_all_equip_static(drive4, drive5, drive6, 
+                                                equip_set2_a, equip_set2_b, equip_set2_c, equip_set4, equip_style, 
+                                                scATK, scATK_percent, scAnomalyProficiency, scCRIT, 
+                                                scCRIT_DMG, scDEF, scDEF_percent, scHP, scHP_percent, scPEN)
+                self.__init_attr_curve_config(sim_cfg)
+                self._init_weapon_primitive(weapon, weapon_level)
+            elif sim_cfg.func == "weapon":
                 self.__init_all_equip_static(drive4, drive5, drive6, 
-                                             equip_set2_a, equip_set2_b, equip_set2_c, equip_set4, equip_style, 
-                                             scATK, scATK_percent, scAnomalyProficiency, scCRIT, 
-                                             scCRIT_DMG, scDEF, scDEF_percent, scHP, scHP_percent, scPEN)
-            self.__init_parallel_config(parallel_config)
+                                         equip_set2_a, equip_set2_b, equip_set2_c, equip_set4, equip_style, 
+                                         scATK, scATK_percent, scAnomalyProficiency, scCRIT, 
+                                         scCRIT_DMG, scDEF, scDEF_percent, scHP, scHP_percent, scPEN)
+                self._init_weapon_primitive(sim_cfg.weapon_name, sim_cfg.weapon_level)  # 覆盖武器基础属性
         else:
             self.__init_all_equip_static(drive4, drive5, drive6, 
                                          equip_set2_a, equip_set2_b, equip_set2_c, equip_set4, equip_style, 
                                          scATK, scATK_percent, scAnomalyProficiency, scCRIT, 
                                          scCRIT_DMG, scDEF, scDEF_percent, scHP, scHP_percent, scPEN)
-        # 初始化武器基础属性    .\data\weapon.csv
-        self._init_weapon_primitive(weapon, weapon_level)
+            # 初始化武器基础属性    .\data\weapon.csv
+            self._init_weapon_primitive(weapon, weapon_level)
 
         self.additional_abililty_active: bool | None = None     # 角色是否激活组队被动，该参数将在Buff模块初始化完成后进行赋值
 
@@ -809,7 +817,7 @@ class Character:
         if SP_REGEN is not None:
             self.sp_regen_percent = SP_REGEN * SUB_STATS_MAPPING["SP_REGEN"]
 
-    def __init_parallel_config(self, parallel_config: "ParallelConfig"):
+    def __init_attr_curve_config(self, parallel_config: "SimCfg"):
         ALLOW_SC_LIST: list[str] = SUB_STATS_MAPPING.keys()
         sc_name, sc_value = parallel_config.sc_name, parallel_config.sc_value
         if sc_name in ALLOW_SC_LIST:

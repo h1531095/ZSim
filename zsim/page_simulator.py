@@ -7,7 +7,7 @@ from typing import Literal
 import psutil
 import streamlit as st
 from define import saved_char_config
-from lib_webui.constants import stats_trans_mapping
+from lib_webui.constants import stats_trans_mapping, weapon_options
 from lib_webui.process_char_config import dialog_character_panels
 from lib_webui.process_simulator import (
     apl_selecter,
@@ -165,9 +165,17 @@ def page_simulator():
                     )
                     # 模拟功能
                     # TODO 添加额外功能后这里需要default_function
+                    # Determine the default selected function based on config
+                    default_function_index = 0 # Default to the first function
+                    if parallel_cfg["adjust_sc"]["enabled"]:
+                        default_function_index = SIMULATION_FUNCTIONS.index("属性收益曲线")
+                    elif parallel_cfg["adjust_weapon"]["enabled"]:
+                        default_function_index = SIMULATION_FUNCTIONS.index("音擎伤害期望对比")
+
                     selected_func = st.radio(
                         "模拟功能",
                         SIMULATION_FUNCTIONS,
+                        index=default_function_index,
                         help="选择模拟功能",
                         horizontal=True,
                     )
@@ -215,6 +223,43 @@ def page_simulator():
                             remove_equip_list = list(
                                 key for key, value in tmp_dict.items() if value
                             )
+                    elif selected_func == SIMULATION_FUNCTIONS[1]: # 音擎伤害期望对比
+                        st.write(
+                            '<p style="color: gray;">对比不同音擎的伤害期望</p>',
+                            unsafe_allow_html=True,
+                        )
+                        # 模拟武器列表
+                        default_weapon_list_cfg = parallel_cfg["adjust_weapon"]["weapon_list"]
+                        
+                        # Use a list of selectboxes and number inputs for weapon and level
+                        weapon_configs = []
+                        st.write("模拟音擎及等级")
+                        num_weapons = st.number_input("音擎数量", min_value=0, value=len(default_weapon_list_cfg), step=1)
+
+                        for i in range(num_weapons):
+                            col_weapon, col_level = st.columns([3, 1])
+                            with col_weapon:
+                                default_weapon_name = default_weapon_list_cfg[i]["name"] if i < len(default_weapon_list_cfg) and "name" in default_weapon_list_cfg[i] else weapon_options[0]
+                                selected_weapon = st.selectbox(
+                                    f"音擎 {i+1}",
+                                    weapon_options,
+                                    index=weapon_options.index(default_weapon_name) if default_weapon_name in weapon_options else 0,
+                                    key=f"weapon_select_{i}",
+                                    label_visibility="collapsed"
+                                )
+                            with col_level:
+                                default_weapon_level = default_weapon_list_cfg[i]["level"] if i < len(default_weapon_list_cfg) and "level" in default_weapon_list_cfg[i] else 1
+                                selected_level = st.number_input(
+                                    f"等级 {i+1}",
+                                    min_value=1,
+                                    max_value=5,
+                                    value=default_weapon_level,
+                                    step=1,
+                                    key=f"weapon_level_{i}",
+                                    label_visibility="collapsed"
+                                )
+                            weapon_configs.append({"name": selected_weapon, "level": selected_level})
+
                     else:
                         st.error("此功能暂未实现")
 
@@ -234,16 +279,30 @@ def page_simulator():
                                     "sc_list": sc_list,
                                     "remove_equip_list": remove_equip_list,
                                 }
+                                config["parallel_mode"]["adjust_weapon"] = {
+                                    "enabled": False,
+                                    "weapon_list": DEFAULT_WEAPON_LIST,
+                                }
+                            elif selected_func == SIMULATION_FUNCTIONS[1]: # 音擎伤害期望对比
+                                config["parallel_mode"]["adjust_sc"] = {
+                                    "enabled": False,
+                                    "sc_range": list(DEFAULT_SC_RANGE),
+                                    "sc_list": DEFAULT_SC_LIST,
+                                }
+                                config["parallel_mode"]["adjust_weapon"] = {
+                                    "enabled": True,
+                                    "weapon_list": weapon_configs, # Save the list of dictionaries
+                                }
                             else:
                                 config["parallel_mode"]["adjust_sc"] = {
                                     "enabled": False,
                                     "sc_range": list(DEFAULT_SC_RANGE),
                                     "sc_list": DEFAULT_SC_LIST,
                                 }
-                            config["parallel_mode"]["adjust_weapon"] = {
-                                "enabled": False,
-                                "weapon_list": DEFAULT_WEAPON_LIST,
-                            }
+                                config["parallel_mode"]["adjust_weapon"] = {
+                                    "enabled": False,
+                                    "weapon_list": DEFAULT_WEAPON_LIST,
+                                }
                             f.seek(0)
                             json.dump(config, f, indent=4)
                             f.truncate()
@@ -255,7 +314,7 @@ def page_simulator():
                             f.seek(0)
                             json.dump(config, f, indent=4)
                             f.truncate()
-                    st.rerun(scope="fragment")
+                    st.rerun()
 
             if st.button(
                 "模拟器配置",

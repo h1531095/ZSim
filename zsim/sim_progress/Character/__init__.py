@@ -50,7 +50,7 @@ def character_factory(
     cinema=0,
     crit_balancing=True,  # 暴击配平开关，默认开
     *,
-    parallel_config=None,
+    sim_cfg=None,
 ) -> Character:
     name, CID = lookup_name_or_cid(name, CID)
     char_init_args = {
@@ -79,7 +79,7 @@ def character_factory(
         "sp_limit": sp_limit,
         "cinema": cinema,
         "crit_balancing": crit_balancing,
-        "parallel_config": parallel_config,
+        "sim_cfg": sim_cfg,
     }
     if name in __char_module_map:
         module_name = __char_module_map[name]

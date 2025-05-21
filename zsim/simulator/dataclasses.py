@@ -1,16 +1,19 @@
 from dataclasses import dataclass, field
-from sim_progress.Enemy import Enemy
+
 from define import saved_char_config
-from pydantic import BaseModel
 from sim_progress import Buff
+from sim_progress.Buff.Buff0Manager import Buff0ManagerClass, change_name_box
 from sim_progress.Character import Character, character_factory
 from sim_progress.data_struct import ActionStack
-from sim_progress.Buff.Buff0Manager import Buff0ManagerClass, change_name_box
+from sim_progress.Enemy import Enemy
+
+from .config_classes import SimulationConfig as SimCfg
 
 
 @dataclass
 class InitData:
-    def __init__(self):
+    def __init__(self, sim_cfg: SimCfg | None = None):
+        self.sim_cfg = sim_cfg
         """
         初始化角色配置数据。
 
@@ -30,6 +33,18 @@ class InitData:
             self.char_2 = config[self.name_box[2]]
         except KeyError as e:
             assert False, f"Missing key in character init configuration: {e}"
+
+        # 根据sim_cfg调整武器配置
+        if self.sim_cfg is not None and self.sim_cfg.func == "weapon":
+            adjust_char_index = (
+                self.sim_cfg.adjust_char - 1
+            )  # UI从1开始计数，这里需要转换为0开始的索引
+            if 0 <= adjust_char_index < len(self.name_box):
+                char_dict_to_adjust = getattr(self, f"char_{adjust_char_index}")
+
+                # 更新武器名称和精炼等级
+                char_dict_to_adjust["weapon"] = self.sim_cfg.weapon_name
+                char_dict_to_adjust["weapon_level"] = self.sim_cfg.weapon_level
 
         for name in self.name_box:
             char = getattr(self, f"char_{self.name_box.index(name)}")
@@ -61,7 +76,7 @@ class InitData:
 class CharacterData:
     char_obj_list: list[Character] = field(init=False)
     init_data: InitData
-    parallel_config: "ParallelConfig"
+    sim_cfg: SimCfg | None
 
     def __post_init__(self):
         self.char_obj_list = []
@@ -70,10 +85,9 @@ class CharacterData:
             for _ in self.init_data.name_box:
                 char_dict = getattr(self.init_data, f"char_{i}")
                 if (
-                    self.parallel_config is not None
-                    and self.parallel_config.adjust_char == i + 1
+                    self.sim_cfg is not None and self.sim_cfg.adjust_char == i + 1
                 ):  # UI那边不是从0开始数数的
-                    char_dict["parallel_config"] = self.parallel_config
+                    char_dict["sim_cfg"] = self.sim_cfg
                 char_obj: Character = character_factory(**char_dict)
                 self.char_obj_list.append(char_obj)
                 i += 1
@@ -164,21 +178,3 @@ class GlobalStats:
     def reset_myself(self, name_box):
         for name in self.name_box + ["enemy"]:
             self.DYNAMIC_BUFF_DICT[name] = []
-
-
-class ParallelConfig(BaseModel):
-    """并行模式下，作为子进程与主进程交互的参数
-
-    Attributes:
-        adjust_char: 调整的角色 (接受: [1, 2, 3]) 表示角色站位
-        sc_name: 调整的词条 (各种都行)
-        sc_value: 将词条值调整为 sc_value
-        run_turn_uuid: 运行的轮次 uuid, 由主进程分配
-        remove_equipt: 是否移除主词条、副词条
-    """
-
-    adjust_char: int | None
-    sc_name: str | None
-    sc_value: int | None
-    run_turn_uuid: str | None
-    remove_equip: bool | None

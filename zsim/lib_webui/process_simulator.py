@@ -4,7 +4,7 @@ from typing import Iterator
 import streamlit as st
 from define import CONFIG_PATH
 from lib_webui.process_apl_editor import APLArchive, APLJudgeTool
-from run import MainArgs
+from run import SimCfg
 
 from .constants import stats_trans_mapping
 
@@ -13,7 +13,7 @@ def generate_parallel_args(
     stop_tick: int,
     parallel_cfg: dict,
     run_turn_uuid: str,
-) -> Iterator[MainArgs]:
+) -> Iterator[SimCfg]:
     """生成用于并行模拟的参数。
 
     Args:
@@ -24,27 +24,51 @@ def generate_parallel_args(
     Yields:
         MainArgs: 为每个模拟任务生成的参数对象。
     """
-    adjust_sc_cfg = parallel_cfg["adjust_sc"]
-    sc_list = adjust_sc_cfg["sc_list"]
-    sc_range_start, sc_range_end = adjust_sc_cfg["sc_range"]
-    remove_equip_list = adjust_sc_cfg.get(
-        "remove_equip_list", []
-    )  # 获取需要移除装备的词条列表，如果不存在则为空列表
-    for sc_name in sc_list:
-        for sc_value in range(sc_range_start, sc_range_end + 1):
-            args = MainArgs()
+    # Determine the function based on enabled flags
+    func = None
+    if parallel_cfg.get("adjust_sc", {}).get("enabled", False):
+        func = "attr_curve"
+    elif parallel_cfg.get("adjust_weapon", {}).get("enabled", False):
+        func = "weapon"
+
+    if func == "attr_curve":
+        adjust_sc_cfg = parallel_cfg["adjust_sc"]
+        sc_list = adjust_sc_cfg["sc_list"]
+        sc_range_start, sc_range_end = adjust_sc_cfg["sc_range"]
+        remove_equip_list = adjust_sc_cfg.get(
+            "remove_equip_list", []
+        )  # 获取需要移除装备的词条列表，如果不存在则为空列表
+        for sc_name in sc_list:
+            for sc_value in range(sc_range_start, sc_range_end + 1):
+                args = SimCfg()
+                args.stop_tick = stop_tick
+                args.mode = "parallel"
+                args.func = func
+                args.adjust_char = parallel_cfg["adjust_char"]
+                args.sc_name = stats_trans_mapping[sc_name]
+                args.sc_value = sc_value
+                args.run_turn_uuid = run_turn_uuid
+                # 检查当前 sc_name 是否在 remove_equip_list 中
+                if sc_name in remove_equip_list:
+                    args.remove_equip = True
+                else:
+                    args.remove_equip = False
+                yield args
+    elif func == "weapon":
+        adjust_weapon_cfg = parallel_cfg["adjust_weapon"]
+        weapon_list = adjust_weapon_cfg["weapon_list"]
+        for weapon in weapon_list:
+            args = SimCfg()
             args.stop_tick = stop_tick
             args.mode = "parallel"
-            args.adjust_char = parallel_cfg["adjust_char"]  # 添加调整角色参数
-            args.sc_name = stats_trans_mapping[sc_name]
-            args.sc_value = sc_value
-            args.run_turn_uuid = run_turn_uuid  # 设置统一的UUID
-            # 检查当前 sc_name 是否在 remove_equip_list 中
-            if sc_name in remove_equip_list:
-                args.remove_equip = True
-            else:
-                args.remove_equip = False  # 默认不移除装备
+            args.func = func
+            args.adjust_char = parallel_cfg["adjust_char"]
+            args.weapon_name = weapon["name"]
+            args.weapon_level = weapon["level"]
+            args.run_turn_uuid = run_turn_uuid
             yield args
+    else:
+        raise ValueError(f"Unknown func: {func}, full cfg: {parallel_cfg}")
 
 
 def apl_selecter():

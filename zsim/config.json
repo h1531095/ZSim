@@ -79,24 +79,44 @@
         "Hugo": 3
     },
     "parallel_mode": {
-        "enabled": false,
-        "adjust_char": 2,
+        "enabled": true,
+        "adjust_char": 1,
         "adjust_sc": {
-            "enabled": true,
+            "enabled": false,
             "sc_range": [
                 0,
-                4
+                50
             ],
-            "sc_list": [
-                "\u5f02\u5e38\u7cbe\u901a"
-            ],
-            "remove_equip_list": [
-                "\u5f02\u5e38\u7cbe\u901a"
-            ]
+            "sc_list": []
         },
         "adjust_weapon": {
-            "enabled": false,
-            "weapon_list": []
+            "enabled": true,
+            "weapon_list": [
+                {
+                    "name": "\u89e6\u7535\u5507\u5f69",
+                    "level": 1
+                },
+                {
+                    "name": "\u89e6\u7535\u5507\u5f69",
+                    "level": 5
+                },
+                {
+                    "name": "\u98de\u9e1f\u661f\u68a6",
+                    "level": 1
+                },
+                {
+                    "name": "\u98de\u9e1f\u661f\u68a6",
+                    "level": 5
+                },
+                {
+                    "name": "\u5d4c\u5408\u7f16\u8bd1\u5668",
+                    "level": 1
+                },
+                {
+                    "name": "\u5d4c\u5408\u7f16\u8bd1\u5668",
+                    "level": 5
+                }
+            ]
         }
     }
 }

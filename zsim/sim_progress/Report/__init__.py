@@ -18,10 +18,10 @@ __event_loop = None  # 存储事件循环的引用
 
 
 if TYPE_CHECKING:
-    from zsim.simulator.dataclasses import ParallelConfig
+    from zsim.simulator.dataclasses import SimCfg
 
 
-def regen_result_id(parallel_config: "ParallelConfig | None") -> None:
+def regen_result_id(sim_cfg: "SimCfg | None") -> None:
     """
     根据运行模式生成结果ID并处理相关文件。
 
@@ -41,16 +41,19 @@ def regen_result_id(parallel_config: "ParallelConfig | None") -> None:
     """
     global __result_id
 
-    if parallel_config is not None:
-        # 并行模式：使用 run_turn_uuid, sc_name 和 sc_value 组合作为 ID
-        __result_id = f"./results/{parallel_config.run_turn_uuid}/{parallel_config.sc_name}_{parallel_config.sc_value}"
+    if sim_cfg is not None:
+        # 并行模式：func + 配置列表作为id
+        if sim_cfg.func == 'attr_curve':
+            __result_id = f"./results/{sim_cfg.run_turn_uuid}/{sim_cfg.func}_{sim_cfg.sc_name}_{sim_cfg.sc_value}"
+        elif sim_cfg.func == 'weapon':
+            __result_id = f"./results/{sim_cfg.run_turn_uuid}/{sim_cfg.func}_{sim_cfg.weapon_name}_{sim_cfg.weapon_level}"
         # 创建结果目录
         os.makedirs(__result_id, exist_ok=True)
         # 将 parallel_config 保存为 JSON 文件
         config_path = os.path.join(__result_id, "sub.parallel_config.json")
         try:
             # 尝试将 dataclass 对象转换为字典以便序列化
-            config_dict = parallel_config.model_dump()
+            config_dict = sim_cfg.model_dump()
             # 更换角色相对位置为角色名
             index = config_dict["adjust_char"]
             from define import saved_char_config
@@ -127,9 +130,9 @@ def start_async_tasks():
     loop_thread.start()
 
 
-def start_report_threads(parallel_config):
+def start_report_threads(sim_cfg):
     """用于在开始模拟时启动线程以处理日志和结果写入。"""
-    regen_result_id(parallel_config)
+    regen_result_id(sim_cfg)
     start_async_tasks()
 
 

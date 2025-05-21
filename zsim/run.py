@@ -1,20 +1,7 @@
 import subprocess
 import sys
 import argparse
-from typing import Literal
-from pydantic import BaseModel, Field
-
-
-class MainArgs(BaseModel):
-    """负责储存 main.py 的命令行参数"""
-
-    stop_tick: int | None = Field(None, description="指定模拟的tick数量")
-    mode: Literal["normal", "parallel"] | None = Field(None, description="运行模式")
-    adjust_char: Literal[1, 2, 3] | None = Field(None, description="调整的角色相对位置")
-    sc_name: str | None = Field(None, description="要调整的副词条名称")
-    sc_value: int | None = Field(None, description="要调整的副词条数量")
-    run_turn_uuid: str | None = Field(None, description="本轮次并行运行的uuid")
-    remove_equip: bool | None = Field(None, description="移除装备")
+from zsim.simulator.config_classes import SimulationConfig as SimCfg
 
 
 def go_webui():
@@ -42,7 +29,7 @@ def go_webview_app():
         sys.exit(1)
 
 
-def go_cli(args: MainArgs = MainArgs()):
+def go_cli(args: SimCfg = SimCfg()):
     """启动命令行界面，并根据提供的 MainArgs 对象传递参数。
 
     Args:
@@ -76,7 +63,7 @@ def go_single_subprocess(stop_tick: int):
         return f"错误：启动子进程失败 - {str(e)}"
 
 
-def go_parallel_subprocess(args: MainArgs):
+def go_parallel_subprocess(sim_cfg: SimCfg):
     """根据提供的 MainArgs 对象启动并行模式子进程。
 
     注意：此函数会强制将 'mode' 参数设置为 'parallel'。
@@ -88,7 +75,7 @@ def go_parallel_subprocess(args: MainArgs):
     try:
         command = [sys.executable, "zsim/main.py"]
         # 强制设置 mode 为 parallel，即使 args 中有其他值
-        args_dict = args.model_dump(exclude_none=True)
+        args_dict = sim_cfg.model_dump(exclude_none=True)
         args_dict["mode"] = "parallel"  # 确保 mode 是 parallel
 
         for field, value in args_dict.items():

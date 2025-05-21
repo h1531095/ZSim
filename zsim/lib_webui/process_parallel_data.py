@@ -113,7 +113,7 @@ async def prepare_parallel_data_and_cache(rid: int | str) -> None:
 # 统计并行模式的个子进程伤害归并结果
 def merge_parallel_dmg_data(
     rid: int | str,
-) -> dict[str, dict[str, dict[int | float, dict[str, float | None]]]] | None:
+) -> tuple[str, dict[str, Any]] | None:
     """对并行模式的每一份报告进行数据预处理，并将结果缓存到本地。
 
     Args:
@@ -127,6 +127,7 @@ def merge_parallel_dmg_data(
 
     if parallel_config.get("adjust_sc", {}).get("enabled", False):
         # 属性收益曲线功能
+        func = "attr_curve"
         merged_sc_file_path = os.path.join(result_dir, "merged_sc_data.json")
         if os.path.exists(merged_sc_file_path):
             with open(merged_sc_file_path, "r", encoding="utf-8") as f:
@@ -134,10 +135,9 @@ def merge_parallel_dmg_data(
         else:
             try:
                 st.info("首次处理读取属性收益曲线数据，请稍等...")
-                sc_merged_data = asyncio.run(merge_parallel_sc_data(rid))
+                sc_merged_data = asyncio.run(_merge_attr_curve_data(rid))
                 st.success("属性收益曲线数据合并完成！")
                 # 将合并后的数据保存到 JSON 文件
-                merged_sc_file_path = os.path.join(result_dir, "merged_sc_data.json")
                 try:
                     with open(merged_sc_file_path, "w", encoding="utf-8") as f:
                         json.dump(sc_merged_data, f, indent=4, ensure_ascii=False)
@@ -147,15 +147,38 @@ def merge_parallel_dmg_data(
 
             except Exception as e:
                 st.error(f"合并属性收益曲线数据时出错: {e}")
-        return sc_merged_data
+        return "attr_curve", sc_merged_data
+    elif parallel_config.get("adjust_weapon", {}).get("enabled", False):
+        # 武器切换功能
+        func = "weapon"
+        merged_weapon_file_path = os.path.join(result_dir, "merged_weapon_data.json")
+        if os.path.exists(merged_weapon_file_path):
+            with open(merged_weapon_file_path, "r", encoding="utf-8") as f:
+                weapon_merged_data = json.load(f)
+        else:
+            try:
+                st.info("首次处理读取武器切换数据，请稍等...")
+                weapon_merged_data = asyncio.run(_merge_weapon_data(rid))
+                st.success("武器切换数据合并完成！")
+                # 将合并后的数据保存到 JSON 文件
+                try:
+                    with open(merged_weapon_file_path, "w", encoding="utf-8") as f:
+                        json.dump(weapon_merged_data, f, indent=4, ensure_ascii=False)
+                    st.success(f"合并的武器切换数据已保存至 {merged_weapon_file_path}")
+                except IOError as e:
+                    st.error(f"保存合并的武器切换数据失败: {e}")
+            except Exception as e:
+                st.error(f"合并武器切换数据时出错: {e}")
+        return "weapon", weapon_merged_data
+
     else:
-        return
+        return None
 
 
-def draw_sc_attr_graph(
+def __draw_attr_curve(
     sc_merged_data: dict[str, dict[str, dict[int | float, dict[str, float | None]]]],
 ) -> None:
-    # 绘制折线图
+    """绘制属性收益曲线折线图"""
     if sc_merged_data:
         for char_name, char_data in sc_merged_data.items():
             fig = go.Figure()
@@ -268,6 +291,76 @@ def draw_sc_attr_graph(
         st.warning("没有可用于绘制属性收益曲线的数据。")
 
 
+def __draw_weapon_data(
+    weapon_merged_data: dict[str, dict[str, dict[str, dict[str, Any]]]],
+) -> None:
+    """绘制武器对比柱状图"""
+    if weapon_merged_data:
+        for char_name, char_data in weapon_merged_data.items():
+            fig = go.Figure()
+            has_data = False  # 标记是否有数据添加到图表中
+
+            # 收集所有武器和精炼等级的数据
+            weapons_data = {}
+            for weapon_name, weapon_levels in char_data.items():
+                if not weapon_levels:
+                    st.warning(
+                        f"角色 '{char_name}' 的武器 '{weapon_name}' 没有数据，跳过绘制。"
+                    )
+                    continue
+
+                # 为每个精炼等级收集伤害数据
+                for level, level_data in weapon_levels.items():
+                    damage = level_data.get("damage", 0.0)
+                    if weapon_name not in weapons_data:
+                        weapons_data[weapon_name] = {}
+                    weapons_data[weapon_name][level] = damage
+
+            # 如果没有收集到数据，跳过此角色
+            if not weapons_data:
+                st.warning(f"角色 '{char_name}' 没有可用的武器数据，跳过绘制。")
+                continue
+
+            # 收集所有独特的精炼等级
+            all_levels = sorted(list(set(level for levels_data in weapons_data.values() for level in levels_data.keys())))
+            all_weapon_names = list(weapons_data.keys())
+
+            # 为每个精炼等级创建柱状图系列
+            for level in all_levels:
+                level_damages = []
+                for weapon_name in all_weapon_names:
+                    # 获取该武器在该精炼等级的伤害，如果不存在则为0
+                    damage = weapons_data.get(weapon_name, {}).get(level, 0.0)
+                    level_damages.append(damage)
+
+                if any(d > 0 for d in level_damages): # 只添加有数据的精炼等级系列
+                    fig.add_trace(
+                        go.Bar(
+                            x=all_weapon_names,  # 武器名称作为 X 轴
+                            y=level_damages,
+                            name=f"精炼 {level}",  # 精炼等级作为系列名称
+                            text=[f"{damage:.2f}" for damage in level_damages],
+                            textposition="auto",
+                        )
+                    )
+                    has_data = True
+
+            if has_data:
+                # 更新图表布局
+                fig.update_layout(
+                    title=f"{char_name} - 武器伤害对比",
+                    xaxis_title="武器名称",  # 更新 X 轴标题
+                    yaxis_title="总伤害",
+                    barmode="group",  # 分组模式，按 X 轴（武器名称）分组
+                    hovermode="x unified",
+                )
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.warning(f"角色 '{char_name}' 没有足够的数据来绘制武器对比图表。")
+    else:
+        st.warning("没有可用于绘制武器对比图表的数据。")
+
+
 async def _read_json_file(file_path: str) -> dict[str, Any]:
     """异步读取JSON文件。
 
@@ -287,30 +380,22 @@ async def _read_json_file(file_path: str) -> dict[str, Any]:
         return {}
 
 
-async def merge_parallel_sc_data(
+async def _collect_sub_parallel_data(
     rid: int | str,
-) -> dict[str, dict[str, dict[int | float, dict[str, float | None]]]]:
-    """读取所有子进程的属性收益曲线数据，合并并计算收益率。
+) -> list[dict[str, Any]]:
+    """异步收集所有子进程的并行配置和伤害数据。
 
     Args:
         rid (int | str): 运行ID。
 
     Returns:
-        dict[str, dict[str, dict[int | float, dict[str, float | None]]]]: {
-            角色名(adjust_char): {
-                词条名(sc_name): {
-                    词条值(sc_value): {
-                        "result": 原始结果(sc_result: float),
-                        "rate": 收益率(rate_of_return: float | None)
-                    }
-                }
-            }
-        }
+        list[dict[str, Any]]: 包含每个子进程配置和伤害数据的列表。
+                               每个字典包含 'sub_config', 'sc_data', 'sub_dir_path'。
     """
     result_dir: str = os.path.join(results_dir, str(rid))
-    all_sc_data: dict[str, dict[str, dict[int | float| None, float | None]]] = {}
     tasks = []
     sub_dir_paths_map: dict[int, str] = {}  # 存储 task index 到 sub_dir_path 的映射
+    collected_data: list[dict[str, Any]] = []
 
     # 收集需要读取的文件路径
     task_index = 0
@@ -333,7 +418,7 @@ async def merge_parallel_sc_data(
     # 并发执行所有文件读取任务
     if not tasks:
         print(f"在 {result_dir} 中未找到有效的子进程结果目录。")
-        return {}
+        return []
 
     results = await asyncio.gather(*tasks)
 
@@ -356,10 +441,50 @@ async def merge_parallel_sc_data(
             )
             continue
 
+        collected_data.append(
+            {
+                "sub_config": sub_config,
+                "sc_data": sc_data,
+                "sub_dir_path": current_sub_dir,
+            }
+        )
+
+    return collected_data
+
+
+async def _merge_attr_curve_data(
+    rid: int | str,
+) -> dict[str, dict[str, dict[int | float, dict[str, float | None]]]]:
+    """读取所有子进程的属性收益曲线数据，合并并计算收益率。
+
+    Args:
+        rid (int | str): 运行ID。
+
+    Returns:
+        dict[str, dict[str, dict[int | float, dict[str, float | None]]]]: {
+            角色名(adjust_char): {
+                词条名(sc_name): {
+                    词条值(sc_value): {
+                        "result": 原始结果(sc_result: float),
+                        "rate": 收益率(rate_of_return: float | None)
+                    }
+                }
+            }
+        }
+    """
+    all_sc_data: dict[str, dict[str, dict[int | float | None, float | None]]] = {}
+    collected_data = await _collect_sub_parallel_data(rid)
+
+    for item in collected_data:
+        sub_config = item["sub_config"]
+        sc_data = item["sc_data"]
+        current_sub_dir = item["sub_dir_path"]
+
         adjust_char: str | None = sub_config.get("adjust_char")
         sc_name: str | None = sub_config.get("sc_name")
         # sc_value 可能是 int 或 float
         sc_value_raw: Any = sub_config.get("sc_value")
+
         sc_value: int | float | None = None
         if isinstance(sc_value_raw, (int, float)):
             sc_value = sc_value_raw
@@ -396,7 +521,7 @@ async def merge_parallel_sc_data(
             )
 
         # 存储原始结果
-        all_sc_data[adjust_char][sc_name][sc_value] = { # type: ignore
+        all_sc_data[adjust_char][sc_name][sc_value] = {  # type: ignore
             "result": sc_result,
             "rate": None,
         }
@@ -432,6 +557,75 @@ async def merge_parallel_sc_data(
     return all_sc_data
 
 
+async def _merge_weapon_data(
+    rid: int | str,
+) -> dict[str, dict[str, dict[str, dict[str, Any]]]]:
+    """读取所有子进程的武器切换数据，合并并计算平均伤害。
+
+    Args:
+        rid (int | str): 运行ID。
+
+    Returns:
+        dict[str, dict[str, dict[str, dict[str, Any]]]]: {
+            角色名(adjust_char): {
+                武器名(weapon_name): {
+                    精炼等级{weapon_level}: {
+                        "damage": 总伤害加权,
+                    }
+                }
+            }
+        }
+    """
+    all_weapon_data: dict[str, dict[str, dict[str, dict[str, Any]]]] = {}
+    collected_data = await _collect_sub_parallel_data(rid)
+
+    for item in collected_data:
+        sub_config = item["sub_config"]
+        sc_data = item["sc_data"]
+        current_sub_dir = item["sub_dir_path"]
+
+        adjust_char: str | None = sub_config.get("adjust_char")
+        weapon_name: str | None = sub_config.get("weapon_name")
+        weapon_level: str | None = sub_config.get("weapon_level")
+
+        if adjust_char is None or weapon_name is None or weapon_level is None:
+            print(
+                f"警告：跳过子目录 {current_sub_dir}，缺少必要的配置信息 (adjust_char, weapon_name, weapon_level)。"
+            )
+            continue
+
+        char_dmg_data: dict[str, Any] | None = sc_data.get(adjust_char)
+        if char_dmg_data is None:
+            print(
+                f"警告：跳过子目录 {current_sub_dir}，在 damage_attribution.json 中未找到角色 '{adjust_char}' 的数据。"
+            )
+            continue
+
+        # 伤害数据包含 direct_damage 和 anomaly_damage
+        direct_damage: float = char_dmg_data.get("direct_damage", 0.0)
+        anomaly_damage: float = char_dmg_data.get("anomaly_damage", 0.0)
+        total_damage: float = direct_damage + anomaly_damage
+
+        # 填充结果字典
+        if adjust_char not in all_weapon_data:
+            all_weapon_data[adjust_char] = {}
+        if weapon_name not in all_weapon_data[adjust_char]:
+            all_weapon_data[adjust_char][weapon_name] = {}
+
+        # 检查 weapon_level 是否已存在，如果存在则打印警告（理论上并行配置不应重复）
+        if weapon_level in all_weapon_data[adjust_char][weapon_name]:
+            print(
+                f"警告：在角色 '{adjust_char}' 的武器 '{weapon_name}' 中，精炼等级 '{weapon_level}' 重复出现。来自子目录: {current_sub_dir}"
+            )
+
+        # 存储总伤害
+        all_weapon_data[adjust_char][weapon_name][weapon_level] = {
+            "damage": total_damage,
+        }
+
+    return all_weapon_data
+
+
 def process_parallel_result(rid: int | str) -> None:
     """处理并行模式的结果。
 
@@ -446,11 +640,15 @@ def process_parallel_result(rid: int | str) -> None:
     ):
         asyncio.run(prepare_parallel_data_and_cache(rid))
 
-
-    # 2. 合并需要聚合的数据（例如属性收益曲线）
-    sc_merged_data = merge_parallel_dmg_data(rid)
+    # 2. 合并需要聚合的数据（例如属性收益曲线或武器对比）
+    result = merge_parallel_dmg_data(rid)
     # 3. 绘制图表
-    draw_sc_attr_graph(sc_merged_data)
+    if result:
+        func, merged_data = result
+        if func == "attr_curve":
+            __draw_attr_curve(merged_data)
+        elif func == "weapon":
+            __draw_weapon_data(merged_data)
 
     # 4. 获取有效的子目录列表
     sub_dirs = []
