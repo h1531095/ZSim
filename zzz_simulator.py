@@ -57,7 +57,7 @@ def main() -> None:
             sys.exit(1)
     
     # 运行主程序
-    subprocess.run(['uv', 'run', 'zsim', 'app'])
+    subprocess.run(['uv', 'run', 'zsim', 'app', "--server.headless=true"])
 
 if __name__ == '__main__':
     main()
