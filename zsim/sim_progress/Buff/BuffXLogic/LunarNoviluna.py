@@ -25,7 +25,7 @@ class LunarNoviluna(Buff.BuffLogic):
         if self.equipper is None:
             self.equipper = JudgeTools.find_equipper("「月相」-朔", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:

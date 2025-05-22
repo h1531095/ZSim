@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 
 from .APLOperator import APLOperator
 import json
-import sys
 from define import APL_NA_ORDER_PATH
 from sim_progress.Preload import SkillNode
 from sim_progress.data_struct.NormalAttackManager import (
@@ -10,7 +9,6 @@ from sim_progress.data_struct.NormalAttackManager import (
     BaseNAManager,
 )
 from sim_progress.Preload.APLModule.ActionReplaceManager import ActionReplaceManager
-import types
 if TYPE_CHECKING:
     from sim_progress.Preload import PreloadData
     from simulator.simulator_class import Simulator

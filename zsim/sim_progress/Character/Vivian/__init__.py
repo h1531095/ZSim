@@ -1,7 +1,9 @@
-from sim_progress.Preload import SkillNode
 from ..utils.filters import _skill_node_filter
 from ..character import Character
 from .FeatherManager import FeatherManager
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from sim_progress.Preload import SkillNode
 
 
 class Vivian(Character):
@@ -22,7 +24,7 @@ class Vivian(Character):
     def fluttering_frock_state(self) -> bool:  # 判定当前是否为飘浮状态（裙裾浮游）
         return self.state_level == 2
 
-    def __check_node(self, skill_node: SkillNode) -> None:
+    def __check_node(self, skill_node: "SkillNode") -> None:
         """检查传入的SkillNode，是否符合当前的状态。"""
         skill_tag = skill_node.skill_tag
         if skill_tag not in ["1331_SNA_0", "1331_SNA_1", "1331_SNA_2"]:

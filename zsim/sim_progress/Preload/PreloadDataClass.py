@@ -59,15 +59,14 @@ class PreloadData:
             ):
                 self.force_change_action(node)
         if self.personal_node_stack[char_cid].is_empty():
-            from sim_progress.data_struct import listener_manager_instance
 
             """检测角色的第一个动作抛出。"""
-            listener_manager_instance.broadcast_event(event=node, enter_battle_event=1)
+            self.sim_instance.listener_manager.broadcast_event(event=node, enter_battle_event=1)
         self.personal_node_stack[char_cid].push(node)
         if node.active_generation:
             self.latest_active_generation_node = node
         if self.quick_assist_system is None:
-            self.quick_assist_system = QuickAssistSystem(self.char_data.char_obj_list)
+            self.quick_assist_system = QuickAssistSystem(self.char_data.char_obj_list, sim_instance=self.sim_instance)
         self.quick_assist_system.update(tick, node, self.load_data.all_name_order_box)
 
     def check_myself_before_push_node(self):

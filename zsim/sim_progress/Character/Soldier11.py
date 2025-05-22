@@ -1,7 +1,6 @@
 from sim_progress.Preload import SkillNode
 from .utils.filters import _skill_node_filter
 from .character import Character
-import sys
 
 
 class Soldier11(Character):
@@ -14,8 +13,7 @@ class Soldier11(Character):
         """模拟11号的火力镇压机制"""
         # 输入类型检查
         skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
-        main_module = sys.modules["simulator.main_loop"]
-        tick = main_module.tick
+        tick = self.sim_instance.tick
         for node in skill_nodes:
             if self.settle_tick is not None:
                 # 超时重置

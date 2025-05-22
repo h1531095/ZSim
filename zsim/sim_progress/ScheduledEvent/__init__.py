@@ -156,6 +156,7 @@ class ScheduledEvent:
                         self.data.dynamic_buff,
                         self.action_stack,
                         anomaly_bar=event,
+                        sim_instance=self.sim_instance
                     )
                 elif isinstance(event, ScheduleRefreshData):
                     self.refresh_event(event)
@@ -269,6 +270,7 @@ class ScheduledEvent:
                 self.data.char_obj_list,
                 skill_node=_node,
                 dynamic_buff_dict=self.data.dynamic_buff,
+                sim_instance=self.sim_instance
             )
 
     def solve_buff(self) -> None:
@@ -345,6 +347,7 @@ class ScheduledEvent:
             anomaly_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
+            sim_instance=self.sim_instance
         )
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
         # TODO：异常伤害无法被enemy接收到，Enemy的血量更新是有问题的。
@@ -366,6 +369,7 @@ class ScheduledEvent:
             disorder_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
+            sim_instance=self.sim_instance
         )
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         stun = cal_obj.cal_disorder_stun()
@@ -390,6 +394,7 @@ class ScheduledEvent:
             disorder_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
+            sim_instance=self.sim_instance
         )
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         Report.report_dmg_result(
@@ -412,6 +417,7 @@ class ScheduledEvent:
             abloom_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
+            sim_instance=self.sim_instance
         )
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
         # TODO：异常伤害无法被enemy接收到，Enemy的血量更新是有问题的。

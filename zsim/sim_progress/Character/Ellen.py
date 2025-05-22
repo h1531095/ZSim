@@ -1,7 +1,9 @@
-from sim_progress.Preload import SkillNode
 from sim_progress.Report import report_to_log
 from .utils.filters import _skill_node_filter
 from .character import Character
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from sim_progress.Preload import SkillNode
 
 
 class Ellen(Character):

@@ -3,20 +3,24 @@ from dataclasses import dataclass
 from sim_progress.Buff import JudgeTools
 from sim_progress.Dot import Dot
 from sim_progress.Preload.SkillsQueue import spawn_node
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class ViviansProphecy(Dot):
-    def __init__(self):
-        super().__init__()  # 调用父类Dot的初始化方法
-        self.ft = self.DotFeature()
-        preload_data = JudgeTools.find_preload_data(sim_instance=self.buff_instance.sim_instance)
-        tick = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
+    def __init__(self, sim_instance: "Simulator" = None):
+        super().__init__(sim_instance=sim_instance)  # 调用父类Dot的初始化方法
+        self.ft = self.DotFeature(sim_instance=sim_instance)
+        self.preload_data = JudgeTools.find_preload_data(sim_instance=self.sim_instance)
+        tick = JudgeTools.find_tick(sim_instance=self.sim_instance)
         self.skill_node_data = spawn_node(
-            "1331_Core_Passive", tick, preload_data.skills
+            "1331_Core_Passive", tick, self.preload_data.skills
         )
 
     @dataclass
     class DotFeature(Dot.DotFeature):
+        sim_instance: "Simulator"
         update_cd: int = 33
         index: str = "ViviansProphecy"
         name: str = "薇薇安的预言"

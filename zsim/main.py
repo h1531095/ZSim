@@ -2,7 +2,7 @@ import argparse
 import timeit
 
 from sim_progress.Report import stop_report_threads
-from simulator.main_loop import main_loop
+# from simulator.main_loop import main_loop
 from simulator.dataclasses import SimCfg
 from simulator.simulator_class import Simulator
 

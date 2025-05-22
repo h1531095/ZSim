@@ -54,13 +54,13 @@ class RoaringRideBuffTrigger(Buff.BuffLogic):
         seed = rng.r
         seed = (seed / (2**63 - 1) + 1) / 2
         if 0 <= seed < 1 / 3:
-            buff_add_strategy(self.record.buff_map[0])
+            buff_add_strategy(self.record.buff_map[0], sim_instance=self.buff_instance.sim_instance)
             # print(f'轰鸣座驾触发了攻击力Buff')
         elif 1 / 3 <= seed < 2 / 3:
-            buff_add_strategy(self.record.buff_map[1])
+            buff_add_strategy(self.record.buff_map[1], sim_instance=self.buff_instance.sim_instance)
             # print(f'轰鸣座驾触发了精通Buff')
         else:
             # print(f'轰鸣座驾触发了积蓄效率Buff')
-            buff_add_strategy(self.record.buff_map[2])
+            buff_add_strategy(self.record.buff_map[2], sim_instance=self.buff_instance.sim_instance)
 
         self.buff_instance.simple_start(find_tick(sim_instance=self.buff_instance.sim_instance), self.record.sub_exist_buff_dict)

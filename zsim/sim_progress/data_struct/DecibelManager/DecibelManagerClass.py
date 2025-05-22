@@ -1,9 +1,13 @@
 from sim_progress.data_struct import ScheduleRefreshData
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
-class _DecibelManager:
-    def __init__(self):
+class Decibelmanager:
+    def __init__(self, sim_instance: "Simulator"):
         # 原类属性改为实例属性
+        self.sim_instance = sim_instance
         self.DECIBEL_EVENT_MAP = {
             "interrupt_enemy": [10],
             4: [20],
@@ -58,9 +62,7 @@ class _DecibelManager:
     def get_decibel_value(self, kwargs):
         """根据程序的输入进行参数的初始化检查！并且返回本次运行所需要增加的喧响值"""
         if self.game_state is None:
-            from sim_progress.Preload import get_game_state
-
-            self.game_state = get_game_state()
+            self.game_state = self.sim_instance.game_state
         key = kwargs.get("key", None)
         skill_node = kwargs.get("skill_node", None)
         single_hit = kwargs.get("single_hit", None)
@@ -111,8 +113,7 @@ class _DecibelManager:
         char_dict = {"major": [], "minor": []}
         if not self.char_obj_list:
             from sim_progress.Buff import find_char_list
-
-            self.char_obj_list = find_char_list()
+            self.char_obj_list = find_char_list(sim_instance=self.sim_instance)
         for obj in self.char_obj_list:
             if obj.CID == char_id:
                 char_dict["major"].append(obj.NAME)
@@ -127,4 +128,4 @@ class _DecibelManager:
 
 
 # 模块加载时创建唯一实例
-decibel_manager_instance = _DecibelManager()
+# decibel_manager_instance = Decibelmanager()

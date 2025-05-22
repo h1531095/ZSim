@@ -61,7 +61,7 @@ class QuickAssistSystem:
             manager=manager,
             answer=True,
         )
-        event_list = JudgeTools.find_event_list(sim_instance=self.buff_instance.sim_instance)
+        event_list = JudgeTools.find_event_list(sim_instance=self.sim_instance)
         event_list.append(end_event)
         # print(f'{skill_node.char_name}响应了快速支援！')
 

@@ -14,7 +14,7 @@ class HormonePunkAtkBonus(Buff.BuffLogic):
 
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.xjudge = self.special_judge_logic
         self.equipper = None
         self.buff_0 = None
@@ -39,10 +39,8 @@ class HormonePunkAtkBonus(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(equipper="激素朋克")
         if not self.record.listener_exist:
-            from sim_progress.data_struct import listener_manager_instance
-
-            self.record.listener = listener_manager_instance.listener_factory(
-                initiate_signal="Hormone_Punk_1"
+            self.record.listener = self.buff_instance.sim_instance.listener_manager.listener_factory(
+                initiate_signal="Hormone_Punk_1", sim_instance=self.buff_instance.sim_instance
             )
             self.record.listener_exist = True
             # print(f"为{self.record.char.NAME}创建了一个激素朋克的监听器！")

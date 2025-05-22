@@ -1,4 +1,8 @@
 from sim_progress.data_struct import SingleHit
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
+    from sim_progress.Enemy import Enemy
 
 
 class QETDataUpdater:
@@ -31,7 +35,7 @@ class QTEData:
     def __init__(self, enemy_instance):
         """这个数据结构是管理怪物的QTE的总体数据的，它会随着Enemy类的初始化而一同初始化。
         其中的动态数据（比如qte_received_box qte_triggered_times等，会在每次进入失衡期之前进行重置。"""
-        self.enemy_instance = enemy_instance  # 在初始化时，传入Enemy实例；
+        self.enemy_instance: "Enemy" = enemy_instance  # 在初始化时，传入Enemy实例；
         self.qte_received_box: list[str] = []  # 用于接受QTE阶段输入的QTE skill_tag
         self.qte_triggered_times: int = 0  # 已经触发过几次QTE了
         self.qte_triggerable_times: int | None = (
@@ -145,12 +149,8 @@ class QTEData:
         if not _hit.heavy_hit:
             return False
         if self.preload_data is None:
-            import sys
-
-            main_module = sys.modules["simulator.main_loop"]
-            self.preload_data = main_module.game_state["preload"].preload_data
+            self.preload_data = self.enemy_instance.sim_instance.preload.preload_data
         from sim_progress.Preload.PreloadDataClass import PreloadData
-
         if not isinstance(self.preload_data, PreloadData):
             raise TypeError("QTEData的preload_data属性不是PreloadData类！")
         if self.preload_data.operating_now is None:

@@ -104,7 +104,7 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         from sim_progress.anomaly_bar.CopyAnomalyForOutput import DirgeOfDestinyAnomaly
 
         dirge_of_destiny_anomaly = DirgeOfDestinyAnomaly(
-            copyed_anomaly, active_by="1331"
+            copyed_anomaly, active_by="1331", sim_instance=self.buff_instance.sim_instance
         )
         ratio = self.ANOMALY_RATIO_MUL.get(copyed_anomaly.element_type)
         if self.record.cinema_ratio is None:

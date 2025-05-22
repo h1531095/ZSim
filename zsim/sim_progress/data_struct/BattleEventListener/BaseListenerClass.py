@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class BaseListener(ABC):
     @abstractmethod
-    def __init__(self, listener_id: str = None):
+    def __init__(self, listener_id: str = None, sim_instance: "Simulator" = None):
+        self.sim_instance: "Simulator" = sim_instance
         self.listener_id: str | None = listener_id
         self.schedule = None
 

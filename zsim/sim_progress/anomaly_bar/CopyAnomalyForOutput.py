@@ -1,5 +1,8 @@
 import uuid
 from .AnomalyBarClass import AnomalyBar
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class Disorder(AnomalyBar):
@@ -9,9 +12,10 @@ class Disorder(AnomalyBar):
     Disorder会打开自身的is_disorder
     """
 
-    def __init__(self, Output_bar: AnomalyBar, **kwargs):
-        super().__init__()
+    def __init__(self, Output_bar: AnomalyBar, sim_instance: "Simulator",  **kwargs):
+        super().__init__(sim_instance=sim_instance)
         self.__dict__.update(Output_bar.__dict__)
+        self.sim_instance = sim_instance
         self.is_disorder = True
         activate_by = kwargs.get("active_by", None)
         self.activate_by = activate_by
@@ -29,9 +33,10 @@ class NewAnomaly(AnomalyBar):
     普通的异常类，仅用于非紊乱的属性异常更新。
     """
 
-    def __init__(self, Output_bar: AnomalyBar, active_by):
-        super().__init__()
+    def __init__(self, Output_bar: AnomalyBar, active_by, sim_instance: "Simulator"):
+        super().__init__(sim_instance=sim_instance)
         self.__dict__.update(Output_bar.__dict__)
+        self.sim_instance = sim_instance
         self.activate_by = active_by
         self.source_uuid = self.UUID
         self.UUID = uuid.uuid4()
@@ -49,9 +54,10 @@ class PolarityDisorder(Disorder):
     构造时，不仅需要提供被复制的异常条，还需要提供连击次数（用来计算极性紊乱比例），还需要提供触发者ID（CID或者enemy）
     """
 
-    def __init__(self, Output_bar: AnomalyBar, _polarity_disorder_ratio, active_by):
-        super().__init__(Output_bar, active_by=active_by)
+    def __init__(self, Output_bar: AnomalyBar, _polarity_disorder_ratio, active_by, sim_instance: "Simulator"):
+        super().__init__(Output_bar, active_by=active_by, sim_instance=sim_instance)
         self.__dict__.update(Output_bar.__dict__)
+        self.sim_instance = sim_instance
         self.is_disorder = True
         self.polarity_disorder_ratio = (
             _polarity_disorder_ratio  # 极性紊乱对比紊乱的缩放比例（已经考虑连击次数）
@@ -70,9 +76,10 @@ class DirgeOfDestinyAnomaly(AnomalyBar):
     """薇薇安的核心被动「命运悲歌」会重复触发一次异常伤害，
     该伤害具有属性异常的全部相同参数，同时具有一个缩放倍率。"""
 
-    def __init__(self, Output_bar: AnomalyBar, active_by):
-        super().__init__()
+    def __init__(self, Output_bar: AnomalyBar, active_by, sim_instance: "Simulator"):
+        super().__init__(sim_instance=sim_instance)
         self.__dict__.update(Output_bar.__dict__)
+        self.sim_instance = sim_instance
         self.activate_by = active_by
         self.anomaly_dmg_ratio = 0  # 属性异常伤害的缩放倍率
         self.source_uuid = self.UUID

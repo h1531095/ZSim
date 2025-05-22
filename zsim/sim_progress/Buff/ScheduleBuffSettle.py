@@ -1,12 +1,11 @@
 from __future__ import annotations
-
-from sim_progress import Load
 from sim_progress.Buff.buff_class import Buff
 from sim_progress.Buff.BuffAdd import add_debuff_to_enemy
 from sim_progress.Buff import JudgeTools
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
+    from sim_progress.Load import LoadingMission
 
 
 def ScheduleBuffSettle(
@@ -195,7 +194,7 @@ def ArgumentCheck(**kwargs):
     action_now = kwargs.get("action_now", None)
     buff = kwargs.get("buff", None)
     if action_now:
-        if not isinstance(action_now, Load.LoadingMission):
+        if not isinstance(action_now, LoadingMission):
             raise TypeError(f"{action_now}不是LoadingMission类！")
     if buff:
         if not isinstance(buff, Buff):

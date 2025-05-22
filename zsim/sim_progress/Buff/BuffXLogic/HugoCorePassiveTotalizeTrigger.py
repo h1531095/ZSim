@@ -162,23 +162,23 @@ class HugoCorePassiveTotalizeTrigger(Buff.BuffLogic):
 
         if self.record.active_signal == 0:
             abyss_reverb_buff_index = self.record.abyss_reverb_buff_index
-            buff_add_strategy(abyss_reverb_buff_index, benifit_list=["雨果"])
+            buff_add_strategy(abyss_reverb_buff_index, benifit_list=["雨果"], sim_instance=self.buff_instance.sim_instance)
             self.record.active_signal = None
             """触发信号为0时，只添加Buff，不执行后面的逻辑。"""
             return
         else:
             buff_index = self.record.totalize_buff_index
-            buff_add_strategy(buff_index, specified_count=ratio, benifit_list=["雨果"])
+            buff_add_strategy(buff_index, specified_count=ratio, benifit_list=["雨果"], sim_instance=self.buff_instance.sim_instance)
             stun_value_feed_back_ratio = min(rest_tick / 60, 5) * 0.05
             if self.record.char.cinema >= 1:
                 cinema_1_buff_index = self.record.cinema_1_buff_index
-                buff_add_strategy(cinema_1_buff_index, benifit_list=["雨果"])
+                buff_add_strategy(cinema_1_buff_index, benifit_list=["雨果"], sim_instance=self.buff_instance.sim_instance)
             if self.record.char.cinema >= 2:
                 cinema_2_buff_index = self.record.cinema_2_buff_index
-                buff_add_strategy(cinema_2_buff_index, benifit_list=["雨果"])
+                buff_add_strategy(cinema_2_buff_index, benifit_list=["雨果"], sim_instance=self.buff_instance.sim_instance)
             if self.record.char.cinema == 6:
                 cinema_6_buff_index = self.record.cinema_6_buff_index
-                buff_add_strategy(cinema_6_buff_index, benifit_list=["雨果"])
+                buff_add_strategy(cinema_6_buff_index, benifit_list=["雨果"], sim_instance=self.buff_instance.sim_instance)
 
         """再生成决算的skill_node"""
         from sim_progress.Preload.SkillsQueue import spawn_node

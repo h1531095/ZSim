@@ -8,7 +8,7 @@ class VivianCoattackTriggerRecord:
         self.preload_data = None
         self.last_update_node = None
         self.JUDGE_MAP = {
-            "1221_E_EX_1": lambda: self.last_update_node.end_tick >= find_tick(sim_instance=self.buff_instance.sim_instance),
+            "1221_E_EX_1": lambda: self.last_update_node.end_tick >= find_tick(sim_instance=self.char.sim_instance),
             "1221_E_EX_2": lambda: False,
         }
 

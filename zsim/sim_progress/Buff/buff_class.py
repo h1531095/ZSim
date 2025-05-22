@@ -44,7 +44,7 @@ class Buff:
         new_instance.__dict__ = existing_instance.__dict__.copy()  # 复制原实例的属性
         return new_instance
 
-    def __init__(self, config: pd.Series, judge_config: pd.Series, sim_instance: "Simulator" = None):
+    def __init__(self, config: pd.Series, judge_config: pd.Series, sim_instance: "Simulator"):
         if not hasattr(self, "ft"):
             self.ft = self.BuffFeature(config)
             self.dy = self.BuffDynamic()
@@ -395,7 +395,7 @@ class Buff:
             self.record = None
 
     def __deepcopy__(self, memo):
-        new_obj = Buff(self.feature_config, self.judge_config)
+        new_obj = Buff(self.feature_config, self.judge_config, sim_instance=self.sim_instance)
         memo[id(self)] = new_obj
         return new_obj
 

@@ -1,5 +1,5 @@
 from .BaseUniqueMechanic import BaseUniqueMechanic
-from sim_progress.data_struct import SingleHit, decibel_manager_instance
+from sim_progress.data_struct import SingleHit
 from sim_progress.Report import report_dmg_result
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -11,7 +11,6 @@ FOCUS_RATIO_MAP 的存在，是为了模拟角色在破腿的过程中，
 但是，这种伤害的溢散，本质上和角色自身的技能模组有关。
 这里的数据往往来自于对实战视频的观察，并非准确数值，并且可能经常需要调整。
 """
-FOCUS_RATIO_MAP = {1361: 0.6, 1381: 0.6}
 
 
 class BreakingLegManager:
@@ -25,12 +24,14 @@ class BreakingLegManager:
             5: SingleLeg(enemy_instance, self),
         }
         self.major_target = 0
+        self.FOCUS_RATIO_MAP = {1361: 0.6, 1381: 0.6}
+        self.enemy = enemy_instance
 
     def update_myself(self, single_hit: SingleHit, tick: int):
         """这是整个manager的对外总接口，负责接收SingleHit，并且分配伤害到对应的腿上"""
         leg_index_tuple = self.select_target()
         char_cid = int(single_hit.skill_tag.strip().split("_")[0])
-        major_ratio = FOCUS_RATIO_MAP.get(char_cid, 0.7)
+        major_ratio = self.FOCUS_RATIO_MAP.get(char_cid, 0.7)
         minor_ratio = (1 - major_ratio) / 2
         ratio_tuple = (minor_ratio, major_ratio, minor_ratio)
         for i in range(len(leg_index_tuple)):
@@ -129,7 +130,7 @@ class SingleLeg(BaseUniqueMechanic):
         self.lost_leg_hp += single_hit.dmg_expect * ratio
         if self.broken_leg_judge(tick):
             self.event_active(single_hit, tick)
-            decibel_manager_instance.update(single_hit=single_hit, key="part_break")
+            self.enemy.sim_instance.decibel_manager.update(single_hit=single_hit, key="part_break")
 
     def reset_single_leg(self):
         """重置单条腿"""

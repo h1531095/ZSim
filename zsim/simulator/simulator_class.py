@@ -10,7 +10,7 @@ import gc
 from define import APL_MODE, APL_PATH, ENEMY_ADJUST_ID, ENEMY_DIFFICULTY, ENEMY_INDEX_ID
 from sim_progress import Buff, Load
 from sim_progress.Character.skill_class import Skill
-from sim_progress.data_struct import ActionStack
+from sim_progress.data_struct import ActionStack, Decibelmanager, ListenerManger
 from sim_progress.Enemy import Enemy
 from sim_progress.Preload import PreloadClass
 from sim_progress.Report import start_report_threads
@@ -36,6 +36,8 @@ class Simulator:
     skills: list[Skill] | None = None
     preload: PreloadClass | None = None
     game_state: dict[str, object] | None = None
+    decibel_manager: Decibelmanager = None
+    listener_manager: ListenerManger = None
 
     def reset_sim_data(self, sim_cfg: "SimCfg" | None):
         """重置所有全局变量为初始状态。"""
@@ -63,6 +65,8 @@ class Simulator:
             char_obj_list=self.char_data.char_obj_list,
             sim_instance=self
         )
+        if self.schedule_data.enemy.sim_instance is None:
+            self.schedule_data.enemy.sim_instance = self
 
         self.global_stats = GlobalStats(name_box=self.init_data.name_box, sim_instance=self)
         skills = [char.skill_object for char in self.char_data.char_obj_list]
@@ -77,13 +81,15 @@ class Simulator:
             "global_stats": self.global_stats,
             "preload": self.preload,
         }
+        self.decibel_manager = Decibelmanager(self)
+        self.listener_manager = ListenerManger(self)
 
     def reset_simulator(self, sim_cfg: "SimCfg" | None):
         """重置程序为初始状态。"""
         self.reset_sim_data(sim_cfg)  # 重置所有全局变量
         start_report_threads(sim_cfg)  # 启动线程以处理日志和结果写入
 
-    def main_loop(self, stop_tick: int = 3000, *, sim_cfg: "SimCfg" | None = None):
+    def main_loop(self, stop_tick: int = 10800, *, sim_cfg: "SimCfg" | None = None):
         self.reset_simulator(sim_cfg)
         while True:
             # Tick Update
@@ -129,6 +135,7 @@ class Simulator:
                 self.init_data.name_box,
                 self.load_data.LOADING_BUFF_DICT,
                 self.load_data.all_name_order_box,
+                sim_instance=self
             )
             Buff.buff_add(
                 self.tick,

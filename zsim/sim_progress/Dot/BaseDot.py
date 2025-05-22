@@ -1,11 +1,14 @@
 from dataclasses import dataclass
-
 from sim_progress.anomaly_bar import AnomalyBar
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class Dot:
-    def __init__(self, bar: AnomalyBar = None, skill_tag: str | None = None):
-        self.ft = self.DotFeature()
+    def __init__(self, bar: AnomalyBar = None, skill_tag: str | None = None, sim_instance: "Simulator" = None):
+        self.sim_instance = sim_instance
+        self.ft = self.DotFeature(sim_instance=self.sim_instance)
         self.dy = self.DotDynamic()
         self.history = self.DotHistory()
         # 默认情况下不创建anomlay_data。
@@ -19,8 +22,8 @@ class Dot:
             from sim_progress.Preload.SkillsQueue import spawn_node
             from Buff import JudgeTools
 
-            preload_data = JudgeTools.find_preload_data(sim_instance=self.buff_instance.sim_instance)
-            tick = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
+            preload_data = JudgeTools.find_preload_data(sim_instance=self.sim_instance)
+            tick = JudgeTools.find_tick(sim_instance=self.sim_instance)
             self.skill_node_data = spawn_node(skill_tag, tick, preload_data.skills)
 
     @dataclass
@@ -35,7 +38,7 @@ class Dot:
         3：缓存式更新——依赖内置CD，以及Dot.Dynamic中的动态记录模块，来记录伤害积累。
         4：碎冰——只有含有重攻击的技能在end标签处才能触发。
         """
-
+        sim_instance: "Simulator"
         update_cd: int | float = 0
         index: str = None
         name: str = None
@@ -85,6 +88,8 @@ class Dot:
         self.dy.active = True
         self.dy.start_ticks = timenow
         self.dy.last_effect_ticks = timenow
+        if self.ft.max_duration is None:
+            raise ValueError(f"{self.ft.index}的最大持续时间为None，请检查初始化！")
         self.dy.end_ticks = self.dy.start_ticks + self.ft.max_duration
         self.history.start_times += 1
         self.history.last_start_ticks = timenow

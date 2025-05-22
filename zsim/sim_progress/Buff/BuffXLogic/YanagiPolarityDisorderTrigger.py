@@ -134,6 +134,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
             mode_number=2,
             polarity_ratio=final_ratio,
             skill_node=kwargs["skill_node"],
+            sim_instance=self.buff_instance.sim_instance
         )
         # polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=1)
         # 置入event_list

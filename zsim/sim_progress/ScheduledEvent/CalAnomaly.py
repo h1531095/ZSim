@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 from define import ElementType
 from sim_progress.Character.Yanagi import Yanagi
@@ -14,10 +12,13 @@ from sim_progress.anomaly_bar.CopyAnomalyForOutput import (
 
 from .Calculator import Calculator as Cal
 from .Calculator import MultiplierData as MulData
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class CalAnomaly:
-    def __init__(self, anomaly_obj: AnomalyBar, enemy_obj: Enemy, dynamic_buff: dict):
+    def __init__(self, anomaly_obj: AnomalyBar, enemy_obj: Enemy, dynamic_buff: dict, sim_instance: "Simulator"):
         """
         Schedule 节点对于异常伤害的分支逻辑，用于计算异常伤害
 
@@ -26,6 +27,7 @@ class CalAnomaly:
         异常伤害快照以 array 形式储存，顺序为：
         [基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透]
         """
+        self.sim_instance = sim_instance
         self.enemy_obj = enemy_obj
         self.anomaly_obj = anomaly_obj
         self.dynamic_buff = dynamic_buff
@@ -181,12 +183,12 @@ class CalAnomaly:
 
 
 class CalDisorder(CalAnomaly):
-    def __init__(self, disorder_obj: Disorder, enemy_obj: Enemy, dynamic_buff: dict):
+    def __init__(self, disorder_obj: Disorder, enemy_obj: Enemy, dynamic_buff: dict, sim_instance: "Simulator"):
         """
         异常伤害快照以 array 形式储存，顺序为：
         [基础伤害区、增伤区、异常精通区、等级、异常增伤区、异常暴击区、穿透率、穿透值、抗性穿透]
         """
-        super().__init__(disorder_obj, enemy_obj, dynamic_buff)
+        super().__init__(disorder_obj, enemy_obj, dynamic_buff, sim_instance=sim_instance)
         self.final_multipliers[0] = self.cal_disorder_base_dmg(
             np.float64(self.final_multipliers[0])
         )
@@ -246,9 +248,9 @@ class CalDisorder(CalAnomaly):
 
 class CalPolarityDisorder(CalDisorder):
     def __init__(
-        self, disorder_obj: PolarityDisorder, enemy_obj: Enemy, dynamic_buff: dict
+        self, disorder_obj: PolarityDisorder, enemy_obj: Enemy, dynamic_buff: dict, sim_instance: "Simulator"
     ):
-        super().__init__(disorder_obj, enemy_obj, dynamic_buff)
+        super().__init__(disorder_obj, enemy_obj, dynamic_buff, sim_instance=sim_instance)
         yanagi_obj = self.__find_yanagi()
         yanagi_mul = MulData(
             enemy_obj=enemy_obj, dynamic_buff=dynamic_buff, character_obj=yanagi_obj
@@ -258,16 +260,15 @@ class CalPolarityDisorder(CalDisorder):
             self.final_multipliers[0] * disorder_obj.polarity_disorder_ratio
         ) + (ap * disorder_obj.additional_dmg_ap_ratio)
 
-    @staticmethod
-    def __find_yanagi() -> Yanagi:
-        main_module = sys.modules["simulator.main_loop"]
-        yanagi_obj: Yanagi | None = main_module.char_data.char_obj_dict.get("柳", None)
+    def __find_yanagi(self) -> Yanagi | None:
+
+        yanagi_obj: Yanagi | None = self.sim_instance.char_data.char_obj_dict.get("柳", None)
         if yanagi_obj is None:
             assert False, "没柳你哪来的极性紊乱"
         return yanagi_obj
 
 
 class CalAbloom(CalAnomaly):
-    def __init__(self, abloom_obj: Abloom, enemy_obj: Enemy, dynamic_buff: dict):
-        super().__init__(abloom_obj, enemy_obj, dynamic_buff)
+    def __init__(self, abloom_obj: Abloom, enemy_obj: Enemy, dynamic_buff: dict, sim_instance: "Simulator"):
+        super().__init__(abloom_obj, enemy_obj, dynamic_buff, sim_instance=sim_instance)
         self.final_multipliers[0] *= abloom_obj.anomaly_dmg_ratio

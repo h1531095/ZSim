@@ -87,7 +87,7 @@ def check_preparation(buff_0, buff_instance: "Buff", **kwargs):
             record.preload_data = find_preload_data(sim_instance=buff_instance.sim_instance)
     if char_obj_list:
         if record.char_obj_list is None:
-            record.char_obj_list = find_char_list()
+            record.char_obj_list = find_char_list(sim_instance=buff_instance.sim_instance)
 
 
 def trigger_buff_0_handler(record, trigger_buff_0, buff_instance: "Buff"):

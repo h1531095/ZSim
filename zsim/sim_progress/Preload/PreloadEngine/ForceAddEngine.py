@@ -30,7 +30,7 @@ class ForceAddEngine(BasePreloadEngine):
                 continue
             conditions_unit: list = node.skill.force_add_condition_APL
             should_force_add, index = self.prcoess_force_add_apl(
-                conditions_unit, skill_tag=node.skill_tag, tick=tick
+                conditions_unit, skill_tag=node.skill_tag, tick=tick, sim_instance=self.data.sim_instance
             )
             if should_force_add:
                 # print(f'强制添加判定通过！该强制添加来自于{node.skill_tag}，将要添加：{follow_up[index]}')
@@ -63,7 +63,7 @@ class ForceAddEngine(BasePreloadEngine):
         skill_tag = kwargs.get("skill_tag", None)
         tick = kwargs.get("tick", None)
         if conditions_unit and self.game_state is None:
-            self.game_state = get_game_state()
+            self.game_state = get_game_state(sim_instance=sim_instance)
         if conditions_unit:
             """存在条件类APL判定"""
             for unit in conditions_unit:

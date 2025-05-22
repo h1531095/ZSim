@@ -23,7 +23,7 @@ class HugoCorePassiveDoubleStunAtkBonus(Buff.BuffLogic):
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["雨果"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["雨果"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:

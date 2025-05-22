@@ -1,11 +1,14 @@
 from .BaseListenerClass import BaseListener
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class HugoCorePassiveBuffListener(BaseListener):
     """这个监听器的作用是，尝试监听雨果致使怪物失衡的事件，并且触发一次核心被动Buff"""
 
-    def __init__(self, listener_id: str = None):
-        super().__init__(listener_id)
+    def __init__(self, listener_id: str = None, sim_instance: "Simulator" = None):
+        super().__init__(listener_id, sim_instance=sim_instance)
         self.buff_index = "Buff-角色-雨果-核心被动-暗渊回响"
 
     def listening_event(self, event, **kwargs):
@@ -30,4 +33,4 @@ class HugoCorePassiveBuffListener(BaseListener):
         """触发核心被动Buff，通过BuffAddStrategy来暴力添加Buff"""
         from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
 
-        buff_add_strategy(self.buff_index, benifit_list=["雨果"])
+        buff_add_strategy(self.buff_index, benifit_list=["雨果"], sim_instance=self.sim_instance)
