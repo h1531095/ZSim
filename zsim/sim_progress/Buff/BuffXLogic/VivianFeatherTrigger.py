@@ -18,11 +18,11 @@ class VivianFeatherTrigger(Buff.BuffLogic):
         self.xhit = self.special_hit_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["薇薇安"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["薇薇安"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -48,7 +48,7 @@ class VivianFeatherTrigger(Buff.BuffLogic):
             return False
 
         # 放行所有正处于最后一跳的skill_node
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         if skill_node.loading_mission.is_last_hit(tick):
             self.record.last_update_node = skill_node
             return True

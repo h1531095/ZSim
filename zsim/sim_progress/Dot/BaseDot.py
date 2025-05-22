@@ -19,8 +19,8 @@ class Dot:
             from sim_progress.Preload.SkillsQueue import spawn_node
             from Buff import JudgeTools
 
-            preload_data = JudgeTools.find_preload_data()
-            tick = JudgeTools.find_tick()
+            preload_data = JudgeTools.find_preload_data(sim_instance=self.buff_instance.sim_instance)
+            tick = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
             self.skill_node_data = spawn_node(skill_tag, tick, preload_data.skills)
 
     @dataclass

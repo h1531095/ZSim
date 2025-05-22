@@ -93,7 +93,7 @@ def reset_simulator(sim_cfg: "SimCfg" | None):
     start_report_threads(sim_cfg)  # 启动线程以处理日志和结果写入
 
 
-def main_loop(stop_tick: int = 10800, *, sim_cfg: "SimCfg" | None = None):
+def main_loop(stop_tick: int = 3000, *, sim_cfg: "SimCfg" | None = None):
     reset_simulator(sim_cfg)
     global \
         tick, \

@@ -22,13 +22,13 @@ class MagneticStormCharlieSpRecover(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("「电磁暴」-叁式")
+            self.equipper = JudgeTools.find_equipper("「电磁暴」-叁式", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -65,12 +65,12 @@ class MagneticStormCharlieSpRecover(Buff.BuffLogic):
     def special_hit_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(equipper="「电磁暴」-叁式", sub_exist_buff_dict=1)
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         energy_value = self.record.energy_value_dict[
             int(self.buff_instance.ft.refinement)
         ]
-        event_list = JudgeTools.find_event_list()
+        event_list = JudgeTools.find_event_list(sim_instance=self.buff_instance.sim_instance)
         from sim_progress.data_struct import ScheduleRefreshData
 
         refresh_data = ScheduleRefreshData(

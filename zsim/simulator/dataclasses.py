@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from define import saved_char_config
 from sim_progress import Buff
@@ -8,11 +9,14 @@ from sim_progress.data_struct import ActionStack
 from sim_progress.Enemy import Enemy
 
 from .config_classes import SimulationConfig as SimCfg
+import types
+if TYPE_CHECKING:
+    from .simulator_class import Simulator
 
 
 @dataclass
 class InitData:
-    def __init__(self, sim_cfg: SimCfg | None = None):
+    def __init__(self, sim_cfg: SimCfg | None = None, sim_instance: "Simulator" = None):
         self.sim_cfg = sim_cfg
         """
         初始化角色配置数据。
@@ -71,12 +75,14 @@ class InitData:
         }  # {角色名: 影画等级, ...}
         pass
 
+        self.sim_instance = sim_instance
 
 @dataclass
 class CharacterData:
     char_obj_list: list[Character] = field(init=False)
     init_data: InitData
     sim_cfg: SimCfg | None
+    sim_instance: "Simulator"
 
     def __post_init__(self):
         self.char_obj_list = []
@@ -89,6 +95,8 @@ class CharacterData:
                 ):  # UI那边不是从0开始数数的
                     char_dict["sim_cfg"] = self.sim_cfg
                 char_obj: Character = character_factory(**char_dict)
+                if char_obj.sim_instance is None:
+                    char_obj.sim_instance = self.sim_instance
                 self.char_obj_list.append(char_obj)
                 i += 1
         self.char_obj_dict = {
@@ -114,6 +122,7 @@ class LoadData:
     all_name_order_box: dict = field(default_factory=dict)
     preload_tick_stamp: dict = field(default_factory=dict)
     char_obj_dict: dict | None = None
+    sim_instance:  "Simulator" = None
 
     def __post_init__(self):
         self.buff_0_manager = Buff0ManagerClass.Buff0Manager(
@@ -122,6 +131,7 @@ class LoadData:
             self.weapon_dict,
             self.cinema_dict,
             self.char_obj_dict,
+            sim_instance=self.sim_instance
         )
         self.exist_buff_dict = self.buff_0_manager.exist_buff_dict
         self.all_name_order_box = change_name_box(self.name_box)
@@ -155,6 +165,7 @@ class ScheduleData:
     # judge_required_info_dict = {"skill_node": None}
     loading_buff: dict[str, list[Buff.Buff]] = field(default_factory=dict)
     dynamic_buff: dict[str, list[Buff.Buff]] = field(default_factory=dict)
+    sim_instance: "Simulator" = None
 
     def reset_myself(self):
         """重置ScheduleData的动态数据！"""
@@ -170,6 +181,7 @@ class ScheduleData:
 class GlobalStats:
     name_box: list
     DYNAMIC_BUFF_DICT: dict[str, list[Buff.Buff]] = field(default_factory=dict)
+    sim_instance:  "Simulator" = None
 
     def __post_init__(self):
         for name in self.name_box + ["enemy"]:

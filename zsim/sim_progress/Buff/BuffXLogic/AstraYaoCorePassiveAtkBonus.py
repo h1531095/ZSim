@@ -21,11 +21,11 @@ class AstraYaoCorePassiveAtkBonus(Buff.BuffLogic):
         self.xstart = self.special_start_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["耀嘉音"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["耀嘉音"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -48,10 +48,10 @@ class AstraYaoCorePassiveAtkBonus(Buff.BuffLogic):
         count = min(
             static_atk * self.record.core_passive_ratio, self.buff_instance.ft.maxcount
         )
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         if self.buff_0.dy.active and benifit in self.record.update_info_box:
             last_update_tick = self.record.update_info_box[benifit]["startticks"]
-            if last_update_tick == find_tick():
+            if last_update_tick == find_tick(sim_instance=self.buff_instance.sim_instance):
                 # print(f'已经检测到{benifit}角色在当前tick有过buff更新，所以不做重复更新！！！')
                 return
             # last_update_duration = self.record.update_info_box[benifit]["endticks"] - last_update_tick

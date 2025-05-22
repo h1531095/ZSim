@@ -9,8 +9,8 @@ class ViviansProphecy(Dot):
     def __init__(self):
         super().__init__()  # 调用父类Dot的初始化方法
         self.ft = self.DotFeature()
-        preload_data = JudgeTools.find_preload_data()
-        tick = JudgeTools.find_tick()
+        preload_data = JudgeTools.find_preload_data(sim_instance=self.buff_instance.sim_instance)
+        tick = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         self.skill_node_data = spawn_node(
             "1331_Core_Passive", tick, preload_data.skills
         )

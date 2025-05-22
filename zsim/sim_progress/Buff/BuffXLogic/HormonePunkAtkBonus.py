@@ -21,13 +21,13 @@ class HormonePunkAtkBonus(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("激素朋克")
+            self.equipper = JudgeTools.find_equipper("激素朋克", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -54,7 +54,7 @@ class HormonePunkAtkBonus(Buff.BuffLogic):
             return False
         else:
             self.record.listener.active_signal = None
-            if self.buff_0.is_ready(find_tick()):
+            if self.buff_0.is_ready(find_tick(sim_instance=self.buff_instance.sim_instance)):
                 # print(
                 #     f"{self.buff_instance.ft.index}接收到了匹配的更新信号（佩戴者为{active_signal[0].NAME}），buff更新时间{self.buff_0.dy.startticks}， buff结束时间为{self.buff_0.dy.endticks}"
                 # )

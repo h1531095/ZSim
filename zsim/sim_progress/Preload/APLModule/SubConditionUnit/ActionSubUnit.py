@@ -4,6 +4,9 @@ from sim_progress.Preload.APLModule.APLJudgeTools import (
     get_personal_node_stack,
 )
 from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class ActionSubUnit(BaseSubConditionUnit):
@@ -102,7 +105,7 @@ class ActionSubUnit(BaseSubConditionUnit):
         "is_performing": IsPerformingHandler,
     }
 
-    def check_myself(self, found_char_dict, game_state, *args, **kwargs):
+    def check_myself(self, found_char_dict, game_state, sim_instance: "Simulator" = None, *args, **kwargs):
         """处理 动作判定类 的子条件"""
         handler_cls = self.ActionHandlerMap.get(self.check_stat)
         handler = handler_cls() if handler_cls else None
@@ -118,7 +121,7 @@ class ActionSubUnit(BaseSubConditionUnit):
 
             check_cid(self.check_target)
             char_cid = int(self.check_target)
-            tick = find_tick()
+            tick = sim_instance.tick
             return self.spawn_result(handler.handler(char_cid, game_state, tick))
         #     if self.check_stat == 'skill_tag':
         #         checked_value = get_last_action(game_state)

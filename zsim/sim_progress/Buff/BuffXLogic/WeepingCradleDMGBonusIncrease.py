@@ -32,13 +32,13 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("啜泣摇篮")
+            self.equipper = JudgeTools.find_equipper("啜泣摇篮", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:  # 这里的初始化，找到的buff_0实际上是佩戴者的buff_0，
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -66,7 +66,7 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
     def special_effect_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(equipper="啜泣摇篮", sub_exist_buff_dict=1)
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         if not self.buff_0.dy.active:
             self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
             self.buff_instance.dy.startticks = self.record.trigger_buff_0.dy.startticks
@@ -78,7 +78,7 @@ class WeepingCradleDMGBonusIncrease(Buff.BuffLogic):
             )
 
     def increase_cd_judge(self):
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         if tick_now - self.record.last_update_tick >= self.buff_instance.ft.cd:
             self.record.last_update_tick = tick_now
             return True

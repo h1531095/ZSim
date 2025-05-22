@@ -44,13 +44,13 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("时光切片")
+            self.equipper = JudgeTools.find_equipper("时光切片", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -66,7 +66,7 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
         self.get_prepared(equipper="时光切片", action_stack=1)
         action_now = self.record.action_stack.peek()
         trigger_buff_level = action_now.mission_node.skill.trigger_buff_level
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         if trigger_buff_level in [4, 2, 7, 8, 9, 5]:
             ready = self.check_update_cd(trigger_buff_level, tick_now)
             if ready:
@@ -84,7 +84,7 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
         """
         self.check_record_module()
         self.get_prepared(equipper="时光切片", action_stack=1, sub_exist_buff_dict=1)
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         action_now = self.record.action_stack.peek()
         trigger_buff_level = action_now.mission_node.skill.trigger_buff_level
@@ -93,7 +93,7 @@ class SliceofTimeExtraResources(Buff.BuffLogic):
         ][trigger_buff_level]
         energy_value = self.record.energy_value_dict[self.buff_instance.ft.refinement]
         actor_name = action_now.mission_character
-        event_list = JudgeTools.find_event_list()
+        event_list = JudgeTools.find_event_list(sim_instance=self.buff_instance.sim_instance)
         from sim_progress.data_struct import ScheduleRefreshData
 
         refresh_data = ScheduleRefreshData(

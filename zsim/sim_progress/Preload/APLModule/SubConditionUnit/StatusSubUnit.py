@@ -1,7 +1,9 @@
 from .BaseSubConditionUnit import BaseSubConditionUnit
 from sim_progress.Preload.APLModule.APLJudgeTools.FindCharacter import find_char
 from sim_progress.Buff.JudgeTools import find_tick
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 class StatusSubUnit(BaseSubConditionUnit):
     def __init__(self, priority: int, sub_condition_dict: dict = None, mode=0):
@@ -49,28 +51,28 @@ class StatusSubUnit(BaseSubConditionUnit):
 
     class CharLastingNodeTagHandler(CheckHandler):
         @classmethod
-        def handler(cls, char_cid, found_char_dict, game_state):
-            tick = find_tick()
+        def handler(cls, char_cid, found_char_dict, game_state, sim_instance):
+            tick = find_tick(sim_instance=sim_instance)
             char = find_char(found_char_dict, game_state, char_cid)
             return char.dynamic.lasting_node.spamming_info(tick)[1]
 
     class CharLastingNodeTickHandler(CheckHandler):
         @classmethod
-        def handler(cls, char_cid, found_char_dict, game_state):
-            tick = find_tick()
+        def handler(cls, char_cid, found_char_dict, game_state, sim_instance):
+            tick = find_tick(sim_instance=sim_instance)
             char = find_char(found_char_dict, game_state, char_cid)
             return char.dynamic.lasting_node.spamming_info(tick)[2]
 
     class CharRepeatTimesHandler(CheckHandler):
         @classmethod
-        def handler(cls, char_cid, found_char_dict, game_state):
-            tick = find_tick()
+        def handler(cls, char_cid, found_char_dict, game_state, sim_instance):
+            tick = find_tick(sim_instance=sim_instance)
             char = find_char(found_char_dict, game_state, char_cid)
             return char.dynamic.lasting_node.spamming_info(tick)[3]
 
     class CharOnFieldHandler(CheckHandler):
         @classmethod
-        def handler(cls, char_cid, found_char_dict, game_state):
+        def handler(cls, char_cid, found_char_dict, game_state, sim_instance):
             char = find_char(found_char_dict, game_state, char_cid)
             return char.dynamic.on_field
 
@@ -81,22 +83,22 @@ class StatusSubUnit(BaseSubConditionUnit):
 
     class CharAvailableHandler(CheckHandler):
         @classmethod
-        def handler(cls, char_cid, found_char_dict, game_state):
+        def handler(cls, char_cid, found_char_dict, game_state, sim_instance):
             char = find_char(found_char_dict, game_state, char_cid)
-            return char.is_available(find_tick())
+            return char.is_available(find_tick(sim_instance=sim_instance))
 
     class QuickAssistHandler(CheckHandler):
         @classmethod
-        def handler(cls, char_cid, found_char_dict, game_state):
+        def handler(cls, char_cid, found_char_dict, game_state, sim_instance):
             char = find_char(found_char_dict, game_state, char_cid)
             return char.dynamic.quick_assist_manager.quick_assist_available
 
     class WaitingAssistHandler(CheckHandler):
         @classmethod
-        def handler(cls, char_cid, found_char_dict, game_state):
+        def handler(cls, char_cid, found_char_dict, game_state, sim_instance):
             char = find_char(found_char_dict, game_state, char_cid)
             return char.dynamic.quick_assist_manager.assist_waiting_for_anwser(
-                find_tick()
+                find_tick(sim_instance=sim_instance)
             )
 
     class ActiveAnomalyHandler(CheckHandler):
@@ -158,7 +160,7 @@ class StatusSubUnit(BaseSubConditionUnit):
         "assist_waiting_for_anwser": WaitingAssistHandler,
     }
 
-    def check_myself(self, found_char_dict, game_state, *args, **kwargs):
+    def check_myself(self, found_char_dict, game_state, sim_instance: "Simulator" = None, *args, **kwargs):
         if self.check_target == "enemy":
             if self.enemy is None:
                 self.enemy = game_state["schedule_data"].enemy
@@ -183,5 +185,5 @@ class StatusSubUnit(BaseSubConditionUnit):
                     f"当前检查的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！"
                 )
             return self.spawn_result(
-                handler.handler(int(self.check_target), found_char_dict, game_state)
+                handler.handler(int(self.check_target), found_char_dict, game_state, sim_instance)
             )

@@ -20,13 +20,13 @@ class HeartstringNocturne(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("心弦夜响")
+            self.equipper = JudgeTools.find_equipper("心弦夜响", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -60,7 +60,7 @@ class HeartstringNocturne(Buff.BuffLogic):
                 return True
         else:
             if skill_node.char_name == self.record.char.NAME:
-                if skill_node.preload_tick == find_tick() and skill_node.skill.trigger_buff_level in [5, 6]:
+                if skill_node.preload_tick == find_tick(sim_instance=self.buff_instance.sim_instance) and skill_node.skill.trigger_buff_level in [5, 6]:
                     return True
         return False
 

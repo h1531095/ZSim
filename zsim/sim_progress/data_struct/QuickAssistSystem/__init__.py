@@ -1,11 +1,16 @@
+from __future__ import annotations
 from .QuickAssistManager import QuickAssistManager
 from sim_progress.Buff import JudgeTools
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class QuickAssistSystem:
     """管理整个小队的系统，需要延迟创建。"""
 
-    def __init__(self, char_obj_list: list):
+    def __init__(self, char_obj_list: list, sim_instance: Simulator):
+        self.sim_instance = sim_instance
         self.char_obj_list = char_obj_list
         self.quick_assist_manager_group: dict[str, QuickAssistManager] = {}
         for char_obj in self.char_obj_list:
@@ -56,13 +61,12 @@ class QuickAssistSystem:
             manager=manager,
             answer=True,
         )
-        event_list = JudgeTools.find_event_list()
+        event_list = JudgeTools.find_event_list(sim_instance=self.buff_instance.sim_instance)
         event_list.append(end_event)
         # print(f'{skill_node.char_name}响应了快速支援！')
 
-    @staticmethod
     def spawn_event_group(
-        tick_now: int, skill_node, active_manager: QuickAssistManager
+        self, tick_now: int, skill_node, active_manager: QuickAssistManager
     ):
         """创建一个事件对，包含开始事件和结束事件，并将他们添加到event_list里面去。"""
         start_event = QuickAssistEvent(
@@ -80,7 +84,7 @@ class QuickAssistSystem:
         start_event.manager.assist_event_update_tick = tick_now
         start_event.manager.last_update_node = skill_node
         end_event.manager.assist_event_update_tick = tick_now
-        event_list = JudgeTools.find_event_list()
+        event_list = JudgeTools.find_event_list(sim_instance=self.sim_instance)
         event_list.append(start_event)
         event_list.append(end_event)
 

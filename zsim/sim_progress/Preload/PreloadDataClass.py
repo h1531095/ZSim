@@ -1,13 +1,19 @@
+from typing import TYPE_CHECKING
+
 from sim_progress.data_struct import QuickAssistSystem
 from sim_progress.Preload import SkillNode
 from sim_progress.data_struct import NodeStack
+import types
+if TYPE_CHECKING:
+    from zsim.simulator.simulator_class import Simulator
 
 
 class PreloadData:
     """循环于Preload阶段内部的数据"""
 
-    def __init__(self, skills, **kwargs):
+    def __init__(self, skills, sim_instance, **kwargs):
         load_data = kwargs.get("load_data")
+        self.sim_instance: "Simulator" = sim_instance
         self.preload_action: list[SkillNode] = []  # 最终return返回给外部申请的数据结构
         self.skills: list = skills  # 用于创建SkillNode，是SkillNode构造函数的必要参数。
         self.personal_node_stack: dict[int, NodeStack] = {}  # 个人的技能栈

@@ -20,11 +20,11 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
         self.xhit = self.special_hit_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["扳机"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["扳机"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -46,7 +46,7 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
 
         if not isinstance(loading_mission, LoadingMission):
             raise TypeError
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         """如果当前mission不是hit，则不触发"""
         if not loading_mission.is_hit_now(tick):
             return False
@@ -75,7 +75,7 @@ class TriggerAfterShockTrigger(Buff.BuffLogic):
             raise ValueError(
                 f"{self.buff_instance.ft.index}的xjudge函数在本tick通过判定，但是并未将通过判定的skill_node传入自身的record中"
             )
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         after_shock_tag = self.record.char.after_shock_manager.spawn_after_shock(
             tick, self.record.active_signal_mission
         )

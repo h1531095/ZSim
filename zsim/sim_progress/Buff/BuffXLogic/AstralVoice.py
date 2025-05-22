@@ -28,17 +28,17 @@ class AstralVoice(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("静听嘉音")
+            self.equipper = JudgeTools.find_equipper("静听嘉音", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
             """
             这里的初始化，找到的buff_0实际上是佩戴者的buff_0，
             即使是在受益者的buff.history.record中存储的，也是装备佩戴者的buff_0。
             """
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -60,7 +60,7 @@ class AstralVoice(Buff.BuffLogic):
             ),
             action_stack=1,
         )
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
 
         skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
@@ -93,7 +93,7 @@ class AstralVoice(Buff.BuffLogic):
             ),
             sub_exist_buff_dict=1,
         )
-        tick_now = find_tick()
+        tick_now = find_tick(sim_instance=self.buff_instance.sim_instance)
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_instance.dy.count = self.record.trigger_buff_0.dy.count
         self.buff_instance.update_to_buff_0(self.buff_0)

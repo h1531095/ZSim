@@ -42,11 +42,11 @@ class VivianCinema6Trigger(Buff.BuffLogic):
         }
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["薇薇安"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["薇薇安"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -124,7 +124,7 @@ class VivianCinema6Trigger(Buff.BuffLogic):
         active_anomaly_bar = get_result[0]
         copyed_anomaly = AnomalyBar.create_new_from_existing(active_anomaly_bar)
         # copyed_anomaly = self.record.last_update_anomaly
-        event_list = JudgeTools.find_event_list()
+        event_list = JudgeTools.find_event_list(sim_instance=self.buff_instance.sim_instance)
         mul_data = Mul(
             self.record.enemy, self.record.dynamic_buff_list, self.record.char
         )

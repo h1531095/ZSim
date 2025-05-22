@@ -22,11 +22,11 @@ class VivianAdditionalAbilityCoAttackTrigger(Buff.BuffLogic):
         self.xeffect = self.special_effect_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["薇薇安"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["薇薇安"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -54,7 +54,7 @@ class VivianAdditionalAbilityCoAttackTrigger(Buff.BuffLogic):
                 ) if VIVIAN_REPORT else None
                 return False
         # 如果是首次传入的属性异常类，则直接放行。
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         if self.record.last_update_anomaly is None:
             self.record.last_update_anomaly = anomaly_bar
             self.record.last_update_tick = tick

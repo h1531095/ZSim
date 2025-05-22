@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
 from sim_progress.anomaly_bar import (
     PhysicalAnomaly,
@@ -18,6 +18,8 @@ from zsim.sim_progress.anomaly_bar.AnomalyBarClass import AnomalyBar
 from .EnemyAttack import EnemyAttackMethod
 from .EnemyUniqueMechanic import unique_mechanic_factory
 from .QTEManager import QTEManager
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class EnemySettings:
@@ -38,6 +40,7 @@ class Enemy:
         sub_ID: int | None = None,
         adjust_ID: int | None = None,
         difficulty: float = 1,
+        sim_instance: "Simulator" = None,
     ):
         """
         根据数据库信息创建怪物属性对象。

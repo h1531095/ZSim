@@ -23,13 +23,13 @@ class ShadowHarmony4(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("如影相随")
+            self.equipper = JudgeTools.find_equipper("如影相随", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -50,7 +50,7 @@ class ShadowHarmony4(Buff.BuffLogic):
             raise TypeError
         skill_node = loading_mission.mission_node
 
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         if not tick - 1 < loading_mission.get_first_hit() <= tick:
             """由于单个技能只能更新本buff一次，而本函数又只能在hit节点执行，
             所以这里需要过滤到第一个hit的节点"""

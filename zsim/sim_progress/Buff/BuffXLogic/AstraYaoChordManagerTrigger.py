@@ -19,11 +19,11 @@ class AstraYaoChordManagerTrigger(Buff.BuffLogic):
         self.xstart = self.special_start_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["耀嘉音"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["耀嘉音"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -36,7 +36,7 @@ class AstraYaoChordManagerTrigger(Buff.BuffLogic):
         self.get_prepared(char_CID=1311)
         skill_node = kwargs["skill_node"]
         if skill_node.skill.trigger_buff_level in [5, 7, 8]:
-            if find_tick() == skill_node.preload_tick:
+            if find_tick(sim_instance=self.buff_instance.sim_instance) == skill_node.preload_tick:
                 self.record.last_update_node = skill_node
                 return True
         return False
@@ -52,7 +52,7 @@ class AstraYaoChordManagerTrigger(Buff.BuffLogic):
         if not isinstance(char, AstraYao):
             raise TypeError("record.char is not AstraYao")
         char.chord_manager.chord_trigger.try_spawn_chord_coattack(
-            find_tick(), skill_node=skill_node
+            find_tick(sim_instance=self.buff_instance.sim_instance), skill_node=skill_node
         )
         if ASTRAYAO_REPORT:
             print(

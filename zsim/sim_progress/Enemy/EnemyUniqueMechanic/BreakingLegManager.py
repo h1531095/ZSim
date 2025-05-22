@@ -1,7 +1,9 @@
 from .BaseUniqueMechanic import BaseUniqueMechanic
 from sim_progress.data_struct import SingleHit, decibel_manager_instance
 from sim_progress.Report import report_dmg_result
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from sim_progress.Enemy import Enemy
 
 """
 FOCUS_RATIO_MAP 的存在，是为了模拟角色在破腿的过程中，
@@ -137,7 +139,7 @@ class SingleLeg(BaseUniqueMechanic):
 
 class BreakingEvent:
     def __init__(self, enemy_instance):
-        self.enemy = enemy_instance
+        self.enemy: "Enemy" = enemy_instance
         self.decibel_rewards = 1000  # 奖励喧响值
         self.stun_ratio = 0.15  # 失衡比例
         self.damage_ratio = 0.055  # 破腿的直伤倍率
@@ -180,7 +182,7 @@ class BreakingEvent:
         if char_cid not in self.found_char_dict:
             from sim_progress.Buff import find_char_from_CID
 
-            self.found_char_dict[char_cid] = find_char_from_CID(char_cid)
+            self.found_char_dict[char_cid] = find_char_from_CID(char_cid, self.enemy.sim_instance)
         char_obj = self.found_char_dict[char_cid]
         char_name = char_obj.NAME
         from sim_progress.data_struct import ScheduleRefreshData

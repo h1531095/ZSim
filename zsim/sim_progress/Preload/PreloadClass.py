@@ -1,12 +1,17 @@
+from typing import TYPE_CHECKING
+
 from define import SWAP_CANCEL
 from sim_progress.Preload.PreloadDataClass import PreloadData
 
 from .PreloadStrategy import SwapCancelStrategy
+import types
+if TYPE_CHECKING:
+    from zsim.simulator.simulator_class import Simulator
 
 
 class PreloadClass:
-    def __init__(self, skills, *, load_data, apl_path: str | None = None, **kwargs):
-        self.preload_data = PreloadData(skills, load_data=load_data)
+    def __init__(self, skills, *, load_data, apl_path: str | None = None, sim_instance: "Simulator" = None,**kwargs):
+        self.preload_data = PreloadData(skills, load_data=load_data, sim_instance=sim_instance)
         if SWAP_CANCEL:
             # 合轴模式，使用输入的APL路径
             self.strategy = SwapCancelStrategy(self.preload_data, apl_path)

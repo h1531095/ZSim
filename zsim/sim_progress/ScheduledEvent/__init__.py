@@ -1,3 +1,4 @@
+from __future__ import annotations
 from sim_progress import Buff, Preload, Report
 from sim_progress.anomaly_bar import AnomalyBar as AnB
 from sim_progress.anomaly_bar.CopyAnomalyForOutput import (
@@ -23,6 +24,9 @@ from sim_progress.Update import update_anomaly
 
 from .CalAnomaly import CalAbloom, CalAnomaly, CalDisorder, CalPolarityDisorder
 from .Calculator import Calculator
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class ScConditionData:
@@ -53,6 +57,7 @@ class ScheduledEvent:
         action_stack: ActionStack,
         *,
         loading_buff: dict | None = None,
+        sim_instance: Simulator
     ):
         self.data = data  # ScheduleData in __main__
         self.data.dynamic_buff = dynamic_buff
@@ -78,6 +83,7 @@ class ScheduledEvent:
             QuickAssistEvent: "execute_tick",
             SchedulePreload: "execute_tick",
         }
+        self.sim_instance: Simulator = sim_instance
 
     def event_start(self):
         """Schedule主逻辑"""
@@ -117,6 +123,7 @@ class ScheduledEvent:
                             self.data.dynamic_buff,
                             self.action_stack,
                             skill_node=event,
+                            sim_instance=self.sim_instance
                         )
                         ProcessHitUpdateDots(
                             self.tick,

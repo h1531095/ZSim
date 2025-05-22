@@ -3,9 +3,12 @@ from .FindCharFromCID import find_char_from_CID
 from .FindMain import *
 from .FindCharFromName import find_char_from_name
 from .FindEquipper import find_equipper
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from sim_progress.Buff import Buff
 
 
-def check_preparation(buff_0, **kwargs):
+def check_preparation(buff_0, buff_instance: "Buff", **kwargs):
     """
     这是一个综合函数。根据传入的参数，来执行不同的内容。
     """
@@ -49,45 +52,45 @@ def check_preparation(buff_0, **kwargs):
     # 函数主体部分
     if equipper:
         if record.equipper is None:
-            record.equipper = find_equipper(equipper)
+            record.equipper = find_equipper(equipper, sim_instance=buff_instance.sim_instance)
         if record.char is None:
-            record.char = find_char_from_name(record.equipper)
+            record.char = find_char_from_name(record.equipper, sim_instance=buff_instance.sim_instance)
     if char_CID:
         if record.char is None:
-            record.char = find_char_from_CID(char_CID)
+            record.char = find_char_from_CID(char_CID, sim_instance=buff_instance.sim_instance)
     if char_NAME:
         if record.char is None:
-            record.char = find_char_from_name(char_NAME)
+            record.char = find_char_from_name(char_NAME, sim_instance=buff_instance.sim_instance)
 
     if sub_exist_buff_dict:
         if record.char is None:
             raise ValueError("在buff_0.history.record 中并未读取到对应的char")
         if record.sub_exist_buff_dict is None:
-            record.sub_exist_buff_dict = find_exist_buff_dict()[record.char.NAME]
+            record.sub_exist_buff_dict = find_exist_buff_dict(sim_instance=buff_instance.sim_instance)[record.char.NAME]
     if enemy:
         if record.enemy is None:
-            record.enemy = find_enemy()
+            record.enemy = find_enemy(sim_instance=buff_instance.sim_instance)
     if dynamic_buff_list:
         if record.dynamic_buff_list is None:
-            record.dynamic_buff_list = find_dynamic_buff_list()
+            record.dynamic_buff_list = find_dynamic_buff_list(sim_instance=buff_instance.sim_instance)
     if action_stack:
         if record.action_stack is None:
-            record.action_stack = find_stack()
+            record.action_stack = find_stack(sim_instance=buff_instance.sim_instance)
     if event_list:
         # print('event_list放在record中很有可能不会随动！！注意！')
         if record.event_list is None:
-            record.event_list = find_event_list()
+            record.event_list = find_event_list(sim_instance=buff_instance.sim_instance)
     if trigger_buff_0:
-        trigger_buff_0_handler(record, trigger_buff_0)
+        trigger_buff_0_handler(record, trigger_buff_0, buff_instance=buff_instance)
     if preload_data:
         if record.preload_data is None:
-            record.preload_data = find_preload_data()
+            record.preload_data = find_preload_data(sim_instance=buff_instance.sim_instance)
     if char_obj_list:
         if record.char_obj_list is None:
             record.char_obj_list = find_char_list()
 
 
-def trigger_buff_0_handler(record, trigger_buff_0):
+def trigger_buff_0_handler(record, trigger_buff_0, buff_instance: "Buff"):
     """
     该函数用于寻找trigger_buff_0，在搜索不同的触发器Buff‘时，程序所面临的情况往往是复杂的。
     1、触发器的操作者（operator）和受益者（beneficiary）都是本人的，那么传入的数据直接可以使用；
@@ -103,11 +106,11 @@ def trigger_buff_0_handler(record, trigger_buff_0):
         buff_index = trigger_buff_0[1]
         if operator == "equipper":
             if record.equipper is None:
-                record.equipper = find_equipper(operator)
+                record.equipper = find_equipper(operator, sim_instance=buff_instance.sim_instance)
             operator = record.equipper
         elif operator == "enemy":
             operator = record.char.NAME
-        sub_exist_buff_dict = find_exist_buff_dict()[operator]
+        sub_exist_buff_dict = find_exist_buff_dict(sim_instance=buff_instance.sim_instance)[operator]
         founded_list = []
         for _buff_founded in sub_exist_buff_dict.values():
             if buff_index in _buff_founded.ft.index:

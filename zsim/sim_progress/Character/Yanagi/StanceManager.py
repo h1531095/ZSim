@@ -19,7 +19,7 @@ class Shinrabanshou:
     def active(self):
         """更新森罗万象的时间！"""
 
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         return tick < self.update_tick + self.max_duration
 
 
@@ -75,7 +75,7 @@ class StanceManager:
                     )
                 self.ex_chain = True
                 # print(f'强化E连段开始')
-                tick = find_tick()
+                tick = find_tick(sim_instance=self.buff_instance.sim_instance)
                 self.shinrabanshou.update_tick = tick
                 self.last_update_node = skill_node
                 self.change_stance()

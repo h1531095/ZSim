@@ -160,7 +160,7 @@ class ChordCoattackManager:
             def __active(self, tick: int, skill_node):
                 """触发快速支援！不包含CD判断，只包含触发逻辑。"""
                 if self.manager.preload_data is None:
-                    self.manager.preload_data = JudgeTools.find_preload_data()
+                    self.manager.preload_data = JudgeTools.find_preload_data(sim_instance=self.manager.char.sim_instance)
                     if not isinstance(self.manager.preload_data, PreloadData):
                         raise TypeError("快速支援管理器无法找到PreloadData实例！")
                 self.last_update_tick = tick
@@ -224,7 +224,7 @@ class ChordCoattackManager:
             并且可以进行重复执行，模仿耀嘉音技能模组中，多次触发的情况。
             """
             if self.preload_data is None:
-                self.preload_data = JudgeTools.find_preload_data()
+                self.preload_data = JudgeTools.find_preload_data(sim_instance=self.buff_instance.sim_instance)
                 if not isinstance(self.preload_data, PreloadData):
                     raise TypeError("和弦管理器无法找到PreloadData实例！")
             priority_list = [-1, -1]
