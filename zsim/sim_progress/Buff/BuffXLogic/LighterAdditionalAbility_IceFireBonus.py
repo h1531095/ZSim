@@ -38,11 +38,11 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["莱特"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["莱特"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -54,7 +54,7 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
         self.get_prepared(
             char_CID=1161, enemy=1, dynamic_buff_list=1, sub_exist_buff_dict=1
         )
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         buff_i = self.buff_instance
         buff_i.simple_start(tick_now, self.record.sub_exist_buff_dict)
 

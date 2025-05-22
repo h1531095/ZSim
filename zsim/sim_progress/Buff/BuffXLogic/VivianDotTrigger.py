@@ -12,18 +12,18 @@ class VivianDotTrigger(Buff.BuffLogic):
     def __init__(self, buff_instance):
         """薇薇安的Dot（薇薇安的预言）触发器"""
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic
         self.xhit = self.special_hit_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["薇薇安"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["薇薇安"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -48,7 +48,7 @@ class VivianDotTrigger(Buff.BuffLogic):
             return False
 
         # 检测到当前tick有命中时，放行。
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         if not skill_node.loading_mission.is_hit_now(tick):
             return False
 
@@ -68,11 +68,11 @@ class VivianDotTrigger(Buff.BuffLogic):
         from sim_progress.Update.UpdateAnomaly import spawn_normal_dot
         from sim_progress.Load import LoadingMission
 
-        dot = spawn_normal_dot("ViviansProphecy")
-        dot.start(find_tick())
-        event_list = JudgeTools.find_event_list()
+        dot = spawn_normal_dot("ViviansProphecy", sim_instance=self.buff_instance.sim_instance)
+        dot.start(find_tick(sim_instance=self.buff_instance.sim_instance))
+        event_list = JudgeTools.find_event_list(sim_instance=self.buff_instance.sim_instance)
         dot.skill_node_data.loading_mission = LoadingMission(dot.skill_node_data)
-        dot.skill_node_data.loading_mission.mission_start(find_tick())
+        dot.skill_node_data.loading_mission.mission_start(find_tick(sim_instance=self.buff_instance.sim_instance))
         self.record.enemy.dynamic.dynamic_dot_list.append(dot)
         event_list.append(dot.skill_node_data)
         print("核心被动：薇薇安对敌人施加Dot——薇薇安的预言") if VIVIAN_REPORT else None

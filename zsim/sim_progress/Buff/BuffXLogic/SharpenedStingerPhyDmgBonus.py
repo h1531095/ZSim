@@ -23,13 +23,13 @@ class SharpenedStingerPhyDmgBonus(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("淬锋钳刺")
+            self.equipper = JudgeTools.find_equipper("淬锋钳刺", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -53,7 +53,7 @@ class SharpenedStingerPhyDmgBonus(Buff.BuffLogic):
         # 过滤不是自己的skill_node
         if self.record.char.NAME != skill_node.char_name:
             return False
-        self.buff_0.ready_judge(find_tick())
+        self.buff_0.ready_judge(find_tick(sim_instance=self.buff_instance.sim_instance))
         if not self.buff_0.dy.ready:
             return False
 
@@ -80,11 +80,11 @@ class SharpenedStingerPhyDmgBonus(Buff.BuffLogic):
             return
         if self.record.update_signal == 0:
             self.buff_instance.simple_start(
-                find_tick(), self.record.sub_exist_buff_dict
+                find_tick(sim_instance=self.buff_instance.sim_instance), self.record.sub_exist_buff_dict
             )
         elif self.record.update_signal == 1:
             self.buff_instance.simple_start(
-                find_tick(), self.record.sub_exist_buff_dict, no_count=1
+                find_tick(sim_instance=self.buff_instance.sim_instance), self.record.sub_exist_buff_dict, no_count=1
             )
             self.buff_instance.dy.count = self.buff_instance.ft.maxcount
             self.buff_instance.update_to_buff_0(self.buff_0)

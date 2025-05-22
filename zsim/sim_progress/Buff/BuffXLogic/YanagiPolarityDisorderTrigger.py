@@ -33,11 +33,11 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["柳"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["柳"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -92,7 +92,7 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
             return False
         # 若是另外两个攻击，则应该检查是否是最后一跳，放行前，打开更新信号。
         else:
-            tick = find_tick()
+            tick = find_tick(sim_instance=self.buff_instance.sim_instance)
             if (
                 tick - 1 < skill_node.loading_mission.get_last_hit() <= tick
             ):  # 此时就是最后一跳
@@ -134,10 +134,11 @@ class YanagiPolarityDisorderTrigger(Buff.BuffLogic):
             mode_number=2,
             polarity_ratio=final_ratio,
             skill_node=kwargs["skill_node"],
+            sim_instance=self.buff_instance.sim_instance
         )
         # polarity_disorder_output = spawn_output(active_anomaly_bar, mode_number=1)
         # 置入event_list
-        event_list = JudgeTools.find_event_list()
+        event_list = JudgeTools.find_event_list(sim_instance=self.buff_instance.sim_instance)
         event_list.append(polarity_disorder_output)
 
         # 清空记录，回收更新信号

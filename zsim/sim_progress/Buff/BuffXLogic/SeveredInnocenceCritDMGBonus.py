@@ -29,13 +29,13 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
         self.xstart = self.special_start_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("牺牲洁纯")
+            self.equipper = JudgeTools.find_equipper("牺牲洁纯", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -64,7 +64,7 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
 
         if not isinstance(_skill_node, SkillNode):
             raise TypeError(f"{_skill_node}不是SkillNode类")
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         if str(self.record.char.CID) not in _skill_node.skill_tag:
             return False
         if not tick - 1 < _skill_node.preload_tick <= tick:
@@ -90,7 +90,7 @@ class SeveredInnocenceCritDMGBonus(Buff.BuffLogic):
         """
         self.check_record_module()
         self.get_prepared(char_CID=1381, equipper="牺牲洁纯", sub_exist_buff_dict=1)
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.buff_instance.sim_instance)
         if not self.record.update_signal:
             return
         reset_list = list(set(self.record.update_signal))

@@ -2,14 +2,20 @@ from .BasePreloadEngine import BasePreloadEngine
 from sim_progress.Preload.APLModule import APLManager
 from define import APL_PATH
 from sim_progress.Preload import SkillsQueue, SkillNode
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
+    from sim_progress.Preload import PreloadData
 
 
 class APLEngine(BasePreloadEngine):
     """用于调动APL模块的Preload引擎"""
 
-    def __init__(self, data, apl_path: str | None = None):
+    def __init__(self, data, apl_path: str | None = None, preload_data: "PreloadData" = None):
         super().__init__(data)
-        self.apl_manager = APLManager()
+        self.preload_data = preload_data
+        self.sim_instance = self.preload_data.sim_instance
+        self.apl_manager = APLManager(sim_instance=self.sim_instance)
 
         if apl_path is None:
             apl_path = APL_PATH
@@ -19,7 +25,7 @@ class APLEngine(BasePreloadEngine):
             if found_path:
                 apl_path = found_path
 
-        self.apl = self.apl_manager.load_apl(apl_path, mode=0)
+        self.apl = self.apl_manager.load_apl(apl_path, mode=0, preload_data=self.preload_data)
 
     def run_myself(self, tick) -> SkillNode | None:
         """APL模块运行的最终结果：技能名、最终通过的APL代码优先级"""

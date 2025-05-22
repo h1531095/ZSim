@@ -1,11 +1,14 @@
 from .BaseListenerClass import BaseListener
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class ZanshinHerbCaseListener(BaseListener):
     """这个监听器的作用是记录残心青囊的触发信号"""
 
-    def __init__(self, listener_id: str = None):
-        super().__init__(listener_id)
+    def __init__(self, listener_id: str = None, sim_instance: "Simulator" = None):
+        super().__init__(listener_id, sim_instance=sim_instance)
         self.active_signal: tuple[object, bool] | None = None
 
     def listening_event(self, event_obj=None, **kwargs):

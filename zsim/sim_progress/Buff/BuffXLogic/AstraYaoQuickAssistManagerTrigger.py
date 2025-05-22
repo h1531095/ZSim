@@ -17,11 +17,11 @@ class AstraYaoQuickAssistManagerTrigger(Buff.BuffLogic):
         self.xeffect = self.special_effect_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["耀嘉音"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["耀嘉音"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -39,7 +39,7 @@ class AstraYaoQuickAssistManagerTrigger(Buff.BuffLogic):
         if skill_node is None:
             return
         self.record.char.chord_manager.quick_assist_trigger_manager.update_myself(
-            find_tick(), skill_node
+            find_tick(sim_instance=self.buff_instance.sim_instance), skill_node
         )
         # if ASTRAYAO_REPORT:
         #     print(f'检测到攻击动作命中，尝试调用快支管理器！')

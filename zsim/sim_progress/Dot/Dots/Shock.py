@@ -1,18 +1,20 @@
 from sim_progress.Dot import Dot
-from dataclasses import dataclass
-import sys
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class Shock(Dot):
-    def __init__(self, bar=None):
-        super().__init__(bar)  # 调用父类Dot的初始化方法
-        self.ft = self.DotFeature()
+    def __init__(self, bar=None, sim_instance: "Simulator" = None):
+        super().__init__(bar, sim_instance=sim_instance)  # 调用父类Dot的初始化方法
+        self.ft = self.DotFeature(sim_instance=sim_instance)
 
     @dataclass
     class DotFeature(Dot.DotFeature):
-        main_module = sys.modules["simulator.main_loop"]
-        char_name_box = main_module.init_data.name_box
-        exist_buff_dict = main_module.load_data.exist_buff_dict
+        sim_instance: "Simulator"
+        char_name_box: list[str] = field(init=False)
+        exist_buff_dict: dict[str, dict[str, object]] = field(init=False)
         update_cd: int = 60
         index: str = "Shock"
         name: str = "感电"
@@ -23,11 +25,17 @@ class Shock(Dot):
         """
         如果丽娜在角色列表里，灼烧和最大生效次数就要发生变化。
         """
-        if "丽娜" in char_name_box:
-            if "Buff-角色-丽娜-组队被动-延长感电" in exist_buff_dict["丽娜"]:
-                max_duration: int = 600 + 180
-            else:
-                max_duration: int = 600
-        else:
-            max_duration: int = 600
+        max_duration: int | None = None
         max_effect_times = 30
+
+        def __post_init__(self):
+            self.char_name_box = self.sim_instance.init_data.name_box
+            self.exist_buff_dict = self.sim_instance.load_data.exist_buff_dict
+            if "丽娜" in self.char_name_box:
+                if "Buff-角色-丽娜-组队被动-延长感电" in self.exist_buff_dict["丽娜"]:
+                    self.max_duration: int = 600 + 180
+                else:
+                    self.max_duration: int = 600
+            else:
+                self.max_duration: int = 600
+

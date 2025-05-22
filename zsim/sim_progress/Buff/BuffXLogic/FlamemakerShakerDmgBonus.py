@@ -22,13 +22,13 @@ class FlamemakerShakerDmgBonus(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("灼心摇壶")
+            self.equipper = JudgeTools.find_equipper("灼心摇壶", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -72,7 +72,7 @@ class FlamemakerShakerDmgBonus(Buff.BuffLogic):
         if self.record.preload_data.operating_now != self.record.char.CID:
             # 说明此时角色正位于后台，更新两层。
             self.buff_instance.simple_start(
-                find_tick(), self.record.sub_exist_buff_dict, no_count=1
+                find_tick(sim_instance=self.buff_instance.sim_instance), self.record.sub_exist_buff_dict, no_count=1
             )
             self.buff_instance.dy.count = min(
                 self.buff_instance.dy.count + 2, self.buff_instance.ft.maxcount
@@ -80,7 +80,7 @@ class FlamemakerShakerDmgBonus(Buff.BuffLogic):
             update_count = 2
         else:
             self.buff_instance.simple_start(
-                find_tick(), self.record.sub_exist_buff_dict
+                find_tick(sim_instance=self.buff_instance.sim_instance), self.record.sub_exist_buff_dict
             )
             update_count = 1
         self.buff_instance.update_to_buff_0(self.buff_0)

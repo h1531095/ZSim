@@ -1,13 +1,17 @@
 from .APLUnit import APLUnit, ActionAPLUnit
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class APLOperator:
     """APL执行器，负责运行对象化的APL代码，并返回布尔值。"""
 
-    def __init__(self, all_apl_unit_list, game_state: dict):
+    def __init__(self, all_apl_unit_list, game_state: dict, simulator_instance: "Simulator" = None):
         self.game_state = game_state
         self.found_char_dict = {}  # 用于装角色实例，键值是CID
         self.leagal_apl_type_list = ["action+=", "action.no_swap_cancel+="]
+        self.sim_instance = simulator_instance
         self.apl_unit_inventory: dict[
             int, APLUnit
         ] = {}  # 用于装已经解析过的apl子条件实例。
@@ -22,7 +26,7 @@ class APLOperator:
         for priority, apl_unit in self.apl_unit_inventory.items():
             if isinstance(apl_unit, ActionAPLUnit):
                 result, result_box = apl_unit.check_all_sub_units(
-                    self.found_char_dict, self.game_state, tick=tick
+                    self.found_char_dict, self.game_state, tick=tick, sim_instance=self.sim_instance
                 )
                 if not result:
                     # if priority in [4] and tick <= 1200:

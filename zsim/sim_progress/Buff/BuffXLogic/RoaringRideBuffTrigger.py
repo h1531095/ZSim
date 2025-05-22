@@ -21,13 +21,13 @@ class RoaringRideBuffTrigger(Buff.BuffLogic):
         self.record: RoaringRideBuffTriggerRecord | None = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("轰鸣座驾")
+            self.equipper = JudgeTools.find_equipper("轰鸣座驾", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -54,13 +54,13 @@ class RoaringRideBuffTrigger(Buff.BuffLogic):
         seed = rng.r
         seed = (seed / (2**63 - 1) + 1) / 2
         if 0 <= seed < 1 / 3:
-            buff_add_strategy(self.record.buff_map[0])
+            buff_add_strategy(self.record.buff_map[0], sim_instance=self.buff_instance.sim_instance)
             # print(f'轰鸣座驾触发了攻击力Buff')
         elif 1 / 3 <= seed < 2 / 3:
-            buff_add_strategy(self.record.buff_map[1])
+            buff_add_strategy(self.record.buff_map[1], sim_instance=self.buff_instance.sim_instance)
             # print(f'轰鸣座驾触发了精通Buff')
         else:
             # print(f'轰鸣座驾触发了积蓄效率Buff')
-            buff_add_strategy(self.record.buff_map[2])
+            buff_add_strategy(self.record.buff_map[2], sim_instance=self.buff_instance.sim_instance)
 
-        self.buff_instance.simple_start(find_tick(), self.record.sub_exist_buff_dict)
+        self.buff_instance.simple_start(find_tick(sim_instance=self.buff_instance.sim_instance), self.record.sub_exist_buff_dict)

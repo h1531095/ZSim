@@ -24,13 +24,13 @@ class StreetSuperstar(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("街头巨星")
+            self.equipper = JudgeTools.find_equipper("街头巨星", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -49,7 +49,7 @@ class StreetSuperstar(Buff.BuffLogic):
             raise TypeError(
                 f"{self.buff_instance.ft.index}的xjudge函数获取到的skill_node不是SkillNode类型"
             )
-        if not skill_node.preload_tick == find_tick():
+        if not skill_node.preload_tick == find_tick(sim_instance=self.buff_instance.sim_instance):
             return False
         if skill_node.skill.trigger_buff_level == 5:
             self.record.qte_counter = min(
@@ -67,13 +67,13 @@ class StreetSuperstar(Buff.BuffLogic):
         if self.record.qte_counter == 0:
             return
         self.buff_instance.simple_start(
-            find_tick(),
+            find_tick(sim_instance=self.buff_instance.sim_instance),
             self.record.sub_exist_buff_dict,
             specified_count=self.record.qte_counter,
             no_end=1,
         )
         self.buff_instance.dy.endticks = (
-            find_tick() + self.record.active_signal.skill.ticks
+            find_tick(sim_instance=self.buff_instance.sim_instance) + self.record.active_signal.skill.ticks
         )
         self.buff_instance.update_to_buff_0(self.buff_0)
 

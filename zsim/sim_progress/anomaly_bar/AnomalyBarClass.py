@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 import numpy as np
-import sys
 import uuid
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 @dataclass
@@ -9,7 +11,7 @@ class AnomalyBar:
     """
     这是属性异常类的基类。其中包含了属性异常的基本属性，以及几个基本方法。
     """
-
+    sim_instance: "Simulator"
     element_type: int = 0  # 属性种类编号(1~5)
     is_disorder: bool = False  # 是否是紊乱实例
     is_full: bool = False  # 是否积满了
@@ -37,12 +39,10 @@ class AnomalyBar:
     def __post_init__(self):
         self.current_ndarray: np.ndarray = np.zeros((1, 1), dtype=np.float64)
         self.current_anomaly: np.float64 = np.float64(0)
-
         self.UUID = uuid.uuid4()
 
     def remaining_tick(self):
-        main_module = sys.modules["simulator.main_loop"]
-        timetick = main_module.tick
+        timetick = self.sim_instance.tick
         remaining_tick = max(self.max_duration - self.duration(timetick), 0)
         return remaining_tick
 

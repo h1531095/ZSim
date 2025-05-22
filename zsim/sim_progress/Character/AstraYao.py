@@ -1,4 +1,3 @@
-from sim_progress.Preload import SkillNode
 from sim_progress.Character.utils.filters import _skill_node_filter
 from sim_progress.Character.character import Character
 import math
@@ -6,6 +5,10 @@ from sim_progress.Preload.PreloadDataClass import PreloadData
 from sim_progress.Buff import JudgeTools
 from sim_progress.data_struct import schedule_preload_event_factory
 from define import ASTRAYAO_REPORT
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from sim_progress.Preload import SkillNode
+
 
 
 class AstraYao(Character):
@@ -45,7 +48,7 @@ class AstraYao(Character):
             """保留设置功能"""
             self._on_field = value
 
-    def __update_idyllic_cadenza(self, skill_node: SkillNode) -> None:
+    def __update_idyllic_cadenza(self, skill_node: "SkillNode") -> None:
         """更新咏叹华彩状态"""
         if skill_node.skill_tag in ["1311_E_A", "1311_QTE", "1311_Q"]:
             self.idyllic_cadenza = True
@@ -54,7 +57,7 @@ class AstraYao(Character):
 
     def special_resources(self, *args, **kwargs) -> None:
         # 输入类型检查
-        skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
+        skill_nodes: list["SkillNode"] = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
             self.__update_idyllic_cadenza(node)
             pass
@@ -160,7 +163,7 @@ class ChordCoattackManager:
             def __active(self, tick: int, skill_node):
                 """触发快速支援！不包含CD判断，只包含触发逻辑。"""
                 if self.manager.preload_data is None:
-                    self.manager.preload_data = JudgeTools.find_preload_data()
+                    self.manager.preload_data = JudgeTools.find_preload_data(sim_instance=self.manager.char.sim_instance)
                     if not isinstance(self.manager.preload_data, PreloadData):
                         raise TypeError("快速支援管理器无法找到PreloadData实例！")
                 self.last_update_tick = tick
@@ -200,13 +203,13 @@ class ChordCoattackManager:
         def c2_ready(self, tick: int):
             return tick - self.c2_update_tick >= self.c2_trigger_cd
 
-        def try_spawn_chord_coattack(self, tick: int, skill_node: SkillNode = None):
+        def try_spawn_chord_coattack(self, tick: int, skill_node: "SkillNode" = None):
             """给外部的接口，尝试执行！"""
             if self.manager.char.sp < 25:
                 return
             self.coattack_active(tick, skill_node)
 
-        def coattack_active(self, tick: int, skill_node: SkillNode = None):
+        def coattack_active(self, tick: int, skill_node: "SkillNode" = None):
             """
             给外部函数调用的接口，用于生成协同攻击。
             如果有顺带传入skill_node参数，则意味着调用来自Buff系统的触发器，
@@ -224,7 +227,7 @@ class ChordCoattackManager:
             并且可以进行重复执行，模仿耀嘉音技能模组中，多次触发的情况。
             """
             if self.preload_data is None:
-                self.preload_data = JudgeTools.find_preload_data()
+                self.preload_data = JudgeTools.find_preload_data(sim_instance=self.manager.char.sim_instance)
                 if not isinstance(self.preload_data, PreloadData):
                     raise TypeError("和弦管理器无法找到PreloadData实例！")
             priority_list = [-1, -1]
@@ -250,15 +253,16 @@ class ChordCoattackManager:
                     preload_tick_list=skill_preload_tick_list,
                     preload_data=self.preload_data,
                     apl_priority_list=priority_list,
+                    sim_instance=self.manager.char.sim_instance
                 )
 
-        def __add_core_passive_buff(self, skill_node: SkillNode):
+        def __add_core_passive_buff(self, skill_node: "SkillNode"):
             """在触发第一次震音的时刻，也会给角色上Buff"""
             add_buff_list = [self.manager.char.NAME] + [skill_node.char_name]
             benifit_list = list(set(add_buff_list))
             from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
 
-            buff_add_strategy(self.core_passive_buff_index, benifit_list=benifit_list)
+            buff_add_strategy(self.core_passive_buff_index, benifit_list=benifit_list, sim_instance=self.manager.char.sim_instance)
             if ASTRAYAO_REPORT:
                 print(
                     f"核心被动触发器激活！为{benifit_list}添加了{self.core_passive_buff_index}！"

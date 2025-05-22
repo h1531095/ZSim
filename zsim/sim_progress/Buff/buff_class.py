@@ -2,11 +2,16 @@ import json
 import importlib
 import ast
 from functools import lru_cache
+from typing import TYPE_CHECKING
+
 import numpy as np
 from sim_progress.Report import report_to_log
 from define import EFFECT_FILE_PATH, EXIST_FILE_PATH, JUDGE_FILE_PATH, CONFIG_PATH
 import importlib.util
 import pandas as pd
+if TYPE_CHECKING:
+    from zsim.simulator.simulator_class import Simulator
+
 
 with open(CONFIG_PATH, "r", encoding="utf-8") as file:
     config = json.load(file)
@@ -39,7 +44,7 @@ class Buff:
         new_instance.__dict__ = existing_instance.__dict__.copy()  # 复制原实例的属性
         return new_instance
 
-    def __init__(self, config: pd.Series, judge_config: pd.Series):
+    def __init__(self, config: pd.Series, judge_config: pd.Series, sim_instance: "Simulator"):
         if not hasattr(self, "ft"):
             self.ft = self.BuffFeature(config)
             self.dy = self.BuffDynamic()
@@ -54,6 +59,7 @@ class Buff:
         # 调用特殊的逻辑加载函数
         self.buff_config = self.load_config()
         self.load_special_judge_config()
+        self.sim_instance = sim_instance
 
     @staticmethod
     def load_config():
@@ -389,7 +395,7 @@ class Buff:
             self.record = None
 
     def __deepcopy__(self, memo):
-        new_obj = Buff(self.feature_config, self.judge_config)
+        new_obj = Buff(self.feature_config, self.judge_config, sim_instance=self.sim_instance)
         memo[id(self)] = new_obj
         return new_obj
 

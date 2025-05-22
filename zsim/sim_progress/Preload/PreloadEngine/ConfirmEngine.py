@@ -1,11 +1,7 @@
-from typing import TYPE_CHECKING
-
-from sim_progress.data_struct import decibel_manager_instance
 from sim_progress.Preload.PreloadEngine import BasePreloadEngine
 from sim_progress.Preload import SkillNode, SkillsQueue
 from sim_progress.Report import report_to_log
 
-from sim_progress.data_struct import decibel_manager_instance
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -89,7 +85,7 @@ class ConfirmEngine(BasePreloadEngine):
             and node.active_generation
         ):
             self.switch_char(node, self.data.char_data)
-        decibel_manager_instance.update(skill_node=node)
+        self.data.sim_instance.decibel_manager.update(skill_node=node)
 
     def switch_char(self, this_node: SkillNode, char_data) -> None:
         name_box = self.data.name_box
@@ -108,10 +104,9 @@ class ConfirmEngine(BasePreloadEngine):
             char: "Character"
             if name_box[0] == char.NAME:
                 if name_box[0] != old_name_box[0]:
-                    from sim_progress.data_struct import listener_manager_instance
 
                     """在更新name_box的时候，将切人事件对所有监听器进行广播。"""
-                    listener_manager_instance.broadcast_event(
+                    self.data.sim_instance.listener_manager.broadcast_event(
                         char, switching_in_event=1
                     )
                     char.dynamic.on_field = True

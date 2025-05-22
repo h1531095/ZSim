@@ -45,7 +45,7 @@ class BuffSubUnit(BaseSubConditionUnit):
                 return 0
             from zsim.sim_progress.Buff import find_tick
 
-            tick = find_tick()
+            tick = find_tick(sim_instance=char.sim_instance)
             return max(search_result.dy.endticks - tick, 0)
 
     BuffHandlerMap = {

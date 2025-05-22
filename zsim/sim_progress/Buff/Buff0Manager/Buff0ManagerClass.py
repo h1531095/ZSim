@@ -1,10 +1,15 @@
 import itertools
+from typing import TYPE_CHECKING
+
 from define import saved_char_config, BUFF_0_REPORT
 from sim_progress.Buff import JudgeTools
 from sim_progress.Buff.buff_class import Buff
 from define import EXIST_FILE_PATH, JUDGE_FILE_PATH, CHARACTER_DATA_PATH
 import pandas as pd
 import copy
+import types
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class Buff0Manager:
@@ -15,11 +20,13 @@ class Buff0Manager:
         weapon_dict: dict[str, list],
         cinema_dict: dict,
         char_obj_dict: dict | None,
+        sim_instance: "Simulator"
     ):
         # 加载文件
         self.EXIST_FILE = pd.read_csv(EXIST_FILE_PATH, index_col="BuffName")
         self.JUDGE_FILE = pd.read_csv(JUDGE_FILE_PATH, index_col="BuffName")
         self.CHARACTER_FILE = pd.read_csv(CHARACTER_DATA_PATH, index_col="name")
+        self.sim_instance: "Simulator" = sim_instance
         self.judge_list_set = judge_list_set
         self.weapon_dict = weapon_dict
         self.cinema_dict = cinema_dict
@@ -70,7 +77,7 @@ class Buff0Manager:
                     "only_active_by" in _buff_0.ft.label
                     and _buff_0.ft.label["only_active_by"] == "self"
                 ):
-                    char_obj = JudgeTools.find_char_from_name(_buff_0.ft.operator)
+                    char_obj = JudgeTools.find_char_from_name(_buff_0.ft.operator, sim_instance=self.sim_instance)
                     _buff_0.ft.label["only_active_by"] = char_obj.CID
 
     def __process_judge_list_set(self):
@@ -343,7 +350,7 @@ class Buff0Manager:
                 dict_1["passively_updating"] = False
             else:
                 dict_1["passively_updating"] = True
-            buff_new = Buff(dict_1, dict_2)
+            buff_new = Buff(dict_1, dict_2, sim_instance=self.buff_0_manager.sim_instance)
             buff_new.ft.beneficiary = benifiter
             self.buff_0_manager.exist_buff_dict[benifiter][buff_name] = buff_new
 

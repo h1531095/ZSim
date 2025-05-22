@@ -1,6 +1,7 @@
 from .buff_class import Buff
-import sys
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 def _buff_filter(*args, **kwargs):
     buff_name_list: list[str] = []
@@ -21,20 +22,23 @@ def buff_add_strategy(
     *added_buffs: str | Buff,
     benifit_list: list[str] | None = None,
     specified_count: int | None = None,
+    sim_instance: "Simulator" = None
 ):
     """
     这个函数是暴力添加buff用的，比如霜寒、畏缩等debuff，
     又比如核心被动强行添加buff的行为，都可以通过这个函数来实现。
     """
+    if sim_instance is None:
+        raise ValueError("调用buff_add_strategy函数时，sim_instance是None")
     buff_name_list: list[str] = _buff_filter(*added_buffs)
-    main_module = sys.modules["simulator.main_loop"]
-    all_name_order_box = main_module.load_data.all_name_order_box
+
+    all_name_order_box = sim_instance.load_data.all_name_order_box
     # name_box = main_module.load_data.name_box
     # name_box_now = name_box + ['enemy']
-    enemy = main_module.schedule_data.enemy
-    exist_buff_dict = main_module.load_data.exist_buff_dict
-    tick = main_module.tick
-    DYNAMIC_BUFF_DICT = main_module.global_stats.DYNAMIC_BUFF_DICT
+    enemy = sim_instance.schedule_data.enemy
+    exist_buff_dict = sim_instance.load_data.exist_buff_dict
+    tick = sim_instance.tick
+    DYNAMIC_BUFF_DICT = sim_instance.global_stats.DYNAMIC_BUFF_DICT
     """
     将Buff名称、Buff实例转化为对应的Buff并且添加到DYNAMIC_BUFF_DICT或者其他地方。
     是在Load阶段以外暴力互动DYNAMIC_BUFF_DICT的通用方式。

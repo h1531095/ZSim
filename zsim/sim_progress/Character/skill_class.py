@@ -415,7 +415,7 @@ class Skill:
             if condition_value is None:
                 self.force_add_condition_APL = []
             else:
-                from sim_progress.Preload.APLModule.APLUnit import SimpleUnitForForceAdd
+                from sim_progress.Preload.APLModule import SimpleUnitForForceAdd
 
                 condition_list = condition_value.strip().split(";")
                 for _cond_str in condition_list:

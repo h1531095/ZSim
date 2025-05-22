@@ -28,11 +28,11 @@ class Soldier0AnbyCoreSkillCritDMGBonus(Buff.BuffLogic):
         self.xexit = self.special_exit_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["零号·安比"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["零号·安比"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -59,7 +59,7 @@ class Soldier0AnbyCoreSkillCritDMGBonus(Buff.BuffLogic):
         self.get_prepared(
             char_CID=1381, dynamic_buff_list=1, enemy=1, sub_exist_buff_dict=1
         )
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         self.buff_instance.simple_start(
             tick_now, self.record.sub_exist_buff_dict, no_count=1
         )

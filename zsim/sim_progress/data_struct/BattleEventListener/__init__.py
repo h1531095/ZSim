@@ -1,11 +1,15 @@
 from .BaseListenerClass import BaseListener
 import importlib
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class ListenerManger:
     """监听器组"""
 
-    def __init__(self):
+    def __init__(self, sim_instance: "Simulator"):
+        self.sim_instance = sim_instance
         self._listeners_group: dict[str, BaseListener] = {}
         self.__listener_map: dict[str, str] = {
             "Hugo_1": "HugoCorePassiveBuffListener",
@@ -27,7 +31,7 @@ class ListenerManger:
         for listener in self._listeners_group.values():
             listener.listening_event(event, **kwargs)
 
-    def listener_factory(self, initiate_signal: str = None):
+    def listener_factory(self, initiate_signal: str = None, sim_instance: "Simulator" = None):
         """初始化监听器的工厂函数"""
         if initiate_signal is None:
             raise ValueError(
@@ -40,7 +44,7 @@ class ListenerManger:
                     module = importlib.import_module(
                         f".{module_name}", package=__name__
                     )
-                    listener_obj = getattr(module, listener_class_name)(listener_id)
+                    listener_obj = getattr(module, listener_class_name)(listener_id, sim_instance=sim_instance)
                     self.add_listener(listener_obj)
                     return listener_obj
                 except ModuleNotFoundError:
@@ -48,6 +52,6 @@ class ListenerManger:
                         "在初始化阶段调用监听器工厂函数时，找不到对应的监听器模块！"
                     )
 
-
-# import时，就创建一个单例
-listener_manager_instance = ListenerManger()
+#
+# # import时，就创建一个单例
+# listener_manager_instance = ListenerManger()

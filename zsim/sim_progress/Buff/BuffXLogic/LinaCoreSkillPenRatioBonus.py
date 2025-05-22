@@ -28,11 +28,11 @@ class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
         self.xexit = self.special_exit_logic
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["丽娜"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["丽娜"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -59,7 +59,7 @@ class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
             enemy=1,
             sub_exist_buff_dict=1,
         )
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_0.dy.count -= self.buff_0.ft.step
         mul_data = Mul(
@@ -79,7 +79,7 @@ class LinaCoreSkillPenRatioBonus(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(action_stack=1)
         if self.record.action_stack.peek().mission_tag != "1211_SNA_1":
-            tick = JudgeTools.find_tick()
+            tick = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
             if self.buff_instance.dy.endticks <= tick:
                 return True
             return False

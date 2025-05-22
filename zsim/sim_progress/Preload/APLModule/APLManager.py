@@ -3,15 +3,20 @@ import os
 from .APLParser import APLParser
 from .APLClass import APLClass
 from define import DEFAULT_APL_DIR, COSTOM_APL_DIR
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
+    from sim_progress.Preload import PreloadData
 
 
 class APLManager:
     """APL管理器，用于管理和加载APL代码文件"""
 
-    def __init__(self):
+    def __init__(self, sim_instance: "Simulator" = None):
         self.default_apl_dir = DEFAULT_APL_DIR
         self.custom_apl_dir = COSTOM_APL_DIR
         self._ensure_directories()
+        self.sim_instance = sim_instance
 
     def _ensure_directories(self):
         """确保必要的目录存在"""
@@ -38,14 +43,15 @@ class APLManager:
                 return path
         return None
 
-    def load_apl(self, path: str, mode: int = 0) -> APLClass:
+    def load_apl(self, path: str, mode: int = 0, preload_data: "PreloadData" = None) -> APLClass:
         """
         加载并解析APL文件
         :param path: APL文件路径
         :param mode: 解析模式（0为普通模式，1为默认配置模式）
+        :param preload_data: 外部传入的Preload_data
         :return: 已初始化的APLClass实例
         """
-        return APLClass(APLParser(file_path=path).parse(mode=mode))
+        return APLClass(APLParser(file_path=path).parse(mode=mode), preload_data=preload_data, sim_instance=self.sim_instance)
 
     def list_available_apls(self) -> list[str]:
         """

@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
 from sim_progress.anomaly_bar import (
     PhysicalAnomaly,
@@ -11,13 +11,15 @@ from sim_progress.anomaly_bar import (
 import numpy as np
 import pandas as pd
 from define import ENEMY_ADJUSTMENT_PATH, ENEMY_DATA_PATH
-from sim_progress.data_struct import SingleHit, decibel_manager_instance
+from sim_progress.data_struct import SingleHit
 from sim_progress.Report import report_to_log
 from zsim.sim_progress.anomaly_bar.AnomalyBarClass import AnomalyBar
 
 from .EnemyAttack import EnemyAttackMethod
 from .EnemyUniqueMechanic import unique_mechanic_factory
 from .QTEManager import QTEManager
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class EnemySettings:
@@ -38,6 +40,7 @@ class Enemy:
         sub_ID: int | None = None,
         adjust_ID: int | None = None,
         difficulty: float = 1,
+        sim_instance: "Simulator" = None,
     ):
         """
         根据数据库信息创建怪物属性对象。
@@ -57,6 +60,7 @@ class Enemy:
             get_stun_percentage()
         """
         # 读取敌人数据文件，初始化敌人信息
+        self.sim_instance = sim_instance
         self.__last_stun_increase_tick: int | None = None
         _raw_enemy_dataframe = pd.read_csv(ENEMY_DATA_PATH)
         _raw_enemy_adjustment_dataframe = pd.read_csv(ENEMY_ADJUSTMENT_PATH)
@@ -175,12 +179,12 @@ class Enemy:
         }
 
         # enemy实例化的时候，6种异常积蓄条也随着一起实例化
-        self.frost_anomaly_bar = FrostAnomaly()
-        self.ice_anomaly_bar = IceAnomaly()
-        self.fire_anomaly_bar = FireAnomaly()
-        self.physical_anomaly_bar = PhysicalAnomaly()
-        self.ether_anomaly_bar = EtherAnomaly()
-        self.electric_anomaly_bar = ElectricAnomaly()
+        self.frost_anomaly_bar = FrostAnomaly(sim_instance=self.sim_instance)
+        self.ice_anomaly_bar = IceAnomaly(sim_instance=self.sim_instance)
+        self.fire_anomaly_bar = FireAnomaly(sim_instance=self.sim_instance)
+        self.physical_anomaly_bar = PhysicalAnomaly(sim_instance=self.sim_instance)
+        self.ether_anomaly_bar = EtherAnomaly(sim_instance=self.sim_instance)
+        self.electric_anomaly_bar = ElectricAnomaly(sim_instance=self.sim_instance)
         """
         由于在AnomalyBar的init中有一个update_anomaly函数，
         该函数可以根据传入new_snap_shot: tuple 的第0位的属性标号，
@@ -532,10 +536,8 @@ class Enemy:
             self.dynamic.stun_bar = 0  # 避免 log 差错
             self.dynamic.stun_update_tick = _tick
             if single_hit:
-                decibel_manager_instance.update(single_hit=single_hit, key="stun")
-                from sim_progress.data_struct import listener_manager_instance
-
-                listener_manager_instance.broadcast_event(single_hit, stun_event=1)
+                self.sim_instance.decibel_manager.update(single_hit=single_hit, key="stun")
+                self.sim_instance.listener_manager.broadcast_event(single_hit, stun_event=1)
 
         return self.dynamic.stun
 

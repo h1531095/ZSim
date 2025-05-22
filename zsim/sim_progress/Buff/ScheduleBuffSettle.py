@@ -1,7 +1,11 @@
-from sim_progress import Load
+from __future__ import annotations
 from sim_progress.Buff.buff_class import Buff
 from sim_progress.Buff.BuffAdd import add_debuff_to_enemy
 from sim_progress.Buff import JudgeTools
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
+    from sim_progress.Load import LoadingMission
 
 
 def ScheduleBuffSettle(
@@ -10,20 +14,21 @@ def ScheduleBuffSettle(
     enemy,
     DYNAMIC_BUFF_DICT: dict,
     action_stack,
+    sim_instance: Simulator,
     **kwargs,
 ):
     """
     专门用于处理Schedule阶段才能处理的Buff（buff.ft.schedule_judge = True）
     此类Buff往往需要当前Tick的结果出来之后再判定触发与否；
     """
-    preload_data = JudgeTools.find_preload_data()
+    preload_data = JudgeTools.find_preload_data(sim_instance=sim_instance)
     action_now = preload_data.get_on_field_node(time_tick)
     if action_now is None:
         print("Warnning！！！ScheduleBuffSettle函数没有找到action_now！")
         # FIXME: 修复这个问题！！！
         return
     char_on_field = action_now.char_name
-    all_name_order_box = JudgeTools.find_all_name_order_box()
+    all_name_order_box = JudgeTools.find_all_name_order_box(sim_instance=sim_instance)
     name_box_on_field = all_name_order_box[char_on_field]
     for char_name in name_box_on_field:
         sub_exist_buff_dict = exist_buff_dict[char_name]
@@ -189,7 +194,7 @@ def ArgumentCheck(**kwargs):
     action_now = kwargs.get("action_now", None)
     buff = kwargs.get("buff", None)
     if action_now:
-        if not isinstance(action_now, Load.LoadingMission):
+        if not isinstance(action_now, LoadingMission):
             raise TypeError(f"{action_now}不是LoadingMission类！")
     if buff:
         if not isinstance(buff, Buff):

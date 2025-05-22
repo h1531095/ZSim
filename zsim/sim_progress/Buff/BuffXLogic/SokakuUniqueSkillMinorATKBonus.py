@@ -22,11 +22,11 @@ class SokakuUniqueSkillMinorATKBonus(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["苍角"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["苍角"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -41,7 +41,7 @@ class SokakuUniqueSkillMinorATKBonus(Buff.BuffLogic):
         self.get_prepared(char_CID=1131, sub_exist_buff_dict=1)
         atk_now = self.record.char.statement.ATK
         count = min(atk_now * 0.2, 500)
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         self.buff_instance.simple_start(tick_now, self.record.sub_exist_buff_dict)
         self.buff_instance.dy.count = count
         self.buff_instance.update_to_buff_0(self.buff_0)

@@ -2,6 +2,7 @@ import subprocess
 import sys
 import platform
 
+
 def check_uv_installed() -> bool:
     """
     检查系统是否安装了uv工具
@@ -17,6 +18,7 @@ def check_uv_installed() -> bool:
         return True
     except subprocess.CalledProcessError:
         return False
+
 
 def install_uv() -> bool:
     """
@@ -49,6 +51,7 @@ def install_uv() -> bool:
         print("安装失败，请手动安装")
         return False
 
+
 def main() -> None:
     """主程序入口"""
     if not check_uv_installed():
@@ -58,6 +61,7 @@ def main() -> None:
     
     # 运行主程序
     subprocess.run(['uv', 'run', 'zsim', 'app', "--server.headless=true"])
+
 
 if __name__ == '__main__':
     main()

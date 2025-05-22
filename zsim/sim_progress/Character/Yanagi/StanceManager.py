@@ -3,9 +3,10 @@ from sim_progress.Preload import SkillNode
 
 
 class Shinrabanshou:
-    def __init__(self, cinema: int):
+    def __init__(self, cinema: int, char_instance):
         self.max_duration = 900 if cinema < 6 else 1800
         self.update_tick = 0
+        self.char = char_instance
 
     def statement(self, tick: int):
         """查询 柳的森罗万象状态的方法"""
@@ -19,7 +20,7 @@ class Shinrabanshou:
     def active(self):
         """更新森罗万象的时间！"""
 
-        tick = find_tick()
+        tick = find_tick(sim_instance=self.char.sim_instance)
         return tick < self.update_tick + self.max_duration
 
 
@@ -31,7 +32,7 @@ class StanceManager:
         self.stance_jougen = True  # 上弦状态，初始化时就是上弦
         self.stance_kagen = False  # 下弦状态
         self.last_update_node = None  # 上次导致架势管理器的数据发生更新的skill_node
-        self.shinrabanshou = Shinrabanshou(self.char.cinema)  # 森罗万象管理器
+        self.shinrabanshou = Shinrabanshou(self.char.cinema, self.char)  # 森罗万象管理器
         self.ex_chain = False  # 突刺连段状态，也可以理解为'是否正在释放强化E'
         self.stance_changing_buff_index = "Buff-角色-柳-额外能力-积蓄效率"
 
@@ -75,7 +76,7 @@ class StanceManager:
                     )
                 self.ex_chain = True
                 # print(f'强化E连段开始')
-                tick = find_tick()
+                tick = find_tick(sim_instance=self.char.sim_instance)
                 self.shinrabanshou.update_tick = tick
                 self.last_update_node = skill_node
                 self.change_stance()
@@ -106,7 +107,7 @@ class StanceManager:
             self.stance_kagen = False
         from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
 
-        buff_add_strategy(self.stance_changing_buff_index)
+        buff_add_strategy(self.stance_changing_buff_index, sim_instance=self.char.sim_instance)
 
     @property
     def stance_now(self):

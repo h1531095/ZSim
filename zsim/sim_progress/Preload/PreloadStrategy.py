@@ -12,7 +12,7 @@ class BasePreloadStrategy(ABC):
 
     def __init__(self, data, apl_path):
         self.data = data
-        self.apl_engine = APLEngine(data, apl_path=apl_path)
+        self.apl_engine = APLEngine(data, apl_path=apl_path, preload_data=self.data)
         self.force_add_engine = ForceAddEngine(data)
         self.confirm_engine = ConfirmEngine(data)
 

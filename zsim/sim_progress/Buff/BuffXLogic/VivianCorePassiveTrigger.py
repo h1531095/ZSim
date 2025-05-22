@@ -36,11 +36,11 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         }
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()["薇薇安"][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)["薇薇安"][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -96,7 +96,7 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
             )
         active_anomaly_bar = get_result[0]
         copyed_anomaly = AnomalyBar.create_new_from_existing(active_anomaly_bar)
-        event_list = JudgeTools.find_event_list()
+        event_list = JudgeTools.find_event_list(sim_instance=self.buff_instance.sim_instance)
         mul_data = Mul(
             self.record.enemy, self.record.dynamic_buff_list, self.record.char
         )
@@ -104,7 +104,7 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
         from sim_progress.anomaly_bar.CopyAnomalyForOutput import DirgeOfDestinyAnomaly
 
         dirge_of_destiny_anomaly = DirgeOfDestinyAnomaly(
-            copyed_anomaly, active_by="1331"
+            copyed_anomaly, active_by="1331", sim_instance=self.buff_instance.sim_instance
         )
         ratio = self.ANOMALY_RATIO_MUL.get(copyed_anomaly.element_type)
         if self.record.cinema_ratio is None:

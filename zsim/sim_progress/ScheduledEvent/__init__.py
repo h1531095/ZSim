@@ -1,3 +1,4 @@
+from __future__ import annotations
 from sim_progress import Buff, Preload, Report
 from sim_progress.anomaly_bar import AnomalyBar as AnB
 from sim_progress.anomaly_bar.CopyAnomalyForOutput import (
@@ -23,6 +24,9 @@ from sim_progress.Update import update_anomaly
 
 from .CalAnomaly import CalAbloom, CalAnomaly, CalDisorder, CalPolarityDisorder
 from .Calculator import Calculator
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class ScConditionData:
@@ -53,6 +57,7 @@ class ScheduledEvent:
         action_stack: ActionStack,
         *,
         loading_buff: dict | None = None,
+        sim_instance: Simulator
     ):
         self.data = data  # ScheduleData in __main__
         self.data.dynamic_buff = dynamic_buff
@@ -78,6 +83,7 @@ class ScheduledEvent:
             QuickAssistEvent: "execute_tick",
             SchedulePreload: "execute_tick",
         }
+        self.sim_instance: Simulator = sim_instance
 
     def event_start(self):
         """Schedule主逻辑"""
@@ -117,6 +123,7 @@ class ScheduledEvent:
                             self.data.dynamic_buff,
                             self.action_stack,
                             skill_node=event,
+                            sim_instance=self.sim_instance
                         )
                         ProcessHitUpdateDots(
                             self.tick,
@@ -149,6 +156,7 @@ class ScheduledEvent:
                         self.data.dynamic_buff,
                         self.action_stack,
                         anomaly_bar=event,
+                        sim_instance=self.sim_instance
                     )
                 elif isinstance(event, ScheduleRefreshData):
                     self.refresh_event(event)
@@ -262,6 +270,7 @@ class ScheduledEvent:
                 self.data.char_obj_list,
                 skill_node=_node,
                 dynamic_buff_dict=self.data.dynamic_buff,
+                sim_instance=self.sim_instance
             )
 
     def solve_buff(self) -> None:
@@ -338,6 +347,7 @@ class ScheduledEvent:
             anomaly_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
+            sim_instance=self.sim_instance
         )
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
         # TODO：异常伤害无法被enemy接收到，Enemy的血量更新是有问题的。
@@ -359,6 +369,7 @@ class ScheduledEvent:
             disorder_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
+            sim_instance=self.sim_instance
         )
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         stun = cal_obj.cal_disorder_stun()
@@ -383,6 +394,7 @@ class ScheduledEvent:
             disorder_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
+            sim_instance=self.sim_instance
         )
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         Report.report_dmg_result(
@@ -405,6 +417,7 @@ class ScheduledEvent:
             abloom_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
+            sim_instance=self.sim_instance
         )
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
         # TODO：异常伤害无法被enemy接收到，Enemy的血量更新是有问题的。

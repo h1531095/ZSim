@@ -3,7 +3,7 @@ title = "测试用APL"
 comment = "这是一个APL配置示例，你可以据此新建新模板"
 author = "ZSimDev"
 create_time = "2025-04-27T22:14:15.235+08:00"
-latest_change_time = "2025-04-27T22:43:08.717+08:00"
+latest_change_time = "2025-05-22T01:23:35.784+08:00"
 
 [characters]
 required = [ "薇薇安", "耀嘉音", "柳",]

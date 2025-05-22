@@ -13,7 +13,7 @@ def is_hit(action_now):
     检测当前tick是否有hit事件。
     """
     mission_dict = action_now.mission_dict
-    tick_now = JudgeTools.find_tick()
+    tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
     for sub_mission_start_tick in mission_dict.keys():
         if tick_now - 1 < sub_mission_start_tick <= tick_now:
             if mission_dict[sub_mission_start_tick] == "hit":
@@ -37,16 +37,16 @@ class TheVault(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("聚宝箱")
+            self.equipper = JudgeTools.find_equipper("聚宝箱", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
             """
             这里的初始化，找到的buff_0实际上是佩戴者的buff_0
             """
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:

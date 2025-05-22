@@ -1,13 +1,19 @@
+from typing import TYPE_CHECKING
+
 from sim_progress.data_struct import QuickAssistSystem
 from sim_progress.Preload import SkillNode
 from sim_progress.data_struct import NodeStack
+import types
+if TYPE_CHECKING:
+    from zsim.simulator.simulator_class import Simulator
 
 
 class PreloadData:
     """循环于Preload阶段内部的数据"""
 
-    def __init__(self, skills, **kwargs):
+    def __init__(self, skills, sim_instance, **kwargs):
         load_data = kwargs.get("load_data")
+        self.sim_instance: "Simulator" = sim_instance
         self.preload_action: list[SkillNode] = []  # 最终return返回给外部申请的数据结构
         self.skills: list = skills  # 用于创建SkillNode，是SkillNode构造函数的必要参数。
         self.personal_node_stack: dict[int, NodeStack] = {}  # 个人的技能栈
@@ -53,15 +59,14 @@ class PreloadData:
             ):
                 self.force_change_action(node)
         if self.personal_node_stack[char_cid].is_empty():
-            from sim_progress.data_struct import listener_manager_instance
 
             """检测角色的第一个动作抛出。"""
-            listener_manager_instance.broadcast_event(event=node, enter_battle_event=1)
+            self.sim_instance.listener_manager.broadcast_event(event=node, enter_battle_event=1)
         self.personal_node_stack[char_cid].push(node)
         if node.active_generation:
             self.latest_active_generation_node = node
         if self.quick_assist_system is None:
-            self.quick_assist_system = QuickAssistSystem(self.char_data.char_obj_list)
+            self.quick_assist_system = QuickAssistSystem(self.char_data.char_obj_list, sim_instance=self.sim_instance)
         self.quick_assist_system.update(tick, node, self.load_data.all_name_order_box)
 
     def check_myself_before_push_node(self):

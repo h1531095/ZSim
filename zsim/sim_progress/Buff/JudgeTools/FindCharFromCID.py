@@ -1,9 +1,10 @@
-import sys
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
-def find_char_from_CID(CID: int):
-    main_module = sys.modules["simulator.main_loop"]
-    char_list = main_module.char_data.char_obj_list
+def find_char_from_CID(CID: int, sim_instance: "Simulator"):
+    char_list = sim_instance.char_data.char_obj_list
     for char in char_list:
         if char.CID == CID:
             return char

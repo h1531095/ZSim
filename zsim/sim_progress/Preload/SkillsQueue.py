@@ -86,8 +86,6 @@ class SkillNode:
         else:
             return False
 
-
-
 def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:
     """
     通过输入的tag和preload_tick，直接创建SkillNode。

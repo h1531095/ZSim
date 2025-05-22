@@ -1,7 +1,9 @@
-from sim_progress.Preload import SkillNode
 from sim_progress.Character.utils.filters import _skill_node_filter
 from ..character import Character
 from .AfterShockManager import AfterShockManager
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from sim_progress.Preload import SkillNode
 
 
 class Trigger(Character):
@@ -22,7 +24,7 @@ class Trigger(Character):
         至于抛出协同攻击、层数减少以及决意值消耗，则在Buff阶段进行执行，这边只要留好接口即可；
         接口：应该是char.spawn_after_shock，对内调用self.after_shock_manager的相应方法。
         """
-        skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
+        skill_nodes: list["SkillNode"] = _skill_node_filter(*args, **kwargs)
         tick = kwargs.get("tick", 0)
         for nodes in skill_nodes:
             _skill_tag = nodes.skill_tag

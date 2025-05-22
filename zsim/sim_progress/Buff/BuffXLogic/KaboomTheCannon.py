@@ -24,16 +24,16 @@ class KaboomTheCannon(Buff.BuffLogic):
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("好斗的阿炮")
+            self.equipper = JudgeTools.find_equipper("好斗的阿炮", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
             """
             这里的初始化，找到的buff_0实际上是佩戴者的buff_0
             """
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -46,7 +46,7 @@ class KaboomTheCannon(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(equipper="好斗的阿炮", action_stack=1, sub_exist_buff_dict=1)
         action_now = self.record.action_stack.peek()
-        tick_now = JudgeTools.find_tick()
+        tick_now = JudgeTools.find_tick(sim_instance=self.buff_instance.sim_instance)
         self.record.active_char_dict[action_now.mission_character] = [
             tick_now,
             tick_now + self.buff_instance.ft.maxduration,

@@ -14,20 +14,20 @@ class ZanshinHerbCase(Buff.BuffLogic):
 
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.xjudge = self.special_judge_logic
         self.equipper = None
         self.buff_0 = None
         self.record = None
 
     def get_prepared(self, **kwargs):
-        return check_preparation(self.buff_0, **kwargs)
+        return check_preparation(buff_instance=self.buff_instance, buff_0=self.buff_0, **kwargs)
 
     def check_record_module(self):
         if self.equipper is None:
-            self.equipper = JudgeTools.find_equipper("残心青囊")
+            self.equipper = JudgeTools.find_equipper("残心青囊", sim_instance=self.buff_instance.sim_instance)
         if self.buff_0 is None:
-            self.buff_0 = JudgeTools.find_exist_buff_dict()[self.equipper][
+            self.buff_0 = JudgeTools.find_exist_buff_dict(sim_instance=self.buff_instance.sim_instance)[self.equipper][
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
@@ -39,10 +39,8 @@ class ZanshinHerbCase(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(equipper="残心青囊")
         if not self.record.listener_exist:
-            from sim_progress.data_struct import listener_manager_instance
-
-            self.record.listener = listener_manager_instance.listener_factory(
-                initiate_signal="Zenshin_Herb_Case_1"
+            self.record.listener = self.buff_instance.sim_instance.listener_manager.listener_factory(
+                initiate_signal="Zenshin_Herb_Case_1", sim_instance=self.buff_instance.sim_instance
             )
             self.record.listener_exist = True
             # print(f"为{self.record.char.NAME}创建了一个残心青囊的监听器！")

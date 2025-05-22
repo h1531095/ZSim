@@ -291,6 +291,7 @@ class Character:
         self.action_list = self.skill_object.action_list 
         self.skills_dict = self.skill_object.skills_dict
         self.dynamic = self.Dynamic(self)
+        self.sim_instance = None        # 模拟器实例
 
     # fmt: off
     def __init_all_equip_static(self, drive4, drive5, drive6, 

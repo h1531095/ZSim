@@ -1,11 +1,14 @@
 from .BaseListenerClass import BaseListener
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
 
 
 class HeartstringNocturneListener(BaseListener):
     """监听入场事件，并且直接添加心弦夜响Buff"""
 
-    def __init__(self, listener_id: str = None):
-        super().__init__(listener_id)
+    def __init__(self, listener_id: str = None, sim_instance: "Simulator" = None):
+        super().__init__(listener_id, sim_instance=sim_instance)
         self.active_signal = None
 
     def listening_event(self, event, **kwargs):

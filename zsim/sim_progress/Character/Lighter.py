@@ -1,5 +1,3 @@
-import sys
-
 from sim_progress.Preload import SkillNode
 from sim_progress.Report import report_to_log
 from .character import Character
@@ -62,8 +60,7 @@ class Lighter(Character):
                 self.morale = 0
 
         # 时间每 6 ticks 更新
-        main_module = sys.modules["simulator.main_loop"]
-        tick = getattr(main_module, "tick", None)
+        tick = self.sim_instance.tick
         if tick is not None:
             if (minus := tick - self.last_tick) >= 6:
                 self.morale += minus // 6 * 29  # 地板除保证整形对齐
