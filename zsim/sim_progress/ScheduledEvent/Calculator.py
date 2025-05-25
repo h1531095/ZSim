@@ -788,16 +788,9 @@ class Calculator:
                 data.static.pen_numeric + data.dynamic.pen_numeric + addon_pen_numeric
             )
             # 受击方有效防御
-            effective_def: float = (
+            effective_def: float = max(0.0,
                 recipient_def * (1 - pen_ratio - addon_pen_ratio) - pen_numeric
             )
-            # if (
-            #     isinstance(data.judge_node, SkillNode)
-            #     and "1291_CorePassive" in data.judge_node.skill_tag
-            # ):
-            #     print(
-            #         f"百分比减防：{data.dynamic.percentage_def_reduction}, 固定减防： {data.dynamic.def_reduction}，穿透率：{pen_ratio}, 穿透值：{pen_numeric}, 有效防御：{effective_def}"
-            #     )
             return effective_def
 
         @staticmethod
