@@ -223,6 +223,8 @@ def page_simulator():
                             remove_equip_list = list(
                                 key for key, value in tmp_dict.items() if value
                             )
+                        if '暴击率' in sc_list or '暴击伤害' in sc_list:
+                            st.warning("模拟暴击率/暴击伤害时，建议勾选角色配置中的“使用暴击配平算法”选项", icon="⚠️")
                     elif selected_func == SIMULATION_FUNCTIONS[1]: # 音擎伤害期望对比
                         st.write(
                             '<p style="color: gray;">对比不同音擎的伤害期望</p>',
