@@ -59,15 +59,13 @@ class CannonRotor(Buff.BuffLogic):
         from sim_progress.ScheduledEvent.Calculator import MultiplierData
         from sim_progress.ScheduledEvent import Calculator
 
-        rng = RNG()
-        seed = rng.r
-        seed = (seed / (2**63 - 1) + 1) / 2
-
         mul_data = MultiplierData(
             self.record.enemy, self.record.dynamic_buff_list, self.record.char
         )
+        rng: RNG = self.buff_instance.sim_instance.rng_instance
+        normalized_value = rng.random_float()
         cric_rate = Calculator.RegularMul.cal_crit_rate(mul_data)
-        if seed <= cric_rate:
+        if normalized_value <= cric_rate:
             return True
         return False
 

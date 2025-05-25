@@ -211,8 +211,8 @@ equip_set2_a = "激素朋克"
 name = "雨果"
 weapon = "千面日陨"
 weapon_level = 1
-cinema = 4
-crit_balancing = true
+cinema = 0
+crit_balancing = false
 scATK_percent = 8
 scATK = 0
 scHP_percent = 0
@@ -227,8 +227,8 @@ drive4 = "暴击率%"
 drive5 = "冰属性伤害%"
 drive6 = "攻击力%"
 equip_style = "4+2"
-equip_set4 = "激素朋克"
-equip_set2_a = "啄木鸟电音"
+equip_set4 = "啄木鸟电音"
+equip_set2_a = "激素朋克"
 
 ["莱特"]
 name = "莱特"
