@@ -38,24 +38,30 @@ class WoodpeckerElectroSet4_NA(Buff.BuffLogic):
 
     def special_judge_logic(self, **kwargs):
         self.check_record_module()
-
         self.get_prepared(
             equipper="啄木鸟电音", enemy=1, dynamic_buff_list=1, action_stack=1
         )
         skill_node = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
+        from sim_progress.Preload import SkillNode
+        from sim_progress.Load import LoadingMission
+        if isinstance(skill_node, SkillNode):
+            pass
+        elif isinstance(skill_node, LoadingMission):
+            skill_node = skill_node.mission_node
+        else:
+            return False
         if str(self.record.char.CID) not in skill_node.skill_tag:
             return False
-        rng = RNG()
-        seed = rng.r
-        seed = (seed / (2**63 - 1) + 1) / 2
         mul_data = MultiplierData(
             self.record.enemy, self.record.dynamic_buff_list, self.record.char
         )
         if skill_node.skill.trigger_buff_level == 0:
             cric_rate = Calculator.RegularMul.cal_crit_rate(mul_data)
-            if seed <= cric_rate:
+            rng: RNG = self.buff_instance.sim_instance.rng_instance
+            normalized_value = rng.random_float()
+            if normalized_value <= cric_rate:
                 return True
             else:
                 return False
