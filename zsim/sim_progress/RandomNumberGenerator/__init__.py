@@ -1,7 +1,7 @@
 import random
 import time
 from functools import lru_cache
-import sys
+import threading
 import numpy as np
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -11,30 +11,50 @@ MAX_SIGNED_INT64: int = 2**63 - 1
 
 
 class RNG:
-    def __init__(self, seed: int | None = None, sim_instance: "Simulator" = None):
-        self.seed: int | None = None
-        self.r: int | None = None
-        self.reseed(seed)
-        self.sim_instance = sim_instance
+    _instances = {}
+    _lock = threading.Lock()
+
+    def __new__(cls, sim_instance: "Simulator"):
+        """为了RNG增加进程锁"""
+        with cls._lock:
+            if sim_instance not in cls._instances:
+                instance = super().__new__(cls)
+                cls._instances[sim_instance] = instance
+            return cls._instances[sim_instance]
+
+    def __init__(self, sim_instance: "Simulator" = None):
+        """RNG的构造函数，每个进程只执行一次，反复调用构造函数会报错。"""
+        if not hasattr(self, "_initialized"):
+            self.seed: int | None = None
+            self.r: int | None = None
+            self.sim_instance = sim_instance
+            self.reseed()
+            self._initialized = True
+        else:
+            raise RuntimeError("RNG对象已初始化，请检查代码，不要重复调用RNG的构造函数")
 
     def get_seed(self) -> int:
         assert self.seed is not None
         return self.seed
 
     def reseed(self, new_seed: int | None = None):
-        # FIXME: 考虑到目前我对RNG的掌握比较差，所以RNG在Simulator中的对象化暂时搁置。
-        #  目前在ZSim中，RNG都是分别调用构造函数就地构造的。
-        #  对于RNG的对象化，还需要和snow讨论一下怎么执行。
-        #  所以目前为RNG的初始化留下sim_instance的接口，但是允许传入None维持原状。
         if self.sim_instance is None:
-            main_module = sys.modules["__main__"]
-            tick: int = getattr(main_module, "tick", 0)
-        else:
+            raise ValueError('RNG模块在初始化时，并未传入Simulator对象')
+        if self.sim_instance.multi_process:
+            '''当多进程模式时，seed的创造应该基于进程的UUID'''
+            run_turn_uuid: str = self.sim_instance.sim_cfg.run_turn_uuid
+            if run_turn_uuid is None:
+                raise ValueError("多进程模式下，sim_cfg中必须存在有效的run_turn_uuid")
+            hashed_uuid = abs(hash(run_turn_uuid)) % (2**63)
             tick = self.sim_instance.tick
-        if new_seed is None:
-            new_seed = int(time.time() * 1000000) + tick
+            new_seed = (hashed_uuid + tick) if new_seed is None else (new_seed + tick)
         else:
-            new_seed = int(new_seed) + tick
+            '''当单进程模式时，seed的创造应该基于当前的time()返回的结果'''
+            tick = self.sim_instance.tick
+            if new_seed is None:
+                new_seed = int(time.time() * 1000000) + tick
+            else:
+                new_seed = int(new_seed) + tick
         (self.seed, self.r) = self.generate_random_number(new_seed)
 
     def random_float(self) -> float:
@@ -52,6 +72,11 @@ class RNG:
         self.seed, self.r = self.generate_random_number(self.seed)
         return np.abs(self.r) < possibility * MAX_SIGNED_INT64
 
+    def __deepcopy__(self, memo):
+        return self  # 始终返回现有实例
+
+    def __copy__(self):
+        return self
 
 class SingletonRNG:
     _instance = None

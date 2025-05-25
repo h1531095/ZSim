@@ -162,10 +162,9 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
             elif label_key == "only_back_attack":
                 from sim_progress.RandomNumberGenerator import RNG
 
-                rng = RNG()
-                seed = rng.r
-                seed = (seed / (2**63 - 1) + 1) / 2
-                if seed <= BACK_ATTACK_RATE:
+                rng: RNG = buff.sim_instance.rng_instance
+                normalized_value = rng.random_float()
+                if normalized_value <= BACK_ATTACK_RATE:
                     return True
     return False
 
