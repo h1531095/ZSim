@@ -860,6 +860,9 @@ class Character:
             sp_change = sp_recovery - sp_consume
             self.update_sp(sp_change)
         # Decibel
+        self.process_single_node_decibel(node)
+
+    def process_single_node_decibel(self, node):
         if self.NAME == node.char_name and node.skill_tag.split("_")[1] == "Q":
             if self.decibel - 3000 <= -1e-5:
                 print(
