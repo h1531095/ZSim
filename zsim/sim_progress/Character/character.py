@@ -419,7 +419,7 @@ class Character:
             if balancing:
                 if CRIT_score >= 400:
                     CRIT_rate = 1.0
-                    CRIT_damage = CRIT_score / 100 - 2
+                    CRIT_damage = (CRIT_score - 200)/2
                 else:
                     CRIT_damage = max(0.5, CRIT_score / 200)
                     CRIT_rate = (CRIT_score / 100 - CRIT_damage) / 2
@@ -481,9 +481,10 @@ class Character:
         self.PHY_DMG_bonus += float(row.get("PHY_DMG_bonus", 0))
         self.ETHER_DMG_bonus += float(row.get("ETHER_DMG_bonus", 0))
         if self.crit_balancing:
-            self.baseCRIT_score += 100 * (
+            crit_score_delta = 100 * (
                 float(row.get("Crit_Rate", 0)) * 2 + float(row.get("Crit_DMG", 0))
             )
+            self.baseCRIT_score += crit_score_delta
         else:
             self.CRIT_rate_numeric += float(row.get("Crit_Rate", 0))
             self.CRIT_damage_numeric += float(row.get("Crit_DMG", 0))
@@ -513,11 +514,14 @@ class Character:
                 self.baseIMP = float(row_0.get("基础冲击力", 0))
                 self.baseAP = float(row_0.get("基础异常精通", 0))
                 self.baseAM = float(row_0.get("基础异常掌控", 0))
-                self.baseCRIT_score = float(row_0.get("基础暴击分数", 60))
+                # self.baseCRIT_score = float(row_0.get("基础暴击分数", 60))
                 self.CRIT_rate_numeric = float(
                     row_0.get("基础暴击率", 0)
                 )  # 此处不需要根据暴击配平区分
                 self.CRIT_damage_numeric = float(row_0.get("基础暴击伤害", 1))
+                self.baseCRIT_score = 100 * (self.CRIT_rate_numeric * 2 + self.CRIT_damage_numeric)
+                # print(f'{self.NAME}的核心被动初始化完成！当前暴击分数为：{self.baseCRIT_score}')
+
                 self.PEN_ratio = float(row_0.get("基础穿透率", 0))
                 self.PEN_numeric = float(row_0.get("基础穿透值", 0))
                 self.base_sp_regen = float(row_0.get("基础能量自动回复", 0))
@@ -719,7 +723,7 @@ class Character:
         self.PEN_numeric += scPEN * SUB_STATS_MAPPING["scPEN"]
         if self.crit_balancing:
             self.baseCRIT_score += (
-                (scCRIT * SUB_STATS_MAPPING["scCRIT"])
+                (scCRIT * SUB_STATS_MAPPING["scCRIT"]) * 2
                 + (scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"])
             ) * 100
         else:
@@ -785,7 +789,7 @@ class Character:
             if scCRIT is not None or scCRIT_DMG is not None:
                 current_score = self.baseCRIT_score
                 if scCRIT is not None:
-                    current_score += scCRIT * SUB_STATS_MAPPING["scCRIT"] * 100
+                    current_score += scCRIT * SUB_STATS_MAPPING["scCRIT"] * 2 * 100
                 if scCRIT_DMG is not None:
                     current_score += scCRIT_DMG * SUB_STATS_MAPPING["scCRIT_DMG"] * 100
                 self.baseCRIT_score = current_score
