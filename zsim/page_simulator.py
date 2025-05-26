@@ -35,9 +35,9 @@ SIMULATION_FUNCTIONS = [
     "异常积蓄效率对比",
 ]
 SC_RANGE_MIN = 0
-SC_RANGE_MAX = 50
+SC_RANGE_MAX = 75
 SC_RANGE_STEP = 1
-DEFAULT_SC_RANGE = (0, 50)  # 默认模拟词条数范围
+DEFAULT_SC_RANGE = (0, 75)  # 默认模拟词条数范围
 DEFAULT_SC_LIST = []  # 默认模拟词条种类
 DEFAULT_WEAPON_LIST = []  # 默认武器列表
 
