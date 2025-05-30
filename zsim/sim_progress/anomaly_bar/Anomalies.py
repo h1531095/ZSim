@@ -102,3 +102,19 @@ class FrostAnomaly(AnomalyBar):
             "烈霜霜寒时间延长百分比",
             "所有异常时间延长百分比",
         ]
+
+
+@dataclass
+class AuricInkAnomaly(AnomalyBar):
+    def __post_init__(self):
+        super().__post_init__()  # 调用父类的初始化方法
+        self.element_type = 4  # 玄墨侵蚀的属性也是以太，所以这里还是4
+        self.accompany_dot = "玄墨侵蚀"
+        self.basic_max_duration = 600
+        self.max_duration = 0
+        self.duration_buff_key_list = [
+            "玄墨侵蚀时间延长",
+            "所有异常时间延长",
+            "玄墨侵蚀时间延长百分比",
+            "所有异常时间延长百分比",
+        ]

@@ -57,28 +57,9 @@ class Yanagi(Character):
                 sp_change = sp_recovery - sp_consume
                 self.update_sp(sp_change)
             # Decibel
-            if self.NAME == node.char_name and node.skill_tag.split("_")[1] == "Q":
-                if self.decibel - 3000 <= -1e-5:
-                    raise ValueError(
-                        f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树"
-                    )
-                self.decibel = 0
-            else:
-                # 计算喧响变化值
-                decibel_change = node.skill.self_fever_re
-                # 如果喧响变化值大于0，则更新喧响值
-                if decibel_change > 0:
-                    # 如果不是自身技能，倍率折半
-                    if node.char_name != self.NAME:
-                        decibel_change *= 0.5
-                    # 更新喧响值
-                    self.update_decibel(decibel_change)
+            self.process_single_node_decibel(node)
         # SP recovery over time
-        sp_regen_data = _sp_update_data_filter(*args, **kwargs)
-        for mul in sp_regen_data:
-            if mul.char_name == self.NAME:
-                sp_change_2 = mul.get_sp_regen() / 60  # 每秒回能转化为每帧回能
-                self.update_sp(sp_change_2)
+        self.update_single_node_sp_overtime(args, kwargs)
 
     def get_resources(self) -> tuple[str | None, int | float | bool | None]:
         """柳的get_resource不返回内容！因为柳没有特殊资源，只有特殊状态"""

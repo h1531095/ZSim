@@ -104,7 +104,7 @@ class Simulator:
         self.listener_manager = ListenerManger(self)
         self.rng_instance = RNG(sim_instance=self)
 
-    def main_loop(self, stop_tick: int = 10800, *, sim_cfg: "SimCfg" | None = None):
+    def main_loop(self, stop_tick: int = 1000, *, sim_cfg: "SimCfg" | None = None):
         self.reset_simulator(sim_cfg)
         while True:
             # Tick Update
