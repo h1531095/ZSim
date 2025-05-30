@@ -130,6 +130,9 @@ class Skill:
             "sp_threshold": int,
             "sp_consume": int,
             "sp_recovery": float,
+            "adrenaline_recovery": float,
+            "adrenaline_threshold": float,
+            "adrenaline_consume": float,
             "fever_recovery": float,
             "self_fever_re": float,
             "distance_attenuation": int,
@@ -278,8 +281,8 @@ class Skill:
                 _raw_skill_data = _raw_skill_data[0]
             # 如果不是 攻击力/生命值/防御力/精通 倍率，报错，未来可接复杂逻辑
             self.diff_multiplier = int(_raw_skill_data["diff_multiplier"])
-            if _raw_skill_data["diff_multiplier"] not in [0, 1, 2, 3]:
-                raise ValueError("目前只支持 攻击力/生命值/防御力/精通 倍率")
+            if _raw_skill_data["diff_multiplier"] not in [0, 1, 2, 3, 4]:
+                raise ValueError("目前只支持 攻击力/生命值/防御力/精通/贯穿力 倍率")
             self.char_name: str = char_name
             # 储存技能Tag
             self.cid = CID
@@ -313,6 +316,10 @@ class Skill:
             self.sp_threshold: float = float(_raw_skill_data["sp_threshold"])
             self.sp_consume: float = float(_raw_skill_data["sp_consume"])
             self.sp_recovery: float = float(_raw_skill_data["sp_recovery"])
+            # 闪能相关——仪玄专属
+            self.adrenaline_threshold: float = float(_raw_skill_data["adrenaline_threshold"])
+            self.adrenaline_consume: float = float(_raw_skill_data["adrenaline_consume"])
+            self.adrenaline_recovery: float = float(_raw_skill_data["adrenaline_recovery"])
             # 喧响值
             self.self_fever_re: float = float(_raw_skill_data["self_fever_re"])
             # 距离衰减，不知道有啥用
