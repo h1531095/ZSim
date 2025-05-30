@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from simulator.dataclasses import SimCfg
@@ -27,29 +27,34 @@ from simulator.dataclasses import (
 
 
 class Simulator:
-    tick = 0
-    crit_seed = 0
-    init_data: InitData | None = None
-    char_data: CharacterData | None = None
-    load_data: LoadData | None = None
-    schedule_data: ScheduleData | None = None
-    global_stats: GlobalStats | None = None
-    skills: list[Skill] | None = None
-    preload: PreloadClass | None = None
-    game_state: dict[str, object] | None = None
-    decibel_manager: Decibelmanager = None
-    listener_manager: ListenerManger = None
-    rng_instance: RNG = None
-    multi_process: bool = False     # 多进程模式
-    sim_cfg: "SimCfg | None" = None
+    tick: int
+    crit_seed: int
+    init_data: InitData
+    char_data: CharacterData
+    load_data: LoadData
+    schedule_data: ScheduleData
+    global_stats: GlobalStats
+    skills: list[Skill]
+    preload: PreloadClass
+    game_state: dict[str, Any]
+    decibel_manager: Decibelmanager
+    listener_manager: ListenerManger
+    rng_instance: RNG
+    in_parallel_mode: bool
+    sim_cfg: "SimCfg" | None
+
+    def reset_simulator(self, sim_cfg: "SimCfg" | None):
+        """重置模拟器实例为初始状态。"""
+        self.reset_sim_data(sim_cfg)  # 重置所有全局变量
+        start_report_threads(sim_cfg)  # 启动线程以处理日志和结果写入
 
     def reset_sim_data(self, sim_cfg: "SimCfg" | None):
         """重置所有全局变量为初始状态。"""
         if sim_cfg is not None:
-            self.multi_process = True
+            self.in_parallel_mode = True
             self.sim_cfg = sim_cfg
         else:
-            self.multi_process = False
+            self.in_parallel_mode = False
             self.sim_cfg = None
         self.tick = 0
         self.crit_seed = 0
@@ -63,24 +68,28 @@ class Simulator:
             cinema_dict=self.init_data.cinema_dict,
             action_stack=ActionStack(),
             char_obj_dict=self.char_data.char_obj_dict,
-            sim_instance=self
+            sim_instance=self,
         )
         self.schedule_data = ScheduleData(
             enemy=Enemy(
                 index_ID=ENEMY_INDEX_ID,
                 adjust_ID=ENEMY_ADJUST_ID,
                 difficulty=ENEMY_DIFFICULTY,
-                sim_instance=self
+                sim_instance=self,
             ),
             char_obj_list=self.char_data.char_obj_list,
-            sim_instance=self
+            sim_instance=self,
         )
         if self.schedule_data.enemy.sim_instance is None:
             self.schedule_data.enemy.sim_instance = self
 
-        self.global_stats = GlobalStats(name_box=self.init_data.name_box, sim_instance=self)
+        self.global_stats = GlobalStats(
+            name_box=self.init_data.name_box, sim_instance=self
+        )
         skills = [char.skill_object for char in self.char_data.char_obj_list]
-        self.preload = PreloadClass(skills, load_data=self.load_data, apl_path=APL_PATH, sim_instance=self)
+        self.preload = PreloadClass(
+            skills, load_data=self.load_data, apl_path=APL_PATH, sim_instance=self
+        )
 
         self.game_state = {  # noqa: F841
             "tick": self.tick,
@@ -95,11 +104,6 @@ class Simulator:
         self.listener_manager = ListenerManger(self)
         self.rng_instance = RNG(sim_instance=self)
 
-    def reset_simulator(self, sim_cfg: "SimCfg" | None):
-        """重置程序为初始状态。"""
-        self.reset_sim_data(sim_cfg)  # 重置所有全局变量
-        start_report_threads(sim_cfg)  # 启动线程以处理日志和结果写入
-
     def main_loop(self, stop_tick: int = 1000, *, sim_cfg: "SimCfg" | None = None):
         self.reset_simulator(sim_cfg)
         while True:
@@ -113,7 +117,12 @@ class Simulator:
             )  # type: ignore
 
             # Preload
-            self.preload.do_preload(self.tick, self.schedule_data.enemy, self.init_data.name_box, self.char_data)  # type: ignore
+            self.preload.do_preload(
+                self.tick,
+                self.schedule_data.enemy,
+                self.init_data.name_box,
+                self.char_data,
+            )  # type: ignore
             preload_list = self.preload.preload_data.preload_action  # type: ignore
 
             if stop_tick is None:
@@ -146,7 +155,7 @@ class Simulator:
                 self.init_data.name_box,
                 self.load_data.LOADING_BUFF_DICT,
                 self.load_data.all_name_order_box,
-                sim_instance=self
+                sim_instance=self,
             )
             Buff.buff_add(
                 self.tick,
@@ -162,7 +171,7 @@ class Simulator:
                 self.tick,
                 self.load_data.exist_buff_dict,
                 self.load_data.action_stack,
-                sim_instance=self
+                sim_instance=self,
             )
             sce.event_start()
             self.tick += 1
