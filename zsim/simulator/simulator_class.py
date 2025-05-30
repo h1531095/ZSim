@@ -89,7 +89,7 @@ class Simulator:
         self.reset_sim_data(sim_cfg)  # 重置所有全局变量
         start_report_threads(sim_cfg)  # 启动线程以处理日志和结果写入
 
-    def main_loop(self, stop_tick: int = 1000, *, sim_cfg: "SimCfg" | None = None):
+    def main_loop(self, stop_tick: int = 10800, *, sim_cfg: "SimCfg" | None = None):
         self.reset_simulator(sim_cfg)
         while True:
             # Tick Update

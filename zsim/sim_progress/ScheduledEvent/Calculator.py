@@ -638,7 +638,7 @@ class Calculator:
                 element_dmg_bonus = (
                     data.static.ice_dmg_bonus + data.dynamic.ice_dmg_bonus
                 )
-            elif element_type == 4:
+            elif element_type in [4, 6]:
                 element_dmg_bonus = (
                     data.static.ether_dmg_bonus + data.dynamic.ether_dmg_bonus
                 )
@@ -856,7 +856,7 @@ class Calculator:
                     - data.dynamic.electric_dmg_res_decrease
                     - data.dynamic.electric_res_pen_increase
                 )
-            elif element_type == 4:
+            elif element_type in [4, 6]:
                 element_res = (
                     data.enemy_obj.ETHER_damage_resistance
                     - data.dynamic.ether_dmg_res_decrease
@@ -891,7 +891,7 @@ class Calculator:
                 element_vulnerability = data.dynamic.ice_vulnerability
             elif element_type == 3:
                 element_vulnerability = data.dynamic.electric_vulnerability
-            elif element_type == 4:
+            elif element_type in [4, 6]:
                 element_vulnerability = data.dynamic.ether_vulnerability
             else:
                 assert False, INVALID_ELEMENT_ERROR
@@ -1023,7 +1023,7 @@ class Calculator:
                 buildup_res = (
                     1 - data.dynamic.electric_anomaly_res_decrease - enemy_buildup_res
                 )
-            elif element_type == 4:
+            elif element_type in [4, 6]:
                 element_buildup_bonus = (
                     data.dynamic.ether_anomaly_buildup_bonus
                     + data.dynamic.all_anomaly_buildup_bonus
@@ -1101,7 +1101,7 @@ class Calculator:
                 base_damage = 5 * atk
             elif element_type == 3:
                 base_damage = 1.25 * atk
-            elif element_type == 4:
+            elif element_type in [4, 6]:
                 base_damage = 0.625 * atk
             else:
                 assert False, INVALID_ELEMENT_ERROR
@@ -1127,7 +1127,7 @@ class Calculator:
                 element_dmg_bonus = (
                     data.static.electric_dmg_bonus + data.dynamic.electric_dmg_bonus
                 )
-            elif element_type == 4:
+            elif element_type in [4, 6]:
                 element_dmg_bonus = (
                     data.static.ether_dmg_bonus + data.dynamic.ether_dmg_bonus
                 )
@@ -1178,7 +1178,7 @@ class Calculator:
                 element_res_pen = data.dynamic.ice_res_pen_increase
             elif self.element_type == 3:
                 element_res_pen = data.dynamic.electric_res_pen_increase
-            elif self.element_type == 4:
+            elif self.element_type in [4, 6]:
                 element_res_pen = data.dynamic.ether_res_pen_increase
             else:
                 assert False, INVALID_ELEMENT_ERROR

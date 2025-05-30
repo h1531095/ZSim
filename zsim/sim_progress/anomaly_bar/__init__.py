@@ -5,6 +5,7 @@ from .Anomalies import (
     ElectricAnomaly,
     EtherAnomaly,
     FrostAnomaly,
+    AuricInkAnomaly,
 )
 from .AnomalyBarClass import AnomalyBar
 from .CopyAnomalyForOutput import Disorder
@@ -18,4 +19,5 @@ __all__ = [
     "EtherAnomaly",
     "FrostAnomaly",
     "Disorder",
+    "AuricInkAnomaly"
 ]

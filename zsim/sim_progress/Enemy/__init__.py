@@ -7,6 +7,7 @@ from sim_progress.anomaly_bar import (
     ElectricAnomaly,
     EtherAnomaly,
     FrostAnomaly,
+    AuricInkAnomaly
 )
 import numpy as np
 import pandas as pd
@@ -107,7 +108,7 @@ class Enemy:
 
         self.max_anomaly_ICE = self.max_anomaly_FIRE = self.max_anomaly_ETHER = (
             self.max_anomaly_ELECTRIC
-        ) = self.max_anomaly_FIREICE = max_element_anomaly
+        ) = self.max_anomaly_FIREICE = self.max_anomaly_AURICINK = max_element_anomaly
 
         # 初始化敌人其他防御属性
         self.interruption_resistance_level: int = int(self.data_dict["抗打断等级"])
@@ -138,6 +139,7 @@ class Enemy:
             3: self.ELECTRIC_damage_resistance,
             4: self.ETHER_damage_resistance,
             5: self.ICE_damage_resistance,
+            6: self.ETHER_damage_resistance,
         }
         self.anomaly_resistance_dict: dict[int, float] = {
             0: self.PHY_anomaly_resistance,
@@ -146,6 +148,7 @@ class Enemy:
             3: self.ELECTRIC_anomaly_resistance,
             4: self.ETHER_anomaly_resistance,
             5: self.ICE_anomaly_resistance,
+            6: self.ETHER_anomaly_resistance
         }
         self.stun_resistance_dict: dict[int, float] = {
             0: self.PHY_stun_resistance,
@@ -154,6 +157,7 @@ class Enemy:
             3: self.ELECTRIC_stun_resistance,
             4: self.ETHER_stun_resistance,
             5: self.ICE_stun_resistance,
+            6: self.ETHER_stun_resistance
         }
 
         # 初始化敌人设置
@@ -168,6 +172,7 @@ class Enemy:
             3: "ELECTRIC",
             4: "ETHER",
             5: "FIREICE",
+            6: "AURICINK"
         }
         self.trans_anomaly_effect_to_str = {
             0: "assault",
@@ -176,6 +181,7 @@ class Enemy:
             3: "shock",
             4: "corruption",
             5: "frost_frostbite",
+            6: "auricink_corruption"
         }
 
         # enemy实例化的时候，6种异常积蓄条也随着一起实例化
@@ -185,6 +191,7 @@ class Enemy:
         self.physical_anomaly_bar = PhysicalAnomaly(sim_instance=self.sim_instance)
         self.ether_anomaly_bar = EtherAnomaly(sim_instance=self.sim_instance)
         self.electric_anomaly_bar = ElectricAnomaly(sim_instance=self.sim_instance)
+        self.auricink_anomaly_bar = AuricInkAnomaly(sim_instance=self.sim_instance)
         """
         由于在AnomalyBar的init中有一个update_anomaly函数，
         该函数可以根据传入new_snap_shot: tuple 的第0位的属性标号，
@@ -201,6 +208,7 @@ class Enemy:
             3: self.electric_anomaly_bar,
             4: self.ether_anomaly_bar,
             5: self.frost_anomaly_bar,
+            6: self.auricink_anomaly_bar
         }
         # 在初始化阶段更新属性异常条最大值。
         for element_type in self.anomaly_bars_dict:
@@ -248,7 +256,7 @@ class Enemy:
                 self.__restore_stun_recovery_time()
                 self.stun_recovery_time += increase_tick
 
-    def get_active_anomaly_bar(self) -> AnomalyBar:
+    def get_active_anomaly_bar(self) -> type(AnomalyBar):
         """用于外部获取当前正在激活的属性异常条对象"""
         output_list = []
         for element_type, anomaly_bar in self.anomaly_bars_dict.items():
@@ -376,6 +384,7 @@ class Enemy:
         else:
             pass
 
+    @staticmethod
     def __qte_tag_filter(self, tag: str) -> list[str]:
         """判断输入的标签是否为QTE，并作为列表返回"""
         result = []
@@ -404,6 +413,7 @@ class Enemy:
             "ELECTRIC": ("电", 3),
             "ETHER": ("以太", 4),
             "FROST": ("烈霜", "FIREICE", 5),
+            "AURICINK": ("玄墨", 6),
             "ALL": ("全部", "所有"),
         }
         # 检查并标准化元素
@@ -443,6 +453,7 @@ class Enemy:
             self.max_anomaly_ELECTRIC *= multiplier
             self.max_anomaly_PHY *= multiplier
             self.max_anomaly_FIREICE *= multiplier
+            self.max_anomaly_AURICINK *= multiplier
         else:
             # 单个元素更新
             if element == "ICE":
@@ -457,6 +468,8 @@ class Enemy:
                 self.max_anomaly_PHY *= multiplier
             elif element == "FROST":
                 self.max_anomaly_FIREICE *= multiplier
+            elif element == "AURICINK":
+                self.max_anomaly_AURICINK *= multiplier
 
     def update_stun(self, stun: np.float64) -> None:
         self.dynamic.stun_bar += stun
@@ -601,6 +614,7 @@ class Enemy:
             self.shock = False  # 感电状态
             self.burn = False  # 灼烧状态
             self.corruption = False  # 侵蚀状态
+            self.auricink_corruption = False  # 玄墨侵蚀状态
 
             self.dynamic_debuff_list = []  # 用来装debuff的list
             self.dynamic_dot_list = []  # 用来装dot的list
@@ -635,6 +649,7 @@ class Enemy:
                 "灼烧": self.burn,
                 "侵蚀": self.corruption,
                 "烈霜霜寒": self.frost_frostbite,
+                "玄墨侵蚀": self.auricink_corruption
             }
 
         def reset_myself(self):
@@ -674,7 +689,7 @@ class Enemy:
                 ]
             )
 
-        def get_active_anomaly(self) -> list[AnomalyBar | None]:
+        def get_active_anomaly(self) -> list[type(AnomalyBar) | None]:
             if self.is_under_anomaly():
                 return [
                     _anomaly_bar
