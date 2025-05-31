@@ -4,7 +4,11 @@ from typing import Iterator
 import streamlit as st
 from define import CONFIG_PATH
 from lib_webui.process_apl_editor import APLArchive, APLJudgeTool
-from run import SimCfg
+from zsim.simulator.config_classes import (
+    SimulationConfig as SimCfg,
+    AttrCurveConfig,
+    WeaponConfig,
+)
 
 from .constants import stats_trans_mapping
 
@@ -40,32 +44,30 @@ def generate_parallel_args(
         )  # 获取需要移除装备的词条列表，如果不存在则为空列表
         for sc_name in sc_list:
             for sc_value in range(sc_range_start, sc_range_end + 1):
-                args = SimCfg()
-                args.stop_tick = stop_tick
-                args.mode = "parallel"
-                args.func = func
-                args.adjust_char = parallel_cfg["adjust_char"]
-                args.sc_name = stats_trans_mapping[sc_name]
-                args.sc_value = sc_value
-                args.run_turn_uuid = run_turn_uuid
-                # 检查当前 sc_name 是否在 remove_equip_list 中
-                if sc_name in remove_equip_list:
-                    args.remove_equip = True
-                else:
-                    args.remove_equip = False
+                args = AttrCurveConfig(
+                    stop_tick=stop_tick,
+                    mode="parallel",
+                    func=func,
+                    adjust_char=parallel_cfg["adjust_char"],
+                    sc_name=stats_trans_mapping[sc_name],
+                    sc_value=sc_value,
+                    run_turn_uuid=run_turn_uuid,
+                    remove_equip=sc_name in remove_equip_list,
+                )
                 yield args
     elif func == "weapon":
         adjust_weapon_cfg = parallel_cfg["adjust_weapon"]
         weapon_list = adjust_weapon_cfg["weapon_list"]
         for weapon in weapon_list:
-            args = SimCfg()
-            args.stop_tick = stop_tick
-            args.mode = "parallel"
-            args.func = func
-            args.adjust_char = parallel_cfg["adjust_char"]
-            args.weapon_name = weapon["name"]
-            args.weapon_level = weapon["level"]
-            args.run_turn_uuid = run_turn_uuid
+            args = WeaponConfig(
+                stop_tick=stop_tick,
+                mode="parallel",
+                func=func,
+                adjust_char=parallel_cfg["adjust_char"],
+                weapon_name=weapon["name"],
+                weapon_level=weapon["level"],
+                run_turn_uuid=run_turn_uuid,
+            )
             yield args
     else:
         raise ValueError(f"Unknown func: {func}, full cfg: {parallel_cfg}")
