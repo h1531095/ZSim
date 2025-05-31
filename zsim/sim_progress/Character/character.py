@@ -862,7 +862,7 @@ class Character:
                     f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树"
                 )
             sp_change = sp_recovery - sp_consume
-            self.update_sp(sp_change)
+            self.update_sp(sp_change) 
         # Decibel
         self.process_single_node_decibel(node)
 

@@ -4,6 +4,7 @@ import uuid
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
+    from sim_progress.Preload import SkillNode
 
 
 @dataclass
@@ -110,7 +111,7 @@ class AnomalyBar:
         self.anomaly_times += 1
         self.last_active = timenow
         self.active = True
-        self.activated_by = skill_node
+        self.activated_by: "SkillNode" = skill_node
         self.__get_max_duration(dynamic_buff_dict, char_cid)
 
     def reset_current_info_cause_output(self):

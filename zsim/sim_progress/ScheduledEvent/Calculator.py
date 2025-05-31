@@ -3,6 +3,8 @@ from functools import lru_cache
 from typing import Any
 
 import numpy as np
+from jupyter_core.application import base_flags
+
 from define import INVALID_ELEMENT_ERROR, ElementType
 from sim_progress.Character import Character
 from sim_progress.data_struct import cal_buff_total_bonus
@@ -401,6 +403,9 @@ class MultiplierData:
                 5: self.frostbite_disorder_basic_mul,
                 "all": self.all_disorder_basic_mul,
             }
+            self.sheer_atk: float = 0.0     # 固定贯穿力增幅
+            self.field_sheer_atk_percentage: float = 0.0       # 局内百分比贯穿力增幅
+            self.sheer_dmg_bonus: float = 0.0 # 贯穿伤害增加
 
             self.__read_dynamic_statement(dynamic_statement)
 
@@ -483,6 +488,7 @@ class Calculator:
             self.dmg_vulnerability = self.cal_dmg_vulnerability(data)
             self.stun_vulnerability = self.cal_stun_vulnerability(data)
             self.special_multiplier_zone = self.cal_special_mul(data)
+            self.sheer_dmg_bonus = self.cal_sheer_dmg_bonus(data)
             # 常规伤害
             self.regular_dmg_multipliers = {
                 "基础伤害区": self.base_dmg,
@@ -495,6 +501,7 @@ class Calculator:
                 "减易伤区": self.dmg_vulnerability,
                 "失衡易伤区": self.stun_vulnerability,
                 "特殊倍率区": self.special_multiplier_zone,
+                "贯穿增伤区": self.sheer_dmg_bonus
             }
 
         def get_array_expect(self) -> np.ndarray:
@@ -508,6 +515,7 @@ class Calculator:
                     self.dmg_vulnerability,
                     self.stun_vulnerability,
                     self.special_multiplier_zone,
+                    self.sheer_dmg_bonus
                 ],
                 dtype=np.float64,
             )
@@ -525,6 +533,7 @@ class Calculator:
                     self.dmg_vulnerability,
                     self.stun_vulnerability,
                     self.special_multiplier_zone,
+                    self.sheer_dmg_bonus
                 ],
                 dtype=np.float64,
             )
@@ -541,6 +550,7 @@ class Calculator:
                     self.dmg_vulnerability,
                     self.stun_vulnerability,
                     self.special_multiplier_zone,
+                    self.sheer_dmg_bonus
                 ],
                 dtype=np.float64,
             )
@@ -597,15 +607,18 @@ class Calculator:
                 #  贯穿力属性的实时计算
                 if not hasattr(data.char_instance, "sheer_attack_conversion_rate"):
                     raise AttributeError(f"{data.char_instance.NAME}作为命破属性代理人，必须拥有贯穿力转化字典！")
-                sheer_atk = 0
+                base_sheer_atk = 0
                 for key, value in data.char_instance.sheer_attack_conversion_rate.items():
                     if key not in [0, 1, 2, 3]:
                         raise ValueError(f"无法解析的贯穿力转化率key：{key}")
                     if value <= 0:
                         continue
-                    sheer_atk += self.cal_base_attr(base_attr=key, data=data) * value
+                    base_sheer_atk += self.cal_base_attr(base_attr=key, data=data) * value
                 else:
-                    attr = sheer_atk
+                    if data.dynamic.field_sheer_atk_percentage != 0:
+                        raise ValueError(f"警告！检测到非0的“局内贯穿力%Buff”，该效果目前还无法处理，请注意检查buff_effect")
+                    current_sheer_atk = base_sheer_atk + data.dynamic.sheer_atk
+                    attr = current_sheer_atk
             else:
                 assert False, INVALID_ELEMENT_ERROR
             return attr
@@ -923,6 +936,16 @@ class Calculator:
         @staticmethod
         def cal_special_mul(data: MultiplierData) -> float:
             return 1 + data.dynamic.special_multiplier_zone
+
+        @staticmethod
+        def cal_sheer_dmg_bonus(data: MultiplierData) -> float:
+            """计算贯穿伤害增幅区——贯穿伤害增加是一个独立乘区！"""
+            if data.judge_node.skill.diff_multiplier != 4:
+                return 1.0
+            else:
+                return (
+                    1 + data.dynamic.sheer_dmg_bonus
+                )
 
     class AnomalyMul:
         """
@@ -1294,6 +1317,7 @@ class Calculator:
         #         "易伤区",
         #         "失衡易伤区",
         #         "特殊乘区",
+        #          "贯穿伤害区"
         #     ]
         #     for __tag, __value in zip(tag_list, multipliers):
         #         print(f"{__tag}：{__value}")

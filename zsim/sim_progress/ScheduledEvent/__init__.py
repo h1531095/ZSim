@@ -90,10 +90,10 @@ class ScheduledEvent:
         # 更新角色面板
         for char in self.data.char_obj_list:
             char: Character
-            sp_update_date = SPUpdateData(
+            sp_update_data = SPUpdateData(
                 char_obj=char, dynamic_buff=self.data.dynamic_buff
             )
-            char.update_sp_and_decibel(sp_update_date)
+            char.update_sp_and_decibel(sp_update_data)
         # 判断循环
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
