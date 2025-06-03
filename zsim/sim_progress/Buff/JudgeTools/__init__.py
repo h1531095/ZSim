@@ -107,6 +107,8 @@ def trigger_buff_0_handler(record, trigger_buff_0, buff_instance: "Buff"):
         if operator == "equipper":
             if record.equipper is None:
                 record.equipper = find_equipper(operator, sim_instance=buff_instance.sim_instance)
+                # FIXME:这里要解决传入的operator 是“equipper”字符串的问题！！！！虽然该分支不会被执行，所以从未出错（obsidian笔记详解一下）
+
             operator = record.equipper
         elif operator == "enemy":
             operator = record.char.NAME

@@ -1110,5 +1110,61 @@
     "Buff-武器-精5「月相」-朔-回能触发器": {
         "module": ".BuffXLogic.LunarNoviluna",
         "class": "LunarNoviluna"
+    },
+    "Buff-角色-仪玄-额外能力-对失衡敌人增伤": {
+        "module": ".BuffXLogic.YixuanAdditionalAbilityDmgBonus",
+        "class": "YixuanAdditionalAbilityDmgBonus"
+    },
+    "Buff-角色-仪玄-1画-落雷触发器": {
+        "module": ".BuffXLogic.YixuanCinema1Trigger",
+        "class": "YixuanCinema1Trigger"
+    },
+    "Buff-角色-仪玄-2画-失衡时间提升": {
+        "module": ".BuffXLogic.YixuanCinema2StunTimeLimitBonus",
+        "class": "YixuanCinema2StunTimeLimitBonus"
+    },
+    "Buff-武器-精1青溟笼舍-以太伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-武器-精2青溟笼舍-以太伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-角色-仪玄-4画-静心": {
+        "module": ".BuffXLogic.YixuanCinema4Tranquility",
+        "class": "YixuanCinema4Tranquility"
+    },
+    "Buff-武器-精3青溟笼舍-以太伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-武器-精4青溟笼舍-以太伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-武器-精5青溟笼舍-以太伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-武器-精1青溟笼舍-贯穿伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-武器-精2青溟笼舍-贯穿伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-武器-精3青溟笼舍-贯穿伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-武器-精4青溟笼舍-贯穿伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
+    },
+    "Buff-武器-精5青溟笼舍-贯穿伤害提升": {
+        "module": ".BuffXLogic.QingmingBirdcageCompanion",
+        "class": "QingmingBirdcageCompanion"
     }
 }

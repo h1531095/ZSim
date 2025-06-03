@@ -113,6 +113,7 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
         "only_label",
         "only_trigger_buff_level",
         "only_back_attack",
+        "only_element"
     ]
     # 获取buff的标签列表
     buff_labels: dict[str, list[str] | str] = buff.ft.label
@@ -162,12 +163,25 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
             elif label_key == "only_back_attack":
                 from sim_progress.RandomNumberGenerator import RNG
 
-                rng = RNG()
-                seed = rng.r
-                seed = (seed / (2**63 - 1) + 1) / 2
-                if seed <= BACK_ATTACK_RATE:
+                rng: RNG = buff.sim_instance.rng_instance
+                normalized_value = rng.random_float()
+                if normalized_value <= BACK_ATTACK_RATE:
                     return True
-    return False
+        elif label_key == "only_element":
+            from define import ELEMENT_EQUIVALENCE_MAP
+            for _ele_type in label_value:
+                if skill_node.skill.element_type in ELEMENT_EQUIVALENCE_MAP[_ele_type]:
+                    # 只要找到一种符合要求的元素，就返回True
+                    return True
+            else:
+                return False
+        else:
+            raise ValueError(f"{buff.ft.index}的标签类型 {label_key} 未定义！")
+        print(f"data_analyzer的报告：{buff.ft.index}与{skill_node.skill_tag}不匹配！")
+        return False
+    else:
+        return True
+    # FIXME: 该函数还是有些逻辑问题的，等带后续继续优化修改！
 
 
 def __check_special_anomly(buff: "Buff", anomly_node: "AnomalyBar") -> bool:

@@ -11,7 +11,7 @@ class VivianCinema1Debuff(Buff.BuffLogic):
     def __init__(self, buff_instance):
         """薇薇安1画的负面效果判定逻辑"""
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic

@@ -16,7 +16,7 @@ class MiyabiCoreSkill_FrostBurn(Buff.BuffLogic):
 
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.xexit = self.special_exit_logic
         self.buff_0 = None
         self.record = None

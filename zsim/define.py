@@ -5,7 +5,7 @@ from typing import Callable, Literal
 import toml
 
 # 属性类型：
-ElementType = Literal[0, 1, 2, 3, 4, 5]
+ElementType = Literal[0, 1, 2, 3, 4, 5, 6]
 Number = int | float
 
 INVALID_ELEMENT_ERROR = "Invalid element type"
@@ -100,6 +100,16 @@ ANOMALY_MAPPING: dict[ElementType, str] = {
     4: "侵蚀",
     5: "烈霜碎冰",
 }
+# 属性类型等价映射字典
+ELEMENT_EQUIVALENCE_MAP: dict[ElementType, list[ElementType]] = {
+            0: [0],
+            1: [1],
+            2: [2, 5],  # 烈霜也能享受到冰属性加成
+            3: [3],
+            4: [4, 6],      # 玄墨也能享受到以太属性加成
+            5: [5],
+            6: [6]
+        }
 
 SUB_STATS_MAPPING: dict[
     Literal[

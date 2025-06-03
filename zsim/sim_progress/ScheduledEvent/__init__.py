@@ -94,7 +94,12 @@ class ScheduledEvent:
                 char_obj=char, dynamic_buff=self.data.dynamic_buff
             )
             char.update_sp_and_decibel(sp_update_data)
-        # 判断循环
+            if hasattr(char, "refresh_myself"):
+                char.refresh_myself()
+        self.process_event()
+
+    def process_event(self):
+        """处理当前所有事件"""
         if self.data.event_list:
             self.solve_buff()  # 先处理优先级高的buff
             # 筛选出可处理的事件，并且按照优先级排序，然后开始遍历执行。
@@ -175,7 +180,7 @@ class ScheduledEvent:
             # 计算过程中如果又有新的事件生成，则继续循环
             if self.data.event_list:
                 if not self.check_all_event():
-                    self.event_start()
+                    self.process_event()
 
     def check_all_event(self):
         """检查所有残留事件是否到期，只要有一个残留事件已经到期，直接返回False，激活递归。"""

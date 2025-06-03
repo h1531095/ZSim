@@ -31,7 +31,7 @@ class LighterExtraSkill_IceFireBonus(Buff.BuffLogic):
 
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         # 初始化特定逻辑
         self.xhit = self.special_hit_logic
         self.buff_0 = None

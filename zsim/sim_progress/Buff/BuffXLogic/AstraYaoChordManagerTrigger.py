@@ -12,7 +12,7 @@ class AstraYaoChordManagerTrigger(Buff.BuffLogic):
     def __init__(self, buff_instance):
         """耀嘉音震音管理器触发器，负责调用震音管理器并尝试添加协同攻击。"""
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic

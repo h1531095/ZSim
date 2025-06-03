@@ -917,6 +917,11 @@ class Character:
         # 重置动态属性
         self.dynamic.reset()
 
+    def refresh_myself(self):
+        """部分角色身上存在每个tick更新一次的数据结构，所以这里提供一个统一的对外调用接口。
+        目前这个接口是被Schedule阶段调用的。"""
+        return None
+
 
 class LastingNode:
     def __init__(self, char_instance: Character):

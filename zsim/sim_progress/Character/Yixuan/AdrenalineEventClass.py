@@ -7,10 +7,6 @@ if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
 
 
-def adrenaline_event_factory(char_instance: "Yixuan") -> list:
-    pass
-
-
 class BaseAdrenalineEvent(ABC):
     """管理单个闪能事件的基类"""
     @abstractmethod
@@ -109,7 +105,7 @@ class AuricInkUndercurrent(BaseAdrenalineEvent):
             # 过滤自己的技能
             if skill_node.char_name == self.char.NAME:
                 return
-            if skill_node.skill.trigger_buff_level == 5:
+            if skill_node.skill.trigger_buff_level == 6:
                 self.active = True
                 self.active_times += 1
                 self.last_active_tick = simulator.tick

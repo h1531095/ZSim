@@ -12,7 +12,7 @@ class TriggerCoreSkillStunDMGBonus(Buff.BuffLogic):
         扳机的核心被动，扳机发动的追加攻击能增加失衡易伤
         """
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic

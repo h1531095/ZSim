@@ -14,7 +14,7 @@ class SpectralGazeSpiritLock(Buff.BuffLogic):
 
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.xjudge = self.special_judge_logic
         self.equipper = None
         self.buff_0 = None
