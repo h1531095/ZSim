@@ -54,12 +54,13 @@ class EnemyAttackMethod:
     def select_action(self, current_tick: int):
         """根据概率选择一个进攻动作"""
         cumulative_probability = 0  # 累积概率，这个数字没有实际意义，只是为了方便计算，每次函数运行时都初始化为0
-        select_seed = RNG().random_float()
+        rng: RNG = self.enemy.sim_instance.rng_instance
+        normalized_value = rng.random_float()
         if not self.ready_check(current_tick):
             return None
         for _rate, _action in self.action_set.items():
             cumulative_probability += _rate
-            if cumulative_probability >= select_seed:
+            if cumulative_probability >= normalized_value:
                 self.last_start_tick = current_tick
                 self.last_end_tick = current_tick + _action.duration
                 self.ready = False

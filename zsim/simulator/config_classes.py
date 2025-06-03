@@ -22,7 +22,6 @@ class SimulationConfig(BaseModel):
     weapon_level: Literal[1, 2, 3, 4, 5] | None = Field(
         None, description="要调整的武器精炼等级"
     )
-
     # optinal:
     # apl_path: str | None = Field(None, description="APL代码相对路径")
 

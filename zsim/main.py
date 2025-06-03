@@ -65,10 +65,12 @@ if __name__ == "__main__":
 
     # 解析命令行参数
     args = parser.parse_args()
+    print(args)
     if args.mode == "normal":
         print("常规模式")
         # 常规模式，作为单进程运行，读取全部的配置
         simulator_instance = Simulator()
+
         if args.stop_tick is not None:
             print(
                 f"\n主循环耗时: {timeit.timeit(lambda: simulator_instance.main_loop(args.stop_tick), globals=globals(), number=1):.2f} s"

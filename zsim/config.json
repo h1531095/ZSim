@@ -80,7 +80,7 @@
         "Hugo": 3
     },
     "parallel_mode": {
-        "enabled": true,
+        "enabled": false,
         "adjust_char": 3,
         "adjust_sc": {
             "enabled": true,

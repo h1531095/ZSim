@@ -47,16 +47,14 @@ class RoaringRideBuffTrigger(Buff.BuffLogic):
                 1: f"Buff-武器-精{int(self.buff_instance.ft.refinement)}轰鸣座驾-精通提升",
                 2: f"Buff-武器-精{int(self.buff_instance.ft.refinement)}轰鸣座驾-属性异常积蓄",
             }
-        from sim_progress import RandomNumberGenerator
+        from sim_progress.RandomNumberGenerator import RNG
         from sim_progress.Buff.BuffAddStrategy import buff_add_strategy
-
-        rng = RandomNumberGenerator.RNG()
-        seed = rng.r
-        seed = (seed / (2**63 - 1) + 1) / 2
-        if 0 <= seed < 1 / 3:
+        rng: RNG = self.buff_instance.sim_instance.rng_instance
+        normalized_value = rng.random_float()
+        if 0 <= normalized_value < 1 / 3:
             buff_add_strategy(self.record.buff_map[0], sim_instance=self.buff_instance.sim_instance)
             # print(f'轰鸣座驾触发了攻击力Buff')
-        elif 1 / 3 <= seed < 2 / 3:
+        elif 1 / 3 <= normalized_value < 2 / 3:
             buff_add_strategy(self.record.buff_map[1], sim_instance=self.buff_instance.sim_instance)
             # print(f'轰鸣座驾触发了精通Buff')
         else:

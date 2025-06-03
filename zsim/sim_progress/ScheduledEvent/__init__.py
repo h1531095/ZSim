@@ -23,7 +23,7 @@ from sim_progress.Preload import SkillNode
 from sim_progress.Update import update_anomaly
 
 from .CalAnomaly import CalAbloom, CalAnomaly, CalDisorder, CalPolarityDisorder
-from .Calculator import Calculator
+from .Calculator import Calculator, MultiplierData
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
