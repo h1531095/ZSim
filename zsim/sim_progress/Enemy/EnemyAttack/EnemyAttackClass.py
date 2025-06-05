@@ -1,9 +1,11 @@
 import numpy as np
-from define import ENEMY_ATTACK_METHOD_CONFIG, ENEMY_ATTACK_ACTION
+from define import ENEMY_ATTACK_METHOD_CONFIG, ENEMY_ATTACK_ACTION, ENEMY_RANDOM_ATTACK, ENEMY_REGULAR_ATTACK, ENEMY_ATTACK_REPORT
 from collections import defaultdict
 import pandas as pd
 from sim_progress.RandomNumberGenerator import RNG
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from sim_progress.Enemy import Enemy
 
 """
     EnemyAttack模块相关的数据结构以及程序逻辑设计如下（2025.1.30）：
@@ -24,8 +26,16 @@ action_file = pd.read_csv(ENEMY_ATTACK_ACTION, index_col="ID")
 class EnemyAttackMethod:
     """含有若干个进攻动作的进攻策略"""
 
-    def __init__(self, ID: int = 0):
+    def __init__(self, ID: int = 0, enemy_instance: "Enemy" = None):
         self.action_set = defaultdict()
+        self.enemy = enemy_instance
+        if ENEMY_RANDOM_ATTACK:
+            self.random_attack: bool = True
+            self.attack_skill_tag = None
+        elif ENEMY_REGULAR_ATTACK:
+            self.random_attack = False
+            self.attack_skill_tag = "default_enemy_attack_mode_a"
+
         self.last_start_tick = 0
         self.last_end_tick = 0
         self.ready = False
@@ -43,15 +53,18 @@ class EnemyAttackMethod:
             action_rate = float(rate_list[i])
             enemy_attack_action = EnemyAttackAction(int(action_id))
             self.action_set[action_rate] = enemy_attack_action
+            print(f"为敌人添加进攻动作：{enemy_attack_action}") if ENEMY_ATTACK_REPORT else None
+        print(f"敌人进攻动作初始化完毕！") if ENEMY_ATTACK_REPORT else None
+        print(f"敌人（{self.enemy.name}）共拥有{len(self.action_set)}个进攻动作，每次进攻决策的冷却时间为：{self.rest_tick}tick！") if ENEMY_ATTACK_REPORT else None
 
-    def ready_check(self, current_tick: int):
-        """判断敌人进攻的内置CD"""
+    def ready_check(self, current_tick: int) -> bool:
+        """判断敌人进攻的内置CD——进攻动作结束后，进攻决策才会进入冷却时间。"""
         if not self.ready:
             if current_tick - self.last_end_tick >= self.rest_tick:
                 self.ready = True
         return self.ready
 
-    def select_action(self, current_tick: int):
+    def probablity_driven_action_selection(self, current_tick: int):
         """根据概率选择一个进攻动作"""
         cumulative_probability = 0  # 累积概率，这个数字没有实际意义，只是为了方便计算，每次函数运行时都初始化为0
         rng: RNG = self.enemy.sim_instance.rng_instance
@@ -69,6 +82,17 @@ class EnemyAttackMethod:
             """如果循环结束，还没有选中任何一个动作，说明无事发生，返回None"""
             return None
 
+    def time_anchored_action_selection(self, current_tick: int) -> str | None:
+        """以固定的时间间隔选择固定的进攻动作"""
+        if self.ready_check(current_tick=current_tick):
+            self.last_start_tick = current_tick
+            self.last_end_tick = current_tick + self.action_set[1].duration
+            self.ready = False
+            print(f"{self.enemy.name}（ID：{self.enemy.index_ID}）抛出进攻动作{self.action_set[1].tag}") if ENEMY_ATTACK_REPORT else None
+            return self.action_set[1]
+        else:
+            return None
+
     def reset_myself(self):
         """重构EnemyAttack方法！"""
         self.last_start_tick = 0
@@ -82,6 +106,7 @@ class EnemyAttackAction:
     def __init__(self, ID: int):
         if ID == 0:
             raise ValueError("EnemyAttackAction实例化所用的ID为0，请检查配置信息！")
+        self.id = ID
         self.action_dict = action_file.loc[ID].to_dict()
         self.tag = self.action_dict.get("tag", "")
         self.description = self.action_dict.get("description", "")
@@ -122,6 +147,8 @@ class EnemyAttackAction:
     def block_judge(self, char_action):
         pass
 
+    def __str__(self):
+        return f"进攻动作ID：{self.id}, 技能Tag：{self.tag}，动作耗时：{self.duration}，单次动作的冷却时间：{self.cd}"
 
 if __name__ == "__main__":
     method = EnemyAttackMethod()

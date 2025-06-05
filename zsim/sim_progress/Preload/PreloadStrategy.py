@@ -4,6 +4,7 @@ from sim_progress.Preload.PreloadEngine import (
     ForceAddEngine,
     ConfirmEngine,
     SwapCancelValidateEngine,
+    AttackAnswerEngine
 )
 
 
@@ -33,16 +34,16 @@ class SwapCancelStrategy(BasePreloadStrategy):
     def __init__(self, data, apl_path: str | None):
         super().__init__(data, apl_path=apl_path)
         self.swap_cancel_engine = SwapCancelValidateEngine(data)
-        self.attack_answer_engine = None
+        self.attack_answer_engine = AttackAnswerEngine(data=data)
+        self.tick = 0
 
     def generate_actions(self, enemy, tick: int) -> None:
         """合轴逻辑"""
         # 0、自检
         self.check_myself(enemy, tick)
         # EnemyAttack的抛出
-        if self.attack_answer_engine:
-            # TODO: 添加EnemyAttack的抛出逻辑
-            pass
+        # TODO: 继续完善
+        self.attack_answer_engine.run_myself()
         # 1、APL引擎抛出本tick的主动动作
         apl_skill_node = self.apl_engine.run_myself(tick)
         if apl_skill_node is not None:

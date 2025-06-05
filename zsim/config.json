@@ -25,6 +25,7 @@
         "enemy_attack_response": true,
         "enemy_attack_method_config": "./zsim/data/enemy_attack_method.csv",
         "enemy_attack_action_data": "./zsim/data/enemy_attack_action.csv",
+        "enemy_attack_report": true,
         "default_apl_dir": "./zsim/data/APLData",
         "custom_apl_dir": "./zsim/data/APLData/custom",
         "Yanagi": "./zsim/data/DefaultConfig/1221.json",

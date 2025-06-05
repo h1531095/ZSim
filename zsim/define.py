@@ -44,6 +44,7 @@ if ENEMY_RANDOM_ATTACK and ENEMY_REGULAR_ATTACK:
 ENEMY_ATTACK_RESPONSE: bool = _config["apl_mode"]["enemy_attack_response"]
 ENEMY_ATTACK_METHOD_CONFIG: str = _config["apl_mode"]["enemy_attack_method_config"]
 ENEMY_ATTACK_ACTION: str = _config["apl_mode"]["enemy_attack_action_data"]
+ENEMY_ATTACK_REPORT: bool = _config["apl_mode"]["enemy_attack_report"]
 DEFAULT_APL_DIR: str = _config["apl_mode"]["default_apl_dir"]
 COSTOM_APL_DIR: str = _config["apl_mode"]["custom_apl_dir"]
 YANAGI_NA_ORDER: str = _config["apl_mode"]["Yanagi"]

@@ -42,7 +42,7 @@ class Simulator:
     listener_manager: ListenerManger
     rng_instance: RNG
     in_parallel_mode: bool
-    sim_cfg: "SimCfg" | None
+    sim_cfg: "SimCfg | None"
 
     def reset_simulator(self, sim_cfg: "SimCfg" | None):
         """重置模拟器实例为初始状态。"""

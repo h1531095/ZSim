@@ -1318,21 +1318,21 @@ class Calculator:
         """计算伤害期望"""
         multipliers: np.ndarray = self.regular_multipliers.get_array_expect()
         dmg_expect = np.prod(multipliers)
-        if any([__tag in self.skill_tag for __tag in
-                ["1371_E_EX", "1371_SNA_", "1371_Cinema_2", "1371_QTE", "1371_Q"]]):
-            tag_list = [
-                "基础乘区",
-                "增伤区",
-                "双暴区",
-                "防御区",
-                "抗性区",
-                "易伤区",
-                "失衡易伤区",
-                "特殊乘区",
-                "贯穿伤害区"
-            ]
-            print(self.skill_node.skill.skill_text, "：",
-                  [f"{__tag}: {__value:.2f}" for __tag, __value in zip(tag_list, multipliers)])
+        # if any([__tag in self.skill_tag for __tag in
+        #         ["1371_E_EX", "1371_SNA_", "1371_Cinema_2", "1371_QTE", "1371_Q"]]):
+        #     tag_list = [
+        #         "基础乘区",
+        #         "增伤区",
+        #         "双暴区",
+        #         "防御区",
+        #         "抗性区",
+        #         "易伤区",
+        #         "失衡易伤区",
+        #         "特殊乘区",
+        #         "贯穿伤害区"
+        #     ]
+        #     print(self.skill_node.skill.skill_text, "：",
+        #           [f"{__tag}: {__value:.2f}" for __tag, __value in zip(tag_list, multipliers)])
         return dmg_expect
 
     def cal_dmg_crit(self) -> np.float64:

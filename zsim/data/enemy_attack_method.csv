@@ -1,2 +1,3 @@
 ID,method_name,discription,action_set,action_rate,rest_tick
-0,default_method,默认攻击策略,1|2|3,0.3|0.2|0.1,300
+0,default_method_0,默认攻击策略（固定间隔）,1,1,600
+1,default_method_1,默认攻击策略（随机）,1|2|3,0.3|0.2|0.1,300

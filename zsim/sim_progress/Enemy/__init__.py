@@ -222,7 +222,7 @@ class Enemy:
             attack_method_code = 0
         else:
             attack_method_code = int(self.data_dict["进攻策略"])
-        self.attack_method = EnemyAttackMethod(attack_method_code)
+        self.attack_method = EnemyAttackMethod(ID=attack_method_code, enemy_instance=self)
         self.restore_stun()
 
         self.unique_machanic_manager = unique_mechanic_factory(self)  # 特殊机制管理器
