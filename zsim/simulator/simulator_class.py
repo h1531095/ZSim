@@ -49,7 +49,6 @@ class Simulator:
         self.reset_sim_data(sim_cfg)  # 重置所有全局变量
         start_report_threads(sim_cfg)  # 启动线程以处理日志和结果写入
 
-
     def reset_sim_data(self, sim_cfg: "SimCfg | None"):
         """重置所有全局变量为初始状态。"""
         if sim_cfg is not None:
@@ -105,12 +104,6 @@ class Simulator:
         self.decibel_manager = Decibelmanager(self)
         self.listener_manager = ListenerManger(self)
         self.rng_instance = RNG(sim_instance=self)
-
-
-    def reset_simulator(self, sim_cfg: "SimCfg | None"):
-        """重置程序为初始状态。"""
-        self.reset_sim_data(sim_cfg)  # 重置所有全局变量
-        start_report_threads(sim_cfg)  # 启动线程以处理日志和结果写入
 
     def main_loop(self, stop_tick: int = 10800, *, sim_cfg: "SimCfg | None" = None):
         self.reset_simulator(sim_cfg)

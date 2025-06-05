@@ -16,7 +16,7 @@ class SimulationConfig(BaseModel):
 class AttrCurveConfig(SimulationConfig):
     """调整副词条配置参数"""
 
-    func = "attr_curve"
+    func: Literal["attr_curve"] = "attr_curve"
     sc_name: str
     sc_value: int
     remove_equip: bool = False
@@ -25,7 +25,7 @@ class AttrCurveConfig(SimulationConfig):
 class WeaponConfig(SimulationConfig):
     """调整武器配置参数"""
 
-    func = "weapon"
+    func: Literal["weapon"] = "weapon"
     weapon_name: str
     weapon_level: Literal[1, 2, 3, 4, 5]
 
