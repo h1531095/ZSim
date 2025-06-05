@@ -218,6 +218,10 @@ class CalDisorder(CalAnomaly):
                 )
             case 5:  # 烈霜紊乱
                 disorder_base_dmg = (base_mul / 5) * (np.floor(t_s) * 0.75 + 6)
+            case 6: # 玄墨侵蚀紊乱
+                disorder_base_dmg = (base_mul / 0.625) * (
+                    np.floor(t_s / 0.5) * 0.625 + 4.5
+                )
             case _:
                 assert False, f"Invalid Element Type {self.element_type}"
         # 计算紊乱基础倍率增幅

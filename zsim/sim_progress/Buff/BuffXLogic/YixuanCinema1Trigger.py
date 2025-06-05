@@ -43,11 +43,9 @@ class YixuanCinema1Trigger(Buff.BuffLogic):
         """仪玄1画的触发器逻辑，当任意技能命中时放行。"""
         self.check_record_module()
         self.get_prepared(char_CID=1371)
-        skill_node = kwargs.get("skill_node", None)
+        skill_node: "SkillNode | None" = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
-        if not isinstance(skill_node, SkillNode):
-            raise TypeError(f"{self.buff_instance.ft.index}的Xjudge函数中获取的skill_node不是SkillNode类")
         tick = self.buff_instance.sim_instance.tick
         if skill_node.char_name == "仪玄":
             return False
@@ -75,7 +73,7 @@ class YixuanCinema1Trigger(Buff.BuffLogic):
 
         char.update_adrenaline(sp_value=self.record.adrenaline_value)
         self.buff_instance.simple_start(timenow=tick, sub_exist_buff_dict=self.record.sub_exist_buff_dict)
-        print(f"仪玄1画效果触发！生成一道落雷，并且为仪玄回复5点闪能值，仪玄当前闪能值：{char.adrenaline: .2f}") if  YIXUAN_REPORT else None
+        print(f"1画：生成一道落雷，并且为仪玄回复5点闪能值，仪玄当前闪能值：{char.adrenaline: .2f}") if  YIXUAN_REPORT else None
 
 
 

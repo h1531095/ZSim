@@ -59,7 +59,7 @@ class Yanagi(Character):
             # Decibel
             self.process_single_node_decibel(node)
         # SP recovery over time
-        self.update_single_node_sp_overtime(args, kwargs)
+        self.update_sp_overtime(args, kwargs)
 
     def get_resources(self) -> tuple[str | None, int | float | bool | None]:
         """柳的get_resource不返回内容！因为柳没有特殊资源，只有特殊状态"""

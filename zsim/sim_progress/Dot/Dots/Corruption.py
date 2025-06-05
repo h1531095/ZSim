@@ -32,4 +32,3 @@ class Corruption(Dot):
             """
             if "某角色" in self.char_name_box:
                 self.max_duration: int = 600 + 180
-

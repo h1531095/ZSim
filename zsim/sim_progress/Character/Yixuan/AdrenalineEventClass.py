@@ -29,9 +29,7 @@ class BaseAdrenalineEvent(ABC):
         """
         在Buff阶段调用，检查自身是否处于激活状态，若自身激活，则调用effect_apply
         """
-        simulator = self.char.sim_instance
-        if not isinstance(simulator, Simulator):
-            raise TypeError
+        simulator: "Simulator" = self.char.sim_instance
         if self.active:
             self.apply_effect()
             if simulator.tick >= self.last_active_tick + self.max_duration:
@@ -61,9 +59,7 @@ class AuricArray(BaseAdrenalineEvent):
 
     def update_status(self, skill_node: "SkillNode"):
         """当检测到玄墨极阵的skill_node时，更新自身状态，"""
-        simulator = self.char.sim_instance
-        if not isinstance(simulator, Simulator):
-            raise TypeError
+        simulator: "Simulator" = self.char.sim_instance
         if skill_node:
             if skill_node.char_name != self.char.NAME:
                 return

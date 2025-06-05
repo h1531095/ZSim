@@ -125,6 +125,7 @@ class Buff0Manager:
                     break
             else:
                 char_instance.additional_abililty_active = False
+            # print(char_instance.NAME, char_instance.additional_abililty_active)
 
     def change_name_box(self):
         """
@@ -186,6 +187,7 @@ class Buff0Manager:
                 ]
                 self.additional_ability_judge_info = {}
                 self.__get_additional_ability_judge_info()
+                # print(self.additional_ability_judge_info)
 
             def __get_additional_ability_judge_info(self):
                 for _char_name in self.buff_0_manager.char_name_box:
@@ -229,10 +231,12 @@ class Buff0Manager:
                         condition_list_after_trans.append(
                             addition_skill_info["config_info"][0]
                         )
-                    elif conditions in ["异常", "强攻", "支援", "击破", "防护"]:
+                    elif conditions in ["异常", "强攻", "支援", "击破", "防护", "命破"]:
                         condition_list_after_trans.append(conditions)
                     elif conditions in ["招架", "回避"]:
                         condition_list_after_trans.append(conditions)
+                    else:
+                        raise ValueError(f"无法解析的组队被动激活条件：{conditions}")
                 return condition_list_after_trans
 
         def __get_buff_0_pool(self):

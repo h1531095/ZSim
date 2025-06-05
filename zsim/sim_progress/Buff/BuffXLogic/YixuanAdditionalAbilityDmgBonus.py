@@ -1,4 +1,5 @@
 from sim_progress.Buff import Buff, JudgeTools, check_preparation
+from define import YIXUAN_REPORT
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
@@ -35,16 +36,16 @@ class YixuanAdditionalAbilityDmgBonus(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(char_CID=1371)
-        skill_node = kwargs.get("skill_node", None)
+        skill_node: "SkillNode | None" = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
-        if not isinstance(skill_node, SkillNode):
-            raise TypeError(f"{self.buff_instance.ft.index}的Xjudge函数中获取的skill_node不是SkillNode类")
         enemy = self.buff_instance.sim_instance.schedule_data.enemy
         if not enemy.dynamic.stun:
             return False
         if "1371_E_EX_B_" not in skill_node.skill_tag:
             return False
+        if skill_node.is_hit_now(self.buff_instance.sim_instance.tick):
+            print(f"仪玄的{skill_node.skill.skill_text}命中了失衡状态下的敌人，触发了组队被动的增伤效果！") if YIXUAN_REPORT else None
         return True
 
 

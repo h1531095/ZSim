@@ -10,6 +10,7 @@ class YixuanCinema2StunTimeLimitBonusRecord:
     def __init__(self):
         self.char = None
         self.enemy = None
+        self.required_skill_tag = "1371_Q"
 
 
 class YixuanCinema2StunTimeLimitBonus(Buff.BuffLogic):
@@ -37,25 +38,23 @@ class YixuanCinema2StunTimeLimitBonus(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(char_CID=1371, enemy=1)
-        skill_node = kwargs.get("skill_node", None)
+        skill_node: "SkillNode | None" = kwargs.get("skill_node", None)
         if skill_node is None:
             return False
-        if not isinstance(skill_node, SkillNode):
-            raise TypeError(f"{self.buff_instance.ft.index}的Xjudge函数中获取的skill_node不是SkillNode类")
         if skill_node.skill_tag != self.record.required_skill_tag:
             return False
         if not self.record.enemy.dynamic.stun:
             return False
         if skill_node.preload_tick != self.buff_instance.sim_instance.tick:
             return False
-        print(f'检测到仪玄释放喧响值大招！敌人正处于失衡状态，2画效果生效，延长敌人3秒失衡时间！') if YIXUAN_REPORT else None
+        print(f'2画：检测到仪玄释放喧响值大招！敌人正处于失衡状态，2画效果生效，延长敌人3秒失衡时间！') if YIXUAN_REPORT else None
         return True
 
     def special_exit_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(char_CID=1371, enemy=1)
         if not self.record.enemy.dynamic.stun:
-            print("检测到敌人从失衡状态中恢复，仪玄2画的失衡时间延长效果结束！") if YIXUAN_REPORT else None
+            print("2画：检测到敌人从失衡状态中恢复，仪玄2画的失衡时间延长效果结束！") if YIXUAN_REPORT else None
             return True
         return False
 

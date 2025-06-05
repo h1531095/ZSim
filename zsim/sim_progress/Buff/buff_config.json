@@ -1124,47 +1124,51 @@
         "class": "YixuanCinema2StunTimeLimitBonus"
     },
     "Buff-武器-精1青溟笼舍-以太伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionEthDmgBonus",
+        "class": "QingmingBirdcageCompanionEthDmgBonus"
     },
     "Buff-武器-精2青溟笼舍-以太伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionEthDmgBonus",
+        "class": "QingmingBirdcageCompanionEthDmgBonus"
     },
     "Buff-角色-仪玄-4画-静心": {
         "module": ".BuffXLogic.YixuanCinema4Tranquility",
         "class": "YixuanCinema4Tranquility"
     },
     "Buff-武器-精3青溟笼舍-以太伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionEthDmgBonus",
+        "class": "QingmingBirdcageCompanionEthDmgBonus"
     },
     "Buff-武器-精4青溟笼舍-以太伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionEthDmgBonus",
+        "class": "QingmingBirdcageCompanionEthDmgBonus"
     },
     "Buff-武器-精5青溟笼舍-以太伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionEthDmgBonus",
+        "class": "QingmingBirdcageCompanionEthDmgBonus"
     },
     "Buff-武器-精1青溟笼舍-贯穿伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionSheerAtkBonus",
+        "class": "QingmingBirdcageCompanionSheerAtkBonus"
     },
     "Buff-武器-精2青溟笼舍-贯穿伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionSheerAtkBonus",
+        "class": "QingmingBirdcageCompanionSheerAtkBonus"
     },
     "Buff-武器-精3青溟笼舍-贯穿伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionSheerAtkBonus",
+        "class": "QingmingBirdcageCompanionSheerAtkBonus"
     },
     "Buff-武器-精4青溟笼舍-贯穿伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionSheerAtkBonus",
+        "class": "QingmingBirdcageCompanionSheerAtkBonus"
     },
     "Buff-武器-精5青溟笼舍-贯穿伤害提升": {
-        "module": ".BuffXLogic.QingmingBirdcageCompanion",
-        "class": "QingmingBirdcageCompanion"
+        "module": ".BuffXLogic.QingmingBirdcageCompanionSheerAtkBonus",
+        "class": "QingmingBirdcageCompanionSheerAtkBonus"
+    },
+    "Buff-驱动盘-云岿如我-四件套-贯穿伤害提升": {
+        "module": ".BuffXLogic.YunkuiTalesSheerAtkBonus",
+        "class": "YunkuiTalesSheerAtkBonus"
     }
 }

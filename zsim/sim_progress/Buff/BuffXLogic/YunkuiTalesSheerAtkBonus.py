@@ -34,3 +34,8 @@ class YunkuiTalesSheerAtkBonus(Buff.BuffLogic):
     def special_judge_logic(self, **kwargs):
         self.check_record_module()
         self.get_prepared(equipper="云岿如我", trigger_buff_0=(self.equipper, "Buff-驱动盘-云岿如我-四件套-暴击率提升"))
+        trigger_buff_0: Buff = self.record.trigger_buff_0
+        if trigger_buff_0.dy.active:
+            if trigger_buff_0.dy.count == 3:
+                return True
+        return False

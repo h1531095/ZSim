@@ -1,4 +1,3 @@
-from Character import Character
 from sim_progress.Buff import Buff, JudgeTools, check_preparation
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -8,7 +7,7 @@ if TYPE_CHECKING:
     from sim_progress.Character import Character
 
 
-class QingmingBirdcageCompanionRecord:
+class QingmingBirdcageCompanionSheerAtkBonusRecord:
     def __init__(self):
         self.equipper = None
         self.char = None
@@ -17,7 +16,7 @@ class QingmingBirdcageCompanionRecord:
         self.update_signal = None
 
 
-class QingmingBirdcageCompanion(Buff.BuffLogic):
+class QingmingBirdcageCompanionSheerAtkBonus(Buff.BuffLogic):
     """青溟笼舍的清明同行的复杂判定，这把武器拥有 以太增伤 以及 贯穿伤害两部分效果，这两部分效果共享同一个判定逻辑"""
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
@@ -39,7 +38,7 @@ class QingmingBirdcageCompanion(Buff.BuffLogic):
                 self.buff_instance.ft.index
             ]
         if self.buff_0.history.record is None:
-            self.buff_0.history.record = QingmingBirdcageCompanionRecord()
+            self.buff_0.history.record = QingmingBirdcageCompanionSheerAtkBonusRecord()
         self.record = self.buff_0.history.record
 
     def special_judge_logic(self, **kwargs):
@@ -53,15 +52,15 @@ class QingmingBirdcageCompanion(Buff.BuffLogic):
         if skill_node is None:
             return False
         # 检测到第一个动作时放行
-        if preload_data.personal_node_stack[char.CID].peek_index(-2) is None:
-            if self.record.update_signal is not None:
-                raise ValueError(f"{self.buff_instance.ft.index}的Xjudge函数检验到有尚未处理的更新信号，请检查XStart函数")
-            self.record.update_signal = 0
-            return True
         if skill_node.char_name != char.NAME:
             return False
         if skill_node.preload_tick != sim.tick:
             return False
+        if len(preload_data.personal_node_stack[char.CID]) == 1:
+            if self.record.update_signal is not None:
+                raise ValueError(f"{self.buff_instance.ft.index}的Xjudge函数检验到有尚未处理的更新信号，请检查XStart函数")
+            self.record.update_signal = 0
+            return True
         if skill_node.skill.trigger_buff_level == 2:
             if self.record.update_signal is not None:
                 raise ValueError(f"{self.buff_instance.ft.index}的Xjudge函数检验到有尚未处理的更新信号，请检查XStart函数")
@@ -79,7 +78,9 @@ class QingmingBirdcageCompanion(Buff.BuffLogic):
             self.buff_instance.simple_start(timenow=sim.tick, sub_exist_buff_dict=self.record.sub_exist_buff_dict, no_count=1)
             self.buff_instance.dy.count = 2
             self.buff_instance.update_to_buff_0(self.buff_0)
+            self.record.update_signal = None
         elif self.record.update_signal == 1:
             self.buff_instance.simple_start(timenow=sim.tick, sub_exist_buff_dict=self.record.sub_exist_buff_dict)
+            self.record.update_signal = None
         else:
             raise ValueError(f"无法解析的更新信号：{self.record.update_signal}")

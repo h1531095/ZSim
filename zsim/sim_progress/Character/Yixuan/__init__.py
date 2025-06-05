@@ -43,18 +43,32 @@ class Yixuan(Character):
             if __nodes.char_name != self.NAME:
                 continue
             if __nodes.skill_tag == "1371_Q_A":
+                if self.auricink_point != 0:
+                    print(f"Warning：仪玄在玄墨值大于0的情况下再次释放了【{__nodes.skill.skill_text}】，这造成了玄墨值的溢出，请检查APL代码！")
                 if self.regulated_breathing:
                     if self.cinema < 6:
                         raise ValueError('仪玄在非6画状态下开启了调息状态，请检查代码！')
                     self.regulated_breathing = False
                     self.regulated_breathing_last_update_tick = tick
+                    print(f"6画：仪玄释放【{__nodes.skill.skill_text}】，消耗一层调息！") if YIXUAN_REPORT else None
                 else:
                     if self.technique_points < 120:
                         raise ValueError("仪玄的术法值不足！请检查APL！")
                     self.technique_points = 0
                     self.auricink_point = min(1, self.auricink_point + 1)
-                    if self.cinema >= 2:
-                        self.condensed_ink = min(1, self.condensed_ink + 1)
+            elif __nodes.skill_tag == "1371_Q":
+                if self.cinema >= 2:
+                    self.condensed_ink = min(1, self.condensed_ink + 1)
+                    print(f"2画：检测到仪玄释放喧响大招【{__nodes.skill.skill_text}】，获得1点聚墨值！") if YIXUAN_REPORT else None
+                if self.cinema == 6:
+                    if (
+                            tick - self.regulated_breathing_last_update_tick >= self.cinema_6_cd) or self.regulated_breathing_last_update_tick == 0:
+                        self.regulated_breathing = True
+                        print(
+                            f"6画：检测到技能【{__nodes.skill.skill_text}】，仪玄获得一层调息") if YIXUAN_REPORT else None
+                    else:
+                        print(
+                            f"6画：检测到技能【{__nodes.skill.skill_text}】，但是仪玄调息的内置CD尚未转好，所以无法获得调息")
             elif __nodes.skill_tag == "1371_SNA_B_1":
                 if self.auricink_point <= 0:
                     raise ValueError("仪玄的玄墨值不足！请检查APL！")
@@ -65,13 +79,7 @@ class Yixuan(Character):
                 if self.condensed_ink < 1:
                     raise ValueError("仪玄当前的聚墨点数不足！请检查APL")
                 self.condensed_ink -= 1
-            elif __nodes.skill_tag == "1371_Q":
-                if self.cinema == 6:
-                    if (tick - self.regulated_breathing_last_update_tick >= self.cinema_6_cd) or self.regulated_breathing_last_update_tick == 0:
-                        self.regulated_breathing = True
-                        print(f"检测到技能{__nodes.skill_tag}，仪玄获得一层调息") if YIXUAN_REPORT else None
-                    else:
-                        print(f"检测到技能{__nodes.skill_tag}，但是仪玄调息的内置CD尚未转好，所以无法获得调息")
+                print(f"2画：仪玄追加释放【{__nodes.skill.skill_text}】，消耗1点聚墨值") if YIXUAN_REPORT else None
 
             # 更新术法值和闪能值
             self.__update_adrenaline(skill_node=__nodes)
@@ -84,9 +92,13 @@ class Yixuan(Character):
         """可全局强制更新能量的方法——仪玄特化版"""
         if sp_value < 0:
             # 当检测到闪能消耗时候，进行术法值的转化
-            self.technique_points = min(self.technique_points + sp_value * self.__technique_points_trans_ratio, self.max_technique_points)
+            technique_points_delta = abs(sp_value) * self.__technique_points_trans_ratio
+            self.technique_points = min(self.technique_points + technique_points_delta, self.max_technique_points)
+            print(f"仪玄消耗了{abs(sp_value):.2f}点闪能值，转化为{technique_points_delta:.2f}点术法值！当前术法值为：{self.technique_points:.2f}") if YIXUAN_REPORT else None
         self.adrenaline += sp_value
         self.adrenaline = max(0.0, min(self.adrenaline, self.adrenaline_limit))
+        # if abs(sp_value) >= 0.1:
+        #     print(f"仪玄的闪能改变了{sp_value:.2f}点，当前为：{self.adrenaline:.2f}")
 
     def __update_adrenaline(self, skill_node: "SkillNode"):
         """char对象内部更新闪能的方法"""
@@ -94,10 +106,10 @@ class Yixuan(Character):
             raise ValueError(f"{self.NAME}的更新闪能的方法接收到了非仪玄的SkillNode")
         adrenaline_delta = skill_node.skill.adrenaline_recovery - skill_node.skill.adrenaline_consume
         if adrenaline_delta <= 0 and abs(adrenaline_delta) > self.adrenaline:
-            raise ValueError(f"检测到技能{skill_node.skill_tag}（{skill_node.skill.skill_text}）企图消耗{skill_node.skill.adrenaline_consume}点闪能，但是仪玄当前的闪能不足：{self.adrenaline}，请检查APL")
+            raise ValueError(f"检测到技能{skill_node.skill_tag}【{skill_node.skill.skill_text}】企图消耗{skill_node.skill.adrenaline_consume}点闪能，但是仪玄当前的闪能不足：{self.adrenaline}，请检查APL")
         self.update_adrenaline(adrenaline_delta)
 
-    def update_single_node_sp_overtime(self, args, kwargs):
+    def update_sp_overtime(self, args, kwargs):
         """
         该函数会在Preload以及Schedule阶段被调用两次，当在Preload阶段调用时，sp_regen_data为空，
         只有在Schedule阶段被调用时，函数才会被执行。
@@ -116,9 +128,14 @@ class Yixuan(Character):
         self.adrenaline_manager.refresh()
 
     def get_resources(self) -> tuple[str, float]:
-        pass
+        return "闪能", self.adrenaline
 
     def get_special_stats(self, *args, **kwargs) -> dict[str, int | float | bool]:
         """获取简仪玄特殊状态"""
-        pass
+        return {
+            "术法值": self.technique_points,
+            "玄墨值": self.auricink_point,
+            "聚墨点数": self.condensed_ink,
+            "调息层数": self.regulated_breathing
+        }
 

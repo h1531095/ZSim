@@ -9,6 +9,7 @@ from sim_progress.Report import report_to_log
 from define import EFFECT_FILE_PATH, EXIST_FILE_PATH, JUDGE_FILE_PATH, CONFIG_PATH
 import importlib.util
 import pandas as pd
+
 if TYPE_CHECKING:
     from zsim.simulator.simulator_class import Simulator
 
@@ -44,7 +45,9 @@ class Buff:
         new_instance.__dict__ = existing_instance.__dict__.copy()  # 复制原实例的属性
         return new_instance
 
-    def __init__(self, config: pd.Series, judge_config: pd.Series, sim_instance: "Simulator"):
+    def __init__(
+        self, config: pd.Series, judge_config: pd.Series, sim_instance: "Simulator"
+    ):
         if not hasattr(self, "ft"):
             self.ft = self.BuffFeature(config)
             self.dy = self.BuffDynamic()
@@ -395,7 +398,9 @@ class Buff:
             self.record = None
 
     def __deepcopy__(self, memo):
-        new_obj = Buff(self.feature_config, self.judge_config, sim_instance=self.sim_instance)
+        new_obj = Buff(
+            self.feature_config, self.judge_config, sim_instance=self.sim_instance
+        )
         memo[id(self)] = new_obj
         return new_obj
 

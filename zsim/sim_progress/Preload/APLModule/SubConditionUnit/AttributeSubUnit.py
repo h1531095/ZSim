@@ -48,6 +48,13 @@ class AttributeSubUnit(BaseSubConditionUnit):
         def handler(cls, char, **kwargs):
             return char.cinema
 
+    class AdrenalineHandler(AttributeCheckHandler):
+        @classmethod
+        def handler(cls, char, **kwargs):
+            if not hasattr(char, "adrenaline"):
+                raise AttributeError(f'尝试在角色{char.NAME}中访问闪能！')
+            return char.adrenaline
+
     AttributeHandlerMap = {
         "energy": EnergyHandler,
         "decibel": DecibelHandler,
@@ -55,6 +62,7 @@ class AttributeSubUnit(BaseSubConditionUnit):
         "special_resource_type": SpecialResourceTypeHandler,
         "special_state": SpecialStateHandler,
         "cinema": CinemaHandler,
+        "adrenaline": AdrenalineHandler,
     }
 
     def check_myself(self, found_char_dict, game_state: dict, *args, **kwargs):

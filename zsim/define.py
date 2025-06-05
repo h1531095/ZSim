@@ -37,7 +37,10 @@ APL_MODE: bool = _config["apl_mode"]["enabled"]
 SWAP_CANCEL: bool = _config["swap_cancel_mode"]["enabled"]
 APL_PATH: str = _config["database"]["APL_FILE_PATH"]
 APL_NA_ORDER_PATH: str = _config["apl_mode"]["na_order"]
-ENEMY_RANDOM_ATTACK: str = _config["apl_mode"]["enemy_random_attack"]
+ENEMY_RANDOM_ATTACK: bool = _config["apl_mode"]["enemy_random_attack"]
+ENEMY_REGULAR_ATTACK: bool = _config["apl_mode"]["enemy_regular_attack"]
+if ENEMY_RANDOM_ATTACK and ENEMY_REGULAR_ATTACK:
+    raise ValueError(f"不能同时开启“敌人随机进攻”与“敌人规律进攻”参数。")
 ENEMY_ATTACK_RESPONSE: bool = _config["apl_mode"]["enemy_attack_response"]
 ENEMY_ATTACK_METHOD_CONFIG: str = _config["apl_mode"]["enemy_attack_method_config"]
 ENEMY_ATTACK_ACTION: str = _config["apl_mode"]["enemy_attack_action_data"]
@@ -99,6 +102,7 @@ ANOMALY_MAPPING: dict[ElementType, str] = {
     3: "感电",
     4: "侵蚀",
     5: "烈霜碎冰",
+    6: "玄墨侵蚀"
 }
 # 属性类型等价映射字典
 ELEMENT_EQUIVALENCE_MAP: dict[ElementType, list[ElementType]] = {
