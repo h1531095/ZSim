@@ -14,7 +14,7 @@ class JaneAdditionalAbilityPhyBuildupBonus(Buff.BuffLogic):
     def __init__(self, buff_instance):
         """简组队被动中第二特效的复杂逻辑"""
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic

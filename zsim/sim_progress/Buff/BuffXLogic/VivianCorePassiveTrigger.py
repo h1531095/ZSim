@@ -21,7 +21,7 @@ class VivianCorePassiveTrigger(Buff.BuffLogic):
     def __init__(self, buff_instance):
         """薇薇安的核心被动触发器"""
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic

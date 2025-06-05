@@ -14,7 +14,7 @@ class ElegantVanitySpRecover(Buff.BuffLogic):
 
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.xstart = self.special_start_logic
         self.equipper = None
         self.buff_0 = None

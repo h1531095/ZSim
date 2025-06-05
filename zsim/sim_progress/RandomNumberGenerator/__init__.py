@@ -40,6 +40,7 @@ class RNG:
     def reseed(self, new_seed: int | None = None):
         if self.sim_instance is None:
             raise ValueError('RNG模块在初始化时，并未传入Simulator对象')
+
         if self.sim_instance.in_parallel_mode:
             '''当多进程模式时，seed的创造应该基于进程的UUID'''
             run_turn_uuid: str = self.sim_instance.sim_cfg.run_turn_uuid

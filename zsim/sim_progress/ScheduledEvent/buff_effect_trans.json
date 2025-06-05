@@ -31,6 +31,8 @@
   "局内能量获得效率": "sp_get_ratio",
   "局内能量上限": "field_sp_limit",
   "额外伤害倍率": "extra_damage_ratio",
+  "固定贯穿力": "sheer_atk",
+  "局内贯穿力%": "field_sheer_atk_percentage",
 
   "物理属性暴击伤害": "phy_crit_dmg_bonus",
   "火属性暴击伤害": "fire_crit_dmg_bonus",
@@ -173,5 +175,7 @@
   "灼烧紊乱伤害提升": "burn_disorder_basic_mul",
   "霜寒紊乱伤害提升": "frostbite_disorder_basic_mul",
   "感电紊乱伤害提升": "shock_disorder_basic_mul",
-  "侵蚀紊乱伤害提升": "chaos_disorder_basic_mul"
+  "侵蚀紊乱伤害提升": "chaos_disorder_basic_mul",
+
+  "贯穿伤害增加": "sheer_dmg_bonus"
 }

@@ -12,7 +12,7 @@ class Soldier0AnbySilverStarTrigger(Buff.BuffLogic):
         零号·安比的核心被动，银星有层数就触发增伤。
         """
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xexit = self.special_exit_logic

@@ -17,7 +17,7 @@ class QingYiAdditionalAbilityStunConvertToATK(Buff.BuffLogic):
         青衣的组队被动之冲击力转模部分。
         """
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic

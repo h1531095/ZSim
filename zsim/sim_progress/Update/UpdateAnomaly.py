@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
 
-anomlay_dot_dict = {1: "Ignite", 2: "Freez", 3: "Shock", 4: "Corruption", 5: "Freez"}
+anomlay_dot_dict = {1: "Ignite", 2: "Freez", 3: "Shock", 4: "Corruption", 5: "Freez", 6: "AuricInkCorruption"}
 
 
 def spawn_output(anomaly_bar, mode_number, sim_instance: "Simulator", **kwargs):

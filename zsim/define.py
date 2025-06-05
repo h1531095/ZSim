@@ -5,7 +5,7 @@ from typing import Callable, Literal
 import toml
 
 # 属性类型：
-ElementType = Literal[0, 1, 2, 3, 4, 5]
+ElementType = Literal[0, 1, 2, 3, 4, 5, 6]
 Number = int | float
 
 INVALID_ELEMENT_ERROR = "Invalid element type"
@@ -37,7 +37,10 @@ APL_MODE: bool = _config["apl_mode"]["enabled"]
 SWAP_CANCEL: bool = _config["swap_cancel_mode"]["enabled"]
 APL_PATH: str = _config["database"]["APL_FILE_PATH"]
 APL_NA_ORDER_PATH: str = _config["apl_mode"]["na_order"]
-ENEMY_RANDOM_ATTACK: str = _config["apl_mode"]["enemy_random_attack"]
+ENEMY_RANDOM_ATTACK: bool = _config["apl_mode"]["enemy_random_attack"]
+ENEMY_REGULAR_ATTACK: bool = _config["apl_mode"]["enemy_regular_attack"]
+if ENEMY_RANDOM_ATTACK and ENEMY_REGULAR_ATTACK:
+    raise ValueError(f"不能同时开启“敌人随机进攻”与“敌人规律进攻”参数。")
 ENEMY_ATTACK_RESPONSE: bool = _config["apl_mode"]["enemy_attack_response"]
 ENEMY_ATTACK_METHOD_CONFIG: str = _config["apl_mode"]["enemy_attack_method_config"]
 ENEMY_ATTACK_ACTION: str = _config["apl_mode"]["enemy_attack_action_data"]
@@ -82,6 +85,7 @@ BUFF_0_REPORT: bool = _config["buff_0_report"]["enabled"]
 VIVIAN_REPORT: bool = _config["char_report"]["Vivian"]
 ASTRAYAO_REPORT: bool = _config["char_report"]["AstraYao"]
 HUGO_REPORT: bool = _config["char_report"]["Hugo"]
+YIXUAN_REPORT: bool = _config["char_report"]["Yixuan"]
 
 compare_methods_mapping: dict[str, Callable[[float | int, float | int], bool]] = {
     "<": lambda a, b: a < b,
@@ -98,7 +102,18 @@ ANOMALY_MAPPING: dict[ElementType, str] = {
     3: "感电",
     4: "侵蚀",
     5: "烈霜碎冰",
+    6: "玄墨侵蚀"
 }
+# 属性类型等价映射字典
+ELEMENT_EQUIVALENCE_MAP: dict[ElementType, list[ElementType]] = {
+            0: [0],
+            1: [1],
+            2: [2, 5],  # 烈霜也能享受到冰属性加成
+            3: [3],
+            4: [4, 6],      # 玄墨也能享受到以太属性加成
+            5: [5],
+            6: [6]
+        }
 
 SUB_STATS_MAPPING: dict[
     Literal[

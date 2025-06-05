@@ -738,6 +738,7 @@ class Character:
             3: self.ELECTRIC_DMG_bonus,
             4: self.ETHER_DMG_bonus,
             5: self.ICE_DMG_bonus,  # 烈霜也是冰
+            6: self.ETHER_DMG_bonus
         }
         element_dmg_mapping[self.element_type] += (
             DMG_BONUS * SUB_STATS_MAPPING["DMG_BONUS"]
@@ -841,10 +842,10 @@ class Character:
             # SP
             self.update_single_node_sp(node)
         # SP recovery over time
-        self.update_single_node_sp_overtime(args, kwargs)
+        self.update_sp_overtime(args, kwargs)
 
-    def update_single_node_sp_overtime(self, args, kwargs):
-        """处理单个skill_node的自然回能"""
+    def update_sp_overtime(self, args, kwargs):
+        """处理当前tick的自然回能"""
         sp_regen_data = _sp_update_data_filter(*args, **kwargs)
         for mul in sp_regen_data:
             if mul.char_name == self.NAME:
@@ -862,12 +863,13 @@ class Character:
                     f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树"
                 )
             sp_change = sp_recovery - sp_consume
-            self.update_sp(sp_change)
+            self.update_sp(sp_change) 
         # Decibel
         self.process_single_node_decibel(node)
 
     def process_single_node_decibel(self, node):
-        if self.NAME == node.char_name and node.skill_tag.split("_")[1] == "Q":
+        allowed_list = ["1371_Q_A"]
+        if self.NAME == node.char_name and node.skill_tag.split("_")[1] == "Q" and node.skill_tag not in allowed_list:
             if self.decibel - 3000 <= -1e-5:
                 print(
                     f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树"
@@ -916,6 +918,11 @@ class Character:
         self.decibel: float = 1000.0
         # 重置动态属性
         self.dynamic.reset()
+
+    def refresh_myself(self):
+        """部分角色身上存在每个tick更新一次的数据结构，所以这里提供一个统一的对外调用接口。
+        目前这个接口是被Schedule阶段调用的。"""
+        return None
 
 
 class LastingNode:

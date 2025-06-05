@@ -104,7 +104,8 @@ class QTEData:
             if self.qte_active_selector(hit):
                 # 3.1、如果是能够激发连携的hit，而此时又没有SingleHit存在，那么就是激活了新的QTE阶段，进入下一步判断。
                 self.single_qte = SingleQTE(self)
-                # print(f'{hit.skill_tag}激发了连携技！')
+
+                # print(f'{hit.skill_tag}激发了连携技！当前已经激发过{self.qte_triggered_times}次连携技！')
             else:
                 """
                 如果不是重攻击，那就只能是某技能的第一跳。
@@ -191,7 +192,7 @@ class SingleQTE:
 
         if "QTE" not in _single_hit.skill_tag:
             """说明QTE被取消了"""
-            print("取消QTE！")
+            print(f"取消第{self.qte_data.qte_triggered_times + 1}次QTE！")
         else:
             """角色响应了QTE，释放连携技"""
             self.qte_received_box.append(_single_hit.skill_tag)
@@ -199,7 +200,7 @@ class SingleQTE:
             """QTE成功响应之后，返还1秒QTE时间"""
             self.qte_data.enemy_instance.dynamic.stun_tick_feed_back_from_QTE += 60
             print(
-                f"QTE计数器接收到新的连携技：{_single_hit.skill_tag}，返还1秒失衡时间！"
+                f"QTE计数器接收到来自{_single_hit.skill_node.char_name}的连携技（skill_tag为{_single_hit.skill_tag})，返还1秒失衡时间！"
             )
 
         self.__is_hitted = True

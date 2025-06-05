@@ -1,4 +1,4 @@
-name_box = [ "扳机", "莱特", "雨果",]
+name_box = [ "仪玄", "扳机", "雨果",]
 
 ["露西"]
 name = "露西"
@@ -227,8 +227,8 @@ drive4 = "暴击率%"
 drive5 = "冰属性伤害%"
 drive6 = "攻击力%"
 equip_style = "4+2"
-equip_set4 = "激素朋克"
-equip_set2_a = "啄木鸟电音"
+equip_set4 = "啄木鸟电音"
+equip_set2_a = "激素朋克"
 
 ["莱特"]
 name = "莱特"
@@ -321,3 +321,26 @@ drive6 = "攻击力%"
 equip_style = "4+2"
 equip_set4 = "自由蓝调"
 equip_set2_a = "灵魂摇滚"
+
+["仪玄"]
+name = "仪玄"
+weapon = "青溟笼舍"
+weapon_level = 1
+cinema = 6
+crit_balancing = true
+scATK_percent = 3
+scATK = 0
+scHP_percent = 0
+scHP = 0
+scDEF_percent = 0
+scDEF = 0
+scAnomalyProficiency = 0
+scPEN = 0
+scCRIT = 10
+scCRIT_DMG = 10
+drive4 = "暴击率%"
+drive5 = "以太属性伤害%"
+drive6 = "攻击力%"
+equip_style = "4+2"
+equip_set4 = "云岿如我"
+equip_set2_a = "折枝剑歌"

@@ -16,6 +16,7 @@ class ListenerManger:
             "Hormone_Punk_1": "HormonePunkListener",
             "Zenshin_Herb_Case_1": "ZanshinHerbCaseListener",
             "Heartstring_Nocturne_1": "HeartstringNocturneListener",
+            "Yixuan_1": "YixuanAnomalyListener"
         }
 
     def add_listener(self, listener: BaseListener):

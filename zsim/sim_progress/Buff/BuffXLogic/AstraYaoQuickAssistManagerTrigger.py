@@ -10,7 +10,7 @@ class AstraYaoQuickAssistManagerTrigger(Buff.BuffLogic):
     def __init__(self, buff_instance):
         """耀嘉音快支管理器的触发器，该触发器只负责把skill_node或者loading_mission扔给特殊资源模块。"""
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.buff_0 = None
         self.record = None
         self.xjudge = self.special_judge_logic

@@ -152,7 +152,7 @@ class NodeStack:
         if self.is_empty():
             return None
         if index > len(self.stack):
-            raise IndexError("index out of range")
+            raise IndexError(f"index out of range， 当前stack长度为{len(self.stack)}")
         return self.stack[-index]
 
     def is_empty(self):

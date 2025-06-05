@@ -12,7 +12,7 @@ class YangiCinema1ApBonus(Buff.BuffLogic):
 
     def __init__(self, buff_instance):
         super().__init__(buff_instance)
-        self.buff_instance = buff_instance
+        self.buff_instance: Buff = buff_instance
         self.xjudge = self.special_judge_logic
         self.xexit = self.special_exit_logic
         self.buff_0 = None

@@ -107,6 +107,18 @@ class CharacterData:
         for obj in self.char_obj_list:
             obj.reset_myself()
 
+    def find_char_obj(self, CID: int = None, char_name: str = None) -> Character | None:
+        if not CID and not char_name:
+            raise ValueError("查找角色时，必须提供CID或是char_name中的一个！")
+        for char_obj in self.char_obj_list:
+            if CID == char_obj.CID or char_name == char_obj.NAME:
+                return char_obj
+        else:
+            if CID:
+                raise ValueError(f"未找到CID为{CID}的角色！")
+            elif char_name:
+                raise ValueError(f"未找到名称为{char_name}的角色！")
+
 
 @dataclass
 class LoadData:

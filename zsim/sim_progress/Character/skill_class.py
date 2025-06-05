@@ -338,7 +338,12 @@ class Skill:
                 _raw_skill_data["element_damage_percent"]
             )
             # 动画相关
-            self.ticks: int = int(_raw_skill_data["ticks"])
+            ticks_str = _raw_skill_data["ticks"]
+            if ticks_str is None or ticks_str == "test":
+                print(f"检测到技能 {self.skill_tag}的ticks参数不正确，已设置为默认值60")
+                self.ticks = 60
+            else:
+                self.ticks: int = int(_raw_skill_data["ticks"])
             temp_hit_times = int(_raw_skill_data["hit_times"])
             self.hit_times: int = temp_hit_times if temp_hit_times > 0 else 1
             self.on_field: bool = bool(_raw_skill_data["on_field"])

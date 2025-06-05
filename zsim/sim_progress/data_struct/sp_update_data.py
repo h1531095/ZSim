@@ -23,6 +23,7 @@ class SPUpdateData:
         return self.static_sp_regen + self.dynamic_sp_regen
 
 
+
 class ScheduleRefreshData:
     def __init__(
         self,
