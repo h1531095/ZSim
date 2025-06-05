@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from sim_progress.Preload import PreloadData
     from simulator.simulator_class import Simulator
 
+
 class APLClass:
     """
     APL代码的执行部分。它会调用apl_condition并且轮询所有的APL代码，
@@ -20,7 +21,7 @@ class APLClass:
     """
 
     def __init__(self, all_apl_unit_list: list, preload_data: "PreloadData" = None, sim_instance: "Simulator" = None):
-        self.game_state: dict | None = sim_instance.game_state
+        self.game_state: dict | None = None
         self.sim_instance: "Simulator" = sim_instance
         self.preload_data = preload_data
         self.actions_list = all_apl_unit_list
