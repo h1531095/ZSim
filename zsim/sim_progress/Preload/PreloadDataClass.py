@@ -31,6 +31,7 @@ class PreloadData:
         self.load_data = load_data
         self.load_mission_dict: dict = load_data.load_mission_dict
         self.quick_assist_system = None
+        self.attack_answer_event = None     # 攻击响应事件。如果敌人并未进行攻击动作，那么该属性就是None。
 
     @property
     def operating_now(self) -> int | None:

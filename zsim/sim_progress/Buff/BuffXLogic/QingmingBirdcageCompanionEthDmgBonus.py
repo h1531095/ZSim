@@ -58,14 +58,15 @@ class QingmingBirdcageCompanionEthDmgBonus(Buff.BuffLogic):
             return False
         if len(preload_data.personal_node_stack[char.CID]) == 1:
             if self.record.update_signal is not None:
-                raise ValueError(f"{self.buff_instance.ft.index}的Xjudge函数检验到有尚未处理的更新信号，请检查XStart函数")
+                raise ValueError(f"{self.buff_instance.ft.index}的Xjudge函数检验到有尚未处理的更新信号{self.record.update_signal}，本次更新请求来自于{skill_node.skill_tag}请检查XStart函数")
             self.record.update_signal = 0
             return True
-        if skill_node.skill.trigger_buff_level == 2:
-            if self.record.update_signal is not None:
-                raise ValueError(f"{self.buff_instance.ft.index}的Xjudge函数检验到有尚未处理的更新信号，请检查XStart函数")
-            self.record.update_signal = 1
-            return True
+        else:
+            if skill_node.skill.trigger_buff_level == 2:
+                if self.record.update_signal is not None:
+                    raise ValueError(f"{self.buff_instance.ft.index}的Xjudge函数检验到有尚未处理的更新信号{self.record.update_signal}，本次更新请求来自于{skill_node.skill_tag}请检查XStart函数")
+                self.record.update_signal = 1
+                return True
         return False
 
     def special_start_logic(self, **kwargs):

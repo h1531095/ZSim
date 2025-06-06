@@ -323,7 +323,13 @@ class ScheduledEvent:
         dmg_expect = cal_obj.cal_dmg_expect()
         dmg_crit = cal_obj.cal_dmg_crit()
         hit_result = SingleHit(
-            event.skill_tag, snapshot, stun, dmg_expect, dmg_crit, hitted_count
+            skill_tag=event.skill_tag,
+            snapshot=snapshot,
+            stun=stun,
+            dmg_expect=dmg_expect,
+            dmg_crit=dmg_crit,
+            hitted_count=hitted_count,
+            proactive=_event.active_generation if isinstance(_event, SkillNode) else _event.mission_node.active_generation
         )
         hit_result.skill_node = event
         if event.skill.follow_by:

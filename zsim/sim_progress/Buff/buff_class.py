@@ -262,6 +262,7 @@ class Buff:
                     return None
                 else:
                     _dict = ast.literal_eval(str(label_str).strip())
+
                     return _dict
 
     class BuffDynamic:
@@ -709,6 +710,7 @@ class Buff:
             # EXAMPLE：Buff触发时，随机获得层数。
             self.logic.xstart()
             self.update_to_buff_0(buff_0)
+
             return
         if self.ft.maxduration == 0:  # 瞬时buff
             if not self.ft.hitincrease:  # 命中不叠层

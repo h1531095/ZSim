@@ -12,7 +12,7 @@ class SingleHit:
     dmg_expect: np.float64
     dmg_crit: np.float64
     hitted_count: int
-    proactive = True  # 该动作是否为主动技能（主要依靠检测skill_node的follow_by参数）
+    proactive: bool  # 该动作是否为主动技能（主要依靠检测skill_node的follow_by参数）
     heavy_hit = (
         False  # 重攻击标签——默认重攻击是   heavy_attack为True的技能的最后一个Hit
     )

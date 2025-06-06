@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     4、初始化时，根据Enemy.attack.策略ID→对应的攻击策略→对应的攻击动作ID（多个）→构造EnemyAttack实例（多个）→存放到Enemy.attack.attack_method下
         4.1、每个攻击动作都会构造一个单独的EnemyAttackAction实例，这些实例会被存到EnemyAttackMethod实例下，并且有各自的几率。
     5、调用时，利用EnemyAttack.attack_event_spawn函数，生成本次发生的攻击事件，并且抛出，被Preload获取。
-        5.1、首先，不同的攻击动作有各自的内置CD，以及有各自的不同属性，而EnemyAttack
 """
 
 method_file = pd.read_csv(ENEMY_ATTACK_METHOD_CONFIG, index_col="ID")
@@ -27,7 +26,7 @@ class EnemyAttackMethod:
     """含有若干个进攻动作的进攻策略"""
 
     def __init__(self, ID: int = 0, enemy_instance: "Enemy" = None):
-        self.action_set = defaultdict()
+        self.action_set: dict[float | int, EnemyAttackAction] = defaultdict()
         self.enemy = enemy_instance
         if ENEMY_RANDOM_ATTACK:
             self.random_attack: bool = True
@@ -64,7 +63,7 @@ class EnemyAttackMethod:
                 self.ready = True
         return self.ready
 
-    def probablity_driven_action_selection(self, current_tick: int):
+    def probablity_driven_action_selection(self, current_tick: int) -> "EnemyAttackAction | None":
         """根据概率选择一个进攻动作"""
         cumulative_probability = 0  # 累积概率，这个数字没有实际意义，只是为了方便计算，每次函数运行时都初始化为0
         rng: RNG = self.enemy.sim_instance.rng_instance
@@ -82,7 +81,7 @@ class EnemyAttackMethod:
             """如果循环结束，还没有选中任何一个动作，说明无事发生，返回None"""
             return None
 
-    def time_anchored_action_selection(self, current_tick: int) -> str | None:
+    def time_anchored_action_selection(self, current_tick: int) -> "EnemyAttackAction | None":
         """以固定的时间间隔选择固定的进攻动作"""
         if self.ready_check(current_tick=current_tick):
             self.last_start_tick = current_tick
@@ -102,7 +101,6 @@ class EnemyAttackMethod:
 
 class EnemyAttackAction:
     """敌人的单个进攻动作"""
-
     def __init__(self, ID: int):
         if ID == 0:
             raise ValueError("EnemyAttackAction实例化所用的ID为0，请检查配置信息！")
@@ -149,6 +147,7 @@ class EnemyAttackAction:
 
     def __str__(self):
         return f"进攻动作ID：{self.id}, 技能Tag：{self.tag}，动作耗时：{self.duration}，单次动作的冷却时间：{self.cd}"
+
 
 if __name__ == "__main__":
     method = EnemyAttackMethod()

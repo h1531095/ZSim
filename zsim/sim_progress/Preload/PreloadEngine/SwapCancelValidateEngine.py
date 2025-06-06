@@ -167,6 +167,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
     def _validate_qte_activation(self, **kwargs) -> bool:
         """针对当前技能的QTE是否处于激活状态的检测，当检查到有角色正在释放QTE时，返回True"""
         tick = kwargs["tick"]
+        enemy = self.data.sim_instance.schedule_data.enemy
+        if enemy.qte_manager.qte_data.single_qte is not None:
+            return False
         for _cid, stack in self.data.personal_node_stack.items():
             if stack.peek() is None:
                 continue

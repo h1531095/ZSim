@@ -135,13 +135,13 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
             raise TypeError(
                 f"Buff {buff} 的标签 {label_key} 的值存在，对应Value为：{label_value} ，但不是列表类型，请检查初始化或者数据库。"
             )
-        if label_key in ALLOWED_LABELS:
+        if any([__check_label_key(label_key=label_key, target_label_key=_tlk) for _tlk in ALLOWED_LABELS]):
             # 检查是否为特定技能限制
-            if label_key == "only_skill":
+            if __check_label_key(label_key=label_key, target_label_key="only_skill"):
                 if skill_tag in label_value:
                     return True
             # 检查是否为特定标签限制
-            elif label_key == "only_label":
+            elif __check_label_key(label_key=label_key, target_label_key="only_label"):
                 """
                 当被检查技能完全不存在label属性时，说明该技能是无标签的普通技能。
                 而当前分支检查的是“技能是否具有Buff指定的标签”，所以这里无需继续遍历，直接continue。
@@ -157,33 +157,44 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
                 #         return True
                 #     else:
                 #         print(skill_node.skill_tag, skill_labels, _sub_label, label_value)
-            elif label_key == "only_trigger_buff_level":
+            elif __check_label_key(label_key=label_key, target_label_key="only_trigger_buff_level"):
                 if skill_node.skill.trigger_buff_level in label_value:
                     # print(f"{buff.ft.index}对技能{skill_tag}成功生效！")
                     return True
-            elif label_key == "only_back_attack":
+            elif __check_label_key(label_key=label_key, target_label_key="only_back_attack"):
                 from sim_progress.RandomNumberGenerator import RNG
 
                 rng: RNG = buff.sim_instance.rng_instance
                 normalized_value = rng.random_float()
                 if normalized_value <= BACK_ATTACK_RATE:
                     return True
-            elif label_key == "only_element":
+            elif __check_label_key(label_key=label_key, target_label_key="only_element"):
                 from define import ELEMENT_EQUIVALENCE_MAP
                 for _ele_type in label_value:
                     if skill_node.skill.element_type in ELEMENT_EQUIVALENCE_MAP[_ele_type]:
                         # 只要找到一种符合要求的元素，就返回True
                         return True
-            elif label_key == "only_skill_type":
+            elif __check_label_key(label_key=label_key, target_label_key="only_skill_type"):
                 if skill_node.skill.skill_type in label_value:
                     return True
         else:
             raise ValueError(f"{buff.ft.index}的标签类型 {label_key} 未定义！")
     else:
-        # print(f"data_analyzer的报告：{buff.ft.index}与{skill_node.skill_tag}不匹配！")
+        # if buff.ft.index == "Buff-角色-仪玄-4画-静心" and "1371_E_EX_B" in skill_node.skill_tag:
+        #     print(f"data_analyzer的报告：{buff.ft.index}与{skill_node.skill_tag}不匹配！")
+
         return False
     # FIXME: 该函数还是有些逻辑问题的，等带后续继续优化修改！
 
+def __check_label_key(label_key: str, target_label_key: str):
+    """用于筛选出对应的label"""
+    pattern = r'_\d{1,2}$'  # 匹配结尾是_加1-2位数字
+    import re
+    if bool(re.search(pattern, label_key)):
+        base_key = label_key.rsplit("_", 1)[0]
+    else:
+        base_key = label_key
+    return base_key == target_label_key
 
 def __check_special_anomly(buff: "Buff", anomly_node: "AnomalyBar") -> bool:
     """
@@ -247,3 +258,13 @@ def __check_special_anomly(buff: "Buff", anomly_node: "AnomalyBar") -> bool:
                 ):
                     return True
     return False
+
+
+if __name__ == "__main__":
+    base_key = "only_skill"
+    key_1 = "only_skill_1"
+    key_2 = "only_skill_trigger_buff_level"
+    key_3 = "only_skill_trigger_buff_level_1"
+    list1 = [key_1, key_2, key_3]
+    for _key in list1:
+        print(__check_label_key(label_key=_key, target_label_key=base_key))
