@@ -3,7 +3,11 @@ import timeit
 
 from sim_progress.Report import stop_report_threads
 # from simulator.main_loop import main_loop
-from simulator.dataclasses import SimCfg
+from simulator.config_classes import (
+    SimulationConfig as SimCfg,
+    AttrCurveConfig,
+    WeaponConfig,
+)
 from simulator.simulator_class import Simulator
 
 if __name__ == "__main__":
@@ -87,16 +91,27 @@ if __name__ == "__main__":
         print(args)
         simulator_instance = Simulator()
         # 并行模式，作为子进程运行，角色的指定副词条将被设为传入值，并根据是否移除其他主副词条进行模拟
-        sim_cfg: SimCfg = SimCfg(
-            func=args.func,
-            adjust_char=args.adjust_char,
-            sc_name=args.sc_name,
-            sc_value=args.sc_value,
-            run_turn_uuid=args.run_turn_uuid,
-            remove_equip=args.remove_equip,
-            weapon_name=args.weapon_name,
-            weapon_level=args.weapon_level,
-        )
+        if func:=args.func == "attr_curve":
+            sim_cfg: AttrCurveConfig = AttrCurveConfig(
+                stop_tick=args.stop_tick,
+                mode=args.mode,
+                adjust_char=args.adjust_char,
+                sc_name=args.sc_name,
+                sc_value=args.sc_value,
+                run_turn_uuid=args.run_turn_uuid,
+                remove_equip=args.remove_equip,
+            )
+        elif func:=args.func == "weapon":
+            sim_cfg: WeaponConfig = WeaponConfig(
+                stop_tick=args.stop_tick,
+                mode=args.mode,
+                adjust_char=args.adjust_char,
+                weapon_name=args.weapon_name,
+                weapon_level=args.weapon_level,
+                run_turn_uuid=args.run_turn_uuid,
+            )
+        else:
+            raise ValueError("func参数错误")
         if args.stop_tick is not None:
             print(
                 f"\n主循环耗时: {timeit.timeit(lambda: simulator_instance.main_loop(args.stop_tick, sim_cfg=sim_cfg), globals=globals(), number=1):.2f} s"

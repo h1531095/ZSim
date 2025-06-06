@@ -16,7 +16,7 @@ from .skill_class import Skill, lookup_name_or_cid
 from .utils.filters import _skill_node_filter, _sp_update_data_filter
 
 if TYPE_CHECKING:
-    from simulator.dataclasses import SimCfg
+    from simulator.config_classes import AttrCurveConfig, SimulationConfig as SimCfg
 
 
 class Character:
@@ -419,7 +419,7 @@ class Character:
             if balancing:
                 if CRIT_score >= 400:
                     CRIT_rate = 1.0
-                    CRIT_damage = (CRIT_score - 200)/2
+                    CRIT_damage = (CRIT_score - 200) / 2
                 else:
                     CRIT_damage = max(0.5, CRIT_score / 200)
                     CRIT_rate = (CRIT_score / 100 - CRIT_damage) / 2
@@ -519,7 +519,9 @@ class Character:
                     row_0.get("基础暴击率", 0)
                 )  # 此处不需要根据暴击配平区分
                 self.CRIT_damage_numeric = float(row_0.get("基础暴击伤害", 1))
-                self.baseCRIT_score = 100 * (self.CRIT_rate_numeric * 2 + self.CRIT_damage_numeric)
+                self.baseCRIT_score = 100 * (
+                    self.CRIT_rate_numeric * 2 + self.CRIT_damage_numeric
+                )
                 # print(f'{self.NAME}的核心被动初始化完成！当前暴击分数为：{self.baseCRIT_score}')
 
                 self.PEN_ratio = float(row_0.get("基础穿透率", 0))
@@ -738,7 +740,7 @@ class Character:
             3: self.ELECTRIC_DMG_bonus,
             4: self.ETHER_DMG_bonus,
             5: self.ICE_DMG_bonus,  # 烈霜也是冰
-            6: self.ETHER_DMG_bonus
+            6: self.ETHER_DMG_bonus,
         }
         element_dmg_mapping[self.element_type] += (
             DMG_BONUS * SUB_STATS_MAPPING["DMG_BONUS"]
@@ -823,7 +825,11 @@ class Character:
         if SP_REGEN is not None:
             self.sp_regen_percent = SP_REGEN * SUB_STATS_MAPPING["SP_REGEN"]
 
-    def __init_attr_curve_config(self, parallel_config: "SimCfg"):
+    def __init_attr_curve_config(self, parallel_config: "AttrCurveConfig"):
+        from simulator.config_classes import AttrCurveConfig
+
+        if not isinstance(parallel_config, AttrCurveConfig):
+            return
         ALLOW_SC_LIST: list[str] = SUB_STATS_MAPPING.keys()
         sc_name, sc_value = parallel_config.sc_name, parallel_config.sc_value
         if sc_name in ALLOW_SC_LIST:
@@ -863,13 +869,17 @@ class Character:
                     f"{node.skill_tag}需要{sp_threshold:.2f}点能量，目前{self.NAME}仅有{self.sp:.2f}点，需求无法满足，请检查技能树"
                 )
             sp_change = sp_recovery - sp_consume
-            self.update_sp(sp_change) 
+            self.update_sp(sp_change)
         # Decibel
         self.process_single_node_decibel(node)
 
     def process_single_node_decibel(self, node):
         allowed_list = ["1371_Q_A"]
-        if self.NAME == node.char_name and node.skill_tag.split("_")[1] == "Q" and node.skill_tag not in allowed_list:
+        if (
+            self.NAME == node.char_name
+            and node.skill_tag.split("_")[1] == "Q"
+            and node.skill_tag not in allowed_list
+        ):
             if self.decibel - 3000 <= -1e-5:
                 print(
                     f"{self.NAME} 释放大招时喧响值不足3000，目前为{self.decibel:.2f}点，请检查技能树"
