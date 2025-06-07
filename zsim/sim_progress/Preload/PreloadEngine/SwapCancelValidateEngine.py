@@ -79,7 +79,7 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             return False
 
         """QTE状态过滤器——QTE阶段不支持任何合轴"""
-        if self._validate_qte_activation(tick=tick):
+        if self._validate_qte_activation(tick=tick, skill_node=apl_skill_node):
             return False
 
         """检测当前tick的角色状态是否支持合轴——切人CD检测、高优先级动作判定"""
@@ -164,12 +164,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         else:
             return True
 
-    def _validate_qte_activation(self, **kwargs) -> bool:
+    def _validate_qte_activation(self, tick: int, skill_node: SkillNode) -> bool:
         """针对当前技能的QTE是否处于激活状态的检测，当检查到有角色正在释放QTE时，返回True"""
-        tick = kwargs["tick"]
-        enemy = self.data.sim_instance.schedule_data.enemy
-        if enemy.qte_manager.qte_data.single_qte is not None:
-            return False
+        # enemy = self.data.sim_instance.schedule_data.enemy
+        # if enemy.qte_manager.qte_data.single_qte is not None:
+        #     if skill_node.skill.trigger_buff_level != 5:
+        #         return True
         for _cid, stack in self.data.personal_node_stack.items():
             if stack.peek() is None:
                 continue

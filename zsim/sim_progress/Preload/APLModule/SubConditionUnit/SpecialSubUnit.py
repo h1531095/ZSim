@@ -36,4 +36,7 @@ class SpecialSubUnit(BaseSubConditionUnit):
             raise ValueError(
                 f"当前检查的check_stat为：{self.check_stat}，优先级为{self.priority}，暂无处理该属性的逻辑模块！"
             )
-        return self.spawn_result(handler.handler(self.preload_data))
+        __result = self.spawn_result(handler.handler(self.preload_data))
+        # if __result and self.priority == 6:
+        #     print(handler.handler(self.preload_data)), print(self.preload_data.latest_active_generation_node.skill_tag)
+        return __result

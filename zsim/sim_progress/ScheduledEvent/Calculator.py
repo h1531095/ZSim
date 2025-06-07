@@ -891,6 +891,9 @@ class Calculator:
                     + data.dynamic.all_res_pen_increase
                     + snapshot_res_pen
             )
+            # if snapshot_res_pen == 0:
+            #     if isinstance(data.judge_node, SkillNode) and data.judge_node.char_name == "仪玄" and data.judge_node.skill.trigger_buff_level in [2, 6]:
+            #         print(element_res, data.dynamic.all_dmg_res_decrease, data.dynamic.all_res_pen_increase)
             return res_mul
 
         @staticmethod
@@ -1319,7 +1322,7 @@ class Calculator:
         multipliers: np.ndarray = self.regular_multipliers.get_array_expect()
         dmg_expect = np.prod(multipliers)
         # if any([__tag in self.skill_tag for __tag in
-        #         ["1371_E_EX", "1371_SNA_", "1371_Cinema_2", "1371_QTE", "1371_Q"]]):
+        #         ["1371_E_EX", "1371_Q"]]) and multipliers[4] != 1.2:
         #     tag_list = [
         #         "基础乘区",
         #         "增伤区",

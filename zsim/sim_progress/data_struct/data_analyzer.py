@@ -180,9 +180,8 @@ def __check_skill_node(buff: "Buff", skill_node: "SkillNode") -> bool:
         else:
             raise ValueError(f"{buff.ft.index}的标签类型 {label_key} 未定义！")
     else:
-        # if buff.ft.index == "Buff-角色-仪玄-4画-静心" and "1371_E_EX_B" in skill_node.skill_tag:
+        # if buff.ft.index == "Buff-角色-仪玄-2画-强化E与终结技无视以太抗" and any([__tags in skill_node.skill_tag for __tags in ["1371_E_EX", "1371_Q"]]):
         #     print(f"data_analyzer的报告：{buff.ft.index}与{skill_node.skill_tag}不匹配！")
-
         return False
     # FIXME: 该函数还是有些逻辑问题的，等带后续继续优化修改！
 

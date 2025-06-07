@@ -13,7 +13,7 @@
         "back_attack_rate": 1
     },
     "enemy": {
-        "index_ID": 11195,
+        "index_ID": 11414,
         "adjust_ID": 22412,
         "difficulty": 8.74
     },
@@ -36,7 +36,7 @@
         "completion_coefficient": 0.3,
         "lag_time": 20,
         "debug": false,
-        "debug_target_skill": "1161_NA_5_SH_EX"
+        "debug_target_skill": "1361_CoAttack_A"
     },
     "database": {
         "CHARACTER_DATA_PATH": "./zsim/data/character.csv",
@@ -76,13 +76,14 @@
         "Vivian": false,
         "AstraYao": false,
         "Hugo": false,
-        "Yixuan": false
+        "Yixuan": false,
+        "Trigger": false,
     },
     "na_mode_level": {
         "Hugo": 3
     },
     "parallel_mode": {
-        "enabled": false,
+        "enabled": true,
         "adjust_char": 1,
         "adjust_sc": {
             "enabled": true,

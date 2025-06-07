@@ -903,6 +903,8 @@ class Character:
 
     def update_decibel(self, decibel_value: int | float):
         """可外部强制更新喧响的方法"""
+        # if self.decibel == 3000 and self.NAME == '仪玄':
+        #     print(f"{self.NAME} 释放技能时喧响值已满3000点！")
         self.decibel += decibel_value
         self.decibel = max(0.0, min(self.decibel, 3000))
 

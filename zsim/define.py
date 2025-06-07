@@ -87,6 +87,7 @@ VIVIAN_REPORT: bool = _config["char_report"]["Vivian"]
 ASTRAYAO_REPORT: bool = _config["char_report"]["AstraYao"]
 HUGO_REPORT: bool = _config["char_report"]["Hugo"]
 YIXUAN_REPORT: bool = _config["char_report"]["Yixuan"]
+TRIGGER_REPORT: bool = _config["char_report"]["Trigger"]
 
 compare_methods_mapping: dict[str, Callable[[float | int, float | int], bool]] = {
     "<": lambda a, b: a < b,

@@ -103,8 +103,7 @@ class QTEData:
             # 3、如果SingleQTE实例不存在，那么要对传入的SingHit进行判断；
             if self.qte_active_selector(hit):
                 # 3.1、如果是能够激发连携的hit，而此时又没有SingleHit存在，那么就是激活了新的QTE阶段，进入下一步判断。
-                self.single_qte = SingleQTE(self)
-
+                self.single_qte = SingleQTE(self, single_hit=hit)
                 print(f'{hit.skill_node.char_name}  的  {hit.skill_node.skill.skill_text}  激发了连携技！当前已经激发过{self.qte_triggered_times + 1}次连携技！')
             else:
                 """
@@ -162,7 +161,7 @@ class QTEData:
 
 
 class SingleQTE:
-    def __init__(self, qte_data: QTEData):
+    def __init__(self, qte_data: QTEData, single_hit: SingleHit):
         self.qte_data = qte_data
         self.qte_received_box: list[str] = []  # 用于接受QTE阶段输入的QTE skill_tag
         self.qte_triggerable_times: int = (
@@ -171,6 +170,7 @@ class SingleQTE:
         self.qte_triggered_times: int = 0  # 已经响应了几次QTE
         self.qte_activation_available = False  # 彩色失衡阶段
         self.__is_hitted = False  # 每个SingleHit都只会被响应一次，所以这里用一个bool变量来标记是否已经被响应过。
+        self.active_by: SingleHit = single_hit
 
     def receive_hit(self, _single_hit: SingleHit):
         """SingleQTE接收SingleHit的方法"""
@@ -192,9 +192,11 @@ class SingleQTE:
 
         if "QTE" not in _single_hit.skill_tag:
             """说明QTE被取消了"""
-            print(f"{_single_hit.skill_node.char_name}  的  {_single_hit.skill_node.skill.skill_text}  取消第{self.qte_data.qte_triggered_times + 1}次QTE！")
+            print(f"{_single_hit.skill_node.char_name}  取消第{self.qte_data.qte_triggered_times + 1}次QTE，并释放了  {_single_hit.skill_node.skill.skill_text}  ")
         else:
             """角色响应了QTE，释放连携技"""
+            if _single_hit.skill_node.char_name == self.active_by.skill_node.char_name:
+                raise ValueError(f"{_single_hit.skill_node.char_name}  企图响应自己激发的QTE！")
             self.qte_received_box.append(_single_hit.skill_tag)
 
             """QTE成功响应之后，返还1秒QTE时间"""

@@ -1,4 +1,5 @@
 from .TriggerCoordinatedSupportTrigger import CoordinatedSupportManager
+from define import TRIGGER_REPORT
 
 
 class AfterShock:
@@ -13,13 +14,16 @@ class AfterShock:
         else:
             self.complex_cd_manager = self.ComplexCDManager()
 
-    def is_ready(self, tick: int):
+    def is_ready(self, skill_node, tick: int):
         # TODO：先写一个临时的
-        if self.update_tick == 0:
-            return True
-        if tick - self.update_tick >= self.cd:
-            return True
-        return False
+        if self.complex_cd_manager is None:
+            if self.update_tick == 0:
+                return True
+            if tick - self.update_tick >= self.cd:
+                return True
+            return False
+        else:
+            return self.complex_cd_manager.is_available(skill_node, tick)
 
     def after_shock_happend(self, tick: int):
         """抛出aftershock的skill_tag，并且更新自身信息"""
@@ -40,7 +44,12 @@ class AfterShock:
             cdm = self.cdm_map.get(skill_node.skill.trigger_buff_level, None)
             if cdm is None:
                 raise ValueError("传入的skill_node与complex_cd_manager不匹配")
-            return cdm.update(tick)
+            __available_result = cdm.update(tick)
+            if not __available_result and TRIGGER_REPORT:
+                print(f"==========CD Warnning===========")
+                print(f"{skill_node.skill_tag}企图触发扳机的强化协同攻击，但是尚未就绪！")
+                print(f"================================")
+            return __available_result
 
 
 class BasicCDManager:
@@ -111,7 +120,7 @@ class AfterShockManager:
             and skill_node.skill.heavy_attack
         ):
             if skill_node.skill.trigger_buff_level in [2, 6, 9]:
-                if self.strong_after_shock.is_ready(tick):
+                if self.strong_after_shock.is_ready(skill_node, tick):
                     if self.char.get_resources()[1] >= 5:
                         if self.strong_after_shock.complex_cd_manager.is_available(
                             skill_node, tick
@@ -121,6 +130,11 @@ class AfterShockManager:
                             )
                             self.char.update_purge(strong_after_shock_tag)
                             return strong_after_shock_tag
+                else:
+                    if TRIGGER_REPORT:
+                        print(f"==========warnning==========")
+                        print(f"{skill_node.skill_tag}企图触发扳机的强化协同攻击但是失败")
+                        print(f"==========warnning==========")
                     # else:
                     #     print(f'决意值为{self.char.get_resources()[1]}，无法触发强化协同攻击！')
 
@@ -131,7 +145,7 @@ class AfterShockManager:
 
         """最后，判断消耗决意值的普通协同"""
         if skill_node.skill.trigger_buff_level in [0, 1, 3, 4, 7]:
-            if self.normal_after_shock.is_ready(tick):
+            if self.normal_after_shock.is_ready(skill_node, tick):
                 if self.char.get_resources()[1] >= 3:
                     normal_after_shock_tag = (
                         self.normal_after_shock.after_shock_happend(tick)
