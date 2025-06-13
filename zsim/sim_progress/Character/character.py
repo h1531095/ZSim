@@ -11,12 +11,14 @@ from define import (
     WEAPON_DATA_PATH,
 )
 from sim_progress.Report import report_to_log
+from zsim.sim_progress.Preload.SkillsQueue import SkillNode
+from zsim.sim_progress.data_struct.sp_update_data import SPUpdateData
 
 from .skill_class import Skill, lookup_name_or_cid
 from .utils.filters import _skill_node_filter, _sp_update_data_filter
 
 if TYPE_CHECKING:
-    from simulator.config_classes import AttrCurveConfig, SimulationConfig as SimCfg
+    from simulator.config_classes import AttrCurveConfig, WeaponConfig
 
 
 class Character:
@@ -48,7 +50,7 @@ class Character:
         cinema=0,
         crit_balancing=True,  # 暴击配平开关，默认开
         *,
-        sim_cfg: "SimCfg" | None = None,
+        sim_cfg: "AttrCurveConfig | WeaponConfig | None" = None,
     ):
         """
         调用时，会生成包含全部角色基础信息的对象，自动从数据库中查找全部信息
@@ -244,7 +246,8 @@ class Character:
 
         self.decibel: float = 1000.0
 
-        self.element_type: int | None = None  # 角色属性。
+        self.speicalty: str | None
+        self.element_type: int
 
         self.crit_balancing: bool = crit_balancing
 
@@ -529,7 +532,7 @@ class Character:
                 self.base_sp_regen = float(row_0.get("基础能量自动回复", 0))
                 self.base_sp_get_ratio = float(row_0.get("基础能量获取效率", 1))
                 self.speicalty = row_0.get("角色特性", None)  # 角色特性，强攻、击破等
-                self.element_type = row_0.get("角色属性", None)
+                self.element_type = row_0.get("角色属性", 0)
                 if self.element_type is None or self.element_type < 0:
                     raise NotImplementedError(f"角色{char_name}的属性类型未定义")
                 # CID特殊处理，避免不必要的类型转换
@@ -752,21 +755,21 @@ class Character:
 
     def hardset_sub_stats(
         self,
-        scATK_percent: int | float = None,
-        scATK: int | float = None,
-        scHP_percent: int | float = None,
-        scHP: int | float = None,
-        scDEF_percent: int | float = None,
-        scDEF: int | float = None,
-        scAnomalyProficiency: int | float = None,
-        scPEN: int | float = None,
-        scCRIT: int | float = None,
-        scCRIT_DMG: int | float = None,
+        scATK_percent: int | float | None = None,
+        scATK: int | float | None = None,
+        scHP_percent: int | float | None = None,
+        scHP: int | float | None = None,
+        scDEF_percent: int | float | None = None,
+        scDEF: int | float | None = None,
+        scAnomalyProficiency: int | float | None = None,
+        scPEN: int | float | None = None,
+        scCRIT: int | float | None = None,
+        scCRIT_DMG: int | float | None = None,
         *,
-        DMG_BONUS: int | float = None,
-        PEN_RATIO: int | float = None,
-        ANOMALY_MASTERY: int | float = None,
-        SP_REGEN: int | float = None,
+        DMG_BONUS: int | float | None = None,
+        PEN_RATIO: int | float | None = None,
+        ANOMALY_MASTERY: int | float | None = None,
+        SP_REGEN: int | float | None = None,
     ):
         """硬设置副词条，仅修改传入的参数对应的属性"""
 
@@ -830,7 +833,7 @@ class Character:
 
         if not isinstance(parallel_config, AttrCurveConfig):
             return
-        ALLOW_SC_LIST: list[str] = SUB_STATS_MAPPING.keys()
+        ALLOW_SC_LIST: list[str] = list(SUB_STATS_MAPPING.keys())
         sc_name, sc_value = parallel_config.sc_name, parallel_config.sc_value
         if sc_name in ALLOW_SC_LIST:
             adjust_pair = {sc_name: sc_value}
@@ -843,7 +846,7 @@ class Character:
     def update_sp_and_decibel(self, *args, **kwargs):
         """自然更新能量和喧响的方法"""
         # Preload Skill
-        skill_nodes = _skill_node_filter(*args, **kwargs)
+        skill_nodes: list[SkillNode] = _skill_node_filter(*args, **kwargs)
         for node in skill_nodes:
             # SP
             self.update_single_node_sp(node)
@@ -852,7 +855,7 @@ class Character:
 
     def update_sp_overtime(self, args, kwargs):
         """处理当前tick的自然回能"""
-        sp_regen_data = _sp_update_data_filter(*args, **kwargs)
+        sp_regen_data: list[SPUpdateData] = _sp_update_data_filter(*args, **kwargs)
         for mul in sp_regen_data:
             if mul.char_name == self.NAME:
                 sp_change_2 = mul.get_sp_regen() / 60  # 每秒回能转化为每帧回能
