@@ -88,7 +88,6 @@ def cal_buff_total_bonus(
     #         print(f"检测到决算{judge_obj.skill_tag}, 其享受的buff列表为：")
     #         for _buff in effect_buff_list:
     #             print(f"{_buff.ft.index}: {_buff.effect_dct}")
-
     return dynamic_statement
 
 

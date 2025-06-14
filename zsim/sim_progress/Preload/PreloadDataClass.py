@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from sim_progress.data_struct import QuickAssistSystem
 from sim_progress.Preload import SkillNode
-from sim_progress.data_struct import NodeStack
+from sim_progress.data_struct import NodeStack, EnemyAttackEventManager
 import types
 if TYPE_CHECKING:
     from zsim.simulator.simulator_class import Simulator
@@ -31,7 +31,7 @@ class PreloadData:
         self.load_data = load_data
         self.load_mission_dict: dict = load_data.load_mission_dict
         self.quick_assist_system = None
-        self.attack_answer_event = None     # 攻击响应事件。如果敌人并未进行攻击动作，那么该属性就是None。
+        self.atk_manager: EnemyAttackEventManager | None = None
 
     @property
     def operating_now(self) -> int | None:

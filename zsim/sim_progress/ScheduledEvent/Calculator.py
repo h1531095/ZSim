@@ -622,6 +622,8 @@ class Calculator:
                             f"警告！检测到非0的“局内贯穿力%Buff”，该效果目前还无法处理，请注意检查buff_effect")
                     current_sheer_atk = base_sheer_atk + data.dynamic.sheer_atk
                     attr = current_sheer_atk
+                    # if data.dynamic.sheer_atk != 0:
+                    #     print(f"检测到 {data.char_instance.NAME} 的局内固定贯穿力Buff：{data.dynamic.sheer_atk}, 基础贯穿力：{base_sheer_atk}")
             else:
                 assert False, INVALID_ELEMENT_ERROR
             return attr
@@ -1322,7 +1324,7 @@ class Calculator:
         multipliers: np.ndarray = self.regular_multipliers.get_array_expect()
         dmg_expect = np.prod(multipliers)
         # if any([__tag in self.skill_tag for __tag in
-        #         ["1371_E_EX", "1371_Q"]]) and multipliers[4] != 1.2:
+        #         ["1371"]]):
         #     tag_list = [
         #         "基础乘区",
         #         "增伤区",
@@ -1334,8 +1336,8 @@ class Calculator:
         #         "特殊乘区",
         #         "贯穿伤害区"
         #     ]
-        #     print(self.skill_node.skill.skill_text, "：",
-        #           [f"{__tag}: {__value:.2f}" for __tag, __value in zip(tag_list, multipliers)])
+        #     print(self.skill_node.skill.skill_text, f"第{self.skill_node.loading_mission.hitted_count if self.skill_node.loading_mission else 1}次命中", "：",
+        #           [f"{__tag} : {__value:.2f}" for __tag, __value in zip(tag_list, multipliers)])
         return dmg_expect
 
     def cal_dmg_crit(self) -> np.float64:

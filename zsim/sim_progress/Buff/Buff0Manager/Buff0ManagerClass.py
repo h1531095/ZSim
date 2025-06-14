@@ -56,6 +56,8 @@ class Buff0Manager:
         self.__passively_updating_change()
         self.__process_label()
         self.__process_additional_ability_data()
+        # self.initialize_buff_listener()
+
         if BUFF_0_REPORT:
             print(self)
 
@@ -66,6 +68,16 @@ class Buff0Manager:
             for _i in _sub_dict.values():
                 output += f"  {_i.ft.index}\n"
         return output
+
+    def initialize_buff_listener(self):
+        """处理buff监听器的初始化"""
+        for _char_name, _sub_dict in self.exist_buff_dict.items():
+            for _buff_0 in _sub_dict.values():
+                if not isinstance(_buff_0, Buff):
+                    raise TypeError(f"存在非Buff类型的对象：{_buff_0}")
+                if _buff_0.ft.listener_id is not None:
+                    _obj = self.char_obj_dict[_buff_0.ft.operator] if _buff_0.ft.operator != "enemy" else self.sim_instance.schedule_data.enemy
+                    self.sim_instance.listener_manager.listener_factory(listener_owner=_obj, initiate_signal=_buff_0.ft.listener_id)
 
     def __process_label(self):
         """处理label类型的内容"""

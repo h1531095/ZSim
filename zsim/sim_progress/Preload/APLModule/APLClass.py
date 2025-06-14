@@ -1,14 +1,14 @@
 from typing import TYPE_CHECKING
-
+from .APLUnit import ActionAPLUnit
 from .APLOperator import APLOperator
 import json
 from define import APL_NA_ORDER_PATH
-from sim_progress.Preload import SkillNode
 from sim_progress.data_struct.NormalAttackManager import (
     na_manager_factory,
     BaseNAManager,
 )
 from sim_progress.Preload.APLModule.ActionReplaceManager import ActionReplaceManager
+
 if TYPE_CHECKING:
     from sim_progress.Preload import PreloadData
     from simulator.simulator_class import Simulator
@@ -20,7 +20,12 @@ class APLClass:
     找出第一个符合条件的动作并且执行。
     """
 
-    def __init__(self, all_apl_unit_list: list, preload_data: "PreloadData" = None, sim_instance: "Simulator" = None):
+    def __init__(
+        self,
+        all_apl_unit_list: list,
+        preload_data: "PreloadData" = None,
+        sim_instance: "Simulator" = None,
+    ):
         self.game_state: dict | None = None
         self.sim_instance: "Simulator" = sim_instance
         self.preload_data = preload_data
@@ -37,13 +42,20 @@ class APLClass:
         self.repeat_action: tuple[str, int] = ("", 0)
         self.action_replace_manager = None
 
-    def execute(self, tick, mode: int) -> tuple[str, int]:
+    def execute(self, tick, mode: int) -> tuple[str, int, ActionAPLUnit]:
         if self.game_state is None:
             self.get_game_state()
         if self.apl_operator is None:
-            self.apl_operator = APLOperator(self.actions_list, self.game_state, simulator_instance=self.sim_instance)
-        cid, skill_tag, apl_priority, apl_unit = self.apl_operator.spawn_next_action(
-            tick
+            self.apl_operator = APLOperator(
+                self.actions_list,
+                self.game_state,
+                simulator_instance=self.sim_instance,
+                preload_data=self.preload_data,
+            )
+        cid, skill_tag, apl_priority, apl_unit = (
+            self.apl_operator.spawn_next_action_in_common_mode(tick)
+            if not self.preload_data.atk_manager.attacking
+            else self.apl_operator.spawn_next_action_in_atk_response_mode(tick)
         )
         final_result = self.perform_action(cid, skill_tag, tick)
         # FIXME: 这里的优先级修改可能存在问题，需要重新考虑一下。
@@ -75,7 +87,6 @@ class APLClass:
 
     def action_processor(self, CID, action, tick) -> str:
         """用于生成动作"""
-        last_action: SkillNode | None
         if self.action_replace_manager is None:
             self.action_replace_manager = ActionReplaceManager(self.preload_data)
         result_tupe = self.action_replace_manager.action_replace_factory(

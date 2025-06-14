@@ -79,6 +79,16 @@ class ActionReplaceManager:
                 return False
 
         def spawn_new_action(self, CID: int, action: str):
-            manager = self.manager_box[CID]
-            # print(f'执行快速支援！技能{action}替换成了{manager.quick_assist_skill}！')
-            return manager.quick_assist_skill
+            CID = int(action.split("_")[0].strip())
+            for _obj in self.preload_data.skills:
+                if _obj.CID != CID:
+                    continue
+                do_immediately_info = _obj.get_skill_info(skill_tag=action, attr_info="do_immediately")
+                if do_immediately_info:
+                    return action
+                else:
+                    manager = self.manager_box[CID]
+                    # print(f'执行快速支援！技能{action}替换成了{manager.quick_assist_skill}！')
+                    return manager.quick_assist_skill
+            else:
+                raise ValueError(f"没有找到CID为{CID}的技能对象！无法执行快速支援替换！")

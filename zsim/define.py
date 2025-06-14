@@ -40,11 +40,24 @@ APL_NA_ORDER_PATH: str = _config["apl_mode"]["na_order"]
 ENEMY_RANDOM_ATTACK: bool = _config["apl_mode"]["enemy_random_attack"]
 ENEMY_REGULAR_ATTACK: bool = _config["apl_mode"]["enemy_regular_attack"]
 if ENEMY_RANDOM_ATTACK and ENEMY_REGULAR_ATTACK:
-    raise ValueError(f"不能同时开启“敌人随机进攻”与“敌人规律进攻”参数。")
+    raise ValueError("不能同时开启“敌人随机进攻”与“敌人规律进攻”参数。")
 ENEMY_ATTACK_RESPONSE: bool = _config["apl_mode"]["enemy_attack_response"]
 ENEMY_ATTACK_METHOD_CONFIG: str = _config["apl_mode"]["enemy_attack_method_config"]
 ENEMY_ATTACK_ACTION: str = _config["apl_mode"]["enemy_attack_action_data"]
 ENEMY_ATTACK_REPORT: bool = _config["apl_mode"]["enemy_attack_report"]
+
+ENEMY_ATK_PARAMETER_DICT: dict[str, int | float] = {
+    "Taction": 30,  # 角色弹刀与闪避动作的持续时间，不开放给用户更改。
+    "Tbase": 273,  # 人类反应时间大数据中位数，单位ms，不可更改！
+    "PlayerLevel": _config["apl_mode"][
+        "player_level"
+    ],  # 玩家水平系数，由用户自己填写。
+    "theta": 90,  # θ，人类胜利最小反应时间（神经传导极限），为90ms，不可更改！
+    "c": 0.5,  # 波动调节系数，暂取0.5，不开放给用户更改。
+    "delta": 30,  # 玩家水平系数所导致的中位数波动单位，暂时取30ms，不开放给用户更改。
+}
+
+
 DEFAULT_APL_DIR: str = _config["apl_mode"]["default_apl_dir"]
 COSTOM_APL_DIR: str = _config["apl_mode"]["custom_apl_dir"]
 YANAGI_NA_ORDER: str = _config["apl_mode"]["Yanagi"]
@@ -104,18 +117,18 @@ ANOMALY_MAPPING: dict[ElementType, str] = {
     3: "感电",
     4: "侵蚀",
     5: "烈霜碎冰",
-    6: "玄墨侵蚀"
+    6: "玄墨侵蚀",
 }
 # 属性类型等价映射字典
 ELEMENT_EQUIVALENCE_MAP: dict[ElementType, list[ElementType]] = {
-            0: [0],
-            1: [1],
-            2: [2, 5],  # 烈霜也能享受到冰属性加成
-            3: [3],
-            4: [4, 6],      # 玄墨也能享受到以太属性加成
-            5: [5],
-            6: [6]
-        }
+    0: [0],
+    1: [1],
+    2: [2, 5],  # 烈霜也能享受到冰属性加成
+    3: [3],
+    4: [4, 6],  # 玄墨也能享受到以太属性加成
+    5: [5],
+    6: [6],
+}
 
 SUB_STATS_MAPPING: dict[
     Literal[

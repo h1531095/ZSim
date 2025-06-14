@@ -77,6 +77,7 @@ class Enemy:
         # 初始化动态属性
         self.dynamic = self.EnemyDynamic()
         # 初始化敌人基础属性
+        self.base_max_HP: float = float(self.data_dict["70级最大生命值"])
         self.max_HP: float = (
             float(self.data_dict["70级最大生命值"])
             * (1 + self.enemy_adjust["生命值"])
@@ -493,9 +494,13 @@ class Enemy:
     # 遥远的需求：
     #  TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
 
-    def get_hp_percentage(self) -> float:
-        """获取当前生命值百分比的方法"""
+    def get_total_hp_percentage(self) -> float:
+        """获取当前生命值百分比的方法（总量百分比）"""
         return 1 - self.dynamic.lost_hp / self.max_HP
+
+    def get_current_hp_percentage(self) -> float:
+        """获取当前生命值百分比的方法（小血条百分比）"""
+        return 1 - self.dynamic.lost_hp % self.base_max_HP / self.base_max_HP
 
     def get_stun_percentage(self) -> float:
         """获取当前失衡值百分比的方法"""

@@ -814,6 +814,7 @@ class Character:
                 3: "ELECTRIC_DMG_bonus",
                 4: "ETHER_DMG_bonus",
                 5: "ICE_DMG_bonus",  # 烈霜也是冰
+                6: "ETHER_DMG_bonus"  # 玄墨也是以太
             }
             setattr(
                 self,

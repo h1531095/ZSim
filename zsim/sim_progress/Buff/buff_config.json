@@ -1170,5 +1170,45 @@
     "Buff-驱动盘-云岿如我-四件套-贯穿伤害提升": {
         "module": ".BuffXLogic.YunkuiTalesSheerAtkBonus",
         "class": "YunkuiTalesSheerAtkBonus"
+    },
+    "Buff-武器-精1幻变魔方-强化E增伤": {
+        "module": ".BuffXLogic.PuzzleSphereExDmgBonus",
+        "class": "PuzzleSphereExDmgBonus"
+    },
+    "Buff-武器-精2幻变魔方-强化E增伤": {
+        "module": ".BuffXLogic.PuzzleSphereExDmgBonus",
+        "class": "PuzzleSphereExDmgBonus"
+    },
+    "Buff-武器-精3幻变魔方-强化E增伤": {
+        "module": ".BuffXLogic.PuzzleSphereExDmgBonus",
+        "class": "PuzzleSphereExDmgBonus"
+    },
+    "Buff-武器-精4幻变魔方-强化E增伤": {
+        "module": ".BuffXLogic.PuzzleSphereExDmgBonus",
+        "class": "PuzzleSphereExDmgBonus"
+    },
+    "Buff-武器-精5幻变魔方-强化E增伤": {
+        "module": ".BuffXLogic.PuzzleSphereExDmgBonus",
+        "class": "PuzzleSphereExDmgBonus"
+    },
+    "Buff-武器-精1「灰烬」-钴蓝-攻击力提升": {
+        "module": ".BuffXLogic.CinderCobaltAtkBonus",
+        "class": "CinderCobaltAtkBonus"
+    },
+    "Buff-武器-精2「灰烬」-钴蓝-攻击力提升": {
+        "module": ".BuffXLogic.CinderCobaltAtkBonus",
+        "class": "CinderCobaltAtkBonus"
+    },
+    "Buff-武器-精3「灰烬」-钴蓝-攻击力提升": {
+        "module": ".BuffXLogic.CinderCobaltAtkBonus",
+        "class": "CinderCobaltAtkBonus"
+    },
+    "Buff-武器-精4「灰烬」-钴蓝-攻击力提升": {
+        "module": ".BuffXLogic.CinderCobaltAtkBonus",
+        "class": "CinderCobaltAtkBonus"
+    },
+    "Buff-武器-精5「灰烬」-钴蓝-攻击力提升": {
+        "module": ".BuffXLogic.CinderCobaltAtkBonus",
+        "class": "CinderCobaltAtkBonus"
     }
 }

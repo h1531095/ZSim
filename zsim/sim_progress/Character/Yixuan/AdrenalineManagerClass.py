@@ -26,10 +26,12 @@ class AdrenalineManager:
     """仪玄有各种回复闪能的事件，所以统一写一个Manger来管理它们。"""
     def __init__(self, char_instance: "Yixuan"):
         self.char = char_instance
-        self.adrenaline_recover_event_group: list[BaseAdrenalineEvent] = adrenaline_event_factory(char_instance=self.char)
+        self.adrenaline_recover_event_group: list[BaseAdrenalineEvent] | None = None
 
     def broadcast(self, skill_node: "SkillNode"):
         """向所有回能事件进行广播"""
+        if self.adrenaline_recover_event_group is None:
+            self.adrenaline_recover_event_group = adrenaline_event_factory(char_instance=self.char)
         for event in self.adrenaline_recover_event_group:
             event.update_status(skill_node=skill_node)
 

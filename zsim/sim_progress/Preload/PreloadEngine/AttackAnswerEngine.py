@@ -1,5 +1,7 @@
 from .BasePreloadEngine import BasePreloadEngine
+from sim_progress.data_struct import EnemyAttackEventManager
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from sim_progress.Character import Character
     from sim_progress.Enemy import Enemy
@@ -8,8 +10,9 @@ if TYPE_CHECKING:
     from sim_progress.Preload.PreloadDataClass import PreloadData
 
 
-class AttackAnswerEngine(BasePreloadEngine):
+class AttackResponseEngine(BasePreloadEngine):
     """进攻响应引擎，主要负责敌人进攻动作抛出，以及角色动作响应相关的内容；"""
+
     def __init__(self, data):
         super().__init__(data)
         self.data: "PreloadData" = data
@@ -17,13 +20,18 @@ class AttackAnswerEngine(BasePreloadEngine):
         self.found_char_dict: dict[int, "Character"] = {}
         self.enemy: "Enemy | None" = None
         self.sim_instance: "Simulator | None" = None
-        self.enemy_attack_instance = None
 
     def run_myself(self, *args, **kwargs) -> None:
+        if self.data.atk_manager is None:
+            self.data.atk_manager = EnemyAttackEventManager(
+                enemy_instance=self.sim_instance.schedule_data.enemy
+            )
         enemy_attack_action: "EnemyAttackAction | None" = self.try_spawn_enemy_attack()
         if enemy_attack_action is not None:
             # 将进攻信号发送给PreloadData。
-            self.data.attack_answer_event = enemy_attack_action
+            self.data.atk_manager.event_start(
+                action=enemy_attack_action, start_tick=self.sim_instance.tick
+            )
 
     def try_spawn_enemy_attack(self) -> "EnemyAttackAction":
         """调用Enemy对象下的进攻模组，并且生成一次攻击，同时打包成事件存入本地"""
@@ -32,8 +40,16 @@ class AttackAnswerEngine(BasePreloadEngine):
         if self.enemy is None:
             self.enemy = self.sim_instance.schedule_data.enemy
         if self.enemy.attack_method.random_attack:
-            enemy_attack_action = self.enemy.attack_method.probablity_driven_action_selection(current_tick=self.sim_instance.tick)
+            enemy_attack_action = (
+                self.enemy.attack_method.probablity_driven_action_selection(
+                    current_tick=self.sim_instance.tick
+                )
+            )
         else:
-            enemy_attack_action = self.enemy.attack_method.time_anchored_action_selection(current_tick=self.sim_instance.tick)
+            enemy_attack_action = (
+                self.enemy.attack_method.time_anchored_action_selection(
+                    current_tick=self.sim_instance.tick
+                )
+            )
         return enemy_attack_action
 

@@ -26,13 +26,15 @@ class Yixuan(Character):
         self.regulated_breathing: bool = False  # 调息（6画效果）
         self.regulated_breathing_last_update_tick: int = 0
         self.cinema_6_cd = 1800     # 6画获得调息的CD
+        # TODO: 队友极限支援监听
+        # TODO: 极限闪避监听
 
     def special_resources(self, *args, **kwargs) -> None:
         # 输入类型检查
         if not self.listener_build:
             if not isinstance(self.sim_instance, Simulator):
                 raise TypeError("仪玄对象中的sim_instance不是Simulator类")
-            self.sim_instance.listener_manager.listener_factory(initiate_signal="Yixuan_1",  sim_instance=self.sim_instance)
+            self.sim_instance.listener_manager.listener_factory(listener_owner=self, initiate_signal="Yixuan_1",  sim_instance=self.sim_instance)
             self.listener_build = True
         skill_nodes: list["SkillNode"] = _skill_node_filter(*args, **kwargs)
         tick = self.sim_instance.tick

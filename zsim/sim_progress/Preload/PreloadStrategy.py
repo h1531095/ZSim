@@ -4,11 +4,12 @@ from sim_progress.Preload.PreloadEngine import (
     ForceAddEngine,
     ConfirmEngine,
     SwapCancelValidateEngine,
-    AttackAnswerEngine
+    AttackResponseEngine,
 )
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
-    from sim_progress.Enemy.EnemyAttack.EnemyAttackClass import EnemyAttackAction
+    pass
 
 
 class BasePreloadStrategy(ABC):
@@ -37,7 +38,7 @@ class SwapCancelStrategy(BasePreloadStrategy):
     def __init__(self, data, apl_path: str | None):
         super().__init__(data, apl_path=apl_path)
         self.swap_cancel_engine = SwapCancelValidateEngine(data)
-        self.attack_answer_engine = AttackAnswerEngine(data=data)
+        self.attack_response_engine = AttackResponseEngine(data=data)
         self.tick = 0
 
     def generate_actions(self, enemy, tick: int) -> None:
@@ -46,7 +47,7 @@ class SwapCancelStrategy(BasePreloadStrategy):
         self.check_myself(enemy, tick)
         # EnemyAttack的抛出
         # TODO: 继续完善
-        self.attack_answer_engine.run_myself()
+        self.attack_response_engine.run_myself()
 
         # 1、APL引擎抛出本tick的主动动作
         apl_skill_node = self.apl_engine.run_myself(tick)
