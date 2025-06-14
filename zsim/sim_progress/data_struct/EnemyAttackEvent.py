@@ -13,7 +13,7 @@ class EnemyAttackEventManager:
         """进攻事件对象，负责管理敌人进攻的相关动态信息。"""
         self.enemy: "Enemy" = enemy_instance
         self.action: "None | EnemyAttackAction" = None
-        self.last_start_tick: int = 0
+        self.last_start_tick: int = 0           # 进攻事件的开始时刻，也是进攻意图的展露时刻。
         self.last_end_tick: int = 0
         self.answered_action: "SkillNode | None" = None
         self.interaction_window_open_tick: int | None = (
@@ -101,3 +101,19 @@ class EnemyAttackEventManager:
         )  # 如果怪物前摇很短，动作时间也很短，那么怪物攻击动作开始的时间就是黄光亮起的时间。
         right_bound = first_hit_tick
         return left_bound, right_bound
+
+    def can_be_answered(self, rt_tick: int) -> bool:
+        """该函数用于判断当前进攻事件是否具有响应的可能，主要是时间判断。"""
+        if not self.action:
+            raise ValueError('调用can_be_answered函数时请确保存在进攻事件')
+        if self.is_answered:
+            print(f"当前动作：{self.action.tag}已经被{self.answered_action.skill_tag}响应过了！")
+            return False
+        Lp = ENEMY_ATK_PARAMETER_DICT.get("player_level")
+        Td = self.interaction_window_close_tick - self.interaction_window_open_tick
+        first_hit_tick = self.action.get_first_hit()
+        if Lp <= 2:
+            return rt_tick <= Td
+        else:
+            return rt_tick <= first_hit_tick
+        
