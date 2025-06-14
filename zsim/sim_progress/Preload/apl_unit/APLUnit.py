@@ -1,4 +1,3 @@
-from Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
 from sim_progress.Preload.APLModule.SubConditionUnit import (
     ActionSubUnit,
     AttributeSubUnit,
@@ -30,6 +29,7 @@ class APLUnit(ABC):
         self, found_char_dict, game_state, sim_instance: "Simulator", **kwargs
     ):
         pass
+
 
 def spawn_sub_condition(
     priority: int, sub_condition_code: str = None
@@ -110,13 +110,3 @@ class SimpleUnitForForceAdd(APLUnit):
         else:
             return True, result_box
 
-
-if __name__ == "__main__":
-    from sim_progress.Preload import APLParser
-
-    code = "1211|action+=|1211_NA_1|status.enemy:stun==True|!buff.1091:exist→Buff-角色-丽娜-核心被动-穿透率==True"
-    # actions_list = APLParser(file_path=APL_PATH).parse(mode=0)
-    actions_list = APLParser(apl_code=code).parse(mode=0)
-    action_apl_unit = ActionAPLUnit(actions_list[0])
-    for conditions in action_apl_unit.sub_conditions_unit_list:
-        print(f"{conditions.logic_mode}")

@@ -317,9 +317,15 @@ class Skill:
             self.sp_consume: float = float(_raw_skill_data["sp_consume"])
             self.sp_recovery: float = float(_raw_skill_data["sp_recovery"])
             # 闪能相关——仪玄专属
-            self.adrenaline_threshold: float = float(_raw_skill_data["adrenaline_threshold"])
-            self.adrenaline_consume: float = float(_raw_skill_data["adrenaline_consume"])
-            self.adrenaline_recovery: float = float(_raw_skill_data["adrenaline_recovery"])
+            self.adrenaline_threshold: float = float(
+                _raw_skill_data["adrenaline_threshold"]
+            )
+            self.adrenaline_consume: float = float(
+                _raw_skill_data["adrenaline_consume"]
+            )
+            self.adrenaline_recovery: float = float(
+                _raw_skill_data["adrenaline_recovery"]
+            )
             # 喧响值
             self.self_fever_re: float = float(_raw_skill_data["self_fever_re"])
             # 距离衰减，不知道有啥用
@@ -427,7 +433,7 @@ class Skill:
             if condition_value is None:
                 self.force_add_condition_APL = []
             else:
-                from sim_progress.Preload.APLModule import SimpleUnitForForceAdd
+                from sim_progress.Preload.apl_unit.APLUnit import SimpleUnitForForceAdd
 
                 condition_list = condition_value.strip().split(";")
                 for _cond_str in condition_list:

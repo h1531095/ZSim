@@ -13,13 +13,13 @@ if TYPE_CHECKING:
 class AttackResponseEngine(BasePreloadEngine):
     """进攻响应引擎，主要负责敌人进攻动作抛出，以及角色动作响应相关的内容；"""
 
-    def __init__(self, data):
+    def __init__(self, data, sim_instance: "Simulator" = None):
         super().__init__(data)
         self.data: "PreloadData" = data
         self.game_state = None
         self.found_char_dict: dict[int, "Character"] = {}
         self.enemy: "Enemy | None" = None
-        self.sim_instance: "Simulator | None" = None
+        self.sim_instance: "Simulator | None" = sim_instance
 
     def run_myself(self, *args, **kwargs) -> None:
         if self.data.atk_manager is None:

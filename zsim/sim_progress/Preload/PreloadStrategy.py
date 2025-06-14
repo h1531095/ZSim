@@ -38,7 +38,9 @@ class SwapCancelStrategy(BasePreloadStrategy):
     def __init__(self, data, apl_path: str | None):
         super().__init__(data, apl_path=apl_path)
         self.swap_cancel_engine = SwapCancelValidateEngine(data)
-        self.attack_response_engine = AttackResponseEngine(data=data)
+        self.attack_response_engine = AttackResponseEngine(
+            data=data, sim_instance=self.data.sim_instance
+        )
         self.tick = 0
 
     def generate_actions(self, enemy, tick: int) -> None:

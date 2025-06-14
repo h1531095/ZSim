@@ -10,6 +10,7 @@ from define import (
 from collections import defaultdict
 import pandas as pd
 from sim_progress.RandomNumberGenerator import RNG
+import ast
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -134,14 +135,15 @@ class EnemyAttackAction:
         if self.duration <= 0:
             raise ValueError("duration参数必须大于0，请检查配置信息！")
         self.cd = int(self.action_dict.get("cd", 0))
-        self.hit_list = self.action_dict.get("hit_list", None)
-        if self.hit_list is None or self.hit_list is np.nan:
+        hit_list_str = self.action_dict.get("hit_list", None)
+        if hit_list_str is None or hit_list_str is np.nan:
             # 在未提供hit_list的情况下，默认hit均匀分布，所以直接根据hit和duration来产生hit_list，
             self.hit_list = list(
                 (self.duration / (self.hit + 1)) * (i + 1) for i in range(int(self.hit))
             )
         else:
-            self.hit_list = self.hit_list.split("|")
+            self.hit_list = ast.literal_eval(hit_list_str)
+
         self.blockable_list = self.action_dict.get("blockable_list", None)
         if self.blockable_list is None or self.blockable_list is np.nan:
             self.blockable_list = [False] * self.hit

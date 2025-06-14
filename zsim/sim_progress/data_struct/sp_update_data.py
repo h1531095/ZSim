@@ -1,10 +1,12 @@
-from typing import Generator
-from sim_progress.Character import Character
+from typing import Generator, TYPE_CHECKING
 from .data_analyzer import cal_buff_total_bonus
+
+if TYPE_CHECKING:
+    from sim_progress.Character import Character
 
 
 class SPUpdateData:
-    def __init__(self, char_obj: Character, dynamic_buff: dict):
+    def __init__(self, char_obj: "Character", dynamic_buff: dict):
         """更新角色SP时的专用数据结构，仅用于传递角色的静态与动态的能量自动回复效率"""
         self.char_name = char_obj.NAME
         self.static_sp_regen: float = char_obj.statement.sp_regen
@@ -21,7 +23,6 @@ class SPUpdateData:
 
     def get_sp_regen(self) -> float:
         return self.static_sp_regen + self.dynamic_sp_regen
-
 
 
 class ScheduleRefreshData:

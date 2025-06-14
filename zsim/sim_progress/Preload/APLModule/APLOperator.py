@@ -1,10 +1,9 @@
-from Preload.apl_unit.APLUnit import APLUnit
-from Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
     from sim_progress.Preload.PreloadDataClass import PreloadData
+    from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
 
 
 class APLOperator:
@@ -26,6 +25,8 @@ class APLOperator:
             "action.atk_response+=",
         ]
         self.sim_instance = simulator_instance
+        from sim_progress.Preload.apl_unit.APLUnit import APLUnit
+
         self.apl_unit_inventory: dict[
             int, APLUnit
         ] = {}  # 用于装已经解析过的apl子条件实例。
@@ -37,7 +38,7 @@ class APLOperator:
 
     def spawn_next_action_in_common_mode(
         self, tick
-    ) -> tuple[int, str, int, ActionAPLUnit]:
+    ) -> tuple[int, str, int, "ActionAPLUnit"]:
         """APL执行器的核心功能函数——筛选出优先级最高的下一个动作（普通模式）"""
         atk_response_mode = self.preload_data.atk_manager.attacking
         if atk_response_mode:
@@ -49,6 +50,8 @@ class APLOperator:
                 continue
             if apl_unit.apl_unit_type not in self.leagal_apl_type_list:
                 raise ValueError(f"APL类型不合法：{apl_unit.apl_unit_type}")
+            from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
+
             if isinstance(apl_unit, ActionAPLUnit):
                 result, result_box = apl_unit.check_all_sub_units(
                     self.found_char_dict,
@@ -81,12 +84,14 @@ class APLOperator:
 
     def spawn_next_action_in_atk_response_mode(
         self, tick
-    ) -> tuple[int, str, int, ActionAPLUnit]:
+    ) -> tuple[int, str, int, "ActionAPLUnit"]:
         """APL执行器的核心功能函数——筛选出优先级最高的下一个动作（进攻响应模式）"""
         if not self.preload_data.atk_manager.attacking:
             raise ValueError(
                 "在非进攻响应模式下，不能调用spawn_next_action_in_atk_response_mode方法！"
             )
+        from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
+
         for priority, apl_unit in self.apl_unit_inventory.items():
             if isinstance(apl_unit, ActionAPLUnit):
                 result, result_box = apl_unit.check_all_sub_units(
@@ -111,6 +116,8 @@ class APLOperator:
 
     def apl_unit_factory(self, apl_unit_dict):
         """构造APL子单元的工厂函数"""
+        from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
+
         if apl_unit_dict["type"] in self.leagal_apl_type_list:
             return ActionAPLUnit(apl_unit_dict)
         elif all(

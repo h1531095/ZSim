@@ -25,7 +25,7 @@
     "enemy_attack_response": true,
     "enemy_attack_method_config": "./zsim/data/enemy_attack_method.csv",
     "enemy_attack_action_data": "./zsim/data/enemy_attack_action.csv",
-    "enemy_attack_report": false,
+    "enemy_attack_report": true,
     "player_level": 5,
     "default_apl_dir": "./zsim/data/APLData",
     "custom_apl_dir": "./zsim/data/APLData/custom",
@@ -77,7 +77,7 @@
     "Vivian": false,
     "AstraYao": false,
     "Hugo": false,
-    "Yixuan": true,
+    "Yixuan": false,
     "Trigger": false
   },
   "na_mode_level": {

@@ -1,8 +1,9 @@
-from Preload import PreloadData
-from Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
-from Preload.apl_unit import APLUnit
-from Preload.apl_unit.APLUnit import spawn_sub_condition
-from simulator.simulator_class import Simulator
+from typing import TYPE_CHECKING
+from sim_progress.Preload.apl_unit.APLUnit import APLUnit
+
+if TYPE_CHECKING:
+    from simulator.simulator_class import Simulator
+    from sim_progress.Preload import PreloadData
 
 
 class ActionAPLUnit(APLUnit):
@@ -14,6 +15,8 @@ class ActionAPLUnit(APLUnit):
         self.apl_unit_type = apl_unit_dict["type"]
         self.break_when_found_action = True
         self.result = apl_unit_dict["action"]
+        from sim_progress.Preload.apl_unit.APLUnit import spawn_sub_condition
+
         for condition_str in apl_unit_dict["conditions"]:
             self.sub_conditions_unit_list.append(
                 spawn_sub_condition(self.priority, condition_str)
@@ -32,6 +35,8 @@ class ActionAPLUnit(APLUnit):
         if not self.sub_conditions_unit_list:
             """无条件直接输出True"""
             return True, result_box
+        from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
+
         for sub_units in self.sub_conditions_unit_list:
             if not isinstance(sub_units, BaseSubConditionUnit):
                 raise TypeError(
