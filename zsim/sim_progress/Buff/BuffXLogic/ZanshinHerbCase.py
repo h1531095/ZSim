@@ -39,9 +39,7 @@ class ZanshinHerbCase(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(equipper="残心青囊")
         if not self.record.listener_exist:
-            self.record.listener = self.buff_instance.sim_instance.listener_manager.listener_factory(
-                initiate_signal="Zenshin_Herb_Case_1", sim_instance=self.buff_instance.sim_instance
-            )
+            self.record.listener = self.buff_instance.sim_instance.listener_manager.get_listener(listener_owner=self.record.char, listener_id="Zanshin_Herb_Case_1")
             self.record.listener_exist = True
             # print(f"为{self.record.char.NAME}创建了一个残心青囊的监听器！")
 

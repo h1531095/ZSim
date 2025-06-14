@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from sim_progress.data_struct import QuickAssistSystem
 from sim_progress.Preload import SkillNode
-from sim_progress.data_struct import NodeStack
+from sim_progress.data_struct import NodeStack, EnemyAttackEventManager
 import types
 if TYPE_CHECKING:
     from zsim.simulator.simulator_class import Simulator
@@ -31,6 +31,7 @@ class PreloadData:
         self.load_data = load_data
         self.load_mission_dict: dict = load_data.load_mission_dict
         self.quick_assist_system = None
+        self.atk_manager: EnemyAttackEventManager | None = None
 
     @property
     def operating_now(self) -> int | None:
@@ -51,11 +52,9 @@ class PreloadData:
 
         if not self.personal_node_stack[char_cid].last_node_is_end(tick):
             """若检测到当前stack中的最新node还未结束，但是SwapCancel还是放行了，那么就说明可能发生了node的顶替，
-            此时应该先排除是附加伤害的可能性，因为附加伤害是可以被swapcancel轻易放行的，但是并不具备打断的效果。
-            如果新来的node不是附加伤害，此时可以判断为强打断技能，再调用forcechange函数。"""
+            此时应该排除是附加伤害的可能性，因为附加伤害是可以被swapcancel轻易放行的，但是并不具备打断的效果。"""
             if not (
-                node.skill.labels is not None
-                and "additional_damage" in node.skill.labels
+                node.skill.labels is not None and "additional_damage" in node.skill.labels  # 技能拥有附加标签
             ):
                 self.force_change_action(node)
         if self.personal_node_stack[char_cid].is_empty():
@@ -108,12 +107,14 @@ class PreloadData:
     def force_change_action(self, skill_node: SkillNode):
         """强制更新动作，用于技能强制顶替、被打断或是类似场合"""
         char_cid = int(skill_node.skill_tag.strip().split("_")[0])
-        node_be_changed = self.personal_node_stack[char_cid].peek()
+        node_be_changed: SkillNode = self.personal_node_stack[char_cid].peek()
         if node_be_changed.end_tick <= skill_node.preload_tick:
             raise ValueError(
                 f"尝试用{skill_node.skill_tag}来强制替换{node_be_changed.skill_tag}，但是后者已经于{node_be_changed.end_tick}结束，这种情况不用调用强制替换方法。请检查调用逻辑。"
             )
         self.delete_mission_in_preload_data(node_be_changed)
+        if node_be_changed.skill.do_immediately:
+            raise ValueError(f"{skill_node.skill_tag}正在尝试顶替一个最高优先级的技能：{node_be_changed.skill_tag}")
 
     def delete_mission_in_preload_data(self, node_be_changed):
         """在PreloadData中强制干涉Load阶段，并且执行特定任务的删除。"""

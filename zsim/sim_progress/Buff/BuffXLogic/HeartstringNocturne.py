@@ -37,10 +37,10 @@ class HeartstringNocturne(Buff.BuffLogic):
         self.check_record_module()
         self.get_prepared(equipper="心弦夜响")
         if not self.record.listener_exist:
-
-            self.record.listener = self.buff_instance.sim_instance.listener_manager.listener_factory(
-                initiate_signal="Heartstring_Nocturne_1", sim_instance=self.buff_instance.sim_instance
-            )
+            self.record.listener = self.buff_instance.sim_instance.listener_manager.get_listener(listener_owner=self.record.char, listener_id="Heartstring_Nocturne_1")
+            # self.record.listener = self.buff_instance.sim_instance.listener_manager.listener_factory(
+            #     initiate_signal="Heartstring_Nocturne_1", sim_instance=self.buff_instance.sim_instance
+            # )
             self.record.listener_exist = True
             # print(f"为{self.record.char.NAME}创建了一个心弦夜响的监听器！")
         skill_node = kwargs.get("skill_node", None)

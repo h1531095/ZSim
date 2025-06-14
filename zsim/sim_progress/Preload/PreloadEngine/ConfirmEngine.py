@@ -35,12 +35,10 @@ class ConfirmEngine(BasePreloadEngine):
             node = self.spawn_node_from_tag(
                 tick, tuples, template_node_from_apl=apl_skill_node
             )
-            print(node.skill_tag) if node.apl_unit is None else None
             #  2、可行性验证
             if self.validate_node_execution(node, tick):
                 # 3、内部数据交互
                 self.data.push_node_in_swap_cancel(node, tick)
-
                 report_to_log(
                     f"[PRELOAD]:In tick: {tick}, {node.skill_tag} has been preloaded"
                 )
@@ -59,8 +57,10 @@ class ConfirmEngine(BasePreloadEngine):
         """通过skill_tag构造Node"""
         skill_tag = tuples[0]
         active_generation = tuples[1] if tuples[1] else False
-        if template_node_from_apl:
+        if template_node_from_apl and skill_tag == template_node_from_apl.skill_tag:
             apl_unit = template_node_from_apl.apl_unit
+        else:
+            apl_unit = None
         node = SkillsQueue.spawn_node(
             skill_tag,
             tick,

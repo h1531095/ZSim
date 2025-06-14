@@ -53,7 +53,7 @@ class AuricArray(BaseAdrenalineEvent):
         self.active = False
         self.max_duration: int = 180
         self.last_active_tick: int = 0
-        self.regenerate_value = 7 / (3 * 60)
+        self.regenerate_value = 7 / 60
         self.active_times: int = 0
         self.regenerate_value_sum = 0
 
@@ -94,9 +94,7 @@ class AuricInkUndercurrent(BaseAdrenalineEvent):
 
     def update_status(self, skill_node: "SkillNode"):
         """当检测到队友大招时，更新自身状态，"""
-        simulator = self.char.sim_instance
-        if not isinstance(simulator, Simulator):
-            raise TypeError
+        simulator: "Simulator" = self.char.sim_instance
         if skill_node:
             # 过滤自己的技能
             if skill_node.char_name == self.char.NAME:

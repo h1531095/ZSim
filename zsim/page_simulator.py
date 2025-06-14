@@ -15,6 +15,7 @@ from lib_webui.process_simulator import (
     save_apl_selection,
     show_apl_judge_result,
 )
+from simulator.config_classes import AttrCurveConfig, SimulationConfig as SimCfg
 from run import go_parallel_subprocess, go_single_subprocess
 
 apl_legal = False
@@ -196,7 +197,7 @@ def page_simulator():
                         col_sc_select = st.columns([2, 1])
                         with col_sc_select[0]:
                             # 模拟词条种类
-                            default_sc_list_cfg = parallel_cfg["adjust_sc"]["sc_list"]
+                            default_sc_list_cfg = parallel_cfg["adjust_sc"]["sc_list"] # type: ignore
                             sc_list = st.multiselect(
                                 "模拟词条种类",
                                 stats_trans_mapping.keys(),

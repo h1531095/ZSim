@@ -237,6 +237,12 @@ class Buff:
                     config_dict
                 )
 
+                __listener_id_str = config_dict.get("listener_id")     # 与Buff的伴生的监听器的ID
+                if __listener_id_str is None or __listener_id_str is np.nan:
+                    self.listener_id = None
+                else:
+                    self.listener_id = str(__listener_id_str).strip()
+
         def __process_label_rule(self, config_dict: dict) -> int | None:
             label_rule = config_dict.get("label_effect_rule", 0)
             if pd.isna(label_rule) or label_rule is None:
@@ -262,6 +268,7 @@ class Buff:
                     return None
                 else:
                     _dict = ast.literal_eval(str(label_str).strip())
+
                     return _dict
 
     class BuffDynamic:
@@ -478,6 +485,8 @@ class Buff:
         if self.ft.cd == 0:
             return True
         else:
+            if self.dy.startticks == 0:
+                return True
             if tick - self.dy.startticks >= self.ft.cd:
                 return True
             else:
@@ -709,6 +718,7 @@ class Buff:
             # EXAMPLE：Buff触发时，随机获得层数。
             self.logic.xstart()
             self.update_to_buff_0(buff_0)
+
             return
         if self.ft.maxduration == 0:  # 瞬时buff
             if not self.ft.hitincrease:  # 命中不叠层

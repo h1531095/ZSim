@@ -42,7 +42,7 @@ class Simulator:
     listener_manager: ListenerManger
     rng_instance: RNG
     in_parallel_mode: bool
-    sim_cfg: "SimCfg" | None
+    sim_cfg: "SimCfg | None"
 
     def reset_simulator(self, sim_cfg: "SimCfg" | None):
         """重置模拟器实例为初始状态。"""
@@ -104,6 +104,9 @@ class Simulator:
         self.decibel_manager = Decibelmanager(self)
         self.listener_manager = ListenerManger(self)
         self.rng_instance = RNG(sim_instance=self)
+
+        # 监听器的初始化需要整个Simulator实例，因此在这里进行初始化
+        self.load_data.buff_0_manager.initialize_buff_listener()
 
     def main_loop(self, stop_tick: int = 10800, *, sim_cfg: "SimCfg | None" = None):
         self.reset_simulator(sim_cfg)

@@ -15,7 +15,7 @@ class PreciousFossilizedCoreStunBonusOver50Hp(Buff.BuffLogic):
 
     def special_judge_logic(self, **kwargs):
         enemy = JudgeTools.find_enemy(sim_instance=self.buff_instance.sim_instance)
-        hp_pct = enemy.get_hp_percentage()
+        hp_pct = enemy.get_total_hp_percentage()
         if hp_pct >= 0.5:
             return True
         else:

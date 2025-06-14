@@ -8,3 +8,5 @@ from .SchedulePreload import schedule_preload_event_factory, SchedulePreload
 from .BattleEventListener import ListenerManger
 from .StunForcedTerminationEvent import StunForcedTerminationEvent
 from .DecibelManager.DecibelManagerClass import Decibelmanager
+from .EnemyAttackEvent import EnemyAttackEventManager
+

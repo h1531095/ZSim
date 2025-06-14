@@ -1,10 +1,13 @@
-from sim_progress.Character import Character
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sim_progress.Character import Character
 
 
 class QuickAssistManager:
     """角色个人的快支管理器"""
 
-    def __init__(self, char: Character):
+    def __init__(self, char: "Character"):
         self.char = char
         self.start_tick = 0
         self.max_duration = 60  # 快速支援亮起的最大持续时间

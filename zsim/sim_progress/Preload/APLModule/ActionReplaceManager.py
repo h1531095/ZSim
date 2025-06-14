@@ -66,7 +66,9 @@ class ActionReplaceManager:
             node_on_field = self.preload_data.get_on_field_node(tick - 1)
             """注意，这里传入tick-1的作用：当某些技能不能被合轴与终止时（比如QTE和Q），新动作会被SwapCancelEngine一直拦截，
             此时，就会出现1帧时间场上没有任何动作，这会导致调用该函数的一些判断出错。所以将时间提前了1帧，规避这些错误。"""
-
+            if node_on_field is None:
+                # FIXME:这里还是有问题，程序中有时会出现的current_node_on_field 为None的情况一定会干扰模拟的进行，必须找时间解决掉！
+                return False
             """当前角色的快速支援正处于激活状态，并且角色企图上场释放技能，则执行替换。"""
             if (
                 current_manager.quick_assist_available
@@ -77,6 +79,16 @@ class ActionReplaceManager:
                 return False
 
         def spawn_new_action(self, CID: int, action: str):
-            manager = self.manager_box[CID]
-            # print(f'执行快速支援！技能{action}替换成了{manager.quick_assist_skill}！')
-            return manager.quick_assist_skill
+            CID = int(action.split("_")[0].strip())
+            for _obj in self.preload_data.skills:
+                if _obj.CID != CID:
+                    continue
+                do_immediately_info = _obj.get_skill_info(skill_tag=action, attr_info="do_immediately")
+                if do_immediately_info:
+                    return action
+                else:
+                    manager = self.manager_box[CID]
+                    # print(f'执行快速支援！技能{action}替换成了{manager.quick_assist_skill}！')
+                    return manager.quick_assist_skill
+            else:
+                raise ValueError(f"没有找到CID为{CID}的技能对象！无法执行快速支援替换！")
