@@ -1,13 +1,17 @@
 import json
-from typing import Iterator
+from typing import Any, Iterator
 
+import polars as pl
 import streamlit as st
 from define import CONFIG_PATH
 from lib_webui.process_apl_editor import APLArchive, APLJudgeTool
+
 from zsim.simulator.config_classes import (
-    SimulationConfig as SimCfg,
     AttrCurveConfig,
     WeaponConfig,
+)
+from zsim.simulator.config_classes import (
+    SimulationConfig as SimCfg,
 )
 
 from .constants import stats_trans_mapping
@@ -80,7 +84,7 @@ def apl_selecter():
 
     apl_archive = APLArchive()
     default_apl_titile = apl_archive.get_title_from_path(default_apl_path)
-    options_list = list(apl_archive.options)
+    options_list = list(apl_archive.options or [])
     # 检查 default_apl_titile 是否在选项列表中
     if default_apl_titile in options_list:
         default_index = options_list.index(default_apl_titile)
@@ -111,7 +115,7 @@ def save_apl_selection(selected_title: str):
         json.dump(config, f, indent=4)
 
 
-def get_default_apl_tile() -> str:
+def get_default_apl_tile() -> str | None:
     """获取默认APL的标题。
 
     Returns:
@@ -125,7 +129,7 @@ def get_default_apl_tile() -> str:
     return apl_archive.get_title_from_path(default_apl_path)
 
 
-def show_apl_judge_result(selected_title: str = None) -> bool:
+def show_apl_judge_result(selected_title: str | None = None) -> bool:
     """显示并返回判断结果APL的判断结果。
 
     Args:
@@ -136,12 +140,22 @@ def show_apl_judge_result(selected_title: str = None) -> bool:
     """
     if selected_title is None:
         selected_title = get_default_apl_tile()
+    if selected_title is None:
+        st.error("未找到默认APL，请先选择一个APL。")
+        return False
     apl_archive = APLArchive()
-    apl_data: dict = apl_archive.get_apl_data(selected_title)
+    apl_data: dict[str, Any] | None = apl_archive.get_apl_data(selected_title)
+    if apl_data is None:
+        st.error("未找到APL数据，请检查APL文件是否正确。")
+        return False
     apl_judge_tool = APLJudgeTool(apl_data)
-    required_chars_result: tuple[bool, str] = apl_judge_tool.judge_requried_chars()
-    option_result_result: tuple[bool, str] = apl_judge_tool.judge_optional_chars()
-    char_config_result: tuple[bool, str] = apl_judge_tool.judge_char_config()
+    required_chars_result: tuple[bool, list[str]] = (
+        apl_judge_tool.judge_requried_chars()
+    )
+    option_result_result: tuple[bool, list[str]] = apl_judge_tool.judge_optional_chars()
+    char_config_result: tuple[bool, dict[str, str | int]] = (
+        apl_judge_tool.judge_char_config()
+    )
     if required_chars_result[0]:
         st.success("必选角色满足要求")
     else:
@@ -155,3 +169,67 @@ def show_apl_judge_result(selected_title: str = None) -> bool:
     else:
         st.error(f"角色配置缺少：{char_config_result[1]}")
     return required_chars_result[0] and char_config_result[0]
+
+
+def enemy_selector() -> tuple[int, int]:
+    """敌人配置选择器。
+
+    Returns:
+        tuple[int, int]: (index_ID, adjust_ID) 元组
+    """
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        config = json.load(f)
+        current_index = config["enemy"]["index_ID"]
+        current_adjust = config["enemy"]["adjust_ID"]
+
+    # 从enemy.csv获取所有唯一的IndexID
+    enemy_df = pl.scan_csv("zsim/data/enemy.csv")
+    index_options: list[int] = sorted(
+        enemy_df.select("IndexID").unique().collect().to_series().to_list()
+    )
+
+    # 从enemy_adjustment.csv获取所有唯一的ID
+    adjust_df = pl.scan_csv("zsim/data/enemy_adjustment.csv")
+    adjust_options: list[int] = sorted(
+        adjust_df.select("ID").unique().collect().to_series().to_list()
+    )
+
+    # 创建两列布局
+    col1, col2 = st.columns(2)
+
+    with col1:
+        selected_index = st.selectbox(
+            "敌人IndexID",
+            index_options,
+            index=index_options.index(current_index)
+            if current_index in index_options
+            else 0,
+        )
+
+    with col2:
+        selected_adjust = st.selectbox(
+            "敌人属性调整ID",
+            adjust_options,
+            index=adjust_options.index(current_adjust)
+            if current_adjust in adjust_options
+            else 0,
+        )
+
+    return selected_index, selected_adjust
+
+
+def save_enemy_selection(index_id: int, adjust_id: int):
+    """保存敌人配置选择。
+
+    Args:
+        index_id: 选中的敌人基础ID
+        adjust_id: 选中的敌人调整ID
+    """
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        config = json.load(f)
+
+    config["enemy"]["index_ID"] = index_id
+    config["enemy"]["adjust_ID"] = adjust_id
+
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(config, f, indent=4)
