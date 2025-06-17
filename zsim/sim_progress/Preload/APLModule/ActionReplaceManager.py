@@ -1,4 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sim_progress.Preload.PreloadDataClass import PreloadData
 
 
 class ActionReplaceManager:
@@ -9,19 +13,29 @@ class ActionReplaceManager:
     """
 
     def __init__(self, preload_data):
-        self.preload_data = preload_data
+        self.preload_data: "PreloadData" = preload_data
         self.quick_assist_strategy = self.QuickAssistStrategy(self.preload_data)
 
     def action_replace_factory(
         self, CID: int, action: str, tick: int
     ) -> tuple[bool, str]:
         """该函数主要用于拦截APL的主动动作，使其被其他动作替代，用来模拟各种特殊情况"""
-        if self.quick_assist_strategy.condition_judge(
-            CID=CID, action=action, tick=tick
-        ):
-            action = self.quick_assist_strategy.spawn_new_action(CID, action)
-            return True, action
-        return False, action
+        """如果目前正处于黄光阶段（窗口期），那么此时的所有切人动作都会被无条件换成格挡"""
+        atk_manager = self.preload_data.atk_manager
+        if "耀嘉音" in self.preload_data.sim_instance.init_data.name_box:
+            pass
+        else:
+            if atk_manager.is_in_response_window(tick=tick):
+                if atk_manager.action.blockable_check(tick=tick):
+                    action = atk_manager.replace_tag_to_parry()
+                    return True, action
+
+            if self.quick_assist_strategy.condition_judge(
+                CID=CID, action=action, tick=tick
+            ):
+                action = self.quick_assist_strategy.spawn_new_action(CID, action)
+                return True, action
+            return False, action
 
     class __BaseStrategy(ABC):
         def __init__(self, preload_data):
@@ -67,7 +81,7 @@ class ActionReplaceManager:
             """注意，这里传入tick-1的作用：当某些技能不能被合轴与终止时（比如QTE和Q），新动作会被SwapCancelEngine一直拦截，
             此时，就会出现1帧时间场上没有任何动作，这会导致调用该函数的一些判断出错。所以将时间提前了1帧，规避这些错误。"""
             if node_on_field is None:
-                # FIXME:这里还是有问题，程序中有时会出现的current_node_on_field 为None的情况一定会干扰模拟的进行，必须找时间解决掉！
+                # FIXME:这里还是有问题，程序中有时会出现的current_node_on_field 为None的情况，一定会干扰模拟的进行，必须找时间解决掉！
                 return False
             """当前角色的快速支援正处于激活状态，并且角色企图上场释放技能，则执行替换。"""
             if (
@@ -83,7 +97,9 @@ class ActionReplaceManager:
             for _obj in self.preload_data.skills:
                 if _obj.CID != CID:
                     continue
-                do_immediately_info = _obj.get_skill_info(skill_tag=action, attr_info="do_immediately")
+                do_immediately_info = _obj.get_skill_info(
+                    skill_tag=action, attr_info="do_immediately"
+                )
                 if do_immediately_info:
                     return action
                 else:

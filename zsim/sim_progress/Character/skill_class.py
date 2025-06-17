@@ -181,6 +181,7 @@ class Skill:
 
         # 创建技能字典与技能列表 self.skills_dict 与 self.action_list
         self.skills_dict = {}  # {技能名str:技能参数object:InitSkill}
+        self.char_obj = char_obj
         for key in __keys:
             skill = self.InitSkill(
                 skill_dataframe=self.skill_df,
@@ -193,7 +194,7 @@ class Skill:
                 core_level=core_level,
                 CID=self.CID,
                 char_name=self.name,
-                char_obj=char_obj,
+                char_obj=self.char_obj,
             )
             self.skills_dict[key] = skill
         self.action_list = self.__create_action_list()
@@ -245,6 +246,7 @@ class Skill:
                     key=action,
                     char_name=self.name,
                     CID=self.CID,
+                    char_obj=self.char_obj,
                 )
         return list(self.skills_dict.keys())
 

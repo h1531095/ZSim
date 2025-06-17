@@ -26,6 +26,7 @@ class AttackResponseEngine(BasePreloadEngine):
             self.data.atk_manager = EnemyAttackEventManager(
                 enemy_instance=self.sim_instance.schedule_data.enemy
             )
+        self.data.atk_manager.end_check(tick=self.sim_instance.tick)
         enemy_attack_action: "EnemyAttackAction | None" = self.try_spawn_enemy_attack()
         if enemy_attack_action is not None:
             # 将进攻信号发送给PreloadData。

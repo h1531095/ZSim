@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class APLUnit(ABC):
-    def __init__(self):
+    def __init__(self, sim_instance: "Simulator"):
         """一行APL就是一个APLUnit，它是所有APLUnit的基类。"""
         self.priority = 0
         self.char_CID = None
@@ -23,6 +23,7 @@ class APLUnit(ABC):
         self.result = None
         self.sub_conditions_unit_list = []
         self.apl_unit_type = None
+        self.sim_instance = sim_instance
 
     @abstractmethod
     def check_all_sub_units(
@@ -82,8 +83,8 @@ def sub_condition_unit_factory(priority: int, sub_condition_dict: dict = None, m
 
 
 class SimpleUnitForForceAdd(APLUnit):
-    def __init__(self, condition_list):
-        super().__init__()
+    def __init__(self, condition_list, sim_instance: "Simulator" = None):
+        super().__init__(sim_instance=sim_instance)
         for condition_str in condition_list:
             self.sub_conditions_unit_list.append(
                 spawn_sub_condition(self.priority, condition_str)
@@ -92,6 +93,8 @@ class SimpleUnitForForceAdd(APLUnit):
     def check_all_sub_units(
         self, found_char_dict, game_state, sim_instance: "Simulator", **kwargs
     ):
+        if self.sim_instance is None:
+            self.sim_instance = sim_instance
         result_box = []
         tick = kwargs.get("tick", None)
         if not self.sub_conditions_unit_list:

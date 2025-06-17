@@ -290,7 +290,7 @@ class Character:
         }
         # 角色技能列表，还没有写修改技能等级的接口
         self.statement = Character.Statement(self, crit_balancing=crit_balancing)
-        self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID, **skills_level)
+        self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID, **skills_level, char_obj=self)
         self.action_list = self.skill_object.action_list 
         self.skills_dict = self.skill_object.skills_dict
         self.dynamic = self.Dynamic(self)
@@ -814,7 +814,7 @@ class Character:
                 3: "ELECTRIC_DMG_bonus",
                 4: "ETHER_DMG_bonus",
                 5: "ICE_DMG_bonus",  # 烈霜也是冰
-                6: "ETHER_DMG_bonus"  # 玄墨也是以太
+                6: "ETHER_DMG_bonus",  # 玄墨也是以太
             }
             setattr(
                 self,
@@ -1017,10 +1017,13 @@ class LastingNode:
                     if not self.node.skill.do_immediately and node.skill.do_immediately:
                         pass
                     else:
-                        raise ValueError(
-                            f"过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n"
-                            f"但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！"
-                        )
+                        if "dodge" in self.node.skill_tag:
+                            pass
+                        else:
+                            raise ValueError(
+                                f"过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n"
+                                f"但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！"
+                            )
 
                 if self.node.skill_tag == node.skill_tag:
                     self.is_spamming = True

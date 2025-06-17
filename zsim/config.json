@@ -36,8 +36,8 @@
     "enabled": true,
     "completion_coefficient": 0.3,
     "lag_time": 20,
-    "debug": false,
-    "debug_target_skill": "1361_CoAttack_A"
+    "debug": true,
+    "debug_target_skill": "1371_CA"
   },
   "database": {
     "CHARACTER_DATA_PATH": "./zsim/data/character.csv",
