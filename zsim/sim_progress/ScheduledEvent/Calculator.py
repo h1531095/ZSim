@@ -624,7 +624,7 @@ class Calculator:
                 else:
                     if data.dynamic.field_sheer_atk_percentage != 0:
                         raise ValueError(
-                            f"警告！检测到非0的“局内贯穿力%Buff”，该效果目前还无法处理，请注意检查buff_effect"
+                            "警告！检测到非0的“局内贯穿力%Buff”，该效果目前还无法处理，请注意检查buff_effect"
                         )
                     current_sheer_atk = base_sheer_atk + data.dynamic.sheer_atk
                     attr = current_sheer_atk
