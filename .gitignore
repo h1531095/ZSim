@@ -24,6 +24,7 @@ result*
 .pytest_cache
 .hypothesis/
 .pytest_cache/
+.clinerules/
 venv/
 node_modules/
 

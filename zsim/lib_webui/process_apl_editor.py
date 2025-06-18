@@ -243,7 +243,7 @@ class APLArchive:
                                 relative_path = os.path.basename(base_path)
                                 toml_dict_map[relative_path] = toml_dict
                     except Exception as e:
-                        st.exception(f"Error loading TOML file {base_path}: {e}")
+                        st.exception(Exception(f"Error loading TOML file {base_path}: {e}"))
             elif os.path.isdir(base_path):
                 # 如果是目录，遍历所有toml文件
                 for root, _, files in os.walk(base_path):
@@ -263,7 +263,7 @@ class APLArchive:
                                         toml_dict_map[relative_path] = toml_dict
                             except Exception as e:
                                 st.exception(
-                                    f"Error loading TOML file {file_path}: {e}"
+                                    Exception(f"Error loading TOML file {file_path}: {e}")
                                 )
             else:
                 # 如果路径既不是文件也不是目录，则记录警告或错误
