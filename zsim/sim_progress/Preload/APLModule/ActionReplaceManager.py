@@ -86,7 +86,6 @@ class ActionReplaceManager:
             """注意，这里传入tick-1的作用：当某些技能不能被合轴与终止时（比如QTE和Q），新动作会被SwapCancelEngine一直拦截，
             此时，就会出现1帧时间场上没有任何动作，这会导致调用该函数的一些判断出错。所以将时间提前了1帧，规避这些错误。"""
             if node_on_field is None:
-
                 # FIXME:这里还是有问题，程序中有时会出现的current_node_on_field 为None的情况，一定会干扰模拟的进行，必须找时间解决掉！
 
                 return False
@@ -116,7 +115,6 @@ class ActionReplaceManager:
                     # print(f'执行快速支援！技能{action}替换成了{manager.quick_assist_skill}！')
                     return manager.quick_assist_skill
             else:
-
                 raise ValueError(
                     f"没有找到CID为{CID}的技能对象！无法执行快速支援替换！"
                 )
@@ -154,11 +152,51 @@ class ActionReplaceManager:
             if char_obj.aid_type != "招架":
                 # TODO：暂时不支持回避支援。
                 return False
-            return True
+            if atk_manager.attacking and atk_manager.action.parryable:
+                if not atk_manager.is_answered:
+                    """如果此时攻击事件尚未被响应过，那么直接放行"""
+                    return True
+                else:
+                    """若攻击事件已经被响应过，但还是需要判断自身是否处于“连续招架状态”"""
+                    if self.consecutive_parry_mode:
+                        return True
 
+            return False
 
+        def spawn_new_action(self, CID: int, action: str, *args, **kwargs):
+            """根据当前的状态，执行招架支援tag的替换。"""
+            atk_manager = self.preload_data.atk_manager
+            if atk_manager.action.hit == 1:
+                if self.parry_interaction_in_progress:
+                    if not atk_manager.is_answered:
+                        raise ValueError(
+                            "技能tag替换管理器中，已经进入招架阶段，但是进攻事件管理器中的响应状态并未打开，二者状态不一致，请检查！"
+                        )
+                    """如果此时正处于招架状态，"""
+                    return self.spawn_parry_aid_tag(CID, mode=3)
+                else:
+                    self.parry_interaction_in_progress = True
+                    if atk_manager.action.hit_type == "Light":
+                        return self.spawn_parry_aid_tag(CID, mode=0)
+                    elif atk_manager.action.hit_type == "Heavy":
+                        return self.spawn_parry_aid_tag(CID, mode=2)
 
-        def spawn_new_action(self, *args, **kwargs):
-            pass
+            elif atk_manager.action.hit > 1 and not self.parry_interaction_in_progress:
+                """连续招架的第一次招架"""
+                return self.spawn_parry_aid_tag(CID, mode=1)
+
+        @staticmethod
+        def spawn_parry_aid_tag(CID: int, mode: int):
+            if mode == 0:
+                return f"{CID}_Light_parry_Aid"
+            elif mode == 1:
+                return f"{CID}_Chain_parry_Aid"
+            elif mode == 2:
+                return f"{CID}_Heavy_parry_Aid"
+            elif mode == 3:
+                """这是衔接在招架支援后的后退动作，无法取消。"""
+                return f"{CID}_Chain_parry_Aid"
+            else:
+                raise ValueError(f"不支持的招架模式：{mode}！")
         
 
