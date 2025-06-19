@@ -4,6 +4,7 @@ if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
     from sim_progress.Preload.PreloadDataClass import PreloadData
     from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
+    from sim_progress.Preload.apl_unit.APLUnit import APLUnit
 
 
 class APLOperator:
@@ -22,7 +23,10 @@ class APLOperator:
         self.leagal_apl_type_list = [
             "action+=",
             "action.no_swap_cancel+=",
-            "action.atk_response+=",
+
+            "action.atk_response_positive+=",
+            "action.atk_response_balance+=",
+
         ]
         self.sim_instance = simulator_instance
         from sim_progress.Preload.apl_unit.APLUnit import APLUnit
@@ -45,40 +49,42 @@ class APLOperator:
             raise ValueError(
                 "在进攻响应模式下，不能调用spawn_next_action_in_common_mode方法！"
             )
-        for priority, apl_unit in self.apl_unit_inventory.items():
-            if "atk_response" in apl_unit.apl_unit_type:
-                continue
-            if apl_unit.apl_unit_type not in self.leagal_apl_type_list:
-                raise ValueError(f"APL类型不合法：{apl_unit.apl_unit_type}")
-            from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
 
-            if isinstance(apl_unit, ActionAPLUnit):
-                result, result_box = apl_unit.check_all_sub_units(
-                    self.found_char_dict,
-                    self.game_state,
-                    tick=tick,
-                    sim_instance=self.sim_instance,
-                    preload_data=self.preload_data,
-                )
-                if not result:
-                    # if priority in [4] and tick <= 1200:
-                    #     print(
-                    #         f"这次不通过的APL优先级为{priority}，内容为{apl_unit.result} 判定结果为：{result_box}"
-                    #     )
-                    continue
+        for priority, apl_unit in self.apl_unit_inventory.items():
+            from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
+            from sim_progress.Preload.apl_unit.AtkResponseAPLUnit import (
+                AtkResponseAPLUnit,
+            )
+
+            apl_unit: ActionAPLUnit | AtkResponseAPLUnit
+            if isinstance(apl_unit, AtkResponseAPLUnit):
+                continue
+            result, result_box = apl_unit.check_all_sub_units(
+                self.found_char_dict,
+                self.game_state,
+                tick=tick,
+                sim_instance=self.sim_instance,
+                preload_data=self.preload_data,
+            )
+            if not result:
+                # if priority in [4] and tick <= 1200:
+                #     print(
+                #         f"这次不通过的APL优先级为{priority}，内容为{apl_unit.result} 判定结果为：{result_box}"
+                #     )
+                continue
+            else:
+                if apl_unit.break_when_found_action:
+                    # print(
+                    #     f"APL找到了新的最高优先级的动作！优先级为：{apl_unit.priority}，输出动作：{apl_unit.result}"
+                    # )
+                    return (
+                        int(apl_unit.char_CID),
+                        apl_unit.result,
+                        apl_unit.priority,
+                        apl_unit,
+                    )
                 else:
-                    if apl_unit.break_when_found_action:
-                        # print(
-                        #     f"APL找到了新的最高优先级的动作！优先级为：{apl_unit.priority}，输出动作：{apl_unit.result}"
-                        # )
-                        return (
-                            int(apl_unit.char_CID),
-                            apl_unit.result,
-                            apl_unit.priority,
-                            apl_unit,
-                        )
-                    else:
-                        continue
+                    continue
         else:
             raise ValueError("没有找到符合要求的APL！")
 
@@ -91,9 +97,10 @@ class APLOperator:
                 "在非进攻响应模式下，不能调用spawn_next_action_in_atk_response_mode方法！"
             )
         from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
+        from sim_progress.Preload.apl_unit.AtkResponseAPLUnit import AtkResponseAPLUnit
 
         for priority, apl_unit in self.apl_unit_inventory.items():
-            if isinstance(apl_unit, ActionAPLUnit):
+            if isinstance(apl_unit, ActionAPLUnit | AtkResponseAPLUnit):
                 result, result_box = apl_unit.check_all_sub_units(
                     self.found_char_dict,
                     self.game_state,
@@ -104,7 +111,6 @@ class APLOperator:
                 if not result:
                     continue
                 else:
-                    # TODO: 这里需要添加进攻响应的前置条件检查
                     return (
                         int(apl_unit.char_CID),
                         apl_unit.result,
@@ -114,12 +120,18 @@ class APLOperator:
         else:
             raise ValueError("没有找到符合要求的APL！")
 
-    def apl_unit_factory(self, apl_unit_dict):
+    def apl_unit_factory(self, apl_unit_dict) -> "APLUnit":
         """构造APL子单元的工厂函数"""
         from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
+        from sim_progress.Preload.apl_unit.AtkResponseAPLUnit import AtkResponseAPLUnit
 
-        if apl_unit_dict["type"] in self.leagal_apl_type_list:
-            return ActionAPLUnit(apl_unit_dict)
+        if apl_unit_dict["type"] in ["action+=", "action.no_swap_cancel+="]:
+            return ActionAPLUnit(apl_unit_dict, sim_instance=self.sim_instance)
+        elif "action.atk_response" in apl_unit_dict["type"]:
+            return AtkResponseAPLUnit(
+                apl_unit_dict=apl_unit_dict, sim_instance=self.sim_instance
+            )
+
         elif all(
             code_str in apl_unit_dict["type"]
             for code_str in ["a", "c", "t", "i", "o", "n"]

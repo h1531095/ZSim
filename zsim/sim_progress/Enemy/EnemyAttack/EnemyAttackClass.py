@@ -143,12 +143,7 @@ class EnemyAttackAction:
             )
         else:
             self.hit_list = ast.literal_eval(hit_list_str)
-
-        self.blockable_list = self.action_dict.get("blockable_list", None)
-        if self.blockable_list is None or self.blockable_list is np.nan:
-            self.blockable_list = [False] * self.hit
-        else:
-            self.blockable_list = self.blockable_list.split("|")
+        self.parryable = bool(self.action_dict.get("blockable", True))  # 是否可以招架
         self.interruption_level_list = self.action_dict.get(
             "interruption_level_list", None
         )
@@ -161,10 +156,26 @@ class EnemyAttackAction:
             self.interruption_level_list = self.interruption_level_list.split("|")
         self.effect_radius_list = self.action_dict.get("effect_radius_list", None)
         # TODO：暂时不考虑由技能范围不同而对命中率造成的影响，统一按照100%命中来处理，
-        self.stoppable = self.action_dict.get("stoppable", False)
+        self.stoppable = self.action_dict.get("stoppable", True)
 
-    def block_judge(self, char_action):
-        pass
+    def get_hit_tick(self, another_ta: int = None, hit_count: int = 1) -> int:
+        """获取命中时间，"""
+        if not self.hit_list:
+            raise ValueError("hit_list为空，无法获取命中点！")
+        hit_tick = self.hit_list[hit_count - 1]
+        Ta = (
+            ENEMY_ATK_PARAMETER_DICT.get("Taction")
+            if another_ta is None
+            else another_ta
+        )
+        if hit_tick < Ta:
+            raise ValueError(
+                f"{self.tag}的第一个命中点({hit_tick})小于响应动作持续时间({Ta})，请检查数据库！"
+            )
+        return self.hit_list[0]
+
+    def __str__(self):
+        return f"进攻动作ID：{self.id}, 技能Tag：{self.tag}，动作耗时：{self.duration}，单次动作的冷却时间：{self.cd}"
 
     def get_first_hit(self) -> int:
         """获取第一个命中点"""

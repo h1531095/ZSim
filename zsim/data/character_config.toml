@@ -1,4 +1,5 @@
-name_box = [ "仪玄", "扳机", "耀嘉音",]
+name_box = ["仪玄", "扳机", "耀嘉音", ]
+
 
 ["露西"]
 name = "露西"
@@ -190,8 +191,10 @@ name = "耀嘉音"
 weapon = "玲珑妆匣"
 weapon_level = 1
 cinema = 0
+
 crit_balancing = false
 crit_rate_limit = 0.95
+
 scATK_percent = 15
 scATK = 0
 scHP_percent = 0
@@ -331,6 +334,7 @@ weapon_level = 1
 cinema = 0
 crit_balancing = true
 crit_rate_limit = 0.68
+
 scATK_percent = 0
 scATK = 0
 scHP_percent = 10
@@ -341,6 +345,7 @@ scAnomalyProficiency = 0
 scPEN = 0
 scCRIT = 10
 scCRIT_DMG = 15
+
 drive4 = "暴击率%"
 drive5 = "以太属性伤害%"
 drive6 = "生命值%"

@@ -25,6 +25,7 @@ from sim_progress.Update import update_anomaly
 from .CalAnomaly import CalAbloom, CalAnomaly, CalDisorder, CalPolarityDisorder
 from .Calculator import Calculator, MultiplierData
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
 
@@ -57,7 +58,7 @@ class ScheduledEvent:
         action_stack: ActionStack,
         *,
         loading_buff: dict | None = None,
-        sim_instance: Simulator
+        sim_instance: Simulator,
     ):
         self.data = data  # ScheduleData in __main__
         self.data.dynamic_buff = dynamic_buff
@@ -128,7 +129,7 @@ class ScheduledEvent:
                             self.data.dynamic_buff,
                             self.action_stack,
                             skill_node=event,
-                            sim_instance=self.sim_instance
+                            sim_instance=self.sim_instance,
                         )
                         ProcessHitUpdateDots(
                             self.tick,
@@ -161,7 +162,7 @@ class ScheduledEvent:
                         self.data.dynamic_buff,
                         self.action_stack,
                         anomaly_bar=event,
-                        sim_instance=self.sim_instance
+                        sim_instance=self.sim_instance,
                     )
                 elif isinstance(event, ScheduleRefreshData):
                     self.refresh_event(event)
@@ -275,7 +276,7 @@ class ScheduledEvent:
                 self.data.char_obj_list,
                 skill_node=_node,
                 dynamic_buff_dict=self.data.dynamic_buff,
-                sim_instance=self.sim_instance
+                sim_instance=self.sim_instance,
             )
 
     def solve_buff(self) -> None:
@@ -329,7 +330,11 @@ class ScheduledEvent:
             dmg_expect=dmg_expect,
             dmg_crit=dmg_crit,
             hitted_count=hitted_count,
-            proactive=_event.active_generation if isinstance(_event, SkillNode) else _event.mission_node.active_generation
+
+            proactive=_event.active_generation
+            if isinstance(_event, SkillNode)
+            else _event.mission_node.active_generation,
+
         )
         hit_result.skill_node = event
         if event.skill.follow_by:
@@ -349,6 +354,8 @@ class ScheduledEvent:
             buildup=round(snapshot[1], 2),
             **self.data.enemy.dynamic.get_status(),
             UUID=event.UUID,
+            crit_rate=cal_obj.regular_multipliers.crit_rate,
+            crit_dmg=cal_obj.regular_multipliers.crit_dmg,
         )
         # enemy_dynamic=self.data.enemy.dynamic.__str__()
 
@@ -358,7 +365,7 @@ class ScheduledEvent:
             anomaly_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
-            sim_instance=self.sim_instance
+            sim_instance=self.sim_instance,
         )
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
         # TODO：异常伤害无法被enemy接收到，Enemy的血量更新是有问题的。
@@ -380,7 +387,7 @@ class ScheduledEvent:
             disorder_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
-            sim_instance=self.sim_instance
+            sim_instance=self.sim_instance,
         )
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         stun = cal_obj.cal_disorder_stun()
@@ -405,7 +412,7 @@ class ScheduledEvent:
             disorder_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
-            sim_instance=self.sim_instance
+            sim_instance=self.sim_instance,
         )
         dmg_disorder = cal_obj.cal_anomaly_dmg()
         Report.report_dmg_result(
@@ -428,7 +435,7 @@ class ScheduledEvent:
             abloom_obj=event,
             enemy_obj=self.data.enemy,
             dynamic_buff=self.data.dynamic_buff,
-            sim_instance=self.sim_instance
+            sim_instance=self.sim_instance,
         )
         dmg_anomaly = cal_obj.cal_anomaly_dmg()
         # TODO：异常伤害无法被enemy接收到，Enemy的血量更新是有问题的。

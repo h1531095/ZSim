@@ -779,6 +779,18 @@ class Calculator:
             else:
                 return 1 + min(1, self.crit_rate) * self.crit_dmg
 
+        def cal_crit_expect(self, data: MultiplierData) -> float:
+            """暴击期望 = 1 + 暴击率 * 暴击伤害"""
+            if (
+                data.char_instance is not None
+                and data.char_instance.crit_balancing
+                and self.crit_rate > 1
+            ):
+                # 配平算法下的暴击溢出补偿，为了解决配平仅能适配静态面板的问题
+                return 1 + ((self.crit_rate - 1) * 2 + self.crit_dmg)
+            else:
+                return 1 + self.crit_rate * self.crit_dmg
+
         @staticmethod
         def cal_personal_crit_dmg(data: MultiplierData) -> float:
             """面板暴击伤害 = 静态面板暴击伤害 + buff暴击伤害"""

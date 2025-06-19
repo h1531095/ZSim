@@ -3,13 +3,11 @@ from sim_progress.Preload.apl_unit.APLUnit import APLUnit
 
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
-    from sim_progress.Preload import PreloadData
-
 
 class ActionAPLUnit(APLUnit):
-    def __init__(self, apl_unit_dict: dict):
+    def __init__(self, apl_unit_dict: dict, sim_instance: "Simulator" = None):
         """动作类APL，目前也只有这一种APL类型。"""
-        super().__init__()
+        super().__init__(sim_instance=sim_instance)
         self.char_CID = apl_unit_dict["CID"]
         self.priority = apl_unit_dict["priority"]
         self.apl_unit_type = apl_unit_dict["type"]
@@ -28,10 +26,6 @@ class ActionAPLUnit(APLUnit):
         """单行APL的逻辑函数：检查所有子条件并且输出结果"""
         result_box = []
         tick = kwargs.get("tick", None)
-        preload_data = kwargs.get("preload_data", None)
-        if self.apl_unit_type == "action.atk_response+=":
-            """进攻响应APL的前置条件处理"""
-            pass
         if not self.sub_conditions_unit_list:
             """无条件直接输出True"""
             return True, result_box
@@ -51,12 +45,3 @@ class ActionAPLUnit(APLUnit):
         else:
             return True, result_box
 
-    def check_atk_response_conditions(self, preload_data: "PreloadData"):
-        """检查进攻响应的前置条件是否满足"""
-        if not preload_data.atk_manager.attacking:
-            raise ValueError(
-                f"在非进攻响应模式下，错误启用了进攻响应APL：{self.priority}"
-            )
-        if preload_data.atk_manager.is_answered:
-            return False
-        # TODO: 111111111111111111

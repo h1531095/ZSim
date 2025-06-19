@@ -5,6 +5,7 @@ from sim_progress.Preload.APLModule.APLJudgeTools import (
 )
 from sim_progress.Preload.APLModule.SubConditionUnit import BaseSubConditionUnit
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
 
@@ -43,7 +44,7 @@ class ActionSubUnit(BaseSubConditionUnit):
                         and "additional_damage" in current_node.skill.labels
                     ):
                         continue
-                    if current_node.end_tick != tick:
+                    if current_node.end_tick + 1 != tick:
                         return None
                     return current_node.skill_tag
                 else:
@@ -65,6 +66,31 @@ class ActionSubUnit(BaseSubConditionUnit):
                 ):
                     continue
                 else:
+                    return current_node.skill_tag
+            else:
+                return None
+
+    class PositiveLinkedHander(ActionCheckHandler):
+        @classmethod
+        def handler(cls, char_cid: int, game_state, tick: int) -> str | None:
+            """
+            积极衔接判定，技能skill_tag符合的同时，
+            只要上一个动作没有结束，就尝试进行衔接！
+            一般用于上一个节能可以被自己技能打断的情况，比如闪避。
+            """
+            char_stack = get_personal_node_stack(game_state).get(char_cid, None)
+            if char_stack is None:
+                return None
+            for i in range(char_stack.length):
+                current_node = char_stack.peek_index(i + 1)
+                if current_node is None:
+                    return None
+                if (
+                    current_node.skill.labels is not None
+                    and "additional_damage" in current_node.skill.labels
+                ):
+                    continue
+                if current_node.end_tick >= tick:
                     return current_node.skill_tag
             else:
                 return None
@@ -101,11 +127,19 @@ class ActionSubUnit(BaseSubConditionUnit):
         "skill_tag": LatestActionTagHandler,
         "strict_linked_after": StrictLinkedHandler,
         "lenient_linked_after": LenientLinkedHandler,
+        "positive_linked_after": PositiveLinkedHander,
         "first_action": FirstActionHandler,
         "is_performing": IsPerformingHandler,
     }
 
-    def check_myself(self, found_char_dict, game_state, sim_instance: "Simulator" = None, *args, **kwargs):
+    def check_myself(
+        self,
+        found_char_dict,
+        game_state,
+        sim_instance: "Simulator" = None,
+        *args,
+        **kwargs,
+    ):
         """处理 动作判定类 的子条件"""
         handler_cls = self.ActionHandlerMap.get(self.check_stat)
         handler = handler_cls() if handler_cls else None
@@ -117,12 +151,12 @@ class ActionSubUnit(BaseSubConditionUnit):
             return self.spawn_result(handler.handler(game_state))
         else:
             """check_target 不是 after（其实已经弃用了），就是CID"""
-            from sim_progress.Buff.JudgeTools import find_tick
 
             check_cid(self.check_target)
             char_cid = int(self.check_target)
             tick = sim_instance.tick
-            return self.spawn_result(handler.handler(char_cid, game_state, tick))
+            result = self.spawn_result(handler.handler(char_cid, game_state, tick))
+            return result
         #     if self.check_stat == 'skill_tag':
         #         checked_value = get_last_action(game_state)
         #         return self.spawn_result(checked_value)

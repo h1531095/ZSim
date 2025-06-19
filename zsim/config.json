@@ -3,7 +3,8 @@
         "enabled": true,
         "level": 4
     },
-    "stop_tick": 6000,
+    "stop_tick": 10800,
+
     "watchdog": {
         "enabled": false,
         "level": 4
@@ -22,10 +23,11 @@
         "na_order": "./zsim/data/DefaultConfig/NAOrder.json",
         "enemy_random_attack": false,
         "enemy_regular_attack": true,
-        "enemy_attack_response": true,
+        "enemy_attack_response": false,
         "enemy_attack_method_config": "./zsim/data/enemy_attack_method.csv",
         "enemy_attack_action_data": "./zsim/data/enemy_attack_action.csv",
         "enemy_attack_report": true,
+
         "player_level": 5,
         "default_apl_dir": "./zsim/data/APLData",
         "custom_apl_dir": "./zsim/data/APLData/custom",
@@ -37,7 +39,8 @@
         "completion_coefficient": 0.3,
         "lag_time": 20,
         "debug": false,
-        "debug_target_skill": "1361_CoAttack_A"
+        "debug_target_skill": "1371_CA"
+
     },
     "database": {
         "CHARACTER_DATA_PATH": "./zsim/data/character.csv",
@@ -77,7 +80,8 @@
         "Vivian": false,
         "AstraYao": false,
         "Hugo": false,
-        "Yixuan": false,
+        "Yixuan": true,
+
         "Trigger": false
     },
     "na_mode_level": {
@@ -90,6 +94,7 @@
             "enabled": true,
             "sc_range": [
                 30,
+
                 42
             ],
             "sc_list": [

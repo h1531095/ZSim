@@ -1,6 +1,5 @@
 import math
 
-from polars import last
 from .BasePreloadEngine import BasePreloadEngine
 from sim_progress.Preload import SkillNode
 from define import (
@@ -58,7 +57,6 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         2、合轴时间是否符合
         3、确认合轴后，将skill_tag和主动参数 打包成tuple"""
         self.active_signal = False
-
         """若当前APL动作为等待，那么直接返回False，不做任何操作。"""
         if self._validate_wait_event(apl_skill_tag=skill_tag):
             self._swap_cancel_debug_print(mode=1)
@@ -113,6 +111,7 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         if char_stack is None:
             """角色的动作栈都尚未创建，说明角色当前没有任何动作，角色有空。"""
             return True
+        """获取上一个非附加伤害的技能Node"""
         char_latest_node = char_stack.get_effective_node()
         # char_latest_active_node = char_stack.get_on_field_node(tick)
         # if char_latest_active_node is not None:
@@ -125,6 +124,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
 
         """角色当前有一个正在发生的Node"""
         if char_latest_node.end_tick > tick:
+            """如果该node是闪避，则直接放行——闪避是可以被自己的技能合轴、顶替的。"""
+            if "dodge" in char_latest_node.skill_tag:
+                # print(
+                #     f"{apl_skill_node.char_name}的技能{apl_skill_node.skill_tag}企图取消自己的闪避技能！"
+                # ) if SWAP_CANCEL_MODE_DEBUG else None
+                return True
             """正在进行的技能并非立即执行类型，而新的技能是立即执行类型，则放行"""
             if (
                 apl_skill_node.skill.do_immediately
@@ -146,10 +151,8 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         lag_time = math.ceil(min(node.skill.ticks * SCK, SCLT))
         return lag_time
 
-    def _validate_swap_tick(self, **kwargs):
+    def _validate_swap_tick(self, skill_tag: str, tick: int, **kwargs):
         """针对当前技能的合轴时间的检测"""
-        skill_tag = kwargs["skill_tag"]
-        tick = kwargs["tick"]
         current_node_on_field = self.data.get_on_field_node(tick)
         if current_node_on_field is None:
             return True
@@ -162,6 +165,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         ):
             return False
         else:
+            if SWAP_CANCEL_MODE_DEBUG and SWAP_CANCEL_DEBUG_TARGET_SKILL:
+                if SWAP_CANCEL_DEBUG_TARGET_SKILL == skill_tag:
+                    print(
+                        f"监听的技能{skill_tag}满足合轴时间要求！合轴放行！上一个技能{current_node_on_field.skill_tag}因本次合轴而提前结束。"
+                        f"本次合轴延迟时间为{swap_lag_tick + current_node_on_field.skill.swap_cancel_ticks}ticks，被合轴技能时间为{current_node_on_field.skill.ticks}ticks。"
+                    )
             return True
 
     def _validate_qte_activation(self, tick: int, skill_node: SkillNode) -> bool:
@@ -204,6 +213,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             preload_data中，preload_action_list_before_confirm是一个列表，
             其中记录了当前tick要被抛出的动作，其中，每个元素是一个元组，
             元组的第一个元素是技能的tag，第二个元素是技能的主动类型，第三个元素是APL的优先级。
+            
+            对于当前函数来说，APL抛出的动作apl_skill_node尚未进入preload_action_list_before_confirm列表，
+            此时该列表中的所有技能都来自于ForceAddEngine强行添加。
             """
             _tag = _tuples[0]
             if cid == int(_tag.split("_")[0]):
@@ -226,6 +238,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                             skill_info = {}
                         if "additional_damage" not in skill_info.keys():
                             """但若当前tick被force_add 添加的skill_tag只是个普通技能，那么就要执行顶替。"""
+                            print(
+                                f"即将添加的衔接技能：{_tuples}被{skill_tag}顶替！"
+                            ) if SWAP_CANCEL_MODE_DEBUG else None
                             self.data.preload_action_list_before_confirm.remove(_tuples)
                             return True
                         break
@@ -265,7 +280,11 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             char_change_cd = tick_delta >= 60
 
         """当前台存在一个高优先级技能时，合轴操作都是不可用的"""
-        if node_on_field is not None and node_on_field.skill.do_immediately:
+        if (
+            node_on_field is not None
+            and node_on_field.skill.do_immediately
+            and "dodge" not in node_on_field.skill_tag
+        ):
             return False
 
         """第一个主动动作时，直接放行"""
@@ -339,8 +358,11 @@ class SwapCancelValidateEngine(BasePreloadEngine):
     ):
         if not SWAP_CANCEL_MODE_DEBUG:
             return
+
+        """由于APL的SwapCancelEngine基本会看每个tick都调用，所以这里需要避免重复播报。"""
         if self.__report_tag == skill_tag:
             return
+
         self.__report_tag = skill_tag
         skill_compare = True if SWAP_CANCEL_DEBUG_TARGET_SKILL else False
 
@@ -372,9 +394,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
             ) if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL else None
         elif mode == 5:
             print(
-                f"{skill_tag}的上一个主动动作{last_actively_generated_node.skill.skill_tag}不支持合轴！"
+                f"{skill_tag}的上一个主动动作{last_actively_generated_node.skill.skill_tag}的APL策略为不要合轴！"
             ) if not skill_compare else print(
-                f"{skill_tag}的上一个主动动作{last_actively_generated_node.skill.skill_tag}不支持合轴！"
+                f"{skill_tag}的上一个主动动作{last_actively_generated_node.skill.skill_tag}的APL策略为不要合轴！"
             ) if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL else None
         else:
             raise ValueError("mode参数错误！")

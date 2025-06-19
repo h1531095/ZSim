@@ -292,8 +292,7 @@ class Character:
         }
         
         self.statement = Character.Statement(self, crit_balancing=crit_balancing)
-        # 角色技能列表，还没有写修改技能等级的接口
-        self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID, **skills_level)
+        self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID, **skills_level, char_obj=self)
         self.action_list = self.skill_object.action_list 
         self.skills_dict = self.skill_object.skills_dict
         self.dynamic = self.Dynamic(self)
@@ -431,6 +430,7 @@ class Character:
                 if CRIT_score >= limit_score:
                     CRIT_rate = CRIT_rate_limit
                     CRIT_damage = (CRIT_score - CRIT_rate * 200) / 100
+
                 else:
                     CRIT_damage = max(0.5, CRIT_score / 200)
                     CRIT_rate = (CRIT_score / 100 - CRIT_damage) / 2
@@ -540,6 +540,7 @@ class Character:
                 self.base_sp_regen = float(row_0.get("基础能量自动回复", 0))
                 self.base_sp_get_ratio = float(row_0.get("基础能量获取效率", 1))
                 self.speicalty = row_0.get("角色特性", None)  # 角色特性，强攻、击破等
+                self.aid_type = row_0.get("支援类型", None)
                 self.element_type = row_0.get("角色属性", 0)
                 if self.element_type is None or self.element_type < 0:
                     raise NotImplementedError(f"角色{char_name}的属性类型未定义")
@@ -1025,10 +1026,13 @@ class LastingNode:
                     if not self.node.skill.do_immediately and node.skill.do_immediately:
                         pass
                     else:
-                        raise ValueError(
-                            f"过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n"
-                            f"但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！"
-                        )
+                        if "dodge" in self.node.skill_tag:
+                            pass
+                        else:
+                            raise ValueError(
+                                f"过早传入了node{node.skill_tag}，当前node{self.node.skill_tag}为{self.node.preload_tick}开始 {self.node.end_tick}结束,\n"
+                                f"但是{node.skill_tag}的企图在{tick}tick进行更新，它预计从{node.preload_tick}开始 {node.end_tick}结束！"
+                            )
 
                 if self.node.skill_tag == node.skill_tag:
                     self.is_spamming = True

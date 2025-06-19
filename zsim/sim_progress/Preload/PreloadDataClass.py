@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from sim_progress.data_struct import QuickAssistSystem
 from sim_progress.Preload import SkillNode
 from sim_progress.data_struct import NodeStack, EnemyAttackEventManager
-import types
 if TYPE_CHECKING:
     from zsim.simulator.simulator_class import Simulator
 
@@ -54,19 +53,26 @@ class PreloadData:
             """若检测到当前stack中的最新node还未结束，但是SwapCancel还是放行了，那么就说明可能发生了node的顶替，
             此时应该排除是附加伤害的可能性，因为附加伤害是可以被swapcancel轻易放行的，但是并不具备打断的效果。"""
             if not (
-                node.skill.labels is not None and "additional_damage" in node.skill.labels  # 技能拥有附加标签
+                node.skill.labels is not None
+                and "additional_damage" in node.skill.labels  # 技能拥有附加标签
+
             ):
                 self.force_change_action(node)
         if self.personal_node_stack[char_cid].is_empty():
-
             """检测角色的第一个动作抛出。"""
-            self.sim_instance.listener_manager.broadcast_event(event=node, enter_battle_event=1)
+            self.sim_instance.listener_manager.broadcast_event(
+                event=node, enter_battle_event=1
+            )
         self.personal_node_stack[char_cid].push(node)
         if node.active_generation:
             self.latest_active_generation_node = node
         if self.quick_assist_system is None:
-            self.quick_assist_system = QuickAssistSystem(self.char_data.char_obj_list, sim_instance=self.sim_instance)
+            self.quick_assist_system = QuickAssistSystem(
+                self.char_data.char_obj_list, sim_instance=self.sim_instance
+            )
         self.quick_assist_system.update(tick, node, self.load_data.all_name_order_box)
+        if self.atk_manager.attacking:
+            self.atk_manager.answered_action.append(node)
 
     def check_myself_before_push_node(self):
         """Confirm阶段自检"""
@@ -113,8 +119,15 @@ class PreloadData:
                 f"尝试用{skill_node.skill_tag}来强制替换{node_be_changed.skill_tag}，但是后者已经于{node_be_changed.end_tick}结束，这种情况不用调用强制替换方法。请检查调用逻辑。"
             )
         self.delete_mission_in_preload_data(node_be_changed)
-        if node_be_changed.skill.do_immediately:
-            raise ValueError(f"{skill_node.skill_tag}正在尝试顶替一个最高优先级的技能：{node_be_changed.skill_tag}")
+
+        if (
+            node_be_changed.skill.do_immediately
+            and "dodge" not in node_be_changed.skill_tag
+        ):
+            raise ValueError(
+                f"{skill_node.skill_tag}正在尝试顶替一个最高优先级的技能：{node_be_changed.skill_tag}"
+            )
+
 
     def delete_mission_in_preload_data(self, node_be_changed):
         """在PreloadData中强制干涉Load阶段，并且执行特定任务的删除。"""
