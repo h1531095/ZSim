@@ -49,6 +49,7 @@ class Character:
         sp_limit=120,  # 能量上限-默认120
         cinema=0,
         crit_balancing=True,  # 暴击配平开关，默认开
+        crit_rate_limit=0.95,  # 暴击率上限，默认0.95
         *,
         sim_cfg: "AttrCurveConfig | WeaponConfig | None" = None,
     ):
@@ -250,6 +251,7 @@ class Character:
         self.element_type: int
 
         self.crit_balancing: bool = crit_balancing
+        self.crit_rate_limit: float = crit_rate_limit
 
         # 初始化角色基础属性    .\data\character.csv
         self._init_base_attribute(name)
@@ -288,8 +290,9 @@ class Character:
             "chain_level": 12 + skill_level_addon,
             "assist_level": 12 + skill_level_addon,
         }
-        # 角色技能列表，还没有写修改技能等级的接口
+        
         self.statement = Character.Statement(self, crit_balancing=crit_balancing)
+        # 角色技能列表，还没有写修改技能等级的接口
         self.skill_object: Skill = Skill(name=self.NAME, CID=self.CID, **skills_level)
         self.action_list = self.skill_object.action_list 
         self.skills_dict = self.skill_object.skills_dict
@@ -315,7 +318,7 @@ class Character:
     # fmt: on
 
     class Statement:
-        def __init__(self, char_class: "Character", crit_balancing: bool):
+        def __init__(self, char: "Character", crit_balancing: bool):
             """
             -char_class : 已实例化的角色
 
@@ -337,51 +340,52 @@ class Character:
             -还是没有！这个类是被动的，不应该自己变化，需要的时候重新生成，你要强行写函数改也行（乐
             """
 
-            self.NAME = char_class.NAME
-            self.CID = char_class.CID
+            self.NAME = char.NAME
+            self.CID = char.CID
             self.ATK = (
-                char_class.baseATK * (1 + char_class.ATK_percent)
-                + char_class.ATK_numeric
-            ) * (1 + char_class.overall_ATK_percent) + char_class.overall_ATK_numeric
+                char.baseATK * (1 + char.ATK_percent)
+                + char.ATK_numeric
+            ) * (1 + char.overall_ATK_percent) + char.overall_ATK_numeric
             self.HP = (
-                char_class.baseHP * (1 + char_class.HP_percent) + char_class.HP_numeric
-            ) * (1 + char_class.overall_HP_percent) + char_class.overall_HP_numeric
+                char.baseHP * (1 + char.HP_percent) + char.HP_numeric
+            ) * (1 + char.overall_HP_percent) + char.overall_HP_numeric
             self.DEF = (
-                char_class.baseDEF * (1 + char_class.DEF_percent)
-                + char_class.DEF_numeric
-            ) * (1 + char_class.overall_DEF_percent) + char_class.overall_DEF_numeric
+                char.baseDEF * (1 + char.DEF_percent)
+                + char.DEF_numeric
+            ) * (1 + char.overall_DEF_percent) + char.overall_DEF_numeric
             self.IMP = (
-                char_class.baseIMP * (1 + char_class.IMP_percent)
-                + char_class.IMP_numeric
-            ) * (1 + char_class.overall_IMP_percent) + char_class.overall_IMP_numeric
+                char.baseIMP * (1 + char.IMP_percent)
+                + char.IMP_numeric
+            ) * (1 + char.overall_IMP_percent) + char.overall_IMP_numeric
             self.AP = (
-                char_class.baseAP * (1 + char_class.AP_percent) + char_class.AP_numeric
-            ) * (1 + char_class.overall_AP_percent) + char_class.overall_AP_numeric
+                char.baseAP * (1 + char.AP_percent) + char.AP_numeric
+            ) * (1 + char.overall_AP_percent) + char.overall_AP_numeric
             self.AM = (
-                char_class.baseAM * (1 + char_class.AM_percent) + char_class.AM_numeric
-            ) * (1 + char_class.overall_AM_percent) + char_class.overall_AM_numeric
-            # 更换balancing参数可实线不同的逻辑，默认为True，即配平逻辑
+                char.baseAM * (1 + char.AM_percent) + char.AM_numeric
+            ) * (1 + char.overall_AM_percent) + char.overall_AM_numeric
+            # 更换balancing参数可实现不同的逻辑，默认为True，即配平逻辑
             self.CRIT_damage, self.CRIT_rate = self._func_statement_CRIT(
-                char_class.baseCRIT_score,
-                char_class.CRIT_rate_numeric,
-                char_class.CRIT_damage_numeric,
+                char.baseCRIT_score,
+                char.CRIT_rate_numeric,
+                char.CRIT_damage_numeric,
+                char.crit_rate_limit,
                 balancing=crit_balancing,
             )
             self.sp_regen = (
-                char_class.base_sp_regen * (1 + char_class.sp_regen_percent)
-                + char_class.sp_regen_numeric
+                char.base_sp_regen * (1 + char.sp_regen_percent)
+                + char.sp_regen_numeric
             )
-            self.sp_get_ratio = char_class.sp_get_ratio
-            self.sp_limit = char_class.sp_limit
+            self.sp_get_ratio = char.sp_get_ratio
+            self.sp_limit = char.sp_limit
             # 储存目前能量与喧响的参数
 
-            self.PEN_ratio = char_class.PEN_ratio
-            self.PEN_numeric = char_class.PEN_numeric
-            self.ICE_DMG_bonus = char_class.ICE_DMG_bonus
-            self.FIRE_DMG_bonus = char_class.FIRE_DMG_bonus
-            self.PHY_DMG_bonus = char_class.PHY_DMG_bonus
-            self.ETHER_DMG_bonus = char_class.ETHER_DMG_bonus
-            self.ELECTRIC_DMG_bonus = char_class.ELECTRIC_DMG_bonus
+            self.PEN_ratio = char.PEN_ratio
+            self.PEN_numeric = char.PEN_numeric
+            self.ICE_DMG_bonus = char.ICE_DMG_bonus
+            self.FIRE_DMG_bonus = char.FIRE_DMG_bonus
+            self.PHY_DMG_bonus = char.PHY_DMG_bonus
+            self.ETHER_DMG_bonus = char.ETHER_DMG_bonus
+            self.ELECTRIC_DMG_bonus = char.ELECTRIC_DMG_bonus
 
             # 将当前对象 (self) 的所有非可调用（即不是方法或函数）的属性收集到一个字典中
             self.statement = {
@@ -396,8 +400,9 @@ class Character:
             CRIT_score: float,
             CRIT_rate_numeric: float,
             CRIT_damage_numeric: float,
-            balancing,
-        ) -> tuple:
+            CRIT_rate_limit: float,
+            balancing: bool,
+        ) -> tuple[float, float]:
             """
             双暴状态函数
             balancing : 是否使用配平逻辑
@@ -418,11 +423,14 @@ class Character:
                 raise ValueError("CRIT_rate_numeric must be above 0")
             if not (0 <= CRIT_damage_numeric):
                 raise ValueError("CRIT_damage_numeric must be above 0")
+            if not (0 <= CRIT_rate_limit <= 1):
+                raise ValueError("CRIT_rate_limit must be between 0 and 1")
 
             if balancing:
-                if CRIT_score >= 400:
-                    CRIT_rate = 1.0
-                    CRIT_damage = (CRIT_score - 200) / 2
+                limit_score: float = CRIT_rate_limit * 400
+                if CRIT_score >= limit_score:
+                    CRIT_rate = CRIT_rate_limit
+                    CRIT_damage = (CRIT_score - CRIT_rate * 200) / 100
                 else:
                     CRIT_damage = max(0.5, CRIT_score / 200)
                     CRIT_rate = (CRIT_score / 100 - CRIT_damage) / 2
@@ -814,7 +822,7 @@ class Character:
                 3: "ELECTRIC_DMG_bonus",
                 4: "ETHER_DMG_bonus",
                 5: "ICE_DMG_bonus",  # 烈霜也是冰
-                6: "ETHER_DMG_bonus"  # 玄墨也是以太
+                6: "ETHER_DMG_bonus",  # 玄墨也是以太
             }
             setattr(
                 self,

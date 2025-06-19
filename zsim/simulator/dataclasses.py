@@ -9,7 +9,6 @@ from sim_progress.data_struct import ActionStack
 from sim_progress.Enemy import Enemy
 
 from .config_classes import SimulationConfig as SimCfg
-import types
 if TYPE_CHECKING:
     from .simulator_class import Simulator
 

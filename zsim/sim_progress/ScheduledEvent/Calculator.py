@@ -624,7 +624,7 @@ class Calculator:
                 else:
                     if data.dynamic.field_sheer_atk_percentage != 0:
                         raise ValueError(
-                            f"警告！检测到非0的“局内贯穿力%Buff”，该效果目前还无法处理，请注意检查buff_effect"
+                            "警告！检测到非0的“局内贯穿力%Buff”，该效果目前还无法处理，请注意检查buff_effect"
                         )
                     current_sheer_atk = base_sheer_atk + data.dynamic.sheer_atk
                     attr = current_sheer_atk
@@ -728,7 +728,7 @@ class Calculator:
                 + data.dynamic.field_crit_rate
                 + data.dynamic.crit_rate_received_increase
             )
-            return min(crit_rate, 1)
+            return crit_rate
 
         @staticmethod
         def cal_personal_crit_rate(data: MultiplierData) -> float:
@@ -763,7 +763,7 @@ class Calculator:
                 + buff_crit_dmg_bonus
                 + data.dynamic.received_crit_dmg_bonus
             )
-            return crit_dmg
+            return min(5, crit_dmg)
 
         def cal_crit_expect(self, data: MultiplierData) -> float:
             """暴击期望 = 1 + 暴击率 * 暴击伤害"""
@@ -772,10 +772,12 @@ class Calculator:
                 and data.char_instance.crit_balancing
                 and self.crit_rate > 1
             ):
+                # 目前不使用溢出补偿
+                return 1 + min(1, self.crit_rate) * self.crit_dmg
                 # 配平算法下的暴击溢出补偿，为了解决配平仅能适配静态面板的问题
-                return 1 + ((self.crit_rate - 1) * 2 + self.crit_dmg)
+                # return 1 + ((self.crit_rate - 1) * 2 + self.crit_dmg)
             else:
-                return 1 + self.crit_rate * self.crit_dmg
+                return 1 + min(1, self.crit_rate) * self.crit_dmg
 
         @staticmethod
         def cal_personal_crit_dmg(data: MultiplierData) -> float:
