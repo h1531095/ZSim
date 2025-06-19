@@ -22,19 +22,24 @@ class AttackResponseEngine(BasePreloadEngine):
         self.sim_instance: "Simulator | None" = sim_instance
 
     def run_myself(self, tick: int, *args, **kwargs) -> None:
+
         if self.data.atk_manager is None:
             self.data.atk_manager = EnemyAttackEventManager(
                 enemy_instance=self.sim_instance.schedule_data.enemy
             )
+
         self.data.atk_manager.end_check(tick=tick)
+
         enemy_attack_action: "EnemyAttackAction | None" = self.try_spawn_enemy_attack()
         if enemy_attack_action is not None:
             # 将进攻信号发送给PreloadData。
             self.data.atk_manager.event_start(
                 action=enemy_attack_action, start_tick=self.sim_instance.tick
             )
+
         """每次运行，都要让atk_manager自检一次，以更新状态。"""
         self.data.atk_manager.check_myself(tick=tick)
+
 
     def try_spawn_enemy_attack(self) -> "EnemyAttackAction":
         """调用Enemy对象下的进攻模组，并且生成一次攻击，同时打包成事件存入本地"""

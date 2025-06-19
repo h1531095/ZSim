@@ -13,6 +13,7 @@ class EnemyAttackEventManager:
         """进攻事件对象，负责管理敌人进攻的相关动态信息。"""
         self.enemy: "Enemy" = enemy_instance
         self.action: "None | EnemyAttackAction" = None
+
         self.last_start_tick: int = 0  # 进攻事件的开始时刻，也是进攻意图的展露时刻。
         self.last_end_tick: int = 0
         self.answered_action: list["SkillNode"] = []
@@ -22,6 +23,7 @@ class EnemyAttackEventManager:
         self.interaction_window_close_tick: int | None = (
             None  # 交互窗口关闭的tick，即游戏中动作命中的时间点
         )
+
         self.hitted_count = 0  # 交互期间的命中计数
         self.answered_count = 0  # 交互期间的成功响应次数
 
@@ -42,6 +44,7 @@ class EnemyAttackEventManager:
         """结束一个进攻事件"""
         if self.action is None:
             raise ValueError("没有正在进行的进攻事件，无法结束！")
+
         # self.response_result_settlement()
         if tick is not None:
             self.last_end_tick = tick
@@ -49,6 +52,7 @@ class EnemyAttackEventManager:
         self.answered_action = []
         self.hitted_count = 0
         self.answered_count = 0
+
 
     def interrupted(self, tick: int):
         """中断当前进攻事件"""
@@ -58,6 +62,7 @@ class EnemyAttackEventManager:
             f"敌人（{self.enemy.name}）的进攻事件：{self.action.tag}在第{tick}tick被中断！"
         ) if ENEMY_ATTACK_REPORT else None
         self.event_end(tick=tick)
+
 
     def end_check(self, tick: int):
         """检测当前进攻事件是否已经结束"""
@@ -99,15 +104,18 @@ class EnemyAttackEventManager:
             return True
         return False
 
+
     def get_rt(self) -> int:
         """获取玩家反应时间（RT），即玩家从看到敌人进攻到做出反应的时间。"""
         theta = ENEMY_ATK_PARAMETER_DICT.get("theta", None)
         if theta is None:
             raise ValueError("ENEMY_ATK_PARAMETER_DICT中没有theta参数，请检查配置！")
+
         Lp = ENEMY_ATK_PARAMETER_DICT.get("PlayerLevel", None)
         if Lp is None:
             raise ValueError(
                 "ENEMY_ATK_PARAMETER_DICT中没有PlayerLevel参数，请检查配置！"
+
             )
         c = ENEMY_ATK_PARAMETER_DICT.get("c", None)
         if c is None:
@@ -121,23 +129,28 @@ class EnemyAttackEventManager:
         sigma = c / (Lp**0.3)  # 计算方差
         Ta = Tbase + delta * (3 - Lp)  # 根据玩家水平计算对应中位数
         mu = math.log(Ta - theta) - sigma**2 / 2  # 计算均值
+
         Z = abs(
             self.enemy.sim_instance.rng_instance.normal_from_table()
         )  # 从RNG模块按正态分布获取一个0~1的随机数。
         RT = theta + math.e ** (mu + sigma * Z)
         rt_tick = round(RT / 1000 * 60)  # 将毫秒转化为帧（tick）
 
+
         return rt_tick
 
     def get_response_window(self) -> tuple[int, int]:
         """获取红黄光亮起的时间点"""
+
         first_hit_tick = self.action.get_hit_tick() + self.last_start_tick
+
         Ta = ENEMY_ATK_PARAMETER_DICT.get("Taction")
         left_bound = max(
             self.last_start_tick, first_hit_tick - Ta
         )  # 如果怪物前摇很短，动作时间也很短，那么怪物攻击动作开始的时间就是黄光亮起的时间。
         right_bound = first_hit_tick
         return left_bound, right_bound
+
 
     def get_uncommon_response_window(self, another_ta: int) -> tuple[int, int]:
         """获取红黄光亮起的时间点，适用于非标准的进攻动作"""
@@ -294,5 +307,6 @@ class EnemyAttackEventManager:
                 sim_instance.preload.preload_data.external_add_skill(skill_tuple=(f"{char_on_field}_interrupted", True, tick))
 
         self.hitted_count += 1
+
 
         

@@ -23,8 +23,10 @@ class APLOperator:
         self.leagal_apl_type_list = [
             "action+=",
             "action.no_swap_cancel+=",
+
             "action.atk_response_positive+=",
             "action.atk_response_balance+=",
+
         ]
         self.sim_instance = simulator_instance
         from sim_progress.Preload.apl_unit.APLUnit import APLUnit
@@ -47,6 +49,7 @@ class APLOperator:
             raise ValueError(
                 "在进攻响应模式下，不能调用spawn_next_action_in_common_mode方法！"
             )
+
         for priority, apl_unit in self.apl_unit_inventory.items():
             from sim_progress.Preload.apl_unit.ActionAPLUnit import ActionAPLUnit
             from sim_progress.Preload.apl_unit.AtkResponseAPLUnit import (
@@ -128,6 +131,7 @@ class APLOperator:
             return AtkResponseAPLUnit(
                 apl_unit_dict=apl_unit_dict, sim_instance=self.sim_instance
             )
+
         elif all(
             code_str in apl_unit_dict["type"]
             for code_str in ["a", "c", "t", "i", "o", "n"]

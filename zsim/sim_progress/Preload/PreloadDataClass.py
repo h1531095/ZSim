@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from sim_progress.data_struct import QuickAssistSystem
 from sim_progress.Preload import SkillNode
 from sim_progress.data_struct import NodeStack, EnemyAttackEventManager
-
 if TYPE_CHECKING:
     from zsim.simulator.simulator_class import Simulator
 
@@ -56,6 +55,7 @@ class PreloadData:
             if not (
                 node.skill.labels is not None
                 and "additional_damage" in node.skill.labels  # 技能拥有附加标签
+
             ):
                 self.force_change_action(node)
         if self.personal_node_stack[char_cid].is_empty():
@@ -119,6 +119,7 @@ class PreloadData:
                 f"尝试用{skill_node.skill_tag}来强制替换{node_be_changed.skill_tag}，但是后者已经于{node_be_changed.end_tick}结束，这种情况不用调用强制替换方法。请检查调用逻辑。"
             )
         self.delete_mission_in_preload_data(node_be_changed)
+
         if (
             node_be_changed.skill.do_immediately
             and "dodge" not in node_be_changed.skill_tag
@@ -126,6 +127,7 @@ class PreloadData:
             raise ValueError(
                 f"{skill_node.skill_tag}正在尝试顶替一个最高优先级的技能：{node_be_changed.skill_tag}"
             )
+
 
     def delete_mission_in_preload_data(self, node_be_changed):
         """在PreloadData中强制干涉Load阶段，并且执行特定任务的删除。"""

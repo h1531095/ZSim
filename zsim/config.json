@@ -4,6 +4,7 @@
         "level": 4
     },
     "stop_tick": 10800,
+
     "watchdog": {
         "enabled": false,
         "level": 4
@@ -25,7 +26,8 @@
         "enemy_attack_response": false,
         "enemy_attack_method_config": "./zsim/data/enemy_attack_method.csv",
         "enemy_attack_action_data": "./zsim/data/enemy_attack_action.csv",
-        "enemy_attack_report": false,
+        "enemy_attack_report": true,
+
         "player_level": 5,
         "default_apl_dir": "./zsim/data/APLData",
         "custom_apl_dir": "./zsim/data/APLData/custom",
@@ -38,6 +40,7 @@
         "lag_time": 20,
         "debug": false,
         "debug_target_skill": "1371_CA"
+
     },
     "database": {
         "CHARACTER_DATA_PATH": "./zsim/data/character.csv",
@@ -78,6 +81,7 @@
         "AstraYao": false,
         "Hugo": false,
         "Yixuan": true,
+
         "Trigger": false
     },
     "na_mode_level": {
@@ -89,7 +93,8 @@
         "adjust_sc": {
             "enabled": true,
             "sc_range": [
-                35,
+                30,
+
                 42
             ],
             "sc_list": [

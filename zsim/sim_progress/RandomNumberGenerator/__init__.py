@@ -78,6 +78,7 @@ class RNG:
 
     def normal_from_table(self) -> float:
         """生成正态分布的随机数，使用预先生成的正态分布表"""
+
         if not hasattr(self, "normal_table") or self.normal_table is None:
             self.normal_table = np.random.normal(
                 loc=0, scale=1, size=self.NORMAL_TABLE_SIZE

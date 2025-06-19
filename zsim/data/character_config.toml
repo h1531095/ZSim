@@ -1,5 +1,6 @@
 name_box = ["仪玄", "扳机", "耀嘉音", ]
 
+
 ["露西"]
 name = "露西"
 weapon = "好斗的阿炮"
@@ -75,6 +76,7 @@ weapon = "索魂影眸"
 weapon_level = 1
 cinema = 0
 crit_balancing = false
+crit_rate_limit = 0.95
 scATK_percent = 8
 scATK = 0
 scHP_percent = 0
@@ -189,7 +191,10 @@ name = "耀嘉音"
 weapon = "玲珑妆匣"
 weapon_level = 1
 cinema = 0
-crit_balancing = true
+
+crit_balancing = false
+crit_rate_limit = 0.95
+
 scATK_percent = 15
 scATK = 0
 scHP_percent = 0
@@ -328,16 +333,19 @@ weapon = "青溟笼舍"
 weapon_level = 1
 cinema = 0
 crit_balancing = true
+crit_rate_limit = 0.68
+
 scATK_percent = 0
 scATK = 0
-scHP_percent = 0
+scHP_percent = 10
 scHP = 0
 scDEF_percent = 0
 scDEF = 0
 scAnomalyProficiency = 0
 scPEN = 0
-scCRIT = 40
-scCRIT_DMG = 0
+scCRIT = 10
+scCRIT_DMG = 15
+
 drive4 = "暴击率%"
 drive5 = "以太属性伤害%"
 drive6 = "生命值%"

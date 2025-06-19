@@ -58,7 +58,7 @@ def _init_skill_tag_mapping() -> dict[str, str]:
     try:
         df = pl.scan_csv(
             "./zsim/data/skill.csv",
-            schema_overrides={"skill_tag": str, "skill_text": str, "INSTRUCTION": str},
+            schema_overrides={"skill_tag": pl.String, "skill_text": pl.String, "INSTRUCTION": pl.String},
         )
         mapping = (
             df.select("skill_tag", "skill_text", "INSTRUCTION")
@@ -80,7 +80,7 @@ SKILL_TAG_MAPPING: dict[str, str] = _init_skill_tag_mapping()
 
 
 @st.cache_data
-def _init_char_mapping() -> dict[str, dict[str, str | int]]:
+def _init_char_mapping() -> dict[str, str]:
     """初始化角色CID和名称的映射关系"""
     try:
         df = pl.scan_csv("./zsim/data/character.csv")
@@ -90,8 +90,8 @@ def _init_char_mapping() -> dict[str, dict[str, str | int]]:
         print(f"Warning: Failed to load character mapping: {e}")
         return {}
 
-
-CHAR_CID_MAPPING: dict[str, dict[str, str | int]] = _init_char_mapping()
+# 角色CID和名称的映射关系
+CHAR_CID_MAPPING: dict[str, str] = _init_char_mapping()
 
 # 角色配置常量
 default_chars = [
@@ -192,13 +192,14 @@ ID_CACHE_JSON = "./results/id_cache.json"
 results_dir = "./results"
 
 # 六元素翻译对应表
-element_mapping: dict[ElementType | str] = {
+element_mapping: dict[ElementType, str] = {
     0: "物理",
     1: "火",
     2: "冰",
     3: "电",
     4: "以太",
     5: "烈霜",
+    6: "玄墨",
 }
 
 

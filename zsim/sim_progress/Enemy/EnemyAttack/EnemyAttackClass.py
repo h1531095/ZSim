@@ -177,6 +177,21 @@ class EnemyAttackAction:
     def __str__(self):
         return f"进攻动作ID：{self.id}, 技能Tag：{self.tag}，动作耗时：{self.duration}，单次动作的冷却时间：{self.cd}"
 
+    def get_first_hit(self) -> int:
+        """获取第一个命中点"""
+        if not self.hit_list:
+            raise ValueError("hit_list为空，无法获取第一个命中点！")
+        first_hit_tick = self.hit_list[0]
+        Ta = ENEMY_ATK_PARAMETER_DICT.get("Taction")
+        if first_hit_tick < Ta:
+            raise ValueError(
+                f"{self.tag}的第一个命中点({first_hit_tick})小于相应动作持续时间({Ta})，请检查数据库！"
+            )
+        return self.hit_list[0]
+
+    def __str__(self):
+        return f"进攻动作ID：{self.id}, 技能Tag：{self.tag}，动作耗时：{self.duration}，单次动作的冷却时间：{self.cd}"
+
 
 if __name__ == "__main__":
     method = EnemyAttackMethod()

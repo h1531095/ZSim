@@ -330,9 +330,11 @@ class ScheduledEvent:
             dmg_expect=dmg_expect,
             dmg_crit=dmg_crit,
             hitted_count=hitted_count,
+
             proactive=_event.active_generation
             if isinstance(_event, SkillNode)
             else _event.mission_node.active_generation,
+
         )
         hit_result.skill_node = event
         if event.skill.follow_by:
