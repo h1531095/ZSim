@@ -1,3 +1,4 @@
+from polars import col
 import streamlit as st
 import toml
 
@@ -11,9 +12,9 @@ def page_character_config():
         default_chars = saved_char_config["name_box"]
     from lib_webui.constants import (
         char_options,
-        weapon_options,
-        equip_set4_options,
         equip_set2_options,
+        equip_set4_options,
+        weapon_options,
     )
 
     col1, col2, col3 = st.columns(3)
@@ -284,19 +285,35 @@ def page_character_config():
                     else 0,
                     key=f"{name}_scPEN",
                 )
-            st.checkbox(
-                "使用暴击配平算法",
-                value=saved_char_config[name]["crit_balancing"]
-                if name in saved_char_config
-                else False,
-                key=f"{name}_crit_balancing",
-            )
+            col1, col2 = st.columns(2)
+            with col1:
+                crit_balancing: bool = st.checkbox(
+                    "使用暴击配平算法",
+                    value=saved_char_config[name]["crit_balancing"]
+                    if name in saved_char_config
+                    else False,
+                    key=f"{name}_crit_balancing",
+                )
+                if st.session_state.get(f"{name}_crit_rate_limit") is None:
+                    st.session_state[f"{name}_crit_rate_limit"] = saved_char_config[
+                        name
+                    ].get("crit_rate_limit", 0.95)
+                if crit_balancing:
+                    st.number_input(
+                        "暴击率上限",
+                        min_value=0.0,
+                        max_value=1.0,
+                        value=st.session_state[f"{name}_crit_rate_limit"],
+                        key=f"{name}_crit_rate_limit",
+                        help="配平算法会将角色局外面板的暴击率限制在此值以下，适用于会吃到暴击率buff的情况，以防止溢出",
+                    )
         char_config = {
             "name": name,
             "weapon": st.session_state[f"{name}_weapon"],
             "weapon_level": st.session_state[f"{name}_weapon_level"],
             "cinema": st.session_state[f"{name}_cinema_level"],
             "crit_balancing": st.session_state[f"{name}_crit_balancing"],
+            "crit_rate_limit": st.session_state[f"{name}_crit_rate_limit"],
             "scATK_percent": st.session_state[f"{name}_scATK_percent"],
             "scATK": st.session_state[f"{name}_scATK"],
             "scHP_percent": st.session_state[f"{name}_scHP_percent"],

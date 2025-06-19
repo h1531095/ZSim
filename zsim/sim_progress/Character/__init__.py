@@ -50,6 +50,7 @@ def character_factory(
     sp_limit=120,  # 能量上限-默认120
     cinema=0,
     crit_balancing=True,  # 暴击配平开关，默认开
+    crit_rate_limit=0.95,  # 暴击率上限，默认0.95
     *,
     sim_cfg=None,
 ) -> Character:
@@ -80,6 +81,7 @@ def character_factory(
         "sp_limit": sp_limit,
         "cinema": cinema,
         "crit_balancing": crit_balancing,
+        "crit_rate_limit": crit_rate_limit,
         "sim_cfg": sim_cfg,
     }
     if name in __char_module_map:
