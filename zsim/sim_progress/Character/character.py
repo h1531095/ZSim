@@ -532,6 +532,7 @@ class Character:
                 self.base_sp_regen = float(row_0.get("基础能量自动回复", 0))
                 self.base_sp_get_ratio = float(row_0.get("基础能量获取效率", 1))
                 self.speicalty = row_0.get("角色特性", None)  # 角色特性，强攻、击破等
+                self.aid_type = row_0.get("支援类型", None)
                 self.element_type = row_0.get("角色属性", 0)
                 if self.element_type is None or self.element_type < 0:
                     raise NotImplementedError(f"角色{char_name}的属性类型未定义")

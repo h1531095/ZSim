@@ -126,9 +126,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         if char_latest_node.end_tick > tick:
             """如果该node是闪避，则直接放行——闪避是可以被自己的技能合轴、顶替的。"""
             if "dodge" in char_latest_node.skill_tag:
-                print(
-                    f"{apl_skill_node.char_name}的技能{apl_skill_node.skill_tag}企图取消自己的闪避技能！"
-                ) if SWAP_CANCEL_MODE_DEBUG else None
+                # print(
+                #     f"{apl_skill_node.char_name}的技能{apl_skill_node.skill_tag}企图取消自己的闪避技能！"
+                # ) if SWAP_CANCEL_MODE_DEBUG else None
                 return True
             """正在进行的技能并非立即执行类型，而新的技能是立即执行类型，则放行"""
             if (

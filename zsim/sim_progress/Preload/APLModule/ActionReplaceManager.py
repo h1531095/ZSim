@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from sim_progress.Preload.PreloadDataClass import PreloadData
+    from sim_progress.Character.character import Character
+    from sim_progress.data_struct import EnemyAttackEventManager
 
 
 class ActionReplaceManager:
@@ -15,6 +17,7 @@ class ActionReplaceManager:
     def __init__(self, preload_data):
         self.preload_data: "PreloadData" = preload_data
         self.quick_assist_strategy = self.QuickAssistStrategy(self.preload_data)
+        self.parry_aid_strategy = None
 
     def action_replace_factory(
         self, CID: int, action: str, tick: int
@@ -22,24 +25,27 @@ class ActionReplaceManager:
         """该函数主要用于拦截APL的主动动作，使其被其他动作替代，用来模拟各种特殊情况"""
         """如果目前正处于黄光阶段（窗口期），那么此时的所有切人动作都会被无条件换成格挡"""
         atk_manager = self.preload_data.atk_manager
-        if "耀嘉音" in self.preload_data.sim_instance.init_data.name_box:
-            pass
-        else:
-            if atk_manager.is_in_response_window(tick=tick):
-                if atk_manager.action.blockable_check(tick=tick):
-                    action = atk_manager.replace_tag_to_parry()
-                    return True, action
-
-            if self.quick_assist_strategy.condition_judge(
-                CID=CID, action=action, tick=tick
-            ):
-                action = self.quick_assist_strategy.spawn_new_action(CID, action)
-                return True, action
-            return False, action
+        if self.quick_assist_strategy.condition_judge(
+            CID=CID, action=action, tick=tick
+        ):
+            action = self.quick_assist_strategy.spawn_new_action(CID, action)
+            return True, action
+        return False, action
+        # if "耀嘉音" in self.preload_data.sim_instance.init_data.name_box:
+        #     pass
+        # else:
+        #     # TODO: 连续格挡的动作替换逻辑
+        #
+        #     if self.quick_assist_strategy.condition_judge(
+        #         CID=CID, action=action, tick=tick
+        #     ):
+        #         action = self.quick_assist_strategy.spawn_new_action(CID, action)
+        #         return True, action
+        #     return False, action
 
     class __BaseStrategy(ABC):
         def __init__(self, preload_data):
-            self.preload_data = preload_data
+            self.preload_data: "PreloadData" = preload_data
 
         @abstractmethod
         def condition_judge(self, *args, **kwargs):
@@ -54,15 +60,14 @@ class ActionReplaceManager:
             super().__init__(preload_data)
             self.manager_box = {}
 
-        def condition_judge(self, *args, **kwargs) -> bool:
+        def condition_judge(
+            self, CID: int, tick: int, action: str, *args, **kwargs
+        ) -> bool:
             """
             该函数用于判定当前tick的动作是否需要被替换成快速支援：条件如下：
             1、当前角色快速支援亮起
             2、当前角色企图从后台切到前台
             """
-            CID = kwargs.get("CID", None)
-            tick = kwargs.get("tick", None)
-            action = kwargs.get("action", None)
             if CID is None or action is None:
                 raise ValueError("CID或action为空！")
             if self.preload_data.quick_assist_system is None:
@@ -107,4 +112,47 @@ class ActionReplaceManager:
                     # print(f'执行快速支援！技能{action}替换成了{manager.quick_assist_skill}！')
                     return manager.quick_assist_skill
             else:
-                raise ValueError(f"没有找到CID为{CID}的技能对象！无法执行快速支援替换！")
+                raise ValueError(
+                    f"没有找到CID为{CID}的技能对象！无法执行快速支援替换！"
+                )
+
+    class ParryAidStrategy(__BaseStrategy):
+        def __init__(self, preload_data):
+            super().__init__(preload_data)
+            self.consecutive_parry_mode: bool = False  # 连续招架模式
+            self.parry_interaction_in_progress: bool = False  # 当前轮次招架交互正在进行
+            self.parry_tag: str | None = None  # 当前轮次招架交互的招架技能标签。
+
+        def condition_judge(
+            self, CID: int, tick: int, action: str, *args, **kwargs
+        ) -> bool:
+            """
+            用来判断当前tick的动作是否要被换成招架，核心条件有两个
+            1、有角色试图从后台切到前台
+            2、该角色是近战角色，具有招架支援能力
+            3、敌方正处于进攻状态，并且存在有效交互窗口。
+            """
+            char_switch: bool
+            char_on_field: int | None = self.preload_data.operating_now
+            char_obj: "Character" = self.preload_data.char_data.find_char_obj(CID=CID)
+            atk_manager: "EnemyAttackEventManager" = self.preload_data.atk_manager
+            if char_on_field is None:
+                """第一个动作，也会被视为从后台切入前台"""
+                char_switch = True
+            else:
+                if char_on_field == CID:
+                    char_switch = False
+                else:
+                    char_switch = True
+            if not char_switch:
+                return False
+            if char_obj.aid_type != "招架":
+                # TODO：暂时不支持回避支援。
+                return False
+            return True
+
+
+
+        def spawn_new_action(self, *args, **kwargs):
+            pass
+        

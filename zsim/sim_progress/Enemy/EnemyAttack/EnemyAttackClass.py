@@ -143,11 +143,7 @@ class EnemyAttackAction:
             )
         else:
             self.hit_list = ast.literal_eval(hit_list_str)
-        blockable_list_str = self.action_dict.get("blockable_list", None)
-        if blockable_list_str is None or blockable_list_str is np.nan:
-            self.blockable_list = [True] * self.hit
-        else:
-            self.blockable_list = ast.literal_eval(blockable_list_str)
+        self.parryable = bool(self.action_dict.get("blockable", True))  # 是否可以招架
         self.interruption_level_list = self.action_dict.get(
             "interruption_level_list", None
         )
@@ -160,7 +156,7 @@ class EnemyAttackAction:
             self.interruption_level_list = self.interruption_level_list.split("|")
         self.effect_radius_list = self.action_dict.get("effect_radius_list", None)
         # TODO：暂时不考虑由技能范围不同而对命中率造成的影响，统一按照100%命中来处理，
-        self.stoppable = self.action_dict.get("stoppable", False)
+        self.stoppable = self.action_dict.get("stoppable", True)
 
     def get_hit_tick(self, another_ta: int = None, hit_count: int = 1) -> int:
         """获取命中时间，"""
