@@ -160,7 +160,6 @@ class ActionReplaceManager:
                     """若攻击事件已经被响应过，但还是需要判断自身是否处于“连续招架状态”"""
                     if self.consecutive_parry_mode:
                         return True
-
             return False
 
         def spawn_new_action(self, CID: int, action: str, *args, **kwargs):
