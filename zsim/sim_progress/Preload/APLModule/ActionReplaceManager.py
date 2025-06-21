@@ -17,7 +17,7 @@ class ActionReplaceManager:
     def __init__(self, preload_data):
         self.preload_data: "PreloadData" = preload_data
         self.quick_assist_strategy = self.QuickAssistStrategy(self.preload_data)
-        self.parry_aid_strategy = None
+        self.parry_aid_strategy = self.ParryAidStrategy(self.preload_data)
 
     def action_replace_factory(
         self, CID: int, action: str, tick: int
@@ -120,6 +120,8 @@ class ActionReplaceManager:
                 )
 
     class ParryAidStrategy(__BaseStrategy):
+        """负责将技能tag替换成各类招架支援的结构"""
+
         def __init__(self, preload_data):
             super().__init__(preload_data)
             self.consecutive_parry_mode: bool = False  # 连续招架模式
@@ -130,7 +132,7 @@ class ActionReplaceManager:
             self, CID: int, tick: int, action: str, *args, **kwargs
         ) -> bool:
             """
-            用来判断当前tick的动作是否要被换成招架，核心条件有两个
+            用来判断当前tick的动作是否要被换成招架（前置条件判断），核心条件有：
             1、有角色试图从后台切到前台
             2、该角色是近战角色，具有招架支援能力
             3、敌方正处于进攻状态，并且存在有效交互窗口。
@@ -153,13 +155,8 @@ class ActionReplaceManager:
                 # TODO：暂时不支持回避支援。
                 return False
             if atk_manager.attacking and atk_manager.action.parryable:
-                if not atk_manager.is_answered:
-                    """如果此时攻击事件尚未被响应过，那么直接放行"""
-                    return True
-                else:
-                    """若攻击事件已经被响应过，但还是需要判断自身是否处于“连续招架状态”"""
-                    if self.consecutive_parry_mode:
-                        return True
+                """注意，这里不需要对细节进行判断，只要当前tick正处于进攻交互事件期间，该结构直接放行。"""
+                return True
             return False
 
         def spawn_new_action(self, CID: int, action: str, *args, **kwargs):
