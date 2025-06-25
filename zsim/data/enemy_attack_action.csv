@@ -4,3 +4,4 @@ ID,tag,description,hit,duration,cd,hit_list,blockable,interruption_level_list,ef
 2,default_enemy_attack_mode_b,默认平A模式：2次攻击,2,90,500,"[30,70]",True,,,True,Chain
 3,default_enemy_attack_mode_c,默认平A模式：3次攻击,3,150,700,"[30, 70, 110]",True,,,True,Chain
 4,default_enemy_attack_mode_d,默认平A模式：1次重攻击,1,60,300,[30],True,,,True,Heavy
+5,default_enemy_attack_mode_e,默认平A模式：5次连续攻击,5,250,900,"[30,80,130,180,230]",True,,,True,Chain

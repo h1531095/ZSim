@@ -7,7 +7,7 @@ from sim_progress.anomaly_bar import (
     ElectricAnomaly,
     EtherAnomaly,
     FrostAnomaly,
-    AuricInkAnomaly
+    AuricInkAnomaly,
 )
 import numpy as np
 import pandas as pd
@@ -19,6 +19,7 @@ from zsim.sim_progress.anomaly_bar.AnomalyBarClass import AnomalyBar
 from .EnemyAttack import EnemyAttackMethod
 from .EnemyUniqueMechanic import unique_mechanic_factory
 from .QTEManager import QTEManager
+
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
 
@@ -149,7 +150,7 @@ class Enemy:
             3: self.ELECTRIC_anomaly_resistance,
             4: self.ETHER_anomaly_resistance,
             5: self.ICE_anomaly_resistance,
-            6: self.ETHER_anomaly_resistance
+            6: self.ETHER_anomaly_resistance,
         }
         self.stun_resistance_dict: dict[int, float] = {
             0: self.PHY_stun_resistance,
@@ -158,7 +159,7 @@ class Enemy:
             3: self.ELECTRIC_stun_resistance,
             4: self.ETHER_stun_resistance,
             5: self.ICE_stun_resistance,
-            6: self.ETHER_stun_resistance
+            6: self.ETHER_stun_resistance,
         }
 
         # 初始化敌人设置
@@ -173,7 +174,7 @@ class Enemy:
             3: "ELECTRIC",
             4: "ETHER",
             5: "FIREICE",
-            6: "AURICINK"
+            6: "AURICINK",
         }
         self.trans_anomaly_effect_to_str = {
             0: "assault",
@@ -182,7 +183,7 @@ class Enemy:
             3: "shock",
             4: "corruption",
             5: "frost_frostbite",
-            6: "auricink_corruption"
+            6: "auricink_corruption",
         }
 
         # enemy实例化的时候，6种异常积蓄条也随着一起实例化
@@ -209,7 +210,7 @@ class Enemy:
             3: self.electric_anomaly_bar,
             4: self.ether_anomaly_bar,
             5: self.frost_anomaly_bar,
-            6: self.auricink_anomaly_bar
+            6: self.auricink_anomaly_bar,
         }
         # 在初始化阶段更新属性异常条最大值。
         for element_type in self.anomaly_bars_dict:
@@ -223,7 +224,9 @@ class Enemy:
             attack_method_code = 0
         else:
             attack_method_code = int(self.data_dict["进攻策略"])
-        self.attack_method = EnemyAttackMethod(ID=attack_method_code, enemy_instance=self)
+        self.attack_method = EnemyAttackMethod(
+            ID=attack_method_code, enemy_instance=self
+        )
         self.restore_stun()
 
         self.unique_machanic_manager = unique_mechanic_factory(self)  # 特殊机制管理器
@@ -490,6 +493,9 @@ class Enemy:
 
         # 更新连携管理器
         self.qte_manager.receive_hit(single_hit)
+        self.sim_instance.preload.preload_data.atk_manager.receive_single_hit(
+            single_hit=single_hit, tick=tick
+        )
 
     # 遥远的需求：
     #  TODO：实时DPS的计算，以及预估战斗结束时间，用于进一步优化APL。（例：若目标预计死亡时间<5秒，则不补buff）
@@ -554,8 +560,16 @@ class Enemy:
             self.dynamic.stun_bar = 0  # 避免 log 差错
             self.dynamic.stun_update_tick = _tick
             if single_hit:
-                self.sim_instance.decibel_manager.update(single_hit=single_hit, key="stun")
-                self.sim_instance.listener_manager.broadcast_event(single_hit, stun_event=1)
+                self.sim_instance.decibel_manager.update(
+                    single_hit=single_hit, key="stun"
+                )
+                self.sim_instance.listener_manager.broadcast_event(
+                    single_hit, stun_event=1
+                )
+            if self.sim_instance.preload.preload_data.atk_manager.attacking:
+                self.sim_instance.preload.preload_data.atk_manager.interrupted(
+                    tick=_tick, reason="被打进失衡"
+                )
 
         return self.dynamic.stun
 
@@ -654,7 +668,7 @@ class Enemy:
                 "灼烧": self.burn,
                 "侵蚀": self.corruption,
                 "烈霜霜寒": self.frost_frostbite,
-                "玄墨侵蚀": self.auricink_corruption
+                "玄墨侵蚀": self.auricink_corruption,
             }
 
         def reset_myself(self):

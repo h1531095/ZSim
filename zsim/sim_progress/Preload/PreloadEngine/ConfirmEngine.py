@@ -104,7 +104,6 @@ class ConfirmEngine(BasePreloadEngine):
             char: "Character"
             if name_box[0] == char.NAME:
                 if name_box[0] != old_name_box[0]:
-
                     """在更新name_box的时候，将切人事件对所有监听器进行广播。"""
                     self.data.sim_instance.listener_manager.broadcast_event(
                         char, switching_in_event=1

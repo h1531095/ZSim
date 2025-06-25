@@ -42,7 +42,9 @@ class EnemyAttackMethod:
             self.attack_skill_tag = None
         elif ENEMY_REGULAR_ATTACK:
             self.random_attack = False
-            self.attack_skill_tag = "default_enemy_attack_mode_a"
+            self.attack_skill_tag = EnemyAttackAction(
+                ID=int(method_file.loc[ID]["action_set"])
+            ).tag
 
         self.last_start_tick = 0
         self.last_end_tick = 0

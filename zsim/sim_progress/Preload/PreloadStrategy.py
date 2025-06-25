@@ -48,10 +48,8 @@ class SwapCancelStrategy(BasePreloadStrategy):
         # 0、自检
         self.check_myself(enemy, tick)
 
-
         # 0.5、 EnemyAttack结构运行一次
         self.attack_response_engine.run_myself(tick=tick)
-
 
         # 1、APL引擎抛出本tick的主动动作
         apl_skill_node = self.apl_engine.run_myself(tick)

@@ -59,7 +59,7 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         self.active_signal = False
         """若当前APL动作为等待，那么直接返回False，不做任何操作。"""
         if self._validate_wait_event(apl_skill_tag=skill_tag):
-            self._swap_cancel_debug_print(mode=1)
+            self._swap_cancel_debug_print(mode=0, skill_tag=skill_tag)
             return False
 
         """检测对应角色是否有空——当前tick是否存在未完成动作"""
@@ -155,6 +155,11 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         """针对当前技能的合轴时间的检测"""
         current_node_on_field = self.data.get_on_field_node(tick)
         if current_node_on_field is None:
+            return True
+        if (
+            current_node_on_field.skill.labels is not None
+            and "additional_damage" in current_node_on_field.skill.labels
+        ):
             return True
         swap_lag_tick = self.spawn_lag_time(current_node_on_field)
         if (
@@ -366,7 +371,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         self.__report_tag = skill_tag
         skill_compare = True if SWAP_CANCEL_DEBUG_TARGET_SKILL else False
 
-        if mode == 1:
+        if mode == 0:
+            print("APL返回的结果是wait！")
+        elif mode == 1:
             print(f"{skill_tag}所涉及角色当前没空！") if not skill_compare else print(
                 f"{skill_tag}所涉及角色当前没空！"
             ) if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL else None
