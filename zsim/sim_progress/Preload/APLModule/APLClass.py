@@ -86,7 +86,6 @@ class APLClass:
         return output
 
     def action_processor(self, CID, action, tick) -> str:
-
         """用于生成动作，以及模拟游戏内的部分动作替换逻辑"""
 
         if self.action_replace_manager is None:
@@ -126,8 +125,3 @@ class APLClass:
         return output
 
 
-class NaManager:
-    """普攻管理器，用于生成普攻"""
-
-    def __init__(self):
-        pass

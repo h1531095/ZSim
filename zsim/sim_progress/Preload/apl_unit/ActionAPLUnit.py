@@ -27,6 +27,9 @@ class ActionAPLUnit(APLUnit):
         """单行APL的逻辑函数：检查所有子条件并且输出结果"""
         result_box = []
         tick = kwargs.get("tick", None)
+        if "Assult_Aid" in self.result:
+            if not self.__check_assult_aid_condition():
+                return False, result_box
         if not self.sub_conditions_unit_list:
             """无条件直接输出True"""
             return True, result_box
@@ -46,3 +49,6 @@ class ActionAPLUnit(APLUnit):
         else:
             return True, result_box
 
+    def __check_assult_aid_condition(self):
+        """检查突击支援的前置条件——是否严格衔接于Knock_back之后"""
+        pass

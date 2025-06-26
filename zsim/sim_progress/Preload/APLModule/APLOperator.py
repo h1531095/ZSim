@@ -23,10 +23,8 @@ class APLOperator:
         self.leagal_apl_type_list = [
             "action+=",
             "action.no_swap_cancel+=",
-
             "action.atk_response_positive+=",
             "action.atk_response_balance+=",
-
         ]
         self.sim_instance = simulator_instance
         from sim_progress.Preload.apl_unit.APLUnit import APLUnit
