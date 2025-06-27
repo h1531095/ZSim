@@ -24,7 +24,7 @@ class ActionReplaceManager:
         self, CID: int, action: str, tick: int
     ) -> tuple[bool, str]:
         """该函数主要用于拦截APL的主动动作，使其被其他动作替代，用来模拟各种特殊情况"""
-        """如果目前正处于黄光阶段（窗口期），那么此时的所有切人动作都会被无条件换成格挡"""
+        """如果目前正处于黄光阶段（窗口期），那么此时的所有切人动作都会被无条件换成格挡，哪怕此时快支正处于激活状态"""
         if "耀嘉音" in self.preload_data.sim_instance.init_data.name_box:
             """有耀嘉音时，优先检测快支替换"""
             if self.quick_assist_strategy.condition_judge(
@@ -33,7 +33,7 @@ class ActionReplaceManager:
                 quick_assist_strategy_replace_result = (
                     self.quick_assist_strategy.spawn_new_action(CID, action)
                 )
-                if quick_assist_strategy_replace_result != "parry":
+                if quick_assist_strategy_replace_result not in ["parry", "wait"]:
                     return True, quick_assist_strategy_replace_result
 
             parry_replace_result = self.parry_aid_strategy.spawn_new_action(
@@ -41,7 +41,6 @@ class ActionReplaceManager:
             )
             if parry_replace_result != action:
                 return True, parry_replace_result
-
             return False, action
 
         else:
@@ -117,7 +116,8 @@ class ActionReplaceManager:
                 return False
 
         def spawn_new_action(self, CID: int, action: str):
-            # CID = int(action.split("_")[0].strip())
+            if action == "wait":
+                return action
             for _obj in self.preload_data.skills:
                 if _obj.CID != CID:
                     continue
@@ -155,6 +155,10 @@ class ActionReplaceManager:
             ]  # 系统默认的连续招架时间消耗
             self._knock_back_signal = False  # 击退信号，在末次招架结算时，会由外部数据结构操作接口函数打开，并且在抛出击退信号后置为False
             self.final_parry_node: "SkillNode | None" = None
+
+            """每次招架后，角色都会获得一次突击支援的机会，但是衔接突击支援的时间是有要求的，必须在突击支援失效之前进行（角色击退时间）"""
+            self.assault_aid_disable_tick: int = 0
+            self.assault_aid_enable: bool = False
 
         @property
         def knock_back_signal(self) -> bool:
@@ -367,6 +371,17 @@ class ActionReplaceManager:
                 print(f"角色{skill_node.char_name}因招架而被击退！")
                 self.knock_back_signal = False
                 self.final_parry_node = None
+                self.parry_interaction_in_progress = False
+                self.assault_aid_enable = True
+                self.assault_aid_disable_tick = tick + 60
+            elif "Assault_Aid" in skill_node.skill_tag:
+                if tick > self.assault_aid_disable_tick:
+                    raise ValueError(
+                        f"{skill_node.char_name}企图释放支援突击，但支援突击早就在{self.assault_aid_disable_tick}tick失效！请检查函数逻辑！"
+                    )
+                self.assault_aid_enable = False
+                self.assault_aid_disable_tick = tick
+                print(f"角色{skill_node.char_name}在招架完成后释放支援突击！")
             elif any(
                 [
                     _sub_tag in skill_node.skill_tag

@@ -45,12 +45,12 @@ class ConfirmEngine(BasePreloadEngine):
                 # 4、外部数据交互
                 self.update_external_data(node, tick)
                 # print(f'{node.skill_tag}通过了可行性验证，该主动动作来自于优先级为{node.apl_priority}的APL代码')
-                if any(
-                    [_subtags in node.skill_tag for _subtags in ["knock_back", "parry"]]
-                ):
-                    print(
-                        f"{node.skill_tag}被ConfirmEngine接收，它将从{node.preload_tick}开始，于{node.end_tick}结束。"
-                    )
+                # if any(
+                #     [_subtags in node.skill_tag for _subtags in ["knock_back", "parry"]]
+                # ):
+                #     print(
+                #         f"{node.skill_tag}被ConfirmEngine接收，它将从{node.preload_tick}开始，于{node.end_tick}结束。"
+                #     )
             else:
                 pass
 

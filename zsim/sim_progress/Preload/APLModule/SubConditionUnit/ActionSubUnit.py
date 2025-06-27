@@ -1,5 +1,4 @@
 from sim_progress.Preload.APLModule.APLJudgeTools import (
-    get_last_action,
     check_cid,
     get_personal_node_stack,
 )
@@ -8,6 +7,9 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
+    from sim_progress.Preload.PreloadDataClass import PreloadData
+    from sim_progress.Preload import PreloadClass
+    from sim_progress.Preload.APLModule.ActionReplaceManager import ActionReplaceManager
 
 
 class ActionSubUnit(BaseSubConditionUnit):
@@ -23,8 +25,15 @@ class ActionSubUnit(BaseSubConditionUnit):
 
     class LatestActionTagHandler(ActionCheckHandler):
         @classmethod
-        def handler(cls, game_state):
-            return get_last_action(game_state)
+        def handler(cls, char_cid: int, game_state, tick: int) -> str | None:
+            preload_data: "PreloadData" = game_state["preload"].preload_data
+            lastest_node = preload_data.latest_active_generation_node
+            if lastest_node is None:
+                return None
+            if lastest_node.end_tick >= tick:
+                return lastest_node.skill_tag
+            else:
+                return None
 
     class StrictLinkedHandler(ActionCheckHandler):
         """强衔接判定，技能skill_tag符合的同时，还需要上一个动作刚好结束。"""
@@ -123,6 +132,34 @@ class ActionSubUnit(BaseSubConditionUnit):
                 else:
                     return None
 
+    class DuringParryHandler(ActionCheckHandler):
+        @classmethod
+        def handler(cls, char_cid: int, game_state, tick: int) -> bool:
+            """该函数主要作用是判断当前角色是否正处于进攻交互阶段（招架、或者被击退）"""
+            preload: "PreloadClass" = game_state["preload"]
+            action_replace_manager: "ActionReplaceManager" = (
+                preload.strategy.apl_engine.apl.action_replace_manager
+            )
+            if action_replace_manager is None:
+                return False
+            parry_strategy = action_replace_manager.parry_aid_strategy
+            return parry_strategy.parry_interaction_in_progress
+
+    class AssaultAidEnableHandler(ActionCheckHandler):
+        @classmethod
+        def handler(cls, char_cid: int, game_state, tick: int) -> bool:
+            """该函数主要用于检查，当前角色的“支援突击”是否处于激活可用状态"""
+            preload: "PreloadClass" = game_state["preload"]
+            action_replace_manager: "ActionReplaceManager" = (
+                preload.strategy.apl_engine.apl.action_replace_manager
+            )
+            if action_replace_manager is None:
+                return False
+            assault_aid_enable = (
+                action_replace_manager.parry_aid_strategy.assault_aid_enable
+            )
+            return assault_aid_enable
+
     ActionHandlerMap = {
         "skill_tag": LatestActionTagHandler,
         "strict_linked_after": StrictLinkedHandler,
@@ -130,6 +167,8 @@ class ActionSubUnit(BaseSubConditionUnit):
         "positive_linked_after": PositiveLinkedHander,
         "first_action": FirstActionHandler,
         "is_performing": IsPerformingHandler,
+        "during_parry": DuringParryHandler,
+        "assault_aid_enable": AssaultAidEnableHandler,
     }
 
     def check_myself(

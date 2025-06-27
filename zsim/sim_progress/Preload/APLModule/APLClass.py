@@ -120,6 +120,8 @@ class APLClass:
                 output = current_na_manager.first_hit
             else:
                 output = current_na_manager.spawn_out_na(last_action)
+        elif action == "assault_after_parry":
+            output = f"{CID}_Assault_Aid"
         else:
             output = action
         return output

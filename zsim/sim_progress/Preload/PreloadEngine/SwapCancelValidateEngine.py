@@ -61,14 +61,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         if self._validate_wait_event(apl_skill_tag=skill_tag):
             self._swap_cancel_debug_print(mode=0, skill_tag=skill_tag)
             return False
-
         """检测对应角色是否有空——当前tick是否存在未完成动作"""
         if not self._validate_char_avaliable(
             skill_tag=skill_tag, tick=tick, apl_skill_node=apl_skill_node
         ):
             self._swap_cancel_debug_print(mode=1, skill_tag=skill_tag)
             return False
-
         """检测当前tick的APL输出是否与角色自身的任务冲突——动作的顶替判定"""
         if not self._validate_char_task_conflict(
             skill_tag=skill_tag, apl_skill_node=apl_skill_node, tick=tick
@@ -129,6 +127,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                 # print(
                 #     f"{apl_skill_node.char_name}的技能{apl_skill_node.skill_tag}企图取消自己的闪避技能！"
                 # ) if SWAP_CANCEL_MODE_DEBUG else None
+                return True
+            elif (
+                "parry" in char_latest_node.skill_tag
+                and "knock_back_cause_parry" in skill_tag
+            ):
+                """对于衔接于招架之后的击退，要立即放行"""
                 return True
             """正在进行的技能并非立即执行类型，而新的技能是立即执行类型，则放行"""
             if (

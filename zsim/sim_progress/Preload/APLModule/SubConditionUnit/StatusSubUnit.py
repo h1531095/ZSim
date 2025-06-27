@@ -2,6 +2,7 @@ from .BaseSubConditionUnit import BaseSubConditionUnit
 from sim_progress.Preload.APLModule.APLJudgeTools.FindCharacter import find_char
 from sim_progress.Buff.JudgeTools import find_tick
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from simulator.simulator_class import Simulator
 
@@ -92,7 +93,10 @@ class StatusSubUnit(BaseSubConditionUnit):
         @classmethod
         def handler(cls, char_cid, found_char_dict, game_state, sim_instance):
             char = find_char(found_char_dict, game_state, char_cid)
-            return char.dynamic.quick_assist_manager.quick_assist_available
+            quick_assist_available = (
+                char.dynamic.quick_assist_manager.quick_assist_available
+            )
+            return quick_assist_available
 
     class WaitingAssistHandler(CheckHandler):
         @classmethod
@@ -161,7 +165,14 @@ class StatusSubUnit(BaseSubConditionUnit):
         "assist_waiting_for_anwser": WaitingAssistHandler,
     }
 
-    def check_myself(self, found_char_dict, game_state, sim_instance: "Simulator" = None, *args, **kwargs):
+    def check_myself(
+        self,
+        found_char_dict,
+        game_state,
+        sim_instance: "Simulator" = None,
+        *args,
+        **kwargs,
+    ):
         if self.check_target == "enemy":
             if self.enemy is None:
                 self.enemy = game_state["schedule_data"].enemy
