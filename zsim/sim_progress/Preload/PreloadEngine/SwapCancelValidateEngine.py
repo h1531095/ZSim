@@ -59,16 +59,14 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         self.active_signal = False
         """若当前APL动作为等待，那么直接返回False，不做任何操作。"""
         if self._validate_wait_event(apl_skill_tag=skill_tag):
-            self._swap_cancel_debug_print(mode=1)
+            self._swap_cancel_debug_print(mode=0, skill_tag=skill_tag)
             return False
-
         """检测对应角色是否有空——当前tick是否存在未完成动作"""
         if not self._validate_char_avaliable(
             skill_tag=skill_tag, tick=tick, apl_skill_node=apl_skill_node
         ):
             self._swap_cancel_debug_print(mode=1, skill_tag=skill_tag)
             return False
-
         """检测当前tick的APL输出是否与角色自身的任务冲突——动作的顶替判定"""
         if not self._validate_char_task_conflict(
             skill_tag=skill_tag, apl_skill_node=apl_skill_node, tick=tick
@@ -130,6 +128,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                 #     f"{apl_skill_node.char_name}的技能{apl_skill_node.skill_tag}企图取消自己的闪避技能！"
                 # ) if SWAP_CANCEL_MODE_DEBUG else None
                 return True
+            elif (
+                "parry" in char_latest_node.skill_tag
+                and "knock_back_cause_parry" in skill_tag
+            ):
+                """对于衔接于招架之后的击退，要立即放行"""
+                return True
             """正在进行的技能并非立即执行类型，而新的技能是立即执行类型，则放行"""
             if (
                 apl_skill_node.skill.do_immediately
@@ -156,6 +160,18 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         current_node_on_field = self.data.get_on_field_node(tick)
         if current_node_on_field is None:
             return True
+
+        # 放行所有的附加伤害——附加伤害通常都没有动作，所以无需合轴
+        if (
+            current_node_on_field.skill.labels is not None
+            and "additional_damage" in current_node_on_field.skill.labels
+        ):
+            return True
+
+        # 放行特别豁免清单中的技能，比如被击退等特殊动作；
+        if any([_sub_tag in skill_tag for _sub_tag in ["knock_back"]]):
+            return True
+
         swap_lag_tick = self.spawn_lag_time(current_node_on_field)
         if (
             swap_lag_tick
@@ -299,8 +315,12 @@ class SwapCancelValidateEngine(BasePreloadEngine):
                 return True
             else:
                 if (
-                    "Aid" in skill_tag
-                    or "QTE" in skill_tag
+                    any(
+                        [
+                            _sub_tag in skill_tag
+                            for _sub_tag in ["QTE", "Aid", "knock_back"]
+                        ]
+                    )
                     or apl_skill_node.skill.do_immediately
                 ):
                     """如果是支援类和连携技这种无视切人CD的技能，那么此时角色可以切出"""
@@ -366,7 +386,9 @@ class SwapCancelValidateEngine(BasePreloadEngine):
         self.__report_tag = skill_tag
         skill_compare = True if SWAP_CANCEL_DEBUG_TARGET_SKILL else False
 
-        if mode == 1:
+        if mode == 0:
+            print("APL返回的结果是wait！")
+        elif mode == 1:
             print(f"{skill_tag}所涉及角色当前没空！") if not skill_compare else print(
                 f"{skill_tag}所涉及角色当前没空！"
             ) if skill_tag == SWAP_CANCEL_DEBUG_TARGET_SKILL else None

@@ -56,6 +56,9 @@ ENEMY_ATK_PARAMETER_DICT: dict[str, int | float] = {
     "c": 0.5,  # 波动调节系数，暂取0.5，不开放给用户更改。
     "delta": 30,  # 玩家水平系数所导致的中位数波动单位，暂时取30ms，不开放给用户更改。
 }
+PARRY_BASE_PARAMETERS: dict[str, int | float] = {
+    "ChainParryActionTimeCost": 10,  # 连续招架动作的时间消耗
+}
 
 
 DEFAULT_APL_DIR: str = _config["apl_mode"]["default_apl_dir"]

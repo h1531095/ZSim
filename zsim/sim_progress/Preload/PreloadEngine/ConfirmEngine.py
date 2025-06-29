@@ -45,6 +45,12 @@ class ConfirmEngine(BasePreloadEngine):
                 # 4、外部数据交互
                 self.update_external_data(node, tick)
                 # print(f'{node.skill_tag}通过了可行性验证，该主动动作来自于优先级为{node.apl_priority}的APL代码')
+                # if any(
+                #     [_subtags in node.skill_tag for _subtags in ["knock_back", "parry"]]
+                # ):
+                #     print(
+                #         f"{node.skill_tag}被ConfirmEngine接收，它将从{node.preload_tick}开始，于{node.end_tick}结束。"
+                #     )
             else:
                 pass
 
@@ -104,7 +110,6 @@ class ConfirmEngine(BasePreloadEngine):
             char: "Character"
             if name_box[0] == char.NAME:
                 if name_box[0] != old_name_box[0]:
-
                     """在更新name_box的时候，将切人事件对所有监听器进行广播。"""
                     self.data.sim_instance.listener_manager.broadcast_event(
                         char, switching_in_event=1

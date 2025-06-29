@@ -1,4 +1,8 @@
 from .BaseSubConditionUnit import BaseSubConditionUnit
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sim_progress.Preload.PreloadDataClass import PreloadData
 
 
 class SpecialSubUnit(BaseSubConditionUnit):
@@ -20,7 +24,18 @@ class SpecialSubUnit(BaseSubConditionUnit):
             # print(f'调用了特殊检查，当前正在操作的CID为：{cid}')
             return cid
 
-    SpecialHandlerMap = {"operating_char": OperatingCharacterHandler}
+    class IsAttackingHandler(SpecialHandler):
+        @classmethod
+        def handler(cls, preload_data: "PreloadData"):
+            atk_manager = preload_data.atk_manager
+            if atk_manager is None:
+                return False
+            return atk_manager.attacking
+
+    SpecialHandlerMap = {
+        "operating_char": OperatingCharacterHandler,
+        "is_attacking": IsAttackingHandler,
+    }
 
     def check_myself(self, found_char_dict, game_state, *args, **kwargs):
         if self.preload_data is None:

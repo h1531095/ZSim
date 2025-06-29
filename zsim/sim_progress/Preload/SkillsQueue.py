@@ -86,6 +86,14 @@ class SkillNode:
         else:
             return False
 
+    def is_last_hit(self, tick: int):
+        """判断当前tick是否存在最后一击"""
+        if not self.is_hit_now(tick):
+            return False
+        else:
+            return tick - 1 < self.tick_list[-1] <= tick
+
+
 def spawn_node(tag: str, preload_tick: int, skills, **kwargs) -> SkillNode:
     """
     通过输入的tag和preload_tick，直接创建SkillNode。

@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from sim_progress.Enemy.EnemyAttack.EnemyAttackClass import EnemyAttackAction
     from sim_progress.Enemy import Enemy
     from sim_progress.Preload import SkillNode
+    from sim_progress.data_struct import SingleHit
 
 
 class EnemyAttackEventManager:
@@ -26,6 +27,22 @@ class EnemyAttackEventManager:
 
         self.hitted_count = 0  # 交互期间的命中计数
         self.answered_count = 0  # 交互期间的成功响应次数
+        self.interrupted_skill_type = [2, 5, 6]
+        self.interruption_recovery_frames = 60  # 每次敌人被打断的硬直时间
+        self._interruption_update_tick = 0
+
+    @property
+    def interruption_update_tick(self) -> int:
+        """上一次敌人进入打断硬直的更新时间，可以直接访问，也可以赋值"""
+        return self._interruption_update_tick
+
+    @interruption_update_tick.setter
+    def interruption_update_tick(self, value: int):
+        """赋值功能"""
+        self._interruption_update_tick = value
+        # print(
+        #     f"敌人的打断硬直更新了！新的状态将从{value}tick开始，于{value + self.interruption_recovery_frames}tick结束。"
+        # )
 
     def event_start(self, action: "EnemyAttackAction", start_tick: int):
         """开始一个进攻事件"""
@@ -54,14 +71,25 @@ class EnemyAttackEventManager:
         self.answered_count = 0
 
 
-    def interrupted(self, tick: int):
+    def interrupted(self, tick: int, reason: str = None):
+
         """中断当前进攻事件"""
         if self.action is None:
             raise ValueError("没有正在进行的进攻事件，无法中断！")
         print(
-            f"敌人（{self.enemy.name}）的进攻事件：{self.action.tag}在第{tick}tick被中断！"
+            f"敌人（{self.enemy.name}）的进攻事件：{self.action.tag}在第{tick}tick被中断！打断源：{reason}"
         ) if ENEMY_ATTACK_REPORT else None
         self.event_end(tick=tick)
+        self.interruption_update_tick = tick
+
+    def interruption_recovery_check(self, tick: int) -> bool:
+        """检测当前tick是否处于硬直状态"""
+        if self.interruption_update_tick == 0:
+            return False
+        if tick - self.interruption_update_tick > self.interruption_recovery_frames:
+            return False
+        else:
+            return True
 
 
     def end_check(self, tick: int):
@@ -93,7 +121,7 @@ class EnemyAttackEventManager:
                 return False
 
     def is_in_response_window(self, tick: int) -> bool:
-        """判断当前tick是否处于响应窗口内"""
+        """判断当前tick是否处于首次响应窗口内"""
         if not self.attacking:
             return False
         if (
@@ -184,55 +212,11 @@ class EnemyAttackEventManager:
             )
 
     def receive_response_node(self, skill_node: "SkillNode"):
-        """统一接口，用于接收响应技能。"""
+        """统一接口，用于接收响应技能（preload阶段）。"""
         if not self.attacking:
             raise ValueError("企图在没有进攻事件的时候调用进攻事件接收接口。")
         self.answered_action.append(skill_node)
         self.answered_count += 1
-
-    def response_result_settlement(self):
-        """响应结果结算函数，主要用于在进攻事件结束时，结算所有的响应结果。"""
-        sim_instance = self.enemy.sim_instance
-        char_on_field_cid: int = sim_instance.preload.preload_data.operating_now
-        tick = sim_instance.tick
-        if char_on_field_cid is None:
-            raise ValueError("当前没有角色在操作，无法结束进攻事件！")
-        if self.answered_action:
-            effective_response_skill_tag_list = []
-            for __response_node in self.answered_action:
-                if __response_node.skill.char_obj.CID != char_on_field_cid:
-                    """如果响应技能不是当前操作角色的技能，那么不算作有效响应。"""
-                    continue
-                if not __response_node.active_generation:
-                    """如果响应技能不是主动技能，那么不算作有效响应。"""
-                    continue
-                if (
-                    __response_node.labels is not None
-                    and "additional_damage" in __response_node.labels
-                ):
-                    """如果技能拥有附加标签，那么该技能不算作有效响应。"""
-                    continue
-                if any(
-                    [
-                        sub_tag in __response_node.skill_tag
-                        for sub_tag in ["parry", "dodge"]
-                    ]
-                ):
-                    effective_response_skill_tag_list.append(__response_node.skill_tag)
-                elif __response_node.skill.trigger_buff_level in [2, 4, 5, 6, 7, 8, 9]:
-                    """如果回应技能中包含不会被打断的技能，那么也算作有效响应。"""
-                    effective_response_skill_tag_list.append(__response_node.skill_tag)
-            else:
-                if effective_response_skill_tag_list:
-                    print(
-                        f"敌人（{self.enemy.name}）的进攻事件：{self.action.tag}在第{tick}tick被以下技能响应：{effective_response_skill_tag_list}"
-                    ) if ENEMY_ATTACK_REPORT else None
-                else:
-                    print(
-                        f"敌人（{self.enemy.name}）的进攻事件：{self.action.tag}在第{tick}tick没有被有效技能响应！"
-                    ) if ENEMY_ATTACK_REPORT else None
-        else:
-            print("没有任何技能响应当前进攻事件！") if ENEMY_ATTACK_REPORT else None
 
     def check_myself(self, tick: int) -> None:
         """检查当前tick的命中结算、结束结算、打断等情况；"""
@@ -250,8 +234,22 @@ class EnemyAttackEventManager:
         if self.hit_check(tick=tick):
             self.single_hit_settlement(tick=tick)
 
+    def receive_single_hit(self, single_hit: "SingleHit", tick: int):
+        """
+        在Enemy接收Hit的时候，需要这个函数来把SingleHit传进AtkEventManager，
+        来更新敌人的打断状态。
+        """
+        skill_node: "SkillNode | None" = single_hit.skill_node
+        if skill_node is None:
+            return
+        if not self.__check_skill_interrupt_capability(skill_node=skill_node):
+            return
+        self.interruption_update_tick = tick
+        if self.action is not None:
+            self.interrupted(tick=tick, reason=f"技能：{skill_node.skill_tag}")
+
     def hit_check(self, tick: int) -> bool:
-        """检查当前tick是否命中节点"""
+        """检查输入的tick是否存在命中节点"""
         if any(
             [
                 _hit_tick + self.last_start_tick == tick
@@ -268,29 +266,63 @@ class EnemyAttackEventManager:
         char_stack = sim_instance.preload.preload_data.personal_node_stack[
             char_on_field
         ]
+        self.hitted_count += 1
         if char_stack is None:
             print(
-                f"当前前台角色{char_on_field}并没有进行操作，将被打断！"
+                f"当前前台角色{char_on_field}并未进行有效交互（没有技能栈），将被打断！"
             ) if ENEMY_ATTACK_REPORT else None
             return
         nodes = char_stack.get_effective_node()
         if nodes is None:
             print(
-                f"当前前台角色{char_on_field}并没有进行操作，将被打断！"
+                f"当前前台角色{char_on_field}并未进行有效交互（尚未行动过），将被打断！"
             ) if ENEMY_ATTACK_REPORT else None
             return
-        if nodes.end_tick < tick:
+        if "interrupted" in nodes.skill_tag:
+            print(f"角色{char_on_field}正处于被打断后摇中，打断后摇不刷新！")
+            return
+        if (
+            nodes.end_tick < tick
+            and not self.enemy.sim_instance.preload.strategy.apl_engine.apl.action_replace_manager.parry_aid_strategy.consecutive_parry_mode
+        ):
             print(
-                f"当前前台角色{char_on_field}并没有进行操作，将被打断！"
+                f"当前前台角色{char_on_field}并未进行有效交互（没有正在进行的动作，上一个动作{nodes.skill_tag}已经在{nodes.end_tick}结束），将被打断！"
             ) if ENEMY_ATTACK_REPORT else None
             return
 
         if any([_sub_tag in nodes.skill_tag for _sub_tag in ["parry", "dodge"]]):
             # 直接交互
             print(
-                f"角色{char_on_field}成功通过{nodes.skill_tag}与敌方的进攻进行交互。"
+                f"角色{char_on_field}成功通过{nodes.skill_tag}与敌方的进攻进行交互。该技能从{nodes.preload_tick}开始，{nodes.end_tick}结束。"
             ) if ENEMY_ATTACK_REPORT else None
             self.answered_count += 1
+            if "parry" in nodes.skill_tag:
+                from sim_progress.Preload.APLModule.ActionReplaceManager import (
+                    ActionReplaceManager,
+                )
+
+                action_replace_manager: ActionReplaceManager = (
+                    sim_instance.preload.strategy.apl_engine.apl.action_replace_manager
+                )
+                if self.action.hit == 1:
+                    print(
+                        f"【AtkEventManager】检测到来自角色{char_on_field}的招架技能{nodes.skill_tag}，进攻交互式时间提前结束，角色即将被击退！"
+                    )
+                    action_replace_manager.parry_aid_strategy.knock_back_signal = True
+                    action_replace_manager.parry_aid_strategy.final_parry_node = nodes
+                    self.event_end(tick=tick)
+                else:
+                    if self.action.hit == self.hitted_count:
+                        action_replace_manager.parry_aid_strategy.knock_back_signal = (
+                            True
+                        )
+                        action_replace_manager.parry_aid_strategy.final_parry_node = (
+                            nodes
+                        )
+                        self.event_end(tick=tick)
+                        print(
+                            f"检测到来自角色{char_on_field}的招架技能{nodes.skill_tag}，进攻交互式时间提前结束，角色即将被击退！"
+                        )
         else:
             # 非直接交互
             if nodes.skill.trigger_buff_level in [2, 4, 5, 6, 7, 8, 9]:
@@ -298,15 +330,28 @@ class EnemyAttackEventManager:
                     f"角色{char_on_field}选择释放{nodes.skill_tag}进行交互，交互成功。"
                 ) if ENEMY_ATTACK_REPORT else None
                 self.answered_count += 1
+
             else:
                 print(
                     f"角色被打断！{nodes.skill_tag}技能被迫取消！"
                 ) if ENEMY_ATTACK_REPORT else None
                 """取消当前正在进行的技能，同时添加一次被打断技能，模拟角色动作被打断。"""
-                sim_instance.preload.preload_data.delete_mission_in_preload_data(node_be_changed=nodes)
-                sim_instance.preload.preload_data.external_add_skill(skill_tuple=(f"{char_on_field}_interrupted", True, tick))
+                sim_instance.preload.preload_data.delete_mission_in_preload_data(
+                    node_be_changed=nodes
+                )
+                sim_instance.preload.preload_data.external_add_skill(
+                    skill_tuple=(f"{char_on_field}_interrupted", True, tick)
+                )
 
-        self.hitted_count += 1
+    def __check_skill_interrupt_capability(self, skill_node: "SkillNode") -> bool:
+        """检查技能是否能够被打断，这涉及到更加详细的打断参数比对，所以这里先用其他的逻辑代替。"""
+        if skill_node.skill.trigger_buff_level in self.interrupted_skill_type:
+            if skill_node.active_generation:
+                return True
+        return False
+            
+
+
 
 
         

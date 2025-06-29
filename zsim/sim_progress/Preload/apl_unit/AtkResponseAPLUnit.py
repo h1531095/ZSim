@@ -31,7 +31,7 @@ class AtkResponseAPLUnit(APLUnit):
             self.sub_conditions_unit_list.append(
                 spawn_sub_condition(self.priority, condition_str)
             )
-        self.common_response_tag_list = ["parry_Aid", "dodge"]
+        self.common_response_tag_list = ["parry", "dodge"]
 
     def check_all_sub_units(
         self, found_char_dict, game_state, sim_instance: "Simulator", **kwargs
@@ -73,10 +73,10 @@ class AtkResponseAPLUnit(APLUnit):
         """检查进攻响应的前置条件是否满足"""
         atk_manager = self.sim_instance.preload.preload_data.atk_manager
         if not atk_manager.attacking:
-            print("当前没有正在进行的进攻事件，无法响应！")
+            # print("当前没有正在进行的进攻事件，无法响应！")
             return False
         if atk_manager.is_answered:
-            print("当前进攻事件已经被响应，无法再次响应！")
+            # print("当前进攻事件已经被响应，无法再次响应！")
             return False
         rt_tick = atk_manager.get_rt()
 
@@ -105,10 +105,15 @@ class AtkResponseAPLUnit(APLUnit):
             )
         else:
             """如果技能并非常规响应动作（如强化E、大招等），则需要获取技能的具体ticks，来计算新的响应窗口。"""
-            cid: int = self.char_CID
-            from sim_progress.Character.skill_class import Skill
+            cid: int = int(self.char_CID)
+            skill_obj_list = self.sim_instance.preload.preload_data.skills
+            for _skill_obj in skill_obj_list:
+                if cid == _skill_obj.CID:
+                    skill_obj = _skill_obj
+                    break
+            else:
+                raise ValueError(f"没有找到CID为{cid}的技能对象！")
 
-            skill_obj: Skill = self.sim_instance.preload.preload_data.skills[cid]
             skill_tick: int = skill_obj.get_skill_info(
                 skill_tag=self.result, attr_info="ticks"
             )
@@ -116,8 +121,9 @@ class AtkResponseAPLUnit(APLUnit):
                 another_ta=skill_tick
             )
         if proactive_level == 0:
-            """在平衡策略下，响应动作需要尽量晚一些执行，所以检测右边界"""
-            if tick == response_window[1]:
+            """在平衡策略下，响应动作需要尽量晚一些执行，所以检测右边界
+            但是又不能完全和右边界重合，因为那样太晚了，所以我们就让它提早一帧放行。"""
+            if tick + 1 == response_window[1]:
                 return True
         elif proactive_level == 1:
             from define import ENEMY_ATK_PARAMETER_DICT

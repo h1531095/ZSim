@@ -42,7 +42,9 @@ class EnemyAttackMethod:
             self.attack_skill_tag = None
         elif ENEMY_REGULAR_ATTACK:
             self.random_attack = False
-            self.attack_skill_tag = "default_enemy_attack_mode_a"
+            self.attack_skill_tag = EnemyAttackAction(
+                ID=int(method_file.loc[ID]["action_set"])
+            ).tag
 
         self.last_start_tick = 0
         self.last_end_tick = 0
@@ -143,6 +145,12 @@ class EnemyAttackAction:
             )
         else:
             self.hit_list = ast.literal_eval(hit_list_str)
+
+        if len(self.hit_list) != self.hit:
+            raise ValueError(
+                f"{self.tag}的命中数量与命中时间列表长度不符，请检查配置信息！"
+            )
+
         self.parryable = bool(self.action_dict.get("blockable", True))  # 是否可以招架
         self.interruption_level_list = self.action_dict.get(
             "interruption_level_list", None
@@ -157,6 +165,15 @@ class EnemyAttackAction:
         self.effect_radius_list = self.action_dict.get("effect_radius_list", None)
         # TODO：暂时不考虑由技能范围不同而对命中率造成的影响，统一按照100%命中来处理，
         self.stoppable = self.action_dict.get("stoppable", True)
+        self.hit_type = self.action_dict.get("hit_type", "Light")
+        if self.hit_type == "Chain" and self.hit <= 1:
+            raise ValueError(
+                f"{self.tag}为连续进攻动作，但是其命中数量为{self.hit}，请检查配置信息！"
+            )
+        if self.hit_type in ["Light", "Heavy"] and self.hit > 1:
+            raise ValueError(
+                f"{self.tag}为{self.hit_type}攻击，但是其命中数量为{self.hit}，请检查配置信息！"
+            )
 
     def get_hit_tick(self, another_ta: int = None, hit_count: int = 1) -> int:
         """获取命中时间，"""

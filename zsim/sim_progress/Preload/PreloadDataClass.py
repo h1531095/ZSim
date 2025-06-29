@@ -14,7 +14,12 @@ class PreloadData:
         load_data = kwargs.get("load_data")
         self.sim_instance: "Simulator" = sim_instance
         self.preload_action: list[SkillNode] = []  # 最终return返回给外部申请的数据结构
-        self.skills: list = skills  # 用于创建SkillNode，是SkillNode构造函数的必要参数。
+        from sim_progress.Character.skill_class import Skill
+
+        self.skills: list[Skill] = (
+            skills  # 用于创建SkillNode，是SkillNode构造函数的必要参数。
+        )
+
         self.personal_node_stack: dict[int, NodeStack] = {}  # 个人的技能栈
         self.current_node_stack: NodeStack = NodeStack(
             length=5
@@ -73,6 +78,16 @@ class PreloadData:
         self.quick_assist_system.update(tick, node, self.load_data.all_name_order_box)
         if self.atk_manager.attacking:
             self.atk_manager.answered_action.append(node)
+        from sim_progress.Preload.APLModule.ActionReplaceManager import (
+            ActionReplaceManager,
+        )
+
+        action_replace_manager: ActionReplaceManager = (
+            self.sim_instance.preload.strategy.apl_engine.apl.action_replace_manager
+        )
+        action_replace_manager.parry_aid_strategy.update_myself(
+            skill_node=node, tick=tick
+        )
 
     def check_myself_before_push_node(self):
         """Confirm阶段自检"""
