@@ -37,6 +37,7 @@ class EnemyAttackMethod:
     def __init__(self, ID: int = 0, enemy_instance: "Enemy" = None):
         self.action_set: dict[float | int, EnemyAttackAction] = defaultdict()
         self.enemy = enemy_instance
+        self.active = True
         if ENEMY_RANDOM_ATTACK:
             self.random_attack: bool = True
             self.attack_skill_tag = None
@@ -45,7 +46,10 @@ class EnemyAttackMethod:
             self.attack_skill_tag = EnemyAttackAction(
                 ID=int(method_file.loc[ID]["action_set"])
             ).tag
-
+        else:
+            self.random_attack = False
+            self.attack_skill_tag = None
+            self.active = False
         self.last_start_tick = 0
         self.last_end_tick = 0
         self.ready = False
@@ -64,12 +68,14 @@ class EnemyAttackMethod:
             enemy_attack_action = EnemyAttackAction(int(action_id))
             self.action_set[action_rate] = enemy_attack_action
             print(
-                f"为敌人添加进攻动作：{enemy_attack_action}"
+                f"【进攻交互系统初始化】：为敌人添加进攻动作：{enemy_attack_action}"
             ) if ENEMY_ATTACK_REPORT else None
-        print("敌人进攻动作初始化完毕！") if ENEMY_ATTACK_REPORT else None
+        print("【进攻交互系统初始化】：敌人进攻动作初始化完毕！") if ENEMY_ATTACK_REPORT else None
         print(
-            f"敌人（{self.enemy.name}）共拥有{len(self.action_set)}个进攻动作，每次进攻决策的冷却时间为：{self.rest_tick}tick！"
+            f"【进攻交互系统初始化】：敌人（{self.enemy.name}）共拥有{len(self.action_set)}个进攻动作，每次进攻决策的冷却时间为：{self.rest_tick}tick！"
         ) if ENEMY_ATTACK_REPORT else None
+        if not self.active and ENEMY_ATTACK_REPORT:
+            print("【进攻交互系统初始化】：由于在配置文件中并未开启任意一种进攻策略，所以在本次模拟中敌人不会进攻！")
 
     def ready_check(self, current_tick: int) -> bool:
         """判断敌人进攻的内置CD——进攻动作结束后，进攻决策才会进入冷却时间。"""

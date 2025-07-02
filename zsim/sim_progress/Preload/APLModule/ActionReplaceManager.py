@@ -124,6 +124,8 @@ class ActionReplaceManager:
                     continue
                 if "parry" in action:
                     do_immediately_info = True
+                elif action == "auto_NA":
+                    do_immediately_info = False
                 else:
                     do_immediately_info = _obj.get_skill_info(
                         skill_tag=action, attr_info="do_immediately"

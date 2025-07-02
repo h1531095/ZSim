@@ -66,7 +66,8 @@ class Qingyi(Character):
                     self.rush_attack_available_times -= 1
 
     def get_resources(self, *args, **kwargs) -> tuple[str, float]:
-        return "闪络电压", self.flash_connect_voltage / self.__MAX_VOLTAGE * 100
+        result = self.flash_connect_voltage / self.__MAX_VOLTAGE * 100
+        return "闪络电压", result
 
     def get_special_stats(self, *args, **kwargs) -> dict[str | None, object | None]:
         return {

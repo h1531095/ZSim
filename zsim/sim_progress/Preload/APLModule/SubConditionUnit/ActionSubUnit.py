@@ -53,7 +53,7 @@ class ActionSubUnit(BaseSubConditionUnit):
                         and "additional_damage" in current_node.skill.labels
                     ):
                         continue
-                    if current_node.end_tick + 1 != tick:
+                    if current_node.end_tick != tick:
                         return None
                     return current_node.skill_tag
                 else:

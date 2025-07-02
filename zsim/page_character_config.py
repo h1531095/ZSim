@@ -1,4 +1,3 @@
-from polars import col
 import streamlit as st
 import toml
 
@@ -64,7 +63,9 @@ def page_character_config():
                 st.selectbox(
                     "音擎",
                     weapon_options,
-                    index=weapon_options.index(saved_char_config[name]["weapon"])
+                    index=weapon_options.index(
+                        saved_char_config[name].get("weapon", "「月相」-望")
+                    )
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_weapon",
@@ -74,7 +75,7 @@ def page_character_config():
                     "音擎精炼等级",
                     min_value=1,
                     max_value=5,
-                    value=saved_char_config[name]["weapon_level"]
+                    value=saved_char_config[name].get("weapon_level", 1)
                     if name in saved_char_config
                     else 1,
                     key=f"{name}_weapon_level",
@@ -84,7 +85,7 @@ def page_character_config():
                     "影画等级",
                     min_value=0,
                     max_value=6,
-                    value=saved_char_config[name]["cinema"]
+                    value=saved_char_config[name].get("cinema", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_cinema_level",
@@ -116,7 +117,7 @@ def page_character_config():
                         "二件套",
                         equip_set2_options,
                         index=equip_set2_options.index(
-                            saved_char_config[name]["equip_set2_a"]
+                            saved_char_config[name].get("equip_set2_a", "啄木鸟电音")
                         )
                         if name in saved_char_config
                         else 0,
@@ -127,7 +128,7 @@ def page_character_config():
                         "二件套A",
                         equip_set2_options,
                         index=equip_set2_options.index(
-                            saved_char_config[name]["equip_set2_a"]
+                            saved_char_config[name].get("equip_set2_a", "啄木鸟电音")
                         )
                         if name in saved_char_config
                         else 0,
@@ -137,7 +138,7 @@ def page_character_config():
                         "二件套B",
                         equip_set2_options,
                         index=equip_set2_options.index(
-                            saved_char_config[name]["equip_set2_b"]
+                            saved_char_config[name].get("equip_set2_b", "啄木鸟电音")
                         )
                         if name in saved_char_config
                         and "equip_set2_b" in saved_char_config[name]
@@ -148,7 +149,7 @@ def page_character_config():
                         "二件套C",
                         equip_set2_options,
                         index=equip_set2_options.index(
-                            saved_char_config[name]["equip_set2_c"]
+                            saved_char_config[name].get("equip_set2_c", "啄木鸟电音")
                         )
                         if name in saved_char_config
                         and "equip_set2_c" in saved_char_config[name]
@@ -165,7 +166,9 @@ def page_character_config():
                 st.selectbox(
                     "四号位主词条",
                     main_stat4_options,
-                    index=main_stat4_options.index(saved_char_config[name]["drive4"])
+                    index=main_stat4_options.index(
+                        saved_char_config[name].get("drive4", "攻击力%")
+                    )
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_main_stat4",
@@ -173,7 +176,9 @@ def page_character_config():
                 st.selectbox(
                     "五号位主词条",
                     main_stat5_options,
-                    index=main_stat5_options.index(saved_char_config[name]["drive5"])
+                    index=main_stat5_options.index(
+                        saved_char_config[name].get("drive5", "攻击力%")
+                    )
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_main_stat5",
@@ -181,7 +186,9 @@ def page_character_config():
                 st.selectbox(
                     "六号位主词条",
                     main_stat6_options,
-                    index=main_stat6_options.index(saved_char_config[name]["drive6"])
+                    index=main_stat6_options.index(
+                        saved_char_config[name].get("drive6 ", "攻击力%")
+                    )
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_main_stat6",
@@ -195,7 +202,7 @@ def page_character_config():
                     "攻击力%",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scATK_percent"]
+                    value=saved_char_config[name].get("scATK_percent", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scATK_percent",
@@ -204,7 +211,7 @@ def page_character_config():
                     "攻击力",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scATK"]
+                    value=saved_char_config[name].get("scATK", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scATK",
@@ -214,7 +221,7 @@ def page_character_config():
                     "生命值%",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scHP_percent"]
+                    value=saved_char_config[name].get("scHP_percent", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scHP_percent",
@@ -223,7 +230,7 @@ def page_character_config():
                     "生命值",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scHP"]
+                    value=saved_char_config[name].get("scHP", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scHP",
@@ -233,7 +240,7 @@ def page_character_config():
                     "防御力%",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scDEF_percent"]
+                    value=saved_char_config[name].get("scDEF_percent", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scDEF_percent",
@@ -242,7 +249,7 @@ def page_character_config():
                     "防御力",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scDEF"]
+                    value=saved_char_config[name].get("scDEF", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scDEF",
@@ -252,7 +259,7 @@ def page_character_config():
                     "暴击率",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scCRIT"]
+                    value=saved_char_config[name].get("scCRIT", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scCRIT",
@@ -261,7 +268,7 @@ def page_character_config():
                     "暴击伤害",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scCRIT_DMG"]
+                    value=saved_char_config[name].get("scCRIT_DMG", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scCRIT_DMG",
@@ -271,7 +278,7 @@ def page_character_config():
                     "异常精通",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scAnomalyProficiency"]
+                    value=saved_char_config[name].get("scAnomalyProficiency", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scAnomalyProficiency",
@@ -280,18 +287,18 @@ def page_character_config():
                     "穿透值",
                     min_value=0,
                     max_value=sc_max_value,
-                    value=saved_char_config[name]["scPEN"]
+                    value=saved_char_config[name].get("scPEN", 0)
                     if name in saved_char_config
                     else 0,
                     key=f"{name}_scPEN",
                 )
             col1, col2 = st.columns(2)
             with col1:
+                if name not in saved_char_config:
+                    saved_char_config[name] = {}
                 crit_balancing: bool = st.checkbox(
                     "使用暴击配平算法",
-                    value=saved_char_config[name]["crit_balancing"]
-                    if name in saved_char_config
-                    else False,
+                    value=saved_char_config[name].get("crit_balancing", False),
                     key=f"{name}_crit_balancing",
                 )
                 if st.session_state.get(f"{name}_crit_rate_limit") is None:

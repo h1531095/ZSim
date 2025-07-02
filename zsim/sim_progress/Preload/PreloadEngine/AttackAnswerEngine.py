@@ -47,6 +47,8 @@ class AttackResponseEngine(BasePreloadEngine):
             self.sim_instance = self.data.sim_instance
         if self.enemy is None:
             self.enemy = self.sim_instance.schedule_data.enemy
+        if not self.enemy.attack_method.active:
+            return None
         if self.enemy.dynamic.stun:
             return None
         if self.data.atk_manager.interruption_recovery_check(

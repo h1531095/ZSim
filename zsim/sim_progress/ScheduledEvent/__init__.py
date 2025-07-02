@@ -253,9 +253,9 @@ class ScheduledEvent:
         should_update = False
         if not _node.skill.anomaly_update_rule:
             if _node.loading_mission is None:
-                raise ValueError(
-                    f"技能{_node.skill_tag}没有loadimg_mission属性，该技能可能是强制添加的，并未通过Load阶段，所以错过了Loading_misssion的构造！请检查该技能的构造环节，以规避这一问题。"
-                )
+                _loading_mission = LoadingMission(_node)
+                _loading_mission.mission_start(timenow=self.sim_instance.tick)
+                _node.loading_mission = _loading_mission
             if self.tick - 1 < _node.loading_mission.get_last_hit() <= self.tick:
                 should_update = True
         else:
@@ -330,11 +330,9 @@ class ScheduledEvent:
             dmg_expect=dmg_expect,
             dmg_crit=dmg_crit,
             hitted_count=hitted_count,
-
             proactive=_event.active_generation
             if isinstance(_event, SkillNode)
             else _event.mission_node.active_generation,
-
         )
         hit_result.skill_node = event
         if event.skill.follow_by:
