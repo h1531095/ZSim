@@ -2,7 +2,11 @@
 
 English | [中文](./docs/README_CN.md)
 
-![zsim成图](./C:/Users/Administrator/Desktop/程序标志，攻略组LOGO/zsim成图.png)
+![zsim](./images/zsim成图2.svg)
+
+![zsim项目组](./images/横板logo成图.png)
+
+
 
 ## Introduction
 
