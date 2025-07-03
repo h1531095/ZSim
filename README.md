@@ -12,11 +12,11 @@ English | [中文](./docs/README_CN.md)
 
 `ZZZ_Calculator` is a damage calculator for Zenless Zone Zero.
 
-It is **fully automatically**, no need to manully set skill sequence (if sequence mode needed, let us know)
+It is **fully automatically**, no need to manually set skill sequence (if sequence mode needed, let us know)
 
 All you need to do is edit equipment of your agents, select a proper APL, then click run.
 
-It provides a user-friendly interface to calculate the total damage output of a team composition, taking into account the characteristics of each character's weapon and equipments. Based on the preset APL (Action Priority List), it **automatically simulates** the actions in the team, triggers buffs, records and analyzes the results, and generates report in visual charts and tables.
+It provides a user-friendly interface to calculate the total damage output of a team composition, taking into account the characteristics of each character's weapon and equipment. Based on the preset APL (Action Priority List), it **automatically simulates** the actions in the team, triggers buffs, records and analyzes the results, and generates report in visual charts and tables.
 
 ## Features
 
@@ -28,7 +28,7 @@ It provides a user-friendly interface to calculate the total damage output of a 
 
 ## Install
 
-Download the latest sourse code in release page or use `git clone`
+Download the latest source code in release page or use `git clone`
 
 ### Install UV (if you haven't already)
 
