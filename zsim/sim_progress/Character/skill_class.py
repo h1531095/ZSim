@@ -498,7 +498,7 @@ class Skill:
                         self.anomaly_update_rule = [anomaly_update_mode]
                 except ValueError:
                     self.anomaly_update_rule = anomaly_update_list_str.split("&")
-            if len(self.anomaly_update_rule) > self.hit_times:
+            if isinstance(self.anomaly_update_rule, list) and len(self.anomaly_update_rule) > self.hit_times:
                 raise ValueError(
                     f"{self.skill_tag}的更新节点总数大于技能总帧数！请检查数据正确性"
                 )
