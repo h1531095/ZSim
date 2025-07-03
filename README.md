@@ -61,7 +61,8 @@ Or check the official installation guide: <https://docs.astral.sh/uv/getting-sta
 Open terminal in the directory of this project, then:
 
 ```bash
-uv pip install .
+uv venv
+uv pip install .  # there is a '.' refer to relative path
 ```
 
 ## Run
