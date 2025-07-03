@@ -2,9 +2,9 @@
 
 English | [中文](./docs/README_CN.md)
 
-![zsim](./docs/images/zsim成图.svg)
+![zsim](./docs/img/zsim成图.svg)
 
-![zsim项目组](./docs/images/横板logo成图.png)
+![zsim项目组](./docs/img/横板logo成图.png)
 
 
 
