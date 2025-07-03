@@ -119,7 +119,7 @@ p {
 }
   
 /* 颜色标记 */
-.color-assult { color: #FFB74D; }
+.color-assault { color: #FFB74D; }
 .color-burn { color: #FF7043; }
 .color-frostbite { color: #81D4FA; }
 .color-frostfrostbite { color:  #42A5F5}
@@ -290,7 +290,7 @@ AP代码主体记录了角色的输出逻辑，它主要由一行行的APL语句
   <tr>
     <td><code>action+=</code></td>
     <td>动作类型</td>
-    <td>aciton类型，即"主动动作类型"，可以简单理解为"打出一个技能"</td>
+    <td>action类型，即"主动动作类型"，可以简单理解为"打出一个技能"</td>
   </tr>
   <tr>
     <td><code>1091_SNA_3</code></td>
@@ -596,7 +596,7 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > </tr>
 > <tr>
 > <td><code>is_assult</code></td>
-> <td>敌人是否处于<font class="color-assult"><b>畏缩</b></font>状态</td>
+> <td>敌人是否处于<font class="color-assault"><b>畏缩</b></font>状态</td>
 > </tr>
 > <tr>
 > <td><code>is_frostbite</code></td>
@@ -613,7 +613,7 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 > <tr>
 > <td><code>anomaly_pct_0</code></td>
 > <td rowspan="7"><span class="color-number">数值比较</span></td>
-> <td>敌人当前<font class="color-assult"><b>物理</b></font>属性积蓄百分比</td>
+> <td>敌人当前<font class="color-assault"><b>物理</b></font>属性积蓄百分比</td>
 > </tr>
 > <tr>
 > <td><code>anomaly_pct_1</code></td>
@@ -1189,7 +1189,7 @@ APL语法中的检索内容种类繁多，其中的绝大部分都只要填入�
 >
 > \# 当前当前操作角色的是柳
 >
-> special.preload_data:operatin_char==1221
+> special.preload_data:operating_char==1221
   
 ---
   
