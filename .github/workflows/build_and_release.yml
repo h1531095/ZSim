@@ -70,11 +70,23 @@ jobs:
           name: zsim-cli-${{ matrix.os }}
           # 上传 dist/zsim-cli-<os> 目录下的所有内容
           path: dist/zsim-cli-${{ matrix.os }}/**
-
+  # ===== 新增审批环节 =====
+  approval:
+    name: Release Approval
+    needs: build  # 依赖构建作业完成
+    runs-on: ubuntu-latest
+    environment: production-release  # 关联审批环境
+    
+    steps:
+      - name: Wait for approval
+        run: |
+          echo "构建已完成，等待人工审批..."
+          echo "版本: ${{ github.ref_name }}"
+          echo "将在 15 分钟后超时"
   # 发布 Job：在所有平台的 build job 成功后运行
   release:
     name: Create GitHub Release
-    needs: build # 依赖于 build job
+    needs: [build, approval] # 依赖于 build job
     runs-on: ubuntu-latest
     permissions:
       contents: write # 需要写权限来创建 Release 和上传资源
