@@ -418,23 +418,30 @@ def display_apl_details(
     valid_required = [char for char in required_list if char in all_character_names]
     valid_optional = [char for char in optional_list if char in all_character_names]
 
+    # 初始化 session_state
+    if f"{session_key}_required_chars" not in st.session_state:
+        st.session_state[f"{session_key}_required_chars"] = valid_required
+    if f"{session_key}_optional_chars" not in st.session_state:
+        st.session_state[f"{session_key}_optional_chars"] = valid_optional
+
     col1, col2 = st.columns(2)
     with col1:
         # 更新 characters_info 中的列表为过滤后的有效列表
-        characters_info["required"] = st.multiselect(
+        st.multiselect(
             "必须角色",
             options=all_character_names,
-            default=valid_required,
             key=f"{session_key}_required_chars",  # 添加唯一 key
             max_selections=3,
         )
+        # 用 session_state 结果同步到 characters_info
+        characters_info["required"] = st.session_state[f"{session_key}_required_chars"]
     with col2:
-        characters_info["optional"] = st.multiselect(
+        st.multiselect(
             "可选角色",
             options=all_character_names,
-            default=valid_optional,
-            key=f"{session_key}_optional_chars",  # 添加唯一 key
+            key=f"{session_key}_optional_chars",
         )
+        characters_info["optional"] = st.session_state[f"{session_key}_optional_chars"]
 
     # 清理掉不在 selected_chars 中的角色配置
     # 需要在这里重新获取最新的 selected_chars 列表
@@ -589,7 +596,7 @@ def go_apl_editor():
     col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
     with col1:
         selected_title = st.selectbox(
-            "APL选项", apl_archive.options, label_visibility="collapsed"
+            "APL选项", apl_archive.options, key="selected_apl_title", label_visibility="collapsed"
         )
     with col2:
 
@@ -713,6 +720,7 @@ def go_apl_editor():
                     time.sleep(1)
                     # 刷新 APL 列表
                     apl_archive.refresh()
+                    st.session_state["selected_apl_title"] = new_title
                     st.rerun()
 
                 except Exception as e:
