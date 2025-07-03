@@ -1,1 +1,1 @@
-.venv/Scripts/python -m zsim/run.py
+.\.venv\Scripts\python -m streamlit run .\zsim\webui.py
