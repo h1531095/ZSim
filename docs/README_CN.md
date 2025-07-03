@@ -55,7 +55,8 @@ pip install uv
 在项目目录中执行：
 
 ```bash
-uv pip install .
+uv venv
+uv pip install .  # 这里有个 '.' 代表相对路径
 ```
 
 ## 运行说明
