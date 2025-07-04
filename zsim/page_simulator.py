@@ -130,6 +130,7 @@ def page_simulator():
                     use_container_width=True,
                 ):
                     save_apl_selection(selected_title)
+                    st.rerun()
 
             if st.button(
                 "APL选择",
