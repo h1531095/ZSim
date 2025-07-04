@@ -2,6 +2,10 @@
 requires = ["setuptools>=75.1.0", "wheel>=0.41.2", "cx_Freeze>=6.15.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+include = ["zsim*"]
+exclude = ["results*", "tests*", "docs*", "build*", ".venv*", ".git*"]
+
 [tool.cxfreeze]
 executables = [
     {script = "zzz_simulator.py", base = "gui"}

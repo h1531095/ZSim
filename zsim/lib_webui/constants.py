@@ -101,10 +101,18 @@ default_chars = [
 ]  # 这个值其实没啥意义，但是必须是三个角色，否则可能会报错
 __lf = pl.scan_csv("./zsim/data/character.csv")
 char_options = __lf.select("name").unique().collect().to_series().to_list()
+# 角色名称->职业特性
+char_profession_map = {
+    row["name"]: row["角色特性"] for row in __lf.collect().iter_rows(named=True)
+}
 
 # 武器选项
 __lf = pl.scan_csv("./zsim/data/weapon.csv")
 weapon_options = __lf.select("名称").unique().collect().to_series().to_list()
+# 音擎名称->职业
+weapon_profession_map = {
+    row["名称"]: row["职业"] for row in __lf.collect().iter_rows(named=True)
+}
 
 # 驱动盘套装选项
 __lf = pl.scan_csv("./zsim/data/equip_set_2pc.csv")

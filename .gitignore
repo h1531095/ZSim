@@ -48,3 +48,6 @@ dist*
 *.tmp
 *cache
 ~*
+
+# 生成文件
+zsim/data/APLData/custom/*
