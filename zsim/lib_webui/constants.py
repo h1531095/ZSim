@@ -106,6 +106,17 @@ char_options = __lf.select("name").unique().collect().to_series().to_list()
 __lf = pl.scan_csv("./zsim/data/weapon.csv")
 weapon_options = __lf.select("名称").unique().collect().to_series().to_list()
 
+# 音擎名称->职业
+weapon_profession_map = {
+    row["名称"]: row["职业"] for row in __lf.collect().iter_rows(named=True)
+}
+
+# 角色名称->职业特性
+__char_lf = pl.scan_csv("./zsim/data/character.csv")
+char_profession_map = {
+    row["name"]: row["角色特性"] for row in __char_lf.collect().iter_rows(named=True)
+}
+
 # 驱动盘套装选项
 __lf = pl.scan_csv("./zsim/data/equip_set_2pc.csv")
 equip_set_ids = (

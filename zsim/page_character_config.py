@@ -1,5 +1,6 @@
 import streamlit as st
 import toml
+import polars as pl
 
 
 def page_character_config():
@@ -14,6 +15,8 @@ def page_character_config():
         equip_set2_options,
         equip_set4_options,
         weapon_options,
+        weapon_profession_map,
+        char_profession_map,
     )
 
     col1, col2, col3 = st.columns(3)
@@ -60,15 +63,36 @@ def page_character_config():
         with st.expander(f"{name}的配置"):
             col_weapon, col_level, col_cinema = st.columns(3)
             with col_weapon:
-                st.selectbox(
-                    "音擎",
-                    weapon_options,
-                    index=weapon_options.index(
-                        saved_char_config[name].get("weapon", "「月相」-望")
+                show_adapted_weapon = st.session_state.get(f"{name}_show_adapted_weapon", True)
+                char_profession = char_profession_map.get(name)
+                if show_adapted_weapon and char_profession:
+                    filtered_weapon_options = [
+                        w for w in weapon_options if weapon_profession_map.get(w) == char_profession
+                    ]
+                else:
+                    filtered_weapon_options = list(weapon_options)
+                if name in saved_char_config:
+                    current_weapon = saved_char_config[name].get("weapon")
+                else:
+                    current_weapon = None
+                # 如果当前音擎不在可选列表，或未设置，则默认选第一个
+                if not filtered_weapon_options:
+                    st.selectbox(
+                        "音擎",
+                        [],
+                        key=f"{name}_weapon",
                     )
-                    if name in saved_char_config
-                    else 0,
-                    key=f"{name}_weapon",
+                else:
+                    if current_weapon not in filtered_weapon_options:
+                        current_weapon = filtered_weapon_options[0]
+                    st.selectbox(
+                        "音擎",
+                        filtered_weapon_options,
+                        index=filtered_weapon_options.index(current_weapon),
+                        key=f"{name}_weapon",
+                    )
+                show_adapted_weapon = st.checkbox(
+                    "只显示适配音擎", value=show_adapted_weapon, key=f"{name}_show_adapted_weapon"
                 )
             with col_level:
                 st.number_input(
