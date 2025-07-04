@@ -637,6 +637,9 @@ def go_apl_editor():
             )
             if st.button("确定", use_container_width=True):
                 apl_archive.change_title(selected_title, new_title, new_comment)
+                # 刷新 APL 列表并切换到新的标题
+                apl_archive.refresh()
+                st.session_state["selected_apl_title"] = new_title
                 st.rerun()
 
         if st.button("重命名", use_container_width=True):
