@@ -1,4 +1,4 @@
-name_box = [ "仪玄", "扳机", "耀嘉音",]
+name_box = [ "艾莲", "苍角", "莱卡恩",]
 
 ["露西"]
 name = "露西"
@@ -262,11 +262,12 @@ equip_set2_a = "炎狱重金属"
 
 ["艾莲"]
 name = "艾莲"
-weapon = "飞鸟星梦"
+weapon = "深海访客"
 weapon_level = 1
 cinema = 0
 crit_balancing = false
-scATK_percent = 0
+crit_rate_limit = 0.95
+scATK_percent = 10
 scATK = 0
 scHP_percent = 0
 scHP = 0
@@ -274,14 +275,14 @@ scDEF_percent = 0
 scDEF = 0
 scAnomalyProficiency = 0
 scPEN = 0
-scCRIT = 0
-scCRIT_DMG = 0
-drive4 = "攻击力%"
-drive5 = "攻击力%"
+scCRIT = 10
+scCRIT_DMG = 10
+drive4 = "暴击率%"
+drive5 = "冰属性伤害%"
 drive6 = "攻击力%"
 equip_style = "4+2"
-equip_set4 = "自由蓝调"
-equip_set2_a = "法厄同之歌"
+equip_set4 = "啄木鸟电音"
+equip_set2_a = "极地重金属"
 
 ["伊芙琳"]
 name = "伊芙琳"
@@ -308,11 +309,12 @@ equip_set2_a = "摇摆爵士"
 
 ["苍角"]
 name = "苍角"
-weapon = "飞鸟星梦"
-weapon_level = 1
+weapon = "含羞恶面"
+weapon_level = 5
 cinema = 2
 crit_balancing = false
-scATK_percent = 0
+crit_rate_limit = 0.95
+scATK_percent = 20
 scATK = 0
 scHP_percent = 0
 scHP = 0
@@ -372,6 +374,30 @@ scCRIT = 10
 scCRIT_DMG = 10
 drive4 = "暴击率%"
 drive5 = "电属性伤害%"
+drive6 = "冲击力%"
+equip_style = "4+2"
+equip_set4 = "震星迪斯科"
+equip_set2_a = "啄木鸟电音"
+
+["莱卡恩"]
+name = "莱卡恩"
+weapon = "拘缚者"
+weapon_level = 1
+cinema = 0
+crit_balancing = false
+crit_rate_limit = 0.95
+scATK_percent = 10
+scATK = 0
+scHP_percent = 0
+scHP = 0
+scDEF_percent = 0
+scDEF = 0
+scAnomalyProficiency = 0
+scPEN = 0
+scCRIT = 10
+scCRIT_DMG = 10
+drive4 = "攻击力%"
+drive5 = "攻击力%"
 drive6 = "冲击力%"
 equip_style = "4+2"
 equip_set4 = "震星迪斯科"
