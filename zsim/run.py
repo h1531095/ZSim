@@ -1,8 +1,7 @@
+import argparse
 import subprocess
 import sys
-import argparse
-import os
-import shutil
+
 from zsim.simulator.config_classes import SimulationConfig as SimCfg
 
 
@@ -123,7 +122,6 @@ def confirm_launch():
     else:
         print("操作已取消")
         sys.exit(0)
-
 
 
 def main():
