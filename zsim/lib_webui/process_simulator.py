@@ -198,7 +198,7 @@ def enemy_selector() -> tuple[int, int]:
     enemy_values = []
     for index_id, cn_enemy_id in enemy_data:
         display_text = (
-            f"{index_id} - {cn_enemy_id} "  # 显示格式为 "IndexID - CN_enemy_ID "
+            f"{index_id} - {cn_enemy_id}"  # 显示格式为 "IndexID - CN_enemy_ID"
         )
         enemy_options.append(display_text)
         enemy_values.append(index_id)
