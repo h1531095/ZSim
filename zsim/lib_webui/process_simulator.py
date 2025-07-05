@@ -184,13 +184,22 @@ def enemy_selector() -> tuple[int, int]:
 
     # 从enemy.csv获取所有唯一的IndexID和CN_enemy_ID，并按IndexID排序
     enemy_df = pl.scan_csv("zsim/data/enemy.csv")
-    enemy_data: list[tuple[int, str]] = enemy_df.select(["IndexID", "CN_enemy_ID"]).unique(subset=["IndexID"]).sort("IndexID").collect().to_pandas().values.tolist()
-    
+    enemy_data: list[tuple[int, str]] = (
+        enemy_df.select(["IndexID", "CN_enemy_ID"])
+        .unique(subset=["IndexID"])
+        .sort(by="IndexID", descending=True)
+        .collect()
+        .to_pandas()
+        .values.tolist()
+    )
+
     # 创建显示选项和值的映射
     enemy_options = []
     enemy_values = []
     for index_id, cn_enemy_id in enemy_data:
-        display_text = f"{index_id} ( {cn_enemy_id} )"
+        display_text = (
+            f"{index_id} - {cn_enemy_id} "  # 显示格式为 "IndexID - CN_enemy_ID "
+        )
         enemy_options.append(display_text)
         enemy_values.append(index_id)
 
@@ -209,13 +218,14 @@ def enemy_selector() -> tuple[int, int]:
             current_index_pos = enemy_values.index(current_index)
         except ValueError:
             current_index_pos = 0
-            
+
         selected_display = st.selectbox(
-            "敌人IndexID",
+            "选择敌人",
             enemy_options,
             index=current_index_pos,
+            help="数值为IndexID，同一个名字的怪物可能有不同的IndexID，他们的各项属性不同，选择时请注意",
         )
-        
+
         # 获取选中的IndexID值
         selected_index = enemy_values[enemy_options.index(selected_display)]
 
@@ -226,6 +236,7 @@ def enemy_selector() -> tuple[int, int]:
             index=adjust_options.index(current_adjust)
             if current_adjust in adjust_options
             else 0,
+            help="一般每个关卡对应一个调整ID，不知道是什么的话就不该"
         )
 
     return selected_index, selected_adjust
