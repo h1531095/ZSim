@@ -187,6 +187,15 @@ SUB_STATS_MAPPING: dict[
 
 DOCS_DIR = "docs"
 
+# Version Check
+GITHUB_REPO_OWNER = "ZZZSimulator"
+GITHUB_REPO_NAME = "ZSim"
+
+with open("pyproject.toml", "r", encoding="utf-8") as f:
+    pyproject_config = toml.load(f)
+    # 获取当前版本号
+    __version__ = pyproject_config.get("project", {}).get("version", "0.0.0")
+
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名
     def print_constant_names_and_values():
