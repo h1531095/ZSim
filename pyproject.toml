@@ -6,6 +6,9 @@ build-backend = "setuptools.build_meta"
 include = ["zsim*"]
 exclude = ["results*", "tests*", "docs*", "build*", ".venv*", ".git*"]
 
+[tool.setuptools.package-data]
+zsim = ["data/**/*"]
+
 [tool.cxfreeze]
 executables = [{ script = "zzz_simulator.py", base = "gui" }]
 
