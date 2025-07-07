@@ -14,11 +14,11 @@ INVALID_ELEMENT_ERROR = "Invalid element type"
 NORMAL_MODE_ID_JSON = "results/id_cache.json"
 
 
-def initialize_config_files():
+def initialize_config_files(char_config_file, config_path):
     """初始化配置文件，如果不存在则从 _example 文件复制生成"""
     config_files = [
         (char_config_file, "zsim/data/character_config_example.toml"),
-        (CONFIG_PATH, "zsim/config_example.json"),
+        (config_path, "zsim/config_example.json"),
     ]
     for target, example in config_files:
         if not os.path.exists(target):
@@ -30,16 +30,16 @@ results_dir = "results/"
 
 # 加载角色配置
 CONFIG_PATH = "zsim/config.json"
-data_dir = Path("./zsim/data")
-data_dir.mkdir(exist_ok=True)
-char_config_file = data_dir / "character_config.toml"
+DATA_DIR = Path("./zsim/data")
+DATA_DIR.mkdir(exist_ok=True)
+CHAR_CONFIG_FILE = DATA_DIR / "character_config.toml"
 saved_char_config = {}
-initialize_config_files()
-if char_config_file.exists():
-    with open(char_config_file, "r", encoding="utf-8") as f:
+initialize_config_files(CHAR_CONFIG_FILE, CONFIG_PATH)
+if CHAR_CONFIG_FILE.exists():
+    with open(CHAR_CONFIG_FILE, "r", encoding="utf-8") as f:
         saved_char_config = toml.load(f)
 else:
-    raise FileNotFoundError(f"Character config file {char_config_file} not found.")
+    raise FileNotFoundError(f"Character config file {CHAR_CONFIG_FILE} not found.")
 
 
 _config = json.load(open(CONFIG_PATH, encoding="utf-8-sig"))
