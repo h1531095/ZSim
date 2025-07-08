@@ -1,3 +1,4 @@
+import importlib.resources
 import json
 from functools import lru_cache
 from typing import Any
@@ -11,9 +12,7 @@ from zsim.sim_progress.Enemy import Enemy
 from zsim.sim_progress.Preload import SkillNode
 from zsim.sim_progress.Report import report_to_log
 
-with open(
-    file="./zsim/sim_progress/ScheduledEvent/buff_effect_trans.json",
-    mode="r",
+with (importlib.resources.files("zsim.sim_progress.ScheduledEvent") / "buff_effect_trans.json").open(
     encoding="utf-8-sig",
 ) as f:
     buff_effect_trans: dict = json.load(f)

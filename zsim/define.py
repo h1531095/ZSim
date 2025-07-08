@@ -1,10 +1,11 @@
 import json
-import os
-import shutil
 from pathlib import Path
+import importlib.resources
+import shutil
 from typing import Callable, Literal
-
 import toml
+
+from . import __version__
 
 # 属性类型：
 ElementType = Literal[0, 1, 2, 3, 4, 5, 6]
@@ -16,33 +17,47 @@ NORMAL_MODE_ID_JSON = "results/id_cache.json"
 
 def initialize_config_files(char_config_file, config_path):
     """初始化配置文件，如果不存在则从 _example 文件复制生成"""
+    data_dir = importlib.resources.files("zsim.data")
+
+    def skip_existing_copy(src, dst_str):
+        dst = Path(dst_str)
+        if not dst.exists():
+            shutil.copy2(src, dst)
+    shutil.copytree(
+        data_dir,
+        char_config_file.parent,
+        dirs_exist_ok=True,
+        copy_function=skip_existing_copy
+    )
     config_files = [
-        (char_config_file, "zsim/data/character_config_example.toml"),
-        (config_path, "zsim/config_example.json"),
+        (char_config_file, data_dir / "character_config_example.toml"),
+        (config_path, data_dir / "config_example.json"),
     ]
     for target, example in config_files:
-        if not os.path.exists(target):
-            shutil.copy(example, target)
+        if not target.exists():
+            target.write_text(example.read_text())
             print(f"已生成配置文件：{target}")
 
 
 results_dir = "results/"
 
 # 加载角色配置
-CONFIG_PATH = "zsim/config.json"
-DATA_DIR = Path("./zsim/data")
+ROOT_DIR = Path("./zsim")
+ROOT_DIR.mkdir(exist_ok=True)
+CONFIG_PATH = ROOT_DIR / "config.json"
+DATA_DIR = ROOT_DIR / "data"
 DATA_DIR.mkdir(exist_ok=True)
 CHAR_CONFIG_FILE = DATA_DIR / "character_config.toml"
 saved_char_config = {}
 initialize_config_files(CHAR_CONFIG_FILE, CONFIG_PATH)
 if CHAR_CONFIG_FILE.exists():
-    with open(CHAR_CONFIG_FILE, "r", encoding="utf-8") as f:
+    with CHAR_CONFIG_FILE.open(encoding="utf-8") as f:
         saved_char_config = toml.load(f)
 else:
     raise FileNotFoundError(f"Character config file {CHAR_CONFIG_FILE} not found.")
 
-
-_config = json.load(open(CONFIG_PATH, encoding="utf-8-sig"))
+with CONFIG_PATH.open(encoding="utf-8-sig") as f:
+    _config = json.load(f)
 
 # 敌人配置
 ENEMY_INDEX_ID: int = _config["enemy"]["index_ID"]
@@ -193,11 +208,6 @@ DOCS_DIR = "docs"
 # Version Check
 GITHUB_REPO_OWNER = "ZZZSimulator"
 GITHUB_REPO_NAME = "ZSim"
-
-with open("pyproject.toml", "r", encoding="utf-8") as f:
-    pyproject_config = toml.load(f)
-    # 获取当前版本号
-    __version__ = pyproject_config.get("project", {}).get("version", "0.0.0")
 
 if __name__ == "__main__":
     # 打印全部CONSTANT变量名

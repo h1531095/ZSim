@@ -1,4 +1,5 @@
 import argparse
+import importlib.resources
 import subprocess
 import sys
 
@@ -8,7 +9,8 @@ from zsim.simulator.config_classes import SimulationConfig as SimCfg
 def go_webui():
     """启动 Streamlit 服务"""
     try:
-        subprocess.run([sys.executable, "-m", "streamlit", "run", "zsim/webui.py"])
+        webui_path = importlib.resources.files("zsim") / "webui.py"
+        subprocess.run([sys.executable, "-m", "streamlit", "run", str(webui_path)])
     except Exception as e:
         print(f"错误：启动Streamlit失败 - {str(e)}")
         sys.exit(1)

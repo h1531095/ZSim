@@ -379,9 +379,9 @@ def page_character_config():
     for name in name_box:
         _config_to_save[name] = st.session_state[f"{name}_config"]
     saved_char_config.update(_config_to_save)
-    from zsim.define import char_config_file
+    from zsim.define import CHAR_CONFIG_FILE
 
-    with open(char_config_file, "w", encoding="utf-8") as f:
+    with open(CHAR_CONFIG_FILE, "w", encoding="utf-8") as f:
         toml.dump(saved_char_config, f)
     from zsim.lib_webui.process_char_config import display_character_panels
 

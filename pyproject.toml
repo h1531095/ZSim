@@ -7,7 +7,7 @@ include = ["zsim*"]
 exclude = ["results*", "tests*", "docs*", "build*", ".venv*", ".git*"]
 
 [tool.setuptools.package-data]
-zsim = ["data/**/*"]
+zsim = ["data/**/*", "**/*.json"]
 
 [tool.cxfreeze]
 executables = [{ script = "zzz_simulator.py", base = "gui" }]
@@ -26,7 +26,7 @@ include_files = ["zsim", "docs"]
 
 [project]
 name = "zzz-simulator"
-version = "0.3.0a1"
+dynamic = ["version"]
 description = "A simulator for ZZZ game"
 requires-python = ">=3.12"
 dependencies = [
@@ -46,6 +46,9 @@ dependencies = [
     "pywebview>=5.4",
     "fastapi>=0.115.12",
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "zsim.__version__"}
 
 [[tool.uv.index]]
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"

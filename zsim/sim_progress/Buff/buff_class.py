@@ -1,5 +1,6 @@
 import ast
 import importlib
+import importlib.resources
 import json
 from functools import lru_cache
 from typing import TYPE_CHECKING
@@ -14,10 +15,10 @@ if TYPE_CHECKING:
     from zsim.simulator.simulator_class import Simulator
 
 
-with open(CONFIG_PATH, "r", encoding="utf-8") as file:
-    config = json.load(file)
+with CONFIG_PATH.open(encoding="utf-8") as f:
+    config = json.load(f)
 debug = config.get("debug")
-with open("./zsim/sim_progress/Buff/buff_config.json", "r", encoding="utf-8") as f:
+with (importlib.resources.files("zsim.sim_progress.Buff") / "buff_config.json").open(encoding="utf-8") as f:
     _buff_load_config = json.load(f)
 # 如果禁用缓存，每次都创建新的实例
 
